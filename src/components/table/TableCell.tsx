@@ -103,7 +103,7 @@ export function TableCellComponent({
   }
 
   return (
-    <div className={column.editable ? "cursor-pointer hover:bg-gray-50" : ""}>
+    <div>
       {column.format ? formatCell(value, column.format) : displayValue}
     </div>
   );

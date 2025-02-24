@@ -254,6 +254,7 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
               key={row.id}
               onClick={() => handleRowClick(row.id)}
               data-row-id={row.id}
+              className="cursor-pointer hover:bg-gray-50/80"
             >
               {columns.map((column) => (
                 <TableCell
