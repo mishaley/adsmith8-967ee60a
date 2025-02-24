@@ -23,3 +23,7 @@ export interface TableRow {
   id: string;
   [key: string]: any;
 }
+
+export interface TableData {
+  [key: string]: any;
+}

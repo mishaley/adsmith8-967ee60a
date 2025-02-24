@@ -1,6 +1,7 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
+import { ColumnDef, TableRow as ITableRow, TableName, TableData } from "@/types/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
@@ -35,7 +36,7 @@ const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedT
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sort, setSort] = useState<SortConfig>({ field: "created_at", direction: "desc" });
   const [data, setData] = useState(initialData);
-  const [newRecord, setNewRecord] = useState<Record<string, any>>({});
+  const [newRecord, setNewRecord] = useState<TableData>({});
   const searchInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -74,10 +75,10 @@ const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedT
 
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
-    mutationFn: async (record: Record<string, any>) => {
+    mutationFn: async (record: TableData) => {
       const { error } = await supabase
         .from(tableName)
-        .insert([record]);
+        .insert(record);
 
       if (error) throw error;
     },
