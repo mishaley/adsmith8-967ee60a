@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -53,24 +52,24 @@ export function useTableMutations<T extends TableName>(
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq(idField as keyof Tables[T]['Row'], rowId);
+          .eq(idField, rowId);
         if (error) throw error;
       } else {
         // Get the current value before updating
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
-          .select<keyof Tables[T]['Row'], Tables[T]['Row']>('*')
-          .eq(idField as keyof Tables[T]['Row'], rowId)
+          .select()
+          .eq(idField, rowId)
           .maybeSingle();
         
         if (selectError) throw selectError;
 
-        const updateData = { [field]: value } as Tables[T]['Update'];
+        const updateData: Partial<Tables[T]['Update']> = { [field]: value };
         
         const { error } = await supabase
           .from(tableName)
           .update(updateData)
-          .eq(idField as keyof Tables[T]['Row'], rowId);
+          .eq(idField, rowId);
         
         if (error) throw error;
 
@@ -104,19 +103,17 @@ export function useTableMutations<T extends TableName>(
 
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
-    mutationFn: async (record: TableData<T>) => {
-      const insertData = record as Tables[T]['Insert'];
-      
+    mutationFn: async (record: Tables[T]['Insert']) => {      
       const { data, error } = await supabase
         .from(tableName)
-        .insert([insertData])
+        .insert([record])
         .select();
       
       if (error) throw error;
       
       if (tableName === 'a1organizations' && data?.[0]) {
         const row = data[0] as Tables[T]['Row'];
-        const orgId = row[idField as keyof Tables[T]['Row']];
+        const orgId = row[idField];
         if (orgId) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
             body: { organization_id: orgId }
@@ -179,7 +176,7 @@ export function useTableMutations<T extends TableName>(
           const { error } = await supabase
             .from(tableName)
             .delete()
-            .eq(idField as keyof Tables[T]['Row'], change.rowId);
+            .eq(idField, change.rowId);
             
           if (error) throw error;
         } else {
