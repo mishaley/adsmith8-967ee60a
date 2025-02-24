@@ -56,7 +56,7 @@ const MainNav = () => {
           key={item.path}
           to={item.path}
           className={cn(
-            ["OFFERINGS", "PERSONAS", "MESSAGES", "IMAGES", "CAPTIONS", "SETTINGS"].includes(item.label) ? "h-[60px]" : "h-[50px]",
+            "h-[60px]", // Set all bottom items to 60px height
             "flex items-center pl-[18px] text-[16px] border-b border-white/20",
             currentPath === item.path && "bg-[#d3e4fd] text-[#0c343d] font-bold border-r-[#d3e4fd]"
           )}
