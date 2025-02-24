@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ColumnDef, TableName, TableData } from "@/types/table";
 
 interface InputRowProps<T extends TableName> {
+  tableName: T;
   columns: ColumnDef[];
   newRecord: Partial<TableData<T>>;
   handleInputChange: (field: string, value: any) => void;
