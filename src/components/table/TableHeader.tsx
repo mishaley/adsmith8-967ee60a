@@ -45,7 +45,7 @@ export function TableHeader({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636]" 
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
               onClick={() => handleSort(column.field)}
             >
               Sort A → Z
@@ -53,7 +53,7 @@ export function TableHeader({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636]" 
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
               onClick={() => handleSort(column.field)}
             >
               Sort Z → A
@@ -62,7 +62,7 @@ export function TableHeader({
             <Button 
               variant="ghost" 
               size="sm"
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636]"
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]"
               onClick={() => clearFilter(column.field)}
             >
               Clear
