@@ -69,7 +69,7 @@ function SharedTable<T extends TableName>({
     <div className="w-full">
       {/* Input row container */}
       <div className="grid" style={{
-        gridTemplateColumns: "200px 100px"
+        gridTemplateColumns: "300px 100px"
       }}>
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Input 
@@ -90,7 +90,7 @@ function SharedTable<T extends TableName>({
 
       {/* Table container */}
       <div className="grid" style={{
-        gridTemplateColumns: "200px 100px"
+        gridTemplateColumns: "300px 100px"
       }}>
         {/* Main columns */}
         {mainColumns.map(column => (
@@ -100,7 +100,7 @@ function SharedTable<T extends TableName>({
             </div>
             <div className="flex-1 bg-white">
               {data.map(row => (
-                <div key={row.id} className="p-4 border-b whitespace-nowrap overflow-hidden text-ellipsis">
+                <div key={row.id} className="p-4 border-b">
                   {row[column.field]}
                 </div>
               ))}
@@ -116,7 +116,7 @@ function SharedTable<T extends TableName>({
             </div>
             <div className="flex-1 bg-white">
               {data.map(row => (
-                <div key={row.id} className="p-4 border-b whitespace-nowrap overflow-hidden text-ellipsis">
+                <div key={row.id} className="p-4 border-b whitespace-nowrap">
                   {row[column.field] ? new Date(row[column.field]).toLocaleDateString('en-US', {
                     month: 'numeric',
                     day: 'numeric',
