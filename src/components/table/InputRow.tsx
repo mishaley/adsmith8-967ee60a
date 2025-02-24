@@ -37,7 +37,7 @@ export function InputRow({
           value={newRecord[column.field] || ""}
           onValueChange={(value) => handleInputChange(column.field, value)}
         >
-          <SelectTrigger className="h-10 bg-white">
+          <SelectTrigger className="h-10 bg-white w-full">
             <SelectValue placeholder="" />
           </SelectTrigger>
           <SelectContent>
@@ -55,7 +55,7 @@ export function InputRow({
       <Input
         value={newRecord[column.field] || ""}
         onChange={(e) => handleInputChange(column.field, e.target.value)}
-        className="h-10 bg-white"
+        className="h-10 bg-white w-full"
         placeholder=""
       />
     );
@@ -63,9 +63,9 @@ export function InputRow({
 
   return (
     <div className="mb-[9px]">
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-4 bg-[#d3e4fd] p-4">
+      <div className="grid bg-[#d3e4fd] p-4" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: '1rem' }}>
         {columns.map((column) => (
-          <div key={column.field} className="relative">
+          <div key={column.field}>
             {renderInput(column)}
           </div>
         ))}
