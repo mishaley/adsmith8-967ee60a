@@ -18,7 +18,18 @@ export function InputRow({
   handleAdd,
 }: InputRowProps) {
   const renderInput = (column: ColumnDef) => {
-    if (column.field === 'created_at') return null;
+    if (column.field === 'created_at') {
+      return (
+        <div className="flex items-center">
+          <Button
+            onClick={handleAdd}
+            className="h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
+          >
+            ADD
+          </Button>
+        </div>
+      );
+    }
 
     if (column.inputMode === "select" && column.options) {
       return (
@@ -56,14 +67,6 @@ export function InputRow({
         {columns.map((column) => (
           <div key={column.field} className="relative">
             {renderInput(column)}
-            {column.field === 'created_at' && (
-              <Button
-                onClick={handleAdd}
-                className="absolute -bottom-[50px] left-0 h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
-              >
-                ADD
-              </Button>
-            )}
           </div>
         ))}
       </div>
