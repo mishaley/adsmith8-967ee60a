@@ -26,7 +26,7 @@ export function TableHeader({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center justify-between space-x-2 w-full relative group cursor-pointer h-full">
+        <div className="flex items-center justify-between space-x-2 w-full relative group cursor-pointer">
           <span className="truncate">{column.header}</span>
           <ChevronDown className="h-4 w-4 text-white" />
         </div>
