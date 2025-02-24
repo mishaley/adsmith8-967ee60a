@@ -11,12 +11,12 @@ type Tables = Database['public']['Tables'];
 // Helper type to get column names for a specific table
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
 
-interface ChangeHistoryEntry {
+interface ChangeHistoryEntry<T extends TableName = TableName> {
   rowId: string;
-  field: TableColumns<TableName>;
+  field: TableColumns<T>;
   oldValue: any;
   newValue: any;
-  tableName: TableName;
+  tableName: T;
 }
 
 interface TableMutationsResult<T extends TableName> {
@@ -31,7 +31,7 @@ export function useTableMutations<T extends TableName>(
   idField: string
 ): TableMutationsResult<T> {
   const queryClient = useQueryClient();
-  const [changeHistory, setChangeHistory] = useState<ChangeHistoryEntry[]>([]);
+  const [changeHistory, setChangeHistory] = useState<ChangeHistoryEntry<T>[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
   const updateMutation = useMutation({
@@ -47,7 +47,7 @@ export function useTableMutations<T extends TableName>(
       
       // Get the current value before updating
       const { data: currentData } = await table
-        .select(field)
+        .select(field as string)
         .eq(idField, rowId)
         .single();
       
@@ -65,10 +65,10 @@ export function useTableMutations<T extends TableName>(
         const newHistory = changeHistory.slice(0, currentIndex + 1);
         
         // Add the new change
-        const newChange: ChangeHistoryEntry = {
+        const newChange: ChangeHistoryEntry<T> = {
           rowId,
           field,
-          oldValue: currentData[field],
+          oldValue: currentData[field as keyof typeof currentData],
           newValue: value,
           tableName
         };
