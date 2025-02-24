@@ -1,6 +1,8 @@
 
+import QuadrantLayout from "@/components/QuadrantLayout";
+
 const Organizations = () => {
-  return <div></div>;
+  return <QuadrantLayout />;
 };
 
 export default Organizations;

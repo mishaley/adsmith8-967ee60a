@@ -1,6 +1,8 @@
 
+import QuadrantLayout from "@/components/QuadrantLayout";
+
 const Offerings = () => {
-  return <div></div>;
+  return <QuadrantLayout />;
 };
 
 export default Offerings;

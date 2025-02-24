@@ -1,6 +1,8 @@
 
+import QuadrantLayout from "@/components/QuadrantLayout";
+
 const Captions = () => {
-  return <div></div>;
+  return <QuadrantLayout />;
 };
 
 export default Captions;

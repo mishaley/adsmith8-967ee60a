@@ -1,6 +1,8 @@
 
+import QuadrantLayout from "@/components/QuadrantLayout";
+
 const Campaigns = () => {
-  return <div></div>;
+  return <QuadrantLayout />;
 };
 
 export default Campaigns;
