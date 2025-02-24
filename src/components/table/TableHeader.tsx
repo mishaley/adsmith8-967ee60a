@@ -58,27 +58,31 @@ export function TableHeader({
             >
               {column.field === 'created_at' ? 'Old → New' : 'Z → A'}
             </Button>
-            <div className="h-[1px] bg-[#363636] my-1" />
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]"
-              onClick={() => clearFilter(column.field)}
-            >
-              Clear
-            </Button>
-            <div className="px-3 py-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                <Input
-                  ref={searchInputRef}
-                  value={filters[column.field] || ""}
-                  onChange={(e) => handleFilter(column.field, e.target.value)}
-                  className="pl-8 h-9 bg-white border-[#464646] text-black"
-                  autoFocus
-                />
-              </div>
-            </div>
+            {column.field !== 'created_at' && (
+              <>
+                <div className="h-[1px] bg-[#363636] my-1" />
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]"
+                  onClick={() => clearFilter(column.field)}
+                >
+                  Clear
+                </Button>
+                <div className="px-3 py-2">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                    <Input
+                      ref={searchInputRef}
+                      value={filters[column.field] || ""}
+                      onChange={(e) => handleFilter(column.field, e.target.value)}
+                      className="pl-8 h-9 bg-white border-[#464646] text-black"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </PopoverContent>
       </Popover>
