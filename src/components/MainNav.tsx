@@ -29,7 +29,7 @@ const MainNav = () => {
           key={item.path}
           to={item.path}
           className={cn(
-            "h-[50px] flex items-center pl-[18px] text-[18px]",
+            "h-[50px] flex items-center pl-[18px] text-[16px]",
             index === 0 && "border-b border-white/20", // Only HOME gets bottom border
             currentPath === item.path && "bg-[#d3e4fd] text-[#0c343d] font-bold border-r-[#d3e4fd]"
           )}
@@ -42,7 +42,7 @@ const MainNav = () => {
       <div className="flex-grow border-b border-white/20 flex flex-col">
         <div className="flex justify-center pt-[5px]">
           <button
-            className="w-[100px] h-[40px] rounded-full bg-[#ecb652] text-[18px] text-[#154851] font-bold border-2 border-white"
+            className="w-[100px] h-[40px] rounded-full bg-[#ecb652] text-[16px] text-[#154851] font-bold border-2 border-white"
           >
             NEW
           </button>
@@ -55,7 +55,7 @@ const MainNav = () => {
           key={item.path}
           to={item.path}
           className={cn(
-            "h-[50px] flex items-center pl-[18px] text-[18px] border-b border-white/20",
+            "h-[50px] flex items-center pl-[18px] text-[16px] border-b border-white/20",
             currentPath === item.path && "bg-[#d3e4fd] text-[#0c343d] font-bold border-r-[#d3e4fd]"
           )}
         >
