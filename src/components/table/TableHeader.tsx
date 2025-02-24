@@ -24,7 +24,10 @@ export function TableHeader({
   searchInputRef
 }: TableHeaderProps) {
   const handleCreatedSort = (direction: 'asc' | 'desc') => {
-    // We append the direction to the field to make it a unique sort command
+    handleSort(`${column.field}:${direction}`);
+  };
+
+  const handleFixedSort = (direction: 'asc' | 'desc') => {
     handleSort(`${column.field}:${direction}`);
   };
 
@@ -72,7 +75,7 @@ export function TableHeader({
                   variant="ghost" 
                   size="sm" 
                   className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleSort(column.field)}
+                  onClick={() => handleFixedSort('asc')}
                 >
                   A → Z
                 </Button>
@@ -80,7 +83,7 @@ export function TableHeader({
                   variant="ghost" 
                   size="sm" 
                   className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleSort(column.field)}
+                  onClick={() => handleFixedSort('desc')}
                 >
                   Z → A
                 </Button>
