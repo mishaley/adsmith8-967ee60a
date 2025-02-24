@@ -42,10 +42,10 @@ export function TableCellComponent({
   const value = row[column.field];
   const displayValue = column.displayField ? row[column.displayField] : value;
 
-  // If this is the Created column and we're in editing mode, show Save/Cancel buttons
-  if (column.field === 'created_at' && isEditing) {
-    return (
-      <TableCellBase className="h-16 px-4">
+  const renderCellContent = () => {
+    // If this is the Created column and we're in editing mode, show Save/Cancel buttons
+    if (column.field === 'created_at' && isEditing) {
+      return (
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -64,23 +64,17 @@ export function TableCellComponent({
             <X className="w-4 h-4 text-red-600" />
           </Button>
         </div>
-      </TableCellBase>
-    );
-  }
-
-  if (isEditing && column.editable) {
-    if (column.format === "image") {
-      return (
-        <TableCellBase className="h-16 px-4">
-          <div>Image upload not implemented yet</div>
-        </TableCellBase>
       );
     }
 
-    if (column.inputMode === "select" && column.options) {
-      const selectedOption = column.options.find(option => option.value === value);
-      return (
-        <TableCellBase className="h-16 px-4">
+    if (isEditing && column.editable) {
+      if (column.format === "image") {
+        return <div>Image upload not implemented yet</div>;
+      }
+
+      if (column.inputMode === "select" && column.options) {
+        const selectedOption = column.options.find(option => option.value === value);
+        return (
           <div onClick={(e) => e.stopPropagation()}>
             <Select
               value={value?.toString()}
@@ -100,27 +94,29 @@ export function TableCellComponent({
               </SelectContent>
             </Select>
           </div>
-        </TableCellBase>
-      );
-    }
+        );
+      }
 
-    return (
-      <TableCellBase className="h-16 px-4">
+      return (
         <Input
           defaultValue={value}
           onBlur={(e) => onUpdate(e.target.value)}
           autoFocus={column.inputMode === "text"}
           className="h-10"
         />
-      </TableCellBase>
-    );
-  }
+      );
+    }
 
-  return (
-    <TableCellBase className="h-16 px-4">
+    return (
       <div className="flex items-center pointer-events-none">
         {column.format ? formatCell(value, column.format) : displayValue}
       </div>
+    );
+  };
+
+  return (
+    <TableCellBase className="h-16 px-4">
+      {renderCellContent()}
     </TableCellBase>
   );
 }
