@@ -66,6 +66,20 @@ function SharedTable<T extends TableName>({
   const dateColumns = columns.filter(col => col.format === "M/D/YY");
 
   return <div className="w-full">
+      {/* Input row above headers */}
+      <div className="grid mb-2" style={{
+      gridTemplateColumns: "minmax(auto, max-content) minmax(100px, max-content)"
+    }}>
+        <div className="bg-[#d3e4fd] p-4">
+          <Input value={newRecord["organization_name"] || ""} onChange={e => handleInputChange("organization_name", e.target.value)} className="h-10 bg-white w-full rounded-md border border-input" />
+        </div>
+        <div className="bg-[#d3e4fd] p-4">
+          <Button onClick={handleAdd} className="h-10 w-[80px] rounded-full bg-[#ecb652] text-[16px] text-[#154851] border-2 border-white hover:bg-[#ecb652]/90 font-bold">
+            ADD
+          </Button>
+        </div>
+      </div>
+
       {/* Table container */}
       <div className="grid" style={{
       gridTemplateColumns: "minmax(auto, max-content) minmax(100px, max-content)"
@@ -75,38 +89,26 @@ function SharedTable<T extends TableName>({
             <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap">
               {column.header}
             </div>
-            <div className="flex-1">
-              <div className="bg-[#d3e4fd] p-4 mb-2">
-                <Input value={newRecord["organization_name"] || ""} onChange={e => handleInputChange("organization_name", e.target.value)} className="h-10 bg-white w-full rounded-md border border-input" />
-              </div>
-              <div className="bg-white">
-                {data.map(row => <div key={row.id} className="p-4 border-b">
-                    {row[column.field]}
-                  </div>)}
-              </div>
+            <div className="flex-1 bg-white">
+              {data.map(row => <div key={row.id} className="p-4 border-b">
+                  {row[column.field]}
+                </div>)}
             </div>
           </div>)}
 
-        {/* Date columns with ADD button */}
+        {/* Date columns */}
         {dateColumns.map(column => <div key={column.field} className="flex flex-col h-full">
             <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap">
               {column.header}
             </div>
-            <div className="flex-1">
-              <div className="bg-[#d3e4fd] p-4 mb-2">
-                <Button onClick={handleAdd} className="h-10 w-[80px] rounded-full bg-[#ecb652] text-[16px] text-[#154851] border-2 border-white hover:bg-[#ecb652]/90 font-bold">
-                  ADD
-                </Button>
-              </div>
-              <div className="bg-white">
-                {data.map(row => <div key={row.id} className="p-4 border-b whitespace-nowrap">
-                    {row[column.field] ? new Date(row[column.field]).toLocaleDateString('en-US', {
-                month: 'numeric',
-                day: 'numeric',
-                year: '2-digit'
-              }) : ''}
-                  </div>)}
-              </div>
+            <div className="flex-1 bg-white">
+              {data.map(row => <div key={row.id} className="p-4 border-b whitespace-nowrap">
+                  {row[column.field] ? new Date(row[column.field]).toLocaleDateString('en-US', {
+              month: 'numeric',
+              day: 'numeric',
+              year: '2-digit'
+            }) : ''}
+                </div>)}
             </div>
           </div>)}
       </div>
