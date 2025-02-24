@@ -28,7 +28,7 @@ type SortConfig = {
   direction: "asc" | "desc";
 };
 
-const SharedTable = <T extends TableName,>({ data: initialData, columns, tableName, idField }: SharedTableProps<T>) => {
+function SharedTable<T extends TableName>({ data: initialData, columns, tableName, idField }: SharedTableProps<T>) {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sort, setSort] = useState<SortConfig>({ field: "created_at", direction: "desc" });
@@ -153,6 +153,6 @@ const SharedTable = <T extends TableName,>({ data: initialData, columns, tableNa
       </Table>
     </div>
   );
-};
+}
 
 export default SharedTable;
