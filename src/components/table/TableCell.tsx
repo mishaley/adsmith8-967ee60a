@@ -128,7 +128,7 @@ export function TableCellComponent({
         ? 'bg-white' + (isActive ? ' ring-2 ring-[#ecb652] ring-inset' : '')
         : ''
     }`}>
-      <div className="h-12 w-full px-4 flex items-center">
+      <div className="h-12 flex items-center px-4">
         {isEditing && column.editable ? (
           <div className="w-full">
             {renderEditContent()}
