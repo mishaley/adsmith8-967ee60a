@@ -75,7 +75,7 @@ export function TableCellComponent({
       if (column.inputMode === "select" && column.options) {
         const selectedOption = column.options.find(option => option.value === value);
         return (
-          <div className="h-10">
+          <div className="absolute inset-0 px-4 py-3">
             <Select
               value={value?.toString()}
               onValueChange={onUpdate}
@@ -98,7 +98,7 @@ export function TableCellComponent({
       }
 
       return (
-        <div className="h-10">
+        <div className="absolute inset-0 px-4 py-3">
           <Input
             defaultValue={value}
             onBlur={(e) => onUpdate(e.target.value)}
@@ -111,7 +111,7 @@ export function TableCellComponent({
 
     return (
       <div className="truncate">
-        {formatCell(value, column.format) || displayValue}
+        {formatCell(value, column.format) || displayValue || ""}
       </div>
     );
   };

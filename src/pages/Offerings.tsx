@@ -79,7 +79,6 @@ const Offerings = () => {
   });
 
   useEffect(() => {
-    // Subscribe to changes on the offerings table
     const channel = supabase
       .channel('offerings-changes')
       .on(
@@ -89,17 +88,13 @@ const Offerings = () => {
           schema: 'public',
           table: 'b1offerings'
         },
-        (payload) => {
-          console.log('Change received:', payload);
+        () => {
           refetch();
         }
       )
-      .subscribe((status) => {
-        console.log('Subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
-      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [refetch]);
