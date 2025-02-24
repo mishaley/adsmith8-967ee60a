@@ -81,10 +81,26 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
       const table = supabase.from(tableName);
       const insertData = record as unknown as TableInsert;
       
-      const { error } = await (table as any)
-        .insert([insertData]);
+      const { data, error } = await (table as any)
+        .insert([insertData])
+        .select()
       
       if (error) throw error;
+      
+      // If this is an organization being created, create the folders
+      if (tableName === 'a1organizations' && data?.[0]?.organization_id) {
+        const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
+          body: { organization_id: data[0].organization_id }
+        })
+        
+        if (folderError) {
+          console.error('Error creating folders:', folderError)
+          toast.error("Organization created but failed to create folders")
+          throw folderError
+        }
+      }
+      
+      return data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
