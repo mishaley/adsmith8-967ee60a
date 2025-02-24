@@ -31,10 +31,10 @@ export function TableHeader({
           <ChevronDown className="h-4 w-4 text-white cursor-pointer" />
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[calc(100%+0.5rem)] p-0 rounded-none shadow border border-gray-200" 
+          className="w-[calc(100%+0.5rem)] p-0 rounded-none shadow border border-gray-200 -mt-[2px]" 
           align="start" 
           side="bottom"
-          sideOffset={0}
+          sideOffset={-1}
           alignOffset={-8}
         >
           <div className="py-1">
