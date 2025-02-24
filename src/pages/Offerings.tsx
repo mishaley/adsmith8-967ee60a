@@ -45,7 +45,6 @@ const Offerings = () => {
       header: "Created",
       inputMode: "text",
       editable: false,
-      required: false,
       format: "M/D/YY"
     }
   ];

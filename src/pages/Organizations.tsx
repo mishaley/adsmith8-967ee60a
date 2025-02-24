@@ -36,24 +36,21 @@ const Organizations = () => {
   });
 
   useEffect(() => {
-    // Subscribe to changes on the organizations table
     const channel = supabase
       .channel('schema-db-changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'a1organizations'
         },
         () => {
-          // Refetch data when any change occurs
           refetch();
         }
       )
       .subscribe();
 
-    // Cleanup subscription on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
