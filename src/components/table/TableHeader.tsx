@@ -48,7 +48,7 @@ export function TableHeader({
               className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
               onClick={() => handleSort(column.field)}
             >
-              Sort A → Z
+              A → Z
             </Button>
             <Button 
               variant="ghost" 
@@ -56,7 +56,7 @@ export function TableHeader({
               className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
               onClick={() => handleSort(column.field)}
             >
-              Sort Z → A
+              Z → A
             </Button>
             <div className="h-[1px] bg-[#363636] my-1" />
             <Button 
