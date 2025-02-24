@@ -72,7 +72,7 @@ function SharedTable<T extends TableName>({
     }}>
         {/* Main columns */}
         {mainColumns.map(column => <div key={column.field} className="flex flex-col h-full">
-            <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase">
+            <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-bold">
               {column.header}
             </div>
             <div className="flex-1">
@@ -89,7 +89,7 @@ function SharedTable<T extends TableName>({
 
         {/* Date columns with ADD button */}
         {dateColumns.map(column => <div key={column.field} className="flex flex-col h-full">
-            <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase">
+            <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-bold">
               {column.header}
             </div>
             <div className="flex-1">
@@ -114,4 +114,3 @@ function SharedTable<T extends TableName>({
 }
 
 export default SharedTable;
-
