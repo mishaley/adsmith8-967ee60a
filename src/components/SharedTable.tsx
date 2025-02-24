@@ -1,4 +1,3 @@
-
 import { Table, TableBody, TableRow } from "@/components/ui/table";
 import { ColumnDef, TableRow as ITableRow, TableName, TableData } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
@@ -8,7 +7,6 @@ import { toast } from "sonner";
 import { TableHeader } from "./table/TableHeader";
 import { InputRow } from "./table/InputRow";
 import { TableCellComponent } from "./table/TableCell";
-import { TableCell } from "./ui/table";
 import { Database } from "@/integrations/supabase/types";
 import { useCallback } from "react";
 
@@ -66,7 +64,6 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     setData(sortedData);
   }, [initialData, sort]);
 
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -257,22 +254,18 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
               className="cursor-pointer hover:bg-gray-50/80"
             >
               {columns.map((column) => (
-                <TableCell
+                <TableCellComponent
                   key={column.field}
-                  className="text-[#2A2A2A]"
-                >
-                  <TableCellComponent
-                    row={row}
-                    column={column}
-                    isEditing={editingRow === row.id}
-                    onUpdate={(value) => handleCellUpdate(column.field, value)}
-                    onSave={() => handleSave(row.id)}
-                    onCancel={() => {
-                      setEditingRow(null);
-                      setEditedValues({});
-                    }}
-                  />
-                </TableCell>
+                  row={row}
+                  column={column}
+                  isEditing={editingRow === row.id}
+                  onUpdate={(value) => handleCellUpdate(column.field, value)}
+                  onSave={() => handleSave(row.id)}
+                  onCancel={() => {
+                    setEditingRow(null);
+                    setEditedValues({});
+                  }}
+                />
               ))}
             </TableRow>
           ))}

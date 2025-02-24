@@ -123,12 +123,12 @@ export function TableCellComponent({
   };
 
   return (
-    <td className={`${
+    <TableCellBase className={`${
       isEditing 
         ? 'bg-white' + (isActive ? ' ring-2 ring-[#ecb652] ring-inset' : '')
         : ''
     }`}>
-      <div className="h-12 flex items-center px-4">
+      <div className="h-12 flex items-center px-4 w-full">
         {isEditing && column.editable ? (
           <div className="w-full">
             {renderEditContent()}
@@ -137,6 +137,6 @@ export function TableCellComponent({
           renderDisplayContent()
         )}
       </div>
-    </td>
+    </TableCellBase>
   );
 }
