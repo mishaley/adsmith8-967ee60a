@@ -102,7 +102,7 @@ export function TableColumn({
             return (
               <div 
                 key={row.id} 
-                className={`p-4 border-b whitespace-nowrap cursor-pointer hover:bg-gray-50 ${isEditing ? 'border-2 border-[#ecb652]' : ''}`}
+                className={`p-4 border-b whitespace-nowrap cursor-pointer hover:bg-gray-50 ${isEditing ? 'ring-2 ring-inset ring-[#ecb652]' : ''}`}
                 onClick={() => handleCellClick(row.id, column.field)}
               >
                 {isEditing ? (
