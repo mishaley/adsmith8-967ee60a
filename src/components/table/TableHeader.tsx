@@ -12,6 +12,7 @@ interface TableHeaderProps {
   clearFilter: (field: string) => void;
   filters: Record<string, string>;
   searchInputRef: RefObject<HTMLInputElement>;
+  isPopoverContent?: boolean;
 }
 
 export function TableHeader({
@@ -20,7 +21,8 @@ export function TableHeader({
   handleFilter,
   clearFilter,
   filters,
-  searchInputRef
+  searchInputRef,
+  isPopoverContent = false
 }: TableHeaderProps) {
   const handleCreatedSort = (direction: 'asc' | 'desc') => {
     handleSort(`${column.field}:${direction}`);
@@ -30,12 +32,17 @@ export function TableHeader({
     handleSort(`${column.field}:${direction}`);
   };
 
-  return (
-    <>
+  if (!isPopoverContent) {
+    return (
       <div className="flex items-center justify-between space-x-2 w-full h-full relative group">
         <span className="truncate">{column.header}</span>
         <ChevronDown className="h-4 w-4 text-white" />
       </div>
+    );
+  }
+
+  return (
+    <>
       {column.field === 'created_at' ? (
         <>
           <Button 

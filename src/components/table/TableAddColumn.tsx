@@ -30,16 +30,14 @@ export function TableAddColumn({
       <Popover>
         <PopoverTrigger asChild>
           <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
-            <div className="flex items-center justify-between space-x-2 w-full h-full relative group">
-              <TableHeader 
-                column={column} 
-                handleSort={handleSort} 
-                handleFilter={handleFilter} 
-                clearFilter={clearFilter} 
-                filters={filters} 
-                searchInputRef={searchInputRef} 
-              />
-            </div>
+            <TableHeader 
+              column={column} 
+              handleSort={handleSort} 
+              handleFilter={handleFilter} 
+              clearFilter={clearFilter} 
+              filters={filters} 
+              searchInputRef={searchInputRef} 
+            />
           </div>
         </PopoverTrigger>
         <PopoverContent 
@@ -58,7 +56,8 @@ export function TableAddColumn({
               handleFilter={handleFilter} 
               clearFilter={clearFilter} 
               filters={filters} 
-              searchInputRef={searchInputRef} 
+              searchInputRef={searchInputRef}
+              isPopoverContent={true}
             />
           </div>
         </PopoverContent>
