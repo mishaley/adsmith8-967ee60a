@@ -29,7 +29,8 @@ const MainNav = () => {
           key={item.path}
           to={item.path}
           className={cn(
-            "h-[50px] flex items-center pl-[18px] text-[16px]",
+            item.label === "HOME" ? "h-[60px]" : "h-[50px]",
+            "flex items-center pl-[18px] text-[16px]",
             index === 0 && "border-b border-white/20", // Only HOME gets bottom border
             currentPath === item.path && "bg-[#d3e4fd] text-[#0c343d] font-bold border-r-[#d3e4fd]"
           )}
@@ -55,7 +56,8 @@ const MainNav = () => {
           key={item.path}
           to={item.path}
           className={cn(
-            "h-[50px] flex items-center pl-[18px] text-[16px] border-b border-white/20",
+            ["OFFERINGS", "PERSONAS", "MESSAGES", "IMAGES", "CAPTIONS", "SETTINGS"].includes(item.label) ? "h-[60px]" : "h-[50px]",
+            "flex items-center pl-[18px] text-[16px] border-b border-white/20",
             currentPath === item.path && "bg-[#d3e4fd] text-[#0c343d] font-bold border-r-[#d3e4fd]"
           )}
         >
