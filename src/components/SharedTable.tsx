@@ -13,7 +13,7 @@ interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
   columns: ColumnDef[];
   tableName: T;
-  idField: string;
+  idField: keyof Tables[T]['Row'] & string;
 }
 
 function SharedTable<T extends TableName>({
@@ -145,6 +145,8 @@ function SharedTable<T extends TableName>({
               clearFilter={clearFilter}
               filters={filters}
               searchInputRef={searchInputRef}
+              tableName={tableName}
+              idField={idField}
             />
           )
         ))}

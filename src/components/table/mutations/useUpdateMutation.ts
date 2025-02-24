@@ -35,37 +35,38 @@ export function useUpdateMutation<T extends TableName>({
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq(idField, rowId);
+          .eq(idField as string, rowId);
         if (error) throw error;
       } else {
-        // Get the current value before updating
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
-          .select()
-          .eq(idField, rowId)
-          .maybeSingle();
+          .select('*')
+          .eq(idField as string, rowId)
+          .single();
         
         if (selectError) throw selectError;
 
-        const updateData: Partial<Tables[T]['Update']> = { [field]: value };
-        
-        const { error } = await supabase
-          .from(tableName)
-          .update(updateData)
-          .eq(idField, rowId);
-        
-        if (error) throw error;
+        if (currentData) {
+          const updateData = { [field]: value };
+          
+          const { error } = await supabase
+            .from(tableName)
+            .update(updateData)
+            .eq(idField as string, rowId);
+          
+          if (error) throw error;
 
-        if (!isUndo && currentData && onHistoryChange) {
-          onHistoryChange({
-            rowId,
-            field,
-            oldValue: isDelete ? oldData : currentData[field as keyof Tables[T]['Row']],
-            newValue: value,
-            tableName,
-            isDelete,
-            oldData
-          });
+          if (!isUndo && onHistoryChange) {
+            onHistoryChange({
+              rowId,
+              field,
+              oldValue: isDelete ? oldData : currentData[field],
+              newValue: value,
+              tableName,
+              isDelete,
+              oldData
+            });
+          }
         }
       }
     },

@@ -1,4 +1,5 @@
-import { ColumnDef, TableRow } from "@/types/table";
+
+import { ColumnDef, TableRow, TableName } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
 import { RefObject, useState } from "react";
@@ -19,19 +20,21 @@ import { Database } from "@/integrations/supabase/types";
 
 type Tables = Database['public']['Tables'];
 
-interface TableColumnProps {
+interface TableColumnProps<T extends TableName> {
   column: ColumnDef;
   data: TableRow[];
-  newRecord: Partial<Tables[TableName]['Insert']>;
+  newRecord: Partial<Tables[T]['Insert']>;
   handleInputChange: (field: string, value: any) => void;
   handleSort: (field: string) => void;
   handleFilter: (field: string, value: string) => void;
   clearFilter: (field: string) => void;
   filters: Record<string, string>;
   searchInputRef: RefObject<HTMLInputElement>;
+  tableName: T;
+  idField: keyof Tables[T]['Row'] & string;
 }
 
-export function TableColumn({
+export function TableColumn<T extends TableName>({
   column,
   data,
   newRecord,
@@ -41,12 +44,14 @@ export function TableColumn({
   clearFilter,
   filters,
   searchInputRef,
-}: TableColumnProps) {
+  tableName,
+  idField
+}: TableColumnProps<T>) {
   const [editingCell, setEditingCell] = useState<{ rowId: string | null, field: string | null }>({ rowId: null, field: null });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingRow, setDeletingRow] = useState<TableRow | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-  const { updateMutation } = useTableMutations("a1organizations", "organization_id");
+  const { updateMutation } = useTableMutations(tableName, idField);
 
   const handleCellClick = (rowId: string, field: string) => {
     if (column.editable) {
@@ -57,7 +62,11 @@ export function TableColumn({
   const handleCellBlur = (rowId: string, field: string, value: any) => {
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
-      updateMutation.mutate({ rowId, field: field as keyof Tables['a1organizations']['Row'], value });
+      updateMutation.mutate({ 
+        rowId, 
+        field: field as keyof Tables[T]['Row'], 
+        value 
+      });
     }
   };
 
@@ -75,10 +84,10 @@ export function TableColumn({
   const confirmDelete = async () => {
     if (deletingRow) {
       const oldData = { ...deletingRow };
-      deleteRow.updateMutation.mutate({
+      updateMutation.mutate({
         rowId: deletingRow.id,
-        field: 'deleted',
-        value: true,
+        field: idField,
+        value: null,
         isDelete: true,
         oldData
       });
