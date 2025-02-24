@@ -29,7 +29,7 @@ const Offerings = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("b1offerings")
-        .select("offering_id as id, *");
+        .select("id:offering_id, offering_name, created_at");
       return data || [];
     },
   });
