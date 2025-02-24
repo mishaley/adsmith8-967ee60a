@@ -11,21 +11,17 @@ import { supabase } from "@/integrations/supabase/client";
 interface SharedTableProps {
   data: ITableRow[];
   columns: ColumnDef[];
-  tableName: string;
-  idField: string;
+  tableName?: string;
+  idField?: string;
 }
 
-const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
+const SharedTable = ({ data, columns, tableName = "", idField = "id" }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: updateCell } = useMutation({
     mutationFn: async ({ rowId, field, value }: { rowId: string; field: string; value: any }) => {
-      // Convert string values to numbers for integer fields
-      if (field === "persona_agemin" || field === "persona_agemax") {
-        value = parseInt(value, 10);
-        if (isNaN(value)) throw new Error("Age must be a number");
-      }
+      if (!tableName) return null;
 
       const { data, error } = await supabase
         .from(tableName)
@@ -37,8 +33,8 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
       return data;
     },
     onSuccess: (_, variables) => {
-      // Determine which query to invalidate based on the table
-      const queryKey = tableName === "b1offerings" ? ["offerings"] : ["personas"];
+      // Invalidate the appropriate query based on the table being updated
+      const queryKey = [tableName.replace(/^\w+/, "").toLowerCase()];
       queryClient.invalidateQueries({ queryKey });
       setEditingCell(null);
     },
@@ -86,7 +82,6 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
           onBlur={(e) => {
             updateCell({ rowId: row.id, field: column.field, value: e.target.value });
           }}
-          type={column.field.includes("age") ? "number" : "text"}
         />
       );
     }
