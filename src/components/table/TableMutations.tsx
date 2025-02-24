@@ -47,7 +47,7 @@ export function useTableMutations<T extends TableName>(
       
       // Get the current value before updating
       const { data: currentData } = await (table as any)
-        .select(`${field}`)
+        .select(String(field))
         .eq(idField, rowId)
         .single();
       
