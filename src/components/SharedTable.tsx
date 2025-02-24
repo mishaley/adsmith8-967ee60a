@@ -95,7 +95,7 @@ function SharedTable<T extends TableName>({
         <div className="bg-[#154851] p-4 text-white font-bold uppercase">
           Offering
         </div>
-        <div className="flex-1">
+        <div className="flex-1 bg-white">
           {data.map(row => (
             <div key={row.id} className="p-4 border-b">
               {row.offering_name}
@@ -126,7 +126,7 @@ function SharedTable<T extends TableName>({
         <div className="bg-[#154851] p-4 text-white font-bold uppercase">
           Organization
         </div>
-        <div className="flex-1">
+        <div className="flex-1 bg-white">
           {data.map(row => (
             <div key={row.id} className="p-4 border-b">
               {row.organization_name}
@@ -148,7 +148,7 @@ function SharedTable<T extends TableName>({
         <div className="bg-[#154851] p-4 text-white font-bold uppercase">
           Created
         </div>
-        <div className="flex-1">
+        <div className="flex-1 bg-white">
           {data.map(row => (
             <div key={row.id} className="p-4 border-b">
               {row.created_at ? new Date(row.created_at).toLocaleDateString() : ''}
