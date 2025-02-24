@@ -103,7 +103,7 @@ export function TableCellComponent({
   }
 
   return (
-    <div className="w-full h-full min-h-[2.5rem] flex items-center">
+    <div className="w-full h-full min-h-[2.5rem] flex items-center pointer-events-none">
       {column.format ? formatCell(value, column.format) : displayValue}
     </div>
   );
