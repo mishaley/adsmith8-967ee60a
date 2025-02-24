@@ -136,11 +136,11 @@ export function TableCellComponent({
     <TableCellBase 
       onClick={onClick}
       data-cell-id={`${row.id}-${column.field}`}
-      className={`relative w-[1%] whitespace-nowrap cursor-pointer ${
+      className={`relative px-4 py-2 min-w-0 ${
         isEditing ? 'ring-2 ring-[#ecb652] ring-inset bg-white' : ''
       }`}
     >
-      <div className="h-12 flex items-center px-4 w-full">
+      <div className="h-12 flex items-center w-full">
         {isEditing && column.editable ? (
           <div className="w-full">
             {renderEditContent()}

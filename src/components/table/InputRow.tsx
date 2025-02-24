@@ -66,7 +66,7 @@ export function InputRow({
       <div 
         className="grid bg-[#d3e4fd] px-4 py-4" 
         style={{ 
-          gridTemplateColumns: columns.map(() => '1fr').join(' '),
+          gridTemplateColumns: `${columns.map(() => '1fr').join(' ')}`,
           columnGap: '1rem',
         }}
       >

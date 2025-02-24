@@ -29,7 +29,7 @@ export function TableHeader({
         {columns.map((column) => (
           <TableHead 
             key={column.field} 
-            className="text-white font-bold uppercase h-10 whitespace-nowrap"
+            className="text-white font-bold uppercase h-10 whitespace-nowrap px-4 py-2"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="truncate">{column.header}</span>
