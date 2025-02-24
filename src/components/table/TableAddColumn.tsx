@@ -42,7 +42,7 @@ export function TableAddColumn({
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Button 
             onClick={handleAdd}
-            className="w-full bg-transparent hover:bg-transparent border-2 border-[#154851] text-[#154851]"
+            className="w-full bg-[#ecb652] hover:bg-[#ecb652]/90 text-[#154851] font-bold border-2 border-white"
           >
             <PlusCircle className="mr-2 h-4 w-4" />
             Add
