@@ -106,15 +106,15 @@ export function TableColumn({
                 onClick={() => handleCellClick(row.id, column.field)}
               >
                 {isEditing ? (
-                  <div className="w-full">
+                  <div className="w-full relative">
                     <input
                       autoFocus
                       defaultValue={row[column.field]}
                       onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
                       onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
-                      className={`w-full bg-transparent outline-none p-0 m-0 border-none focus:ring-0 whitespace-normal ${cellContentClass}`}
-                      style={{ minWidth: '100%' }}
+                      className={`absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 ${cellContentClass}`}
                     />
+                    <div className="invisible">{row[column.field]}</div>
                   </div>
                 ) : (
                   <div className={`truncate ${cellContentClass}`}>{row[column.field]}</div>
