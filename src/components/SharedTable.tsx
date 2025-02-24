@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -66,7 +67,7 @@ function SharedTable<T extends TableName>({
   return (
     <div className="w-full">
       {/* Input row container */}
-      <div className="grid" style={{ gridTemplateColumns: "min-content 100px" }}>
+      <div className="grid" style={{ gridTemplateColumns: "200px 100px" }}>
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Input
             value={newRecord["organization_name"] || ""}
@@ -85,16 +86,16 @@ function SharedTable<T extends TableName>({
       </div>
 
       {/* Table container */}
-      <div className="grid" style={{ gridTemplateColumns: "min-content 100px" }}>
+      <div className="grid" style={{ gridTemplateColumns: "200px 100px" }}>
         {/* Main columns */}
         {mainColumns.map((column) => (
-          <div key={column.field} className="flex flex-col">
+          <div key={column.field} className="flex flex-col h-full">
             <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
               {column.header}
             </div>
             <div className="flex-1 bg-white">
               {data.map(row => (
-                <div key={row.id} className="p-4 border-b overflow-hidden text-ellipsis">
+                <div key={row.id} className="p-4 border-b whitespace-nowrap overflow-hidden text-ellipsis">
                   {row[column.field]}
                 </div>
               ))}
@@ -104,13 +105,13 @@ function SharedTable<T extends TableName>({
 
         {/* Date columns */}
         {dateColumns.map((column) => (
-          <div key={column.field} className="flex flex-col">
+          <div key={column.field} className="flex flex-col h-full">
             <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
               {column.header}
             </div>
             <div className="flex-1 bg-white">
               {data.map(row => (
-                <div key={row.id} className="p-4 border-b overflow-hidden text-ellipsis">
+                <div key={row.id} className="p-4 border-b whitespace-nowrap overflow-hidden text-ellipsis">
                   {row[column.field] 
                     ? new Date(row[column.field]).toLocaleDateString('en-US', {
                         month: 'numeric',
