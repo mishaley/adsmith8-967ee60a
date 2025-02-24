@@ -22,31 +22,25 @@ type UpdateVariables = {
   value: any;
 };
 
-// Extract the mutation function
-const updateRow = async (
-  tableName: TableName,
-  idField: string,
-  variables: UpdateVariables
-): Promise<void> => {
-  const { error } = await supabase
-    .from(tableName)
-    .update({ [variables.field]: variables.value })
-    .eq(idField, variables.rowId);
-
-  if (error) throw error;
-};
+type MutationFn = (variables: UpdateVariables) => Promise<void>;
 
 const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
-  // Store the query key in a variable
-  const queryKey = tableName.replace(/^\w+/, "").toLowerCase();
+  const mutationFn: MutationFn = async (variables) => {
+    const { error } = await supabase
+      .from(tableName)
+      .update({ [variables.field]: variables.value })
+      .eq(idField, variables.rowId);
 
-  const updateMutation = useMutation<void, Error, UpdateVariables>({
-    mutationFn: (variables) => updateRow(tableName, idField, variables),
+    if (error) throw error;
+  };
+
+  const updateMutation = useMutation({
+    mutationFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKey] });
+      queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
       setEditingCell(null);
     },
   });
