@@ -37,12 +37,14 @@ const MainNav = () => {
               {item.label}
             </Link>
             {isBeforeSpacer && (
-              <div className="flex flex-col items-center border-b border-white/20">
-                <button className="my-[5px] w-[100px] h-[40px] rounded-full bg-[#ecb652] text-[#154851] font-bold border-2 border-white">
-                  NEW
-                </button>
-                <div className="flex-grow" />
-              </div>
+              <>
+                <div className="flex flex-col items-center">
+                  <button className="my-[5px] w-[100px] h-[40px] rounded-full bg-[#ecb652] text-[#154851] font-bold border-2 border-white">
+                    NEW
+                  </button>
+                </div>
+                <div className="flex-grow border-b border-white/20" />
+              </>
             )}
           </div>
         );
