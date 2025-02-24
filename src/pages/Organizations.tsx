@@ -9,22 +9,15 @@ import { useEffect } from "react";
 const Organizations = () => {
   const columns: ColumnDef[] = [
     {
-      field: "offering_name",
-      header: "OFFERING",
-      inputMode: "text",
-      editable: true,
-      required: true
-    },
-    {
       field: "organization_name",
-      header: "ORGANIZATION",
+      header: "Organization",
       inputMode: "text",
       editable: true,
       required: true
     },
     {
       field: "created_at",
-      header: "CREATED",
+      header: "Created",
       inputMode: "text",
       editable: false,
       required: false,
