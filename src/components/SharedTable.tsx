@@ -5,6 +5,9 @@ import { useTableMutations } from "./table/TableMutations";
 import { toast } from "sonner";
 import { TableColumn } from "./table/TableColumn";
 import { TableAddColumn } from "./table/TableAddColumn";
+import { Database } from "@/integrations/supabase/types";
+
+type Tables = Database['public']['Tables'];
 
 interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
@@ -24,7 +27,7 @@ function SharedTable<T extends TableName>({
     direction: "desc" as "asc" | "desc"
   });
   const [data, setData] = useState(initialData);
-  const [newRecord, setNewRecord] = useState<Record<string, any>>({});
+  const [newRecord, setNewRecord] = useState<Partial<Tables[T]['Insert']>>({});
   const [filters, setFilters] = useState<Record<string, string>>({});
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { createMutation } = useTableMutations(tableName, idField);
@@ -65,13 +68,13 @@ function SharedTable<T extends TableName>({
 
   const handleAdd = () => {
     const missingFields = columns
-      .filter(col => col.required && !newRecord[col.field])
+      .filter(col => col.required && !newRecord[col.field as keyof Tables[T]['Insert']])
       .map(col => col.header);
     if (missingFields.length > 0) {
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    createMutation.mutate(newRecord);
+    createMutation.mutate(newRecord as Tables[T]['Insert']);
     setNewRecord({});
   };
 

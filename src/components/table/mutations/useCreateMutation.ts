@@ -9,7 +9,7 @@ type Tables = Database['public']['Tables'];
 
 interface CreateMutationParams<T extends TableName> {
   tableName: T;
-  idField: string;
+  idField: keyof Tables[T]['Row'] & string;
 }
 
 export function useCreateMutation<T extends TableName>({ 

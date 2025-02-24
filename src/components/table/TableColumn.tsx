@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -16,11 +15,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
+
+type Tables = Database['public']['Tables'];
 
 interface TableColumnProps {
   column: ColumnDef;
   data: TableRow[];
-  newRecord: Record<string, any>;
+  newRecord: Partial<Tables[TableName]['Insert']>;
   handleInputChange: (field: string, value: any) => void;
   handleSort: (field: string) => void;
   handleFilter: (field: string, value: string) => void;
@@ -45,7 +47,6 @@ export function TableColumn({
   const [deletingRow, setDeletingRow] = useState<TableRow | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const { updateMutation } = useTableMutations("a1organizations", "organization_id");
-  const deleteRow = useTableMutations("a1organizations", "organization_id");
 
   const handleCellClick = (rowId: string, field: string) => {
     if (column.editable) {
@@ -56,7 +57,7 @@ export function TableColumn({
   const handleCellBlur = (rowId: string, field: string, value: any) => {
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
-      updateMutation.mutate({ rowId, field, value });
+      updateMutation.mutate({ rowId, field: field as keyof Tables['a1organizations']['Row'], value });
     }
   };
 

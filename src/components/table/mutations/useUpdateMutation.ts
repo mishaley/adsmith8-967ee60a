@@ -10,7 +10,7 @@ type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
 
 interface UpdateMutationParams<T extends TableName> {
   tableName: T;
-  idField: string;
+  idField: keyof Tables[T]['Row'] & string;
   onHistoryChange?: (change: ChangeHistoryEntry<T>) => void;
 }
 
@@ -29,7 +29,7 @@ export function useUpdateMutation<T extends TableName>({
       value: any;
       isUndo?: boolean;
       isDelete?: boolean;
-      oldData?: any;
+      oldData?: Partial<Tables[T]['Row']>;
     }) => {
       if (isDelete) {
         const { error } = await supabase
@@ -47,7 +47,7 @@ export function useUpdateMutation<T extends TableName>({
         
         if (selectError) throw selectError;
 
-        const updateData = { [field]: value } as Partial<Tables[T]['Update']>;
+        const updateData: Partial<Tables[T]['Update']> = { [field]: value };
         
         const { error } = await supabase
           .from(tableName)
@@ -56,12 +56,11 @@ export function useUpdateMutation<T extends TableName>({
         
         if (error) throw error;
 
-        // Only add to history if it's not an undo/redo operation
         if (!isUndo && currentData && onHistoryChange) {
           onHistoryChange({
             rowId,
             field,
-            oldValue: isDelete ? oldData : currentData[field],
+            oldValue: isDelete ? oldData : currentData[field as keyof Tables[T]['Row']],
             newValue: value,
             tableName,
             isDelete,
