@@ -1,8 +1,6 @@
-
 import { Table } from "@/components/ui/table";
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { TableContent } from "./table/TableContent";
 import { useTableMutations } from "./table/TableMutations";
 import { toast } from "sonner";
 import { Input } from "./ui/input";

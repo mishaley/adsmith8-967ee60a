@@ -1,44 +1,32 @@
 
-import { useState } from "react";
-import { TableHeader } from "./TableHeader";
-import { InputRow } from "./InputRow";
+import { Table } from "@/components/ui/table";
+import { ColumnDef, TableRow as ITableRow } from "@/types/table";
+import { useRef } from "react";
 
 interface TableActionsProps {
-  columns: any[];
-  newRecord: any;
-  handleInputChange: (field: string, value: any) => void;
-  handleAdd: () => void;
+  data: ITableRow[];
+  columns: ColumnDef[];
+  activeCell: { rowId: string; field: string } | null;
   activeFilter: string | null;
-  setActiveFilter: (filter: string | null) => void;
+  setActiveFilter: (field: string | null) => void;
   handleSort: (field: string, direction: "asc" | "desc") => void;
-  searchInputRef: React.RefObject<HTMLInputElement>;
+  handleCellUpdate: (field: string, value: any) => void;
+  handleCellClick: (rowId: string, field: string) => void;
+  handleSave: (rowId: string, field: string) => void;
 }
 
 export function TableActions({
+  data,
   columns,
-  newRecord,
-  handleInputChange,
-  handleAdd,
+  activeCell,
   activeFilter,
   setActiveFilter,
   handleSort,
-  searchInputRef
+  handleCellUpdate,
+  handleCellClick,
+  handleSave,
 }: TableActionsProps) {
-  return (
-    <>
-      <InputRow
-        columns={columns}
-        newRecord={newRecord}
-        handleInputChange={handleInputChange}
-        handleAdd={handleAdd}
-      />
-      <TableHeader
-        columns={columns}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        handleSort={handleSort}
-        searchInputRef={searchInputRef}
-      />
-    </>
-  );
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  return null; // This component is currently not being used
 }
