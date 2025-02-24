@@ -46,7 +46,6 @@ export function useTableMutations<T extends TableName>(
       isDelete?: boolean;
       oldData?: any;
     }) => {
-      type TableUpdate = Tables[T]['Update'];
       const table = supabase.from(tableName);
       
       if (isDelete) {
@@ -54,14 +53,14 @@ export function useTableMutations<T extends TableName>(
         if (error) throw error;
       } else {
         // Get the current value before updating
-        const { data: currentData } = await table
-          .select(`${field as string}`)
+        const { data: currentData } = await (table as any)
+          .select(`${field.toString()}`)
           .eq(idField, rowId)
           .single();
         
-        const updateData = { [field]: value } as TableUpdate;
+        const updateData = { [field]: value };
         
-        const { error } = await table
+        const { error } = await (table as any)
           .update(updateData)
           .eq(idField, rowId);
         
@@ -76,7 +75,7 @@ export function useTableMutations<T extends TableName>(
           const newChange: ChangeHistoryEntry<T> = {
             rowId,
             field,
-            oldValue: isDelete ? oldData : currentData[field as keyof typeof currentData],
+            oldValue: isDelete ? oldData : currentData[field.toString()],
             newValue: value,
             tableName,
             isDelete,
@@ -98,25 +97,26 @@ export function useTableMutations<T extends TableName>(
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
-      type TableInsert = Tables[T]['Insert'];
       const table = supabase.from(tableName);
-      const insertData = record as unknown as TableInsert;
       
-      const { data, error } = await table
-        .insert([insertData])
+      const { data, error } = await (table as any)
+        .insert(record)
         .select();
       
       if (error) throw error;
       
-      if (tableName === 'a1organizations' && data?.[0]?.organization_id) {
-        const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
-          body: { organization_id: data[0].organization_id }
-        });
-        
-        if (folderError) {
-          console.error('Error creating folders:', folderError);
-          toast.error("Organization created but failed to create folders");
-          throw folderError;
+      if (tableName === 'a1organizations' && data?.[0]) {
+        const orgId = (data[0] as any).organization_id;
+        if (orgId) {
+          const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
+            body: { organization_id: orgId }
+          });
+          
+          if (folderError) {
+            console.error('Error creating folders:', folderError);
+            toast.error("Organization created but failed to create folders");
+            throw folderError;
+          }
         }
       }
       
@@ -138,7 +138,7 @@ export function useTableMutations<T extends TableName>(
         if (change.isDelete) {
           // If it was a delete operation, we need to re-insert the record
           const table = supabase.from(tableName);
-          const { error } = await table.insert([change.oldData]);
+          const { error } = await (table as any).insert([change.oldData]);
           if (error) throw error;
         } else {
           // For normal updates, revert to the old value
@@ -164,7 +164,7 @@ export function useTableMutations<T extends TableName>(
         if (change.isDelete) {
           // If it was a delete operation, delete the record again
           const table = supabase.from(tableName);
-          const { error } = await table.delete().eq(idField, change.rowId);
+          const { error } = await (table as any).delete().eq(idField, change.rowId);
           if (error) throw error;
         } else {
           // For normal updates, apply the new value
