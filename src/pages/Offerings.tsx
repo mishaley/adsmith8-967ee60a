@@ -38,7 +38,7 @@ const Offerings = () => {
       editable: true,
       required: true,
       options: organizationOptions,
-      displayField: "organization_name"  // This is correct
+      displayField: "organization_name"
     },
     {
       field: "created_at",
@@ -74,7 +74,7 @@ const Offerings = () => {
         id: row.offering_id,
         offering_name: row.offering_name,
         organization_id: row.organization_id,
-        organization_name: row.organization?.organization_name,  // Map the joined organization name
+        organization_name: row.organization?.organization_name,
         created_at: row.created_at
       }));
     },
