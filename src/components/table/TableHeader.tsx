@@ -32,7 +32,22 @@ export function TableHeader({
     handleSort(`${column.field}:${direction}`);
   };
 
-  const buttonStyles = "w-full text-left px-4 py-1.5 text-sm font-normal text-white bg-transparent border-0 transition-colors duration-150 hover:bg-[#363636] hover:text-[#ecb652] data-[state=open]:bg-transparent focus:outline-none focus-visible:bg-[#363636] focus-visible:text-[#ecb652]";
+  const buttonBaseStyles = [
+    "w-full",
+    "text-left",
+    "px-4",
+    "py-1.5",
+    "text-sm",
+    "font-normal",
+    "text-white",
+    "bg-transparent",
+    "border-0",
+    "outline-none",
+    "transition-all",
+    "duration-75"
+  ].join(" ");
+
+  const buttonHoverStyles = "hover:bg-[#363636] hover:text-[#ecb652]";
 
   if (!isPopoverContent) {
     return (
@@ -48,14 +63,16 @@ export function TableHeader({
       {column.field === 'created_at' ? (
         <>
           <button 
-            className={buttonStyles}
+            className={`${buttonBaseStyles} ${buttonHoverStyles}`}
             onClick={() => handleCreatedSort('desc')}
+            onMouseLeave={(e) => e.currentTarget.blur()}
           >
             New → Old
           </button>
           <button 
-            className={buttonStyles}
+            className={`${buttonBaseStyles} ${buttonHoverStyles}`}
             onClick={() => handleCreatedSort('asc')}
+            onMouseLeave={(e) => e.currentTarget.blur()}
           >
             Old → New
           </button>
@@ -63,21 +80,24 @@ export function TableHeader({
       ) : (
         <>
           <button 
-            className={buttonStyles}
+            className={`${buttonBaseStyles} ${buttonHoverStyles}`}
             onClick={() => handleFixedSort('asc')}
+            onMouseLeave={(e) => e.currentTarget.blur()}
           >
             A → Z
           </button>
           <button 
-            className={buttonStyles}
+            className={`${buttonBaseStyles} ${buttonHoverStyles}`}
             onClick={() => handleFixedSort('desc')}
+            onMouseLeave={(e) => e.currentTarget.blur()}
           >
             Z → A
           </button>
           <div className="h-[1px] bg-[#363636] my-1" />
           <button 
-            className={buttonStyles}
+            className={`${buttonBaseStyles} ${buttonHoverStyles}`}
             onClick={() => clearFilter(column.field)}
+            onMouseLeave={(e) => e.currentTarget.blur()}
           >
             Clear
           </button>
