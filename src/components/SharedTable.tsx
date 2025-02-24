@@ -56,9 +56,12 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value }: UpdateVariables) => {
+      type TableUpdate = Database['public']['Tables'][T]['Update'];
+      const updateData = { [field]: value } as TableUpdate;
+
       const { error } = await supabase
         .from(tableName)
-        .update({ [field]: value })
+        .update(updateData)
         .eq(idField, rowId);
       if (error) throw error;
     },
@@ -71,9 +74,12 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
+      type TableInsert = Database['public']['Tables'][T]['Insert'];
+      const insertData = record as TableInsert;
+
       const { error } = await supabase
         .from(tableName)
-        .insert([record]);
+        .insert([insertData]);
       if (error) throw error;
     },
     onSuccess: () => {
