@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "../ui/button";
 import { X, Save } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface TableCellProps {
   row: TableRow;
@@ -29,6 +29,13 @@ export function TableCellComponent({
   onClick 
 }: TableCellProps) {
   const [isActive, setIsActive] = useState(false);
+
+  // When the cell becomes editable, automatically set it to active
+  useEffect(() => {
+    if (isEditing && column.inputMode === "select") {
+      setIsActive(true);
+    }
+  }, [isEditing, column.inputMode]);
 
   const formatCell = (value: any, columnFormat?: string) => {
     if (!value) return "";
@@ -57,7 +64,7 @@ export function TableCellComponent({
       return (
         <div onClick={(e) => e.stopPropagation()}>
           <Select
-            defaultOpen={column.field === "organization_id"}
+            open={isActive}
             value={value?.toString()}
             onValueChange={(newValue) => {
               onUpdate(newValue);
