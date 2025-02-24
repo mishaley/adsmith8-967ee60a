@@ -1,3 +1,4 @@
+
 import { Table } from "@/components/ui/table";
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -80,7 +81,7 @@ function SharedTable<T extends TableName>({
   const organizationOptions = columns.find(col => col.field === "organization_id")?.options || [];
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-3 gap-0">
       {/* Column 1: Offering */}
       <div className="flex flex-col">
         <div className="bg-[#d3e4fd] p-4 mb-2">
