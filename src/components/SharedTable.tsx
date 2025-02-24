@@ -31,12 +31,12 @@ type SortConfig = {
   direction: "asc" | "desc";
 };
 
-const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedTableProps) => {
+const SharedTable = <T extends TableName>({ data: initialData, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sort, setSort] = useState<SortConfig>({ field: "created_at", direction: "desc" });
   const [data, setData] = useState(initialData);
-  const [newRecord, setNewRecord] = useState<TableData>({});
+  const [newRecord, setNewRecord] = useState<Partial<TableData<T>>>({});
   const searchInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -75,10 +75,10 @@ const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedT
 
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
-    mutationFn: async (record: TableData) => {
+    mutationFn: async (record: Partial<TableData<T>>) => {
       const { error } = await supabase
         .from(tableName)
-        .insert(record);
+        .insert([record]);
 
       if (error) throw error;
     },
