@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow } from "@/types/table";
 import { TableHeader } from "./TableHeader";
 import { Button } from "@/components/ui/button";
@@ -60,17 +61,19 @@ export function TableAddColumn({
         </PopoverContent>
       </Popover>
       <div className="flex-1">
-        <div className="bg-[#d3e4fd] p-4 mb-2">
+        <div className="bg-[#d3e4fd] p-4 mb-2 flex justify-center">
           <Button onClick={handleAdd} className="w-[100px] h-[40px] rounded-full bg-[#ecb652] hover:bg-[#ecb652] text-[16px] text-[#154851] font-bold border-2 border-white">ADD</Button>
         </div>
         <div className="bg-white">
-          {data.map(row => <div key={row.id} className="p-4 border-b whitespace-nowrap">
+          {data.map(row => (
+            <div key={row.id} className="p-4 border-b whitespace-nowrap text-center">
               {new Date(row[column.field]).toLocaleDateString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: '2-digit'
-          })}
-            </div>)}
+                month: 'numeric',
+                day: 'numeric',
+                year: '2-digit'
+              })}
+            </div>
+          ))}
         </div>
       </div>
     </div>;
