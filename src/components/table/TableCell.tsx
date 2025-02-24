@@ -75,25 +75,23 @@ export function TableCellComponent({
       if (column.inputMode === "select" && column.options) {
         const selectedOption = column.options.find(option => option.value === value);
         return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Select
-              value={value?.toString()}
-              onValueChange={onUpdate}
-            >
-              <SelectTrigger className="h-10">
-                <SelectValue>
-                  {selectedOption?.label || "Select..."}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {column.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Select
+            value={value?.toString()}
+            onValueChange={onUpdate}
+          >
+            <SelectTrigger className="h-10 w-full">
+              <SelectValue>
+                {selectedOption?.label || "Select..."}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {column.options.map((option) => (
+                <SelectItem key={option.value} value={option.value.toString()}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         );
       }
 
@@ -102,21 +100,17 @@ export function TableCellComponent({
           defaultValue={value}
           onBlur={(e) => onUpdate(e.target.value)}
           autoFocus={column.inputMode === "text"}
-          className="h-10"
+          className="h-10 w-full"
         />
       );
     }
 
-    return (
-      <div className="flex items-center pointer-events-none">
-        {column.format ? formatCell(value, column.format) : displayValue}
-      </div>
-    );
+    return formatCell(value, column.format) || displayValue;
   };
 
   return (
-    <TableCellBase className="h-16 px-4">
+    <div className="h-16 px-4 flex items-center">
       {renderCellContent()}
-    </TableCellBase>
+    </div>
   );
 }
