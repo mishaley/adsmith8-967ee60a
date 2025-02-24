@@ -72,10 +72,9 @@ export function TableHeader({
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                 <Input
                   ref={searchInputRef}
-                  placeholder="Search..."
                   value={filters[column.field] || ""}
                   onChange={(e) => handleFilter(column.field, e.target.value)}
-                  className="pl-8 h-9 bg-[#363636] border-[#464646] text-white placeholder:text-gray-400"
+                  className="pl-8 h-9 bg-white border-[#464646] text-black"
                   autoFocus
                 />
               </div>
