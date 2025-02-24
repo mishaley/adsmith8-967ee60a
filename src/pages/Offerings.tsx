@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 const Offerings = () => {
   const { data: organizations = [] } = useQuery({
@@ -52,7 +53,7 @@ const Offerings = () => {
   const { data = [], refetch } = useQuery({
     queryKey: ["offerings"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("b1offerings")
         .select(`
           id:offering_id,
@@ -61,6 +62,11 @@ const Offerings = () => {
           organization:a1organizations(organization_name),
           created_at
         `);
+      
+      if (error) {
+        toast.error("Failed to fetch offerings");
+        throw error;
+      }
       
       return (data || []).map(row => ({
         id: row.id,
@@ -75,7 +81,7 @@ const Offerings = () => {
   useEffect(() => {
     // Subscribe to changes on the offerings table
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('offerings-changes')
       .on(
         'postgres_changes',
         {
@@ -83,13 +89,17 @@ const Offerings = () => {
           schema: 'public',
           table: 'b1offerings'
         },
-        () => {
+        (payload) => {
+          console.log('Change received:', payload);
           refetch();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [refetch]);
@@ -109,4 +119,3 @@ const Offerings = () => {
 };
 
 export default Offerings;
-
