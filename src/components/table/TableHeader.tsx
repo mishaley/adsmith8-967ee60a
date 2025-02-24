@@ -32,7 +32,7 @@ export function TableHeader({
     handleSort(`${column.field}:${direction}`);
   };
 
-  const buttonStyles = "w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0 focus:outline-none focus-visible:bg-[#363636] focus-visible:text-[#ecb652] active:bg-transparent";
+  const buttonStyles = "w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0 focus:outline-none focus-visible:bg-[#363636] focus-visible:text-[#ecb652] active:bg-[#2A2A2A]";
 
   if (!isPopoverContent) {
     return (
