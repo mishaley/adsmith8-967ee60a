@@ -31,7 +31,7 @@ export function TableColumn({
 }: TableColumnProps) {
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group h-[64px]">
+      <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
         <TableHeader
           column={column}
           handleSort={handleSort}
