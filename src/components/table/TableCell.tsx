@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "../ui/button";
 import { X, Save } from "lucide-react";
+import { useState } from "react";
 
 interface TableCellProps {
   row: TableRow;
@@ -25,6 +26,8 @@ export function TableCellComponent({
   onSave,
   onCancel 
 }: TableCellProps) {
+  const [isActive, setIsActive] = useState(false);
+
   const formatCell = (value: any, columnFormat?: string) => {
     if (!value) return "";
     if (columnFormat === "M/D/YY") {
@@ -52,7 +55,11 @@ export function TableCellComponent({
       return (
         <Select
           value={value?.toString()}
-          onValueChange={onUpdate}
+          onValueChange={(newValue) => {
+            onUpdate(newValue);
+            setIsActive(false);
+          }}
+          onOpenChange={(open) => setIsActive(open)}
         >
           <SelectTrigger className="h-10 border-none shadow-none focus:ring-0">
             <SelectValue>
@@ -73,7 +80,11 @@ export function TableCellComponent({
     return (
       <input
         defaultValue={value}
-        onBlur={(e) => onUpdate(e.target.value)}
+        onFocus={() => setIsActive(true)}
+        onBlur={(e) => {
+          onUpdate(e.target.value);
+          setIsActive(false);
+        }}
         autoFocus={column.inputMode === "text"}
         className="w-full h-full bg-transparent focus:outline-none"
       />
@@ -114,7 +125,7 @@ export function TableCellComponent({
   return (
     <td className={`p-0 relative ${
       isEditing 
-        ? 'bg-white border-[#ecb652] first:border-l-2 border-t-2 border-b-2 last:border-r-2' 
+        ? 'bg-white' + (isActive ? ' border-2 border-[#ecb652]' : '')
         : ''
     }`}>
       <div className="h-16 w-full px-4 flex items-center">
