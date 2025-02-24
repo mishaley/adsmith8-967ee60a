@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
+import { ColumnDef, TableRow as ITableRow } from "@/types/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface SharedTableProps {
   data: ITableRow[];
   columns: ColumnDef[];
-  tableName: TableName;
+  tableName: string;
   idField: string;
 }
 

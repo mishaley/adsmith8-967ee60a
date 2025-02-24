@@ -37,12 +37,7 @@ const Captions = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable 
-          data={data} 
-          columns={columns} 
-          tableName="e2captions" 
-          idField="caption_id" 
-        />,
+        q4: <SharedTable data={data} columns={columns} />,
       }}
     </QuadrantLayout>
   );

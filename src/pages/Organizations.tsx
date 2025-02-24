@@ -29,7 +29,7 @@ const Organizations = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("a1organizations")
-        .select("id:organization_id, organization_name, created_at");
+        .select("id:organization_id, name:organization_name, created_at");
       return data || [];
     },
   });
@@ -37,12 +37,7 @@ const Organizations = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable 
-          data={data} 
-          columns={columns} 
-          tableName="a1organizations" 
-          idField="organization_id" 
-        />,
+        q4: <SharedTable data={data} columns={columns} />,
       }}
     </QuadrantLayout>
   );

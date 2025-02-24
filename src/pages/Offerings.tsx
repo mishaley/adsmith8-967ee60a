@@ -74,12 +74,7 @@ const Offerings = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable 
-          data={data} 
-          columns={columns} 
-          tableName="b1offerings" 
-          idField="offering_id" 
-        />,
+        q4: <SharedTable data={data} columns={columns} />,
       }}
     </QuadrantLayout>
   );
