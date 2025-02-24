@@ -63,12 +63,14 @@ export function InputRow({
 
   return (
     <div className="mb-[9px]">
-      <div className="flex bg-[#d3e4fd] px-4 py-4 gap-4">
-        {columns.map((column) => (
-          <div key={column.field} className="flex-1 min-w-0">
-            {renderInput(column)}
-          </div>
-        ))}
+      <div className="table w-full">
+        <div className="table-row">
+          {columns.map((column) => (
+            <div key={column.field} className="table-cell bg-[#d3e4fd] px-4 py-4">
+              {renderInput(column)}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

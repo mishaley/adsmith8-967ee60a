@@ -25,7 +25,7 @@ export function TableContent({
       {data.map((row) => (
         <TableRow 
           key={row.id}
-          className="hover:bg-gray-50/80"
+          className="hover:bg-gray-50/80 table-row"
         >
           {columns.map((column) => (
             <TableCellComponent

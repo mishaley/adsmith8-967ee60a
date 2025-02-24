@@ -24,12 +24,12 @@ export function TableHeader({
   searchInputRef,
 }: TableHeaderProps) {
   return (
-    <TableHeaderBase className="bg-[#154851]">
-      <TableRow>
+    <TableHeaderBase className="bg-[#154851] table-header-group">
+      <TableRow className="table-row">
         {columns.map((column) => (
           <TableHead 
             key={column.field} 
-            className="text-white font-bold uppercase h-10 min-w-0 px-4 py-2"
+            className="text-white font-bold uppercase h-10 table-cell px-4 py-2"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="truncate">{column.header}</span>
