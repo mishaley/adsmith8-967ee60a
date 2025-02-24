@@ -19,7 +19,7 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const { mutate: updateCell } = useMutation({
+  const updateCellMutation = useMutation({
     mutationFn: async ({ rowId, field, value }: { rowId: string; field: string; value: any }) => {
       const { data, error } = await supabase
         .from(tableName)
@@ -42,6 +42,12 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
     if (columnFormat === "M/D/YY") {
       return format(new Date(value), "M/d/yy");
     }
+    if (columnFormat === "image" && typeof value === "string") {
+      const imageUrl = supabase.storage
+        .from("adsmith_assets")
+        .getPublicUrl(value).data.publicUrl;
+      return <img src={imageUrl} alt="thumbnail" className="w-16 h-16 object-cover rounded" />;
+    }
     return value;
   };
 
@@ -51,12 +57,17 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
     const displayValue = column.displayField ? row[column.displayField] : value;
 
     if (isEditing) {
+      if (column.format === "image") {
+        // TODO: Implement image upload functionality
+        return <div>Image upload not implemented yet</div>;
+      }
+
       if (column.inputMode === "select" && column.options) {
         return (
           <Select
             defaultValue={value}
             onValueChange={(newValue) => {
-              updateCell({ rowId: row.id, field: column.field, value: newValue });
+              updateCellMutation.mutate({ rowId: row.id, field: column.field, value: newValue });
             }}
           >
             <SelectTrigger>
@@ -77,13 +88,13 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
         <Input
           defaultValue={value}
           onBlur={(e) => {
-            updateCell({ rowId: row.id, field: column.field, value: e.target.value });
+            updateCellMutation.mutate({ rowId: row.id, field: column.field, value: e.target.value });
           }}
         />
       );
     }
 
-    if (column.format === "M/D/YY") {
+    if (column.format) {
       return formatCell(value, column.format);
     }
 
