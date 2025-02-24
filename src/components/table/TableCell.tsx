@@ -106,7 +106,7 @@ export function TableCellComponent({
 
     return (
       <div className="truncate">
-        {formatCell(value, column.format) || displayValue || ""}
+        {column.displayField && row[column.displayField] ? row[column.displayField] : formatCell(value, column.format)}
       </div>
     );
   };
