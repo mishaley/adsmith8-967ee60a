@@ -56,7 +56,8 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value }: UpdateVariables) => {
-      const updateData = { [field]: value };
+      type UpdateType = Database['public']['Tables'][T]['Update'];
+      const updateData: UpdateType = { [field]: value } as UpdateType;
       
       const { error } = await supabase
         .from(tableName)
@@ -73,9 +74,12 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
+      type InsertType = Database['public']['Tables'][T]['Insert'];
+      const insertData: InsertType = record as InsertType;
+      
       const { error } = await supabase
         .from(tableName)
-        .insert([record]);
+        .insert([insertData]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -110,9 +114,11 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     setNewRecord(prev => ({ ...prev, [field]: value }));
   };
 
+  const InputRowComponent = InputRow as React.ComponentType<typeof InputRow>;
+
   return (
     <div>
-      <InputRow<T>
+      <InputRowComponent
         tableName={tableName}
         columns={columns}
         newRecord={newRecord}
