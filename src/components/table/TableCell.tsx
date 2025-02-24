@@ -123,12 +123,12 @@ export function TableCellComponent({
   };
 
   return (
-    <td className={`p-0 relative w-full box-border ${
+    <td className={`relative p-0 box-border ${
       isEditing 
         ? 'bg-white' + (isActive ? ' outline outline-2 outline-[#ecb652]' : '')
         : ''
     }`}>
-      <div className="h-12 w-full pl-4 pr-8 flex items-center absolute inset-0">
+      <div className="h-12 w-full pl-4 pr-8 flex items-center">
         {isEditing && column.editable ? (
           <div className="w-full">
             {renderEditContent()}
