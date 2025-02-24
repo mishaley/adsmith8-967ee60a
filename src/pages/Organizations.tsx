@@ -3,14 +3,33 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ColumnDef } from "@/types/table";
 
 const Organizations = () => {
+  const columns: ColumnDef[] = [
+    {
+      field: "organization_name",
+      header: "Organization",
+      inputMode: "text",
+      editable: true,
+      required: true
+    },
+    {
+      field: "created_at",
+      header: "Created",
+      inputMode: "text",
+      editable: false,
+      required: false,
+      format: "M/D/YY"
+    }
+  ];
+
   const { data = [] } = useQuery({
     queryKey: ["organizations"],
     queryFn: async () => {
       const { data } = await supabase
         .from("a1organizations")
-        .select("name:organization_name, created_at");
+        .select("id:organization_id, name:organization_name, created_at");
       return data || [];
     },
   });
@@ -18,7 +37,7 @@ const Organizations = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable data={data} />,
+        q4: <SharedTable data={data} columns={columns} />,
       }}
     </QuadrantLayout>
   );

@@ -1,30 +1,41 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { format } from "date-fns";
+import { ColumnDef, TableRow as ITableRow } from "@/types/table";
 
 interface SharedTableProps {
-  data: Array<{
-    name: string;
-    created_at: string;
-    [key: string]: any;
-  }>;
+  data: ITableRow[];
+  columns: ColumnDef[];
 }
 
-const SharedTable = ({ data }: SharedTableProps) => {
+const SharedTable = ({ data, columns }: SharedTableProps) => {
+  const formatCell = (value: any, columnFormat?: string) => {
+    if (!value) return "";
+    if (columnFormat === "M/D/YY") {
+      return format(new Date(value), "M/d/yy");
+    }
+    return value;
+  };
+
   return (
     <Table>
       <TableHeader className="bg-[#154851]">
         <TableRow>
-          <TableHead className="text-white font-bold uppercase">Name</TableHead>
-          <TableHead className="text-white font-bold uppercase">Created</TableHead>
+          {columns.map((column) => (
+            <TableHead key={column.field} className="text-white font-bold uppercase">
+              {column.header}
+            </TableHead>
+          ))}
         </TableRow>
       </TableHeader>
       <TableBody className="bg-white">
         {data.map((row, index) => (
           <TableRow key={index}>
-            <TableCell className="text-[#2A2A2A]">{row.name}</TableCell>
-            <TableCell className="text-[#2A2A2A]">
-              {new Date(row.created_at).toLocaleDateString()}
-            </TableCell>
+            {columns.map((column) => (
+              <TableCell key={column.field} className="text-[#2A2A2A]">
+                {formatCell(row[column.field], column.format)}
+              </TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>
