@@ -2,35 +2,31 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
-import { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
-type Tables = Database['public']['Tables'];
-
-interface CreateMutationParams<T extends TableName> {
-  tableName: T;
-  idField: keyof Tables[T]['Row'] & string;
+interface CreateMutationParams {
+  tableName: TableName;
+  idField: string;
 }
 
-export function useCreateMutation<T extends TableName>({ 
+export function useCreateMutation({ 
   tableName, 
   idField 
-}: CreateMutationParams<T>) {
+}: CreateMutationParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: [tableName, 'create'],
-    mutationFn: async (record: Tables[T]['Insert']) => {      
+    mutationFn: async (record: any) => {      
       const { data, error } = await supabase
         .from(tableName)
-        .insert([record as Tables[T]['Insert']])
+        .insert([record])
         .select();
       
       if (error) throw error;
       
       if (tableName === 'a1organizations' && data?.[0]) {
-        const row = data[0] as Tables[T]['Row'];
-        const orgId = row[idField];
+        const orgId = data[0][idField];
         if (orgId) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
             body: { organization_id: orgId }
