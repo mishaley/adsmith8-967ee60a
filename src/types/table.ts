@@ -1,6 +1,11 @@
 
 export type InputMode = "text" | "select" | "textarea";
 
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
 export interface ColumnDef {
   field: string;
   header: string;
@@ -8,6 +13,8 @@ export interface ColumnDef {
   editable: boolean;
   required: boolean;
   format?: string;
+  options?: SelectOption[];
+  displayField?: string;
 }
 
 export interface TableRow {
