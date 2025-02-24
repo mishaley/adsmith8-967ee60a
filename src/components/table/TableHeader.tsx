@@ -23,6 +23,11 @@ export function TableHeader({
   filters,
   searchInputRef
 }: TableHeaderProps) {
+  const handleCreatedSort = (direction: 'asc' | 'desc') => {
+    // We append the direction to the field to make it a unique sort command
+    handleSort(`${column.field}:${direction}`);
+  };
+
   return (
     <div className="h-full">
       <Popover>
@@ -48,7 +53,7 @@ export function TableHeader({
                   variant="ghost" 
                   size="sm" 
                   className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleSort(column.field)}
+                  onClick={() => handleCreatedSort('desc')}
                 >
                   New → Old
                 </Button>
@@ -56,7 +61,7 @@ export function TableHeader({
                   variant="ghost" 
                   size="sm" 
                   className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleSort(column.field)}
+                  onClick={() => handleCreatedSort('asc')}
                 >
                   Old → New
                 </Button>

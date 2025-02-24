@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -41,10 +40,20 @@ function SharedTable<T extends TableName>({
     });
 
     if (sort.field) {
+      const [field, forcedDirection] = sort.field.split(':');
+      const direction = forcedDirection || sort.direction;
+      
       filteredData.sort((a, b) => {
-        const aVal = a[sort.field];
-        const bVal = b[sort.field];
-        return sort.direction === "asc" 
+        const aVal = a[field];
+        const bVal = b[field];
+        
+        if (field === 'created_at') {
+          const aDate = new Date(aVal).getTime();
+          const bDate = new Date(bVal).getTime();
+          return direction === "asc" ? aDate - bDate : bDate - aDate;
+        }
+        
+        return direction === "asc" 
           ? String(aVal).localeCompare(String(bVal)) 
           : String(bVal).localeCompare(String(aVal));
       });
@@ -73,10 +82,20 @@ function SharedTable<T extends TableName>({
   };
 
   const handleSort = (field: string) => {
-    setSort(prev => ({
-      field,
-      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc"
-    }));
+    if (field.includes(':')) {
+      // Handle created_at with forced direction
+      const [actualField, forcedDirection] = field.split(':');
+      setSort({
+        field,
+        direction: forcedDirection as "asc" | "desc"
+      });
+    } else {
+      // Handle regular fields with toggling direction
+      setSort(prev => ({
+        field,
+        direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc"
+      }));
+    }
   };
 
   const handleFilter = (field: string, value: string) => {
