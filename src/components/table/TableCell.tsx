@@ -53,27 +53,38 @@ export function TableCellComponent({
     if (column.inputMode === "select" && column.options) {
       const selectedOption = column.options.find(option => option.value === value);
       return (
-        <Select
-          value={value?.toString()}
-          onValueChange={(newValue) => {
-            onUpdate(newValue);
-            setIsActive(false);
-          }}
-          onOpenChange={(open) => setIsActive(open)}
-        >
-          <SelectTrigger className="h-10 w-full border-none shadow-none focus:ring-0">
-            <SelectValue>
-              {selectedOption?.label || "Select..."}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {column.options.map((option) => (
-              <SelectItem key={option.value} value={option.value.toString()}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div onClick={(e) => e.stopPropagation()}>
+          <Select
+            defaultOpen={column.field === "organization_id"}
+            value={value?.toString()}
+            onValueChange={(newValue) => {
+              onUpdate(newValue);
+              setIsActive(false);
+            }}
+            onOpenChange={(open) => setIsActive(open)}
+          >
+            <SelectTrigger className="h-10 w-full border-none shadow-none focus:ring-0">
+              <SelectValue>
+                {selectedOption?.label || "Select..."}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent 
+              className="z-50"
+              position="popper"
+              sideOffset={0}
+              align="start"
+            >
+              {column.options.map((option) => (
+                <SelectItem 
+                  key={option.value} 
+                  value={option.value.toString()}
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       );
     }
 
