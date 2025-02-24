@@ -33,7 +33,7 @@ export function TableHeader({
           </div>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[calc(100%+32px)] p-0 rounded-none shadow border border-gray-200 mt-0 -ml-4" 
+          className="w-[calc(100%+32px)] p-0 rounded-none shadow border-0 mt-0 -ml-4 bg-[#2A2A2A] text-white" 
           align="start" 
           side="bottom"
           sideOffset={16}
@@ -45,7 +45,7 @@ export function TableHeader({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal hover:bg-gray-100" 
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636]" 
               onClick={() => handleSort(column.field)}
             >
               Sort A → Z
@@ -53,29 +53,29 @@ export function TableHeader({
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal hover:bg-gray-100" 
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636]" 
               onClick={() => handleSort(column.field)}
             >
               Sort Z → A
             </Button>
-            <div className="h-[1px] bg-gray-200 my-1" />
+            <div className="h-[1px] bg-[#363636] my-1" />
             <Button 
               variant="ghost" 
               size="sm"
-              className="w-full justify-start px-4 py-1.5 text-sm font-normal hover:bg-gray-100"
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636]"
               onClick={() => clearFilter(column.field)}
             >
               Clear
             </Button>
             <div className="px-3 py-2">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                 <Input
                   ref={searchInputRef}
                   placeholder="Search..."
                   value={filters[column.field] || ""}
                   onChange={(e) => handleFilter(column.field, e.target.value)}
-                  className="pl-8 h-9 border-gray-200"
+                  className="pl-8 h-9 bg-[#363636] border-[#464646] text-white placeholder:text-gray-400"
                   autoFocus
                 />
               </div>
