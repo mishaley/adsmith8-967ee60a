@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -7,12 +8,15 @@ import { useEffect, useCallback, useState } from "react";
 
 type Tables = Database['public']['Tables'];
 
+// Helper type to get column names for a specific table
+type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
+
 interface ChangeHistoryEntry {
   rowId: string;
-  field: string;
+  field: TableColumns<TableName>;
   oldValue: any;
   newValue: any;
-  tableName: string;
+  tableName: TableName;
 }
 
 interface TableMutationsResult<T extends TableName> {
@@ -34,7 +38,7 @@ export function useTableMutations<T extends TableName>(
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: { 
       rowId: string; 
-      field: string; 
+      field: TableColumns<T>; 
       value: any;
       isUndo?: boolean;
     }) => {
