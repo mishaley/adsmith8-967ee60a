@@ -30,7 +30,11 @@ export function TableHeader({
         <PopoverTrigger asChild>
           <ChevronDown className="h-4 w-4 text-white cursor-pointer" />
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="end">
+        <PopoverContent 
+          className="w-full p-0 -mt-1 border-t-0" 
+          align="start" 
+          sideOffset={0}
+        >
           <div className="p-2 space-y-2">
             <div className="space-y-1">
               <Button 
