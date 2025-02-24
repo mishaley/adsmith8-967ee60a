@@ -25,15 +25,14 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
         .from(tableName)
         .update({ [field]: value })
         .eq(idField, rowId)
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
       return data;
     },
-    onSuccess: (_, variables) => {
-      // Invalidate the appropriate query based on the table being updated
-      const queryKey = [tableName.replace(/^\w+/, "").toLowerCase()];
-      queryClient.invalidateQueries({ queryKey });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
       setEditingCell(null);
     },
   });
