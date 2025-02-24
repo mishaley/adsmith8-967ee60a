@@ -45,7 +45,7 @@ export function TableCellComponent({
   // If this is the Created column and we're in editing mode, show Save/Cancel buttons
   if (column.field === 'created_at' && isEditing) {
     return (
-      <TableCellBase className="h-[2.5rem] min-w-[120px]">
+      <TableCellBase className="h-16 px-4">
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -70,49 +70,57 @@ export function TableCellComponent({
 
   if (isEditing && column.editable) {
     if (column.format === "image") {
-      return <div>Image upload not implemented yet</div>;
+      return (
+        <TableCellBase className="h-16 px-4">
+          <div>Image upload not implemented yet</div>
+        </TableCellBase>
+      );
     }
 
     if (column.inputMode === "select" && column.options) {
       const selectedOption = column.options.find(option => option.value === value);
       return (
-        <div onClick={(e) => e.stopPropagation()} className="h-[2.5rem] min-w-[120px]">
-          <Select
-            value={value?.toString()}
-            onValueChange={onUpdate}
-          >
-            <SelectTrigger className="h-10">
-              <SelectValue>
-                {selectedOption?.label || "Select..."}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {column.options.map((option) => (
-                <SelectItem key={option.value} value={option.value.toString()}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <TableCellBase className="h-16 px-4">
+          <div onClick={(e) => e.stopPropagation()}>
+            <Select
+              value={value?.toString()}
+              onValueChange={onUpdate}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue>
+                  {selectedOption?.label || "Select..."}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {column.options.map((option) => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </TableCellBase>
       );
     }
 
     return (
-      <div className="h-[2.5rem] min-w-[120px]">
+      <TableCellBase className="h-16 px-4">
         <Input
           defaultValue={value}
           onBlur={(e) => onUpdate(e.target.value)}
           autoFocus={column.inputMode === "text"}
           className="h-10"
         />
-      </div>
+      </TableCellBase>
     );
   }
 
   return (
-    <div className="w-full h-[2.5rem] min-w-[120px] flex items-center pointer-events-none">
-      {column.format ? formatCell(value, column.format) : displayValue}
-    </div>
+    <TableCellBase className="h-16 px-4">
+      <div className="flex items-center pointer-events-none">
+        {column.format ? formatCell(value, column.format) : displayValue}
+      </div>
+    </TableCellBase>
   );
 }
