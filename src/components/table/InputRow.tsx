@@ -20,7 +20,7 @@ export function InputRow({
   const renderInput = (column: ColumnDef) => {
     if (column.field === 'created_at') {
       return (
-        <div className="flex items-center">
+        <div className="flex items-center h-10">
           <Button
             onClick={handleAdd}
             className="h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
@@ -37,7 +37,7 @@ export function InputRow({
           value={newRecord[column.field] || ""}
           onValueChange={(value) => handleInputChange(column.field, value)}
         >
-          <SelectTrigger className="h-10 bg-white w-full">
+          <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input">
             <SelectValue placeholder="" />
           </SelectTrigger>
           <SelectContent>
@@ -55,7 +55,7 @@ export function InputRow({
       <Input
         value={newRecord[column.field] || ""}
         onChange={(e) => handleInputChange(column.field, e.target.value)}
-        className="h-10 bg-white w-full"
+        className="h-10 bg-white w-full rounded-md border border-input"
         placeholder=""
       />
     );
@@ -63,9 +63,15 @@ export function InputRow({
 
   return (
     <div className="mb-[9px]">
-      <div className="grid bg-[#d3e4fd] p-4" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: '1rem' }}>
+      <div 
+        className="grid bg-[#d3e4fd] px-4 py-4" 
+        style={{ 
+          gridTemplateColumns: columns.map(() => '1fr').join(' '),
+          columnGap: '1rem',
+        }}
+      >
         {columns.map((column) => (
-          <div key={column.field}>
+          <div key={column.field} className="min-w-0">
             {renderInput(column)}
           </div>
         ))}
