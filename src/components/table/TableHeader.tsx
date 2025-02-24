@@ -48,7 +48,7 @@ export function TableHeader({
               className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
               onClick={() => handleSort(column.field)}
             >
-              {column.field === 'created_at' ? 'New → Old' : 'A → Z'}
+              {column.field === 'created_at' ? 'Old → New' : 'A → Z'}
             </Button>
             <Button 
               variant="ghost" 
@@ -56,7 +56,7 @@ export function TableHeader({
               className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
               onClick={() => handleSort(column.field)}
             >
-              {column.field === 'created_at' ? 'Old → New' : 'Z → A'}
+              {column.field === 'created_at' ? 'New → Old' : 'Z → A'}
             </Button>
             {column.field !== 'created_at' && (
               <>
