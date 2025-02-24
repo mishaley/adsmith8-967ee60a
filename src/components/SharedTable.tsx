@@ -15,12 +15,20 @@ interface SharedTableProps {
   idField: string;
 }
 
+// Define the shape of the variables
+type UpdateVariables = {
+  rowId: string;
+  field: string;
+  value: any;
+};
+
 const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const updateMutation = useMutation({
-    mutationFn: async (variables: { rowId: string; field: string; value: any }) => {
+  // Provide explicit types to useMutation
+  const updateMutation = useMutation<void, Error, UpdateVariables>({
+    mutationFn: async (variables) => {
       const { error } = await supabase
         .from(tableName)
         .update({ [variables.field]: variables.value })
