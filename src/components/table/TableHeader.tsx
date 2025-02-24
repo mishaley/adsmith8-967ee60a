@@ -33,11 +33,11 @@ export function TableHeader({
           </div>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-full p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
-          align="start" 
+          className="w-[var(--radix-popper-anchor-width)] p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
+          align="start"
+          alignOffset={-16}
           side="bottom"
           sideOffset={16}
-          alignOffset={0}
           avoidCollisions={false}
           sticky="always"
         >
