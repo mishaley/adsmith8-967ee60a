@@ -2,10 +2,12 @@
 import { Table } from "@/components/ui/table";
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { TableActions } from "./table/TableActions";
 import { TableContent } from "./table/TableContent";
 import { useTableMutations } from "./table/TableMutations";
 import { toast } from "sonner";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
@@ -21,14 +23,9 @@ function SharedTable<T extends TableName>({
   idField 
 }: SharedTableProps<T>) {
   const [activeCell, setActiveCell] = useState<{ rowId: string; field: string } | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sort, setSort] = useState({ field: "created_at", direction: "desc" as "asc" | "desc" });
   const [data, setData] = useState(initialData);
   const [newRecord, setNewRecord] = useState<Record<string, any>>({});
-  const [undoStack, setUndoStack] = useState<Array<{ rowId: string; field: string; oldValue: any; newValue: any }>>([]);
-  const [redoStack, setRedoStack] = useState<Array<{ rowId: string; field: string; oldValue: any; newValue: any }>>([]);
-  const [editedValues, setEditedValues] = useState<Record<string, any>>({});
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const { updateMutation, createMutation } = useTableMutations(tableName, idField);
 
@@ -48,7 +45,6 @@ function SharedTable<T extends TableName>({
 
   const handleSort = (field: string, direction: "asc" | "desc") => {
     setSort({ field, direction });
-    setActiveFilter(null);
   };
 
   const handleAdd = () => {
@@ -69,90 +65,98 @@ function SharedTable<T extends TableName>({
     setNewRecord(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCellClick = useCallback((rowId: string, field: string) => {
-    if (activeCell && (activeCell.rowId !== rowId || activeCell.field !== field)) {
-      if (Object.keys(editedValues).length > 0) {
-        handleSave(activeCell.rowId, activeCell.field);
-      }
-      setActiveCell({ rowId, field });
-      setEditedValues({});
-    } else if (!activeCell) {
-      setActiveCell({ rowId, field });
-      setEditedValues({});
-    }
-  }, [activeCell, editedValues]);
-
   const handleCellUpdate = (field: string, value: any) => {
-    setEditedValues(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleSave = (rowId: string, field: string) => {
-    if (!editedValues[field]) return;
-    
-    const row = data.find(r => r.id === rowId);
-    if (!row) return;
-
-    const newValue = editedValues[field];
-    const oldValue = row[field];
-    
-    if (oldValue !== newValue) {
-      updateMutation.mutate({ rowId, field, value: newValue });
-      setUndoStack(prev => [...prev, { rowId, field, oldValue, newValue }]);
-      setRedoStack([]);
-    }
-    
+    if (!activeCell) return;
+    updateMutation.mutate({ 
+      rowId: activeCell.rowId, 
+      field, 
+      value 
+    });
     setActiveCell(null);
-    setEditedValues({});
   };
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (activeCell) {
-        const target = e.target as HTMLElement;
-        const isSelectContent = target.closest('.select-content');
-        const cellElement = target.closest('[data-cell-id]') as HTMLElement | null;
-        const isActiveCell = cellElement?.dataset.cellId === `${activeCell.rowId}-${activeCell.field}`;
-        
-        if (!isSelectContent && !isActiveCell) {
-          if (editedValues[activeCell.field]) {
-            handleSave(activeCell.rowId, activeCell.field);
-          }
-          setActiveCell(null);
-          setEditedValues({});
-        }
-      }
-    };
+  const handleCellClick = (rowId: string, field: string) => {
+    setActiveCell(rowId && field ? { rowId, field } : null);
+  };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [activeCell, editedValues]);
+  const organizationOptions = columns.find(col => col.field === "organization_id")?.options || [];
 
   return (
-    <div>
-      <TableActions
-        columns={columns}
-        newRecord={newRecord}
-        handleInputChange={handleInputChange}
-        handleAdd={handleAdd}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        handleSort={handleSort}
-        searchInputRef={searchInputRef}
-      />
-      
-      <Table>
-        <TableContent
-          data={data}
-          columns={columns}
-          activeCell={activeCell}
-          handleCellUpdate={handleCellUpdate}
-          handleSave={handleSave}
-          handleCellClick={handleCellClick}
-        />
-      </Table>
+    <div className="grid grid-cols-3 gap-4">
+      {/* Column 1: Offering */}
+      <div className="flex flex-col">
+        <div className="bg-[#d3e4fd] p-4 mb-2">
+          <Input
+            value={newRecord["offering_name"] || ""}
+            onChange={(e) => handleInputChange("offering_name", e.target.value)}
+            className="h-10 bg-white w-full rounded-md border border-input"
+            placeholder=""
+          />
+        </div>
+        <div className="bg-[#154851] p-4 text-white font-bold uppercase">
+          Offering
+        </div>
+        <div className="flex-1">
+          {data.map(row => (
+            <div key={row.id} className="p-4 border-b">
+              {row.offering_name}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Column 2: Organization */}
+      <div className="flex flex-col">
+        <div className="bg-[#d3e4fd] p-4 mb-2">
+          <Select
+            value={newRecord["organization_id"] || ""}
+            onValueChange={(value) => handleInputChange("organization_id", value)}
+          >
+            <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input">
+              <SelectValue placeholder="" />
+            </SelectTrigger>
+            <SelectContent>
+              {organizationOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="bg-[#154851] p-4 text-white font-bold uppercase">
+          Organization
+        </div>
+        <div className="flex-1">
+          {data.map(row => (
+            <div key={row.id} className="p-4 border-b">
+              {row.organization_name}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Column 3: Created */}
+      <div className="flex flex-col">
+        <div className="bg-[#d3e4fd] p-4 mb-2">
+          <Button
+            onClick={handleAdd}
+            className="h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
+          >
+            ADD
+          </Button>
+        </div>
+        <div className="bg-[#154851] p-4 text-white font-bold uppercase">
+          Created
+        </div>
+        <div className="flex-1">
+          {data.map(row => (
+            <div key={row.id} className="p-4 border-b">
+              {row.created_at ? new Date(row.created_at).toLocaleDateString() : ''}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
