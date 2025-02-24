@@ -31,9 +31,11 @@ export function TableHeader({
           <ChevronDown className="h-4 w-4 text-white cursor-pointer" />
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[var(--radix-popover-trigger-width)] p-0 -mt-[1px] rounded-none shadow border border-gray-200" 
+          className="w-[var(--radix-popover-content-width)] p-0 -mt-[1px] rounded-none shadow border border-gray-200" 
           align="start" 
-          sideOffset={0}
+          side="bottom"
+          alignOffset={-8}
+          sideOffset={-32}
         >
           <div className="py-1">
             <Button 
