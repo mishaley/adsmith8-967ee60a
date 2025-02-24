@@ -26,13 +26,13 @@ export function TableHeader({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center justify-between space-x-2 w-full relative group cursor-pointer">
+        <div className="flex items-center justify-between space-x-2 w-full relative group cursor-pointer h-full">
           <span className="truncate">{column.header}</span>
           <ChevronDown className="h-4 w-4 text-white" />
         </div>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[calc(100%+0.5rem)] p-0 rounded-none shadow border border-gray-200" 
+        className="w-[calc(100%+0.5rem)] p-0 rounded-none shadow border border-gray-200 mt-0" 
         align="start" 
         side="bottom"
         sideOffset={0}
