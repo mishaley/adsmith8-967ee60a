@@ -1,4 +1,3 @@
-
 import { Table, TableBody, TableRow } from "@/components/ui/table";
 import { ColumnDef, TableRow as ITableRow, TableName, TableData } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
@@ -164,9 +163,13 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   };
 
   const handleCellClick = useCallback((rowId: string, field: string) => {
+    if (activeCell && Object.keys(editedValues).length > 0) {
+      handleSave(activeCell.rowId, activeCell.field);
+    }
+    
     setActiveCell({ rowId, field });
     setEditedValues({});
-  }, []);
+  }, [activeCell, editedValues]);
 
   const handleCellUpdate = (field: string, value: any) => {
     setEditedValues(prev => ({
