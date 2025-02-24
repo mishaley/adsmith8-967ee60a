@@ -22,25 +22,19 @@ type UpdateVariables = {
   value: any;
 };
 
-// Define the mutation return type
-type MutationReturn = {
-  data: null;
-  error: Error | null;
-};
-
 const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const updateMutation = useMutation<MutationReturn, Error, UpdateVariables>({
-    mutationFn: async (variables) => {
-      const { data, error } = await supabase
+  const updateMutation = useMutation({
+    mutationKey: [tableName, 'update'],
+    mutationFn: async ({ rowId, field, value }: UpdateVariables) => {
+      const { error } = await supabase
         .from(tableName)
-        .update({ [variables.field]: variables.value })
-        .eq(idField, variables.rowId);
+        .update({ [field]: value })
+        .eq(idField, rowId);
 
       if (error) throw error;
-      return { data, error };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
