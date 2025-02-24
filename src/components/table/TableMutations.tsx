@@ -11,6 +11,9 @@ type Tables = Database['public']['Tables'];
 // Helper type to get column names for a specific table
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
 
+// Helper type to get the table type from the TableName
+type TableType<T extends TableName> = Tables[T];
+
 interface ChangeHistoryEntry<T extends TableName = TableName> {
   rowId: string;
   field: TableColumns<T>;
@@ -50,14 +53,14 @@ export function useTableMutations<T extends TableName>(
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq(idField, rowId);
+          .eq(idField as keyof Tables[T]['Row'], rowId);
         if (error) throw error;
       } else {
         // Get the current value before updating
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
-          .select<'*', Tables[T]['Row']>('*')
-          .eq(idField, rowId)
+          .select<keyof Tables[T]['Row'], Tables[T]['Row']>('*')
+          .eq(idField as keyof Tables[T]['Row'], rowId)
           .maybeSingle();
         
         if (selectError) throw selectError;
@@ -67,7 +70,7 @@ export function useTableMutations<T extends TableName>(
         const { error } = await supabase
           .from(tableName)
           .update(updateData)
-          .eq(idField, rowId);
+          .eq(idField as keyof Tables[T]['Row'], rowId);
         
         if (error) throw error;
 
@@ -101,7 +104,7 @@ export function useTableMutations<T extends TableName>(
 
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
-    mutationFn: async (record: Partial<TableData<T>>) => {
+    mutationFn: async (record: TableData<T>) => {
       const insertData = record as Tables[T]['Insert'];
       
       const { data, error } = await supabase
@@ -112,7 +115,8 @@ export function useTableMutations<T extends TableName>(
       if (error) throw error;
       
       if (tableName === 'a1organizations' && data?.[0]) {
-        const orgId = data[0][idField as keyof typeof data[0]];
+        const row = data[0] as Tables[T]['Row'];
+        const orgId = row[idField as keyof Tables[T]['Row']];
         if (orgId) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
             body: { organization_id: orgId }
@@ -175,7 +179,7 @@ export function useTableMutations<T extends TableName>(
           const { error } = await supabase
             .from(tableName)
             .delete()
-            .eq(idField, change.rowId);
+            .eq(idField as keyof Tables[T]['Row'], change.rowId);
             
           if (error) throw error;
         } else {
