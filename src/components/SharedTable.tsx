@@ -10,10 +10,10 @@ import { InputRow } from "./table/InputRow";
 import { TableCellComponent } from "./table/TableCell";
 import { TableCell } from "./ui/table";
 
-interface SharedTableProps {
+interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
   columns: ColumnDef[];
-  tableName: TableName;
+  tableName: T;
   idField: string;
 }
 
@@ -28,7 +28,7 @@ type SortConfig = {
   direction: "asc" | "desc";
 };
 
-const SharedTable = <T extends TableName>({ data: initialData, columns, tableName, idField }: SharedTableProps) => {
+const SharedTable = <T extends TableName,>({ data: initialData, columns, tableName, idField }: SharedTableProps<T>) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sort, setSort] = useState<SortConfig>({ field: "created_at", direction: "desc" });
