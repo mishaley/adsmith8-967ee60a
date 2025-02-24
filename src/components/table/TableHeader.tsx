@@ -24,18 +24,18 @@ export function TableHeader({
   searchInputRef
 }: TableHeaderProps) {
   return (
-    <div className="flex items-center justify-between space-x-2 w-full">
+    <div className="flex items-center justify-between space-x-2 w-full relative group">
       <span className="truncate">{column.header}</span>
       <Popover>
         <PopoverTrigger asChild>
           <ChevronDown className="h-4 w-4 text-white cursor-pointer" />
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[var(--radix-popover-content-width)] p-0 -mt-[1px] rounded-none shadow border border-gray-200" 
+          className="w-[calc(100%+0.5rem)] p-0 rounded-none shadow border border-gray-200" 
           align="start" 
           side="bottom"
+          sideOffset={0}
           alignOffset={-8}
-          sideOffset={-32}
         >
           <div className="py-1">
             <Button 
