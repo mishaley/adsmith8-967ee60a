@@ -46,7 +46,7 @@ export function TableCellComponent({
     // If this is the Created column and we're in editing mode, show Save/Cancel buttons
     if (column.field === 'created_at' && isEditing) {
       return (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <Button
             variant="ghost"
             size="sm"
@@ -75,42 +75,52 @@ export function TableCellComponent({
       if (column.inputMode === "select" && column.options) {
         const selectedOption = column.options.find(option => option.value === value);
         return (
-          <Select
-            value={value?.toString()}
-            onValueChange={onUpdate}
-          >
-            <SelectTrigger className="h-10 w-full">
-              <SelectValue>
-                {selectedOption?.label || "Select..."}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {column.options.map((option) => (
-                <SelectItem key={option.value} value={option.value.toString()}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="h-10">
+            <Select
+              value={value?.toString()}
+              onValueChange={onUpdate}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue>
+                  {selectedOption?.label || "Select..."}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {column.options.map((option) => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         );
       }
 
       return (
-        <Input
-          defaultValue={value}
-          onBlur={(e) => onUpdate(e.target.value)}
-          autoFocus={column.inputMode === "text"}
-          className="h-10 w-full"
-        />
+        <div className="h-10">
+          <Input
+            defaultValue={value}
+            onBlur={(e) => onUpdate(e.target.value)}
+            autoFocus={column.inputMode === "text"}
+            className="h-10"
+          />
+        </div>
       );
     }
 
-    return formatCell(value, column.format) || displayValue;
+    return (
+      <div className="truncate">
+        {formatCell(value, column.format) || displayValue}
+      </div>
+    );
   };
 
   return (
-    <div className="h-16 px-4 flex items-center">
-      {renderCellContent()}
-    </div>
+    <td className="p-0">
+      <div className="h-16 w-full px-4 flex items-center relative">
+        {renderCellContent()}
+      </div>
+    </td>
   );
 }
