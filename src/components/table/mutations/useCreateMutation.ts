@@ -23,7 +23,7 @@ export function useCreateMutation<T extends TableName>({
     mutationFn: async (record: Tables[T]['Insert']) => {      
       const { data, error } = await supabase
         .from(tableName)
-        .insert([record])
+        .insert([record as Tables[T]['Insert']])
         .select();
       
       if (error) throw error;

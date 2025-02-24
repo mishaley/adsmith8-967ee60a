@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow, TableName } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -24,7 +23,7 @@ interface TableColumnProps<T extends TableName> {
   column: ColumnDef;
   data: TableRow[];
   newRecord: Partial<Tables[T]['Insert']>;
-  handleInputChange: (field: string, value: any) => void;
+  handleInputChange: (field: keyof Tables[T]['Insert'], value: any) => void;
   handleSort: (field: string) => void;
   handleFilter: (field: string, value: string) => void;
   clearFilter: (field: string) => void;
@@ -53,24 +52,20 @@ export function TableColumn<T extends TableName>({
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const { updateMutation } = useTableMutations(tableName, idField);
 
-  const handleCellClick = (rowId: string, field: string) => {
+  const handleCellClick = (rowId: string, field: keyof Tables[T]['Row']) => {
     if (column.editable) {
-      setEditingCell({ rowId, field });
+      setEditingCell({ rowId, field: field as string });
     }
   };
 
-  const handleCellBlur = (rowId: string, field: string, value: any) => {
+  const handleCellBlur = (rowId: string, field: keyof Tables[T]['Row'], value: any) => {
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
-      updateMutation.mutate({ 
-        rowId, 
-        field: field as keyof Tables[T]['Row'], 
-        value 
-      });
+      updateMutation.mutate({ rowId, field, value });
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, rowId: string, field: string, value: any) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, rowId: string, field: keyof Tables[T]['Row'], value: any) => {
     if (e.key === 'Enter') {
       handleCellBlur(rowId, field, value);
     }
@@ -83,7 +78,7 @@ export function TableColumn<T extends TableName>({
 
   const confirmDelete = async () => {
     if (deletingRow) {
-      const oldData = { ...deletingRow };
+      const oldData = { ...deletingRow } as Partial<Tables[T]['Row']>;
       updateMutation.mutate({
         rowId: deletingRow.id,
         field: idField,

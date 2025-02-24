@@ -40,14 +40,14 @@ export function useUpdateMutation<T extends TableName>({
       } else {
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
-          .select('*')
+          .select()
           .eq(idField as string, rowId)
           .single();
         
         if (selectError) throw selectError;
 
         if (currentData) {
-          const updateData = { [field]: value };
+          const updateData = { [field]: value } as Partial<Tables[T]['Update']>;
           
           const { error } = await supabase
             .from(tableName)
