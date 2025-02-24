@@ -47,57 +47,17 @@ const SharedTable = ({ tableName, columns, data = [], refetchKey }: SharedTableP
 
     if (isEditing) {
       switch (column.inputMode) {
-        case "dropdown":
+        case "text":
           return (
-            <Select
-              defaultValue={value}
-              onValueChange={(newValue) => {
-                updateCell({ rowId: row.id, field: column.field, value: newValue });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {column.options?.map((option) => (
-                  <SelectItem
-                    key={typeof option === 'string' ? option : option.value}
-                    value={typeof option === 'string' ? option : option.value}
-                  >
-                    {typeof option === 'string' ? option : option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          );
-        case "textarea":
-          return (
-            <Textarea
+            <Input
               defaultValue={value}
               onBlur={(e) => {
                 updateCell({ rowId: row.id, field: column.field, value: e.target.value });
-              }}
-            />
-          );
-        case "integer":
-          return (
-            <Input
-              type="number"
-              defaultValue={value}
-              onBlur={(e) => {
-                updateCell({ rowId: row.id, field: column.field, value: parseInt(e.target.value) });
               }}
             />
           );
         default:
-          return (
-            <Input
-              defaultValue={value}
-              onBlur={(e) => {
-                updateCell({ rowId: row.id, field: column.field, value: e.target.value });
-              }}
-            />
-          );
+          return value;
       }
     }
 
