@@ -15,25 +15,18 @@ interface SharedTableProps {
   idField: string;
 }
 
-interface UpdateCellVariables {
-  rowId: string;
-  field: string;
-  value: string | number | boolean | null;
-}
-
 const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const updateCellMutation = useMutation<unknown, Error, UpdateCellVariables>({
-    mutationFn: async ({ rowId, field, value }) => {
+  const updateMutation = useMutation({
+    mutationFn: async (variables: { rowId: string; field: string; value: any }) => {
       const { error } = await supabase
         .from(tableName)
-        .update({ [field]: value })
-        .eq(idField, rowId);
+        .update({ [variables.field]: variables.value })
+        .eq(idField, variables.rowId);
 
       if (error) throw error;
-      return null;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
@@ -71,7 +64,7 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
           <Select
             defaultValue={value}
             onValueChange={(newValue) => {
-              updateCellMutation.mutate({ rowId: row.id, field: column.field, value: newValue });
+              updateMutation.mutate({ rowId: row.id, field: column.field, value: newValue });
             }}
           >
             <SelectTrigger>
@@ -92,7 +85,7 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
         <Input
           defaultValue={value}
           onBlur={(e) => {
-            updateCellMutation.mutate({ rowId: row.id, field: column.field, value: e.target.value });
+            updateMutation.mutate({ rowId: row.id, field: column.field, value: e.target.value });
           }}
         />
       );
