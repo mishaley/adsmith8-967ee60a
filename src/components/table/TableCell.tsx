@@ -128,7 +128,7 @@ export function TableCellComponent({
         ? 'bg-white' + (isActive ? ' border-2 border-[#ecb652]' : '')
         : ''
     }`}>
-      <div className="h-16 w-full px-4 flex items-center">
+      <div className="h-12 w-full px-4 flex items-center">
         {isEditing && column.editable ? (
           <div className="w-full">
             {renderEditContent()}
