@@ -112,7 +112,11 @@ export function TableCellComponent({
   };
 
   return (
-    <td className={`p-0 ${isEditing && column.editable ? 'border-2 border-[#ecb652]' : ''}`}>
+    <td className={`p-0 relative ${
+      isEditing && column.editable 
+        ? 'before:absolute before:inset-0 before:border-t-2 before:border-b-2 before:border-l-2 before:border-[#ecb652]' 
+        : ''
+    }`}>
       <div className="h-16 w-full px-4 flex items-center">
         {isEditing && column.editable ? (
           <div className="w-full">
