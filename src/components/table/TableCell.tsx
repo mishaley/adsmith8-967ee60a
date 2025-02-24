@@ -61,7 +61,7 @@ export function TableCellComponent({
           }}
           onOpenChange={(open) => setIsActive(open)}
         >
-          <SelectTrigger className="h-10 border-none shadow-none focus:ring-0">
+          <SelectTrigger className="h-10 w-full border-none shadow-none focus:ring-0">
             <SelectValue>
               {selectedOption?.label || "Select..."}
             </SelectValue>
@@ -116,14 +116,14 @@ export function TableCellComponent({
     }
 
     return (
-      <div className="truncate">
+      <div className="w-full truncate">
         {column.displayField && row[column.displayField] ? row[column.displayField] : formatCell(value, column.format)}
       </div>
     );
   };
 
   return (
-    <td className={`p-0 relative ${
+    <td className={`p-0 relative w-full ${
       isEditing 
         ? 'bg-white' + (isActive ? ' border-2 border-[#ecb652]' : '')
         : ''
