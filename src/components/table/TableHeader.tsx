@@ -33,7 +33,7 @@ export function TableHeader({
           </div>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[calc(100%+32px)] p-0 rounded-none shadow border-0 mt-0 -ml-4 bg-[#2A2A2A] text-white" 
+          className="w-full p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
           align="start" 
           side="bottom"
           sideOffset={16}
