@@ -65,7 +65,7 @@ export function TableCellComponent({
             }}
             onOpenChange={(open) => setIsActive(open)}
           >
-            <SelectTrigger className="h-10 w-full border-none shadow-none focus:ring-0">
+            <SelectTrigger className="h-10 w-full border-none shadow-none focus:ring-0 p-0 justify-start">
               <SelectValue>
                 {selectedOption?.label || "Select..."}
               </SelectValue>
