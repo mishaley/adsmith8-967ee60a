@@ -1,12 +1,15 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { ChevronDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface SharedTableProps {
   data: ITableRow[];
@@ -15,16 +18,63 @@ interface SharedTableProps {
   idField: string;
 }
 
-// Define the shape of the variables
 type UpdateVariables = {
   rowId: string;
   field: string;
   value: any;
 };
 
-const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
+type SortDirection = "asc" | "desc" | null;
+type FilterState = { search: string; values: Set<string> };
+type Filters = { [key: string]: FilterState };
+
+const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<string>("created_at");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [filters, setFilters] = useState<Filters>({});
+  const [data, setData] = useState(initialData);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const newFilters: Filters = {};
+    columns.forEach(column => {
+      newFilters[column.field] = {
+        search: "",
+        values: new Set(initialData.map(row => String(row[column.field])))
+      };
+    });
+    setFilters(newFilters);
+  }, [columns, initialData]);
+
+  useEffect(() => {
+    let filteredData = [...initialData];
+
+    Object.entries(filters).forEach(([field, filter]) => {
+      if (filter.values.size > 0) {
+        filteredData = filteredData.filter(row => 
+          filter.values.has(String(row[field]))
+        );
+      }
+    });
+
+    if (sortField) {
+      filteredData.sort((a, b) => {
+        const aVal = a[sortField];
+        const bVal = b[sortField];
+        
+        if (sortDirection === "asc") {
+          return String(aVal).localeCompare(String(bVal));
+        } else {
+          return String(bVal).localeCompare(String(aVal));
+        }
+      });
+    }
+
+    setData(filteredData);
+  }, [initialData, filters, sortField, sortDirection]);
 
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
@@ -41,6 +91,31 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
       setEditingCell(null);
     },
   });
+
+  const handleFilterChange = (field: string, searchTerm: string, allValues: any[]) => {
+    const lowercaseSearch = searchTerm.toLowerCase();
+    const filteredValues = new Set(
+      allValues
+        .filter(value => 
+          String(value).toLowerCase().includes(lowercaseSearch)
+        )
+        .map(String)
+    );
+
+    setFilters(prev => ({
+      ...prev,
+      [field]: {
+        search: searchTerm,
+        values: filteredValues
+      }
+    }));
+  };
+
+  const handleSort = (field: string, direction: SortDirection) => {
+    setSortField(field);
+    setSortDirection(direction);
+    setActiveFilter(null);
+  };
 
   const formatCell = (value: any, columnFormat?: string) => {
     if (!value) return "";
@@ -63,7 +138,6 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
 
     if (isEditing) {
       if (column.format === "image") {
-        // TODO: Implement image upload functionality
         return <div>Image upload not implemented yet</div>;
       }
 
@@ -111,8 +185,85 @@ const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) =>
       <TableHeader className="bg-[#154851]">
         <TableRow>
           {columns.map((column) => (
-            <TableHead key={column.field} className="text-white font-bold uppercase">
-              {column.header}
+            <TableHead 
+              key={column.field} 
+              className="text-white font-bold uppercase flex items-center justify-between"
+            >
+              <span>{column.header}</span>
+              <Popover 
+                open={activeFilter === column.field}
+                onOpenChange={(open) => {
+                  setActiveFilter(open ? column.field : null);
+                  if (open) {
+                    setTimeout(() => {
+                      searchInputRef.current?.focus();
+                    }, 0);
+                  }
+                }}
+              >
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="h-8 w-8 p-0 text-white hover:bg-[#1e5f6a]"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56" align="start">
+                  <div className="space-y-4">
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={() => handleSort(column.field, "asc")}
+                      >
+                        Sort A to Z
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        onClick={() => handleSort(column.field, "desc")}
+                      >
+                        Sort Z to A
+                      </Button>
+                    </div>
+                    <Separator />
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <Button
+                          variant="ghost"
+                          className="h-8 text-xs"
+                          onClick={() => handleFilterChange(
+                            column.field,
+                            "",
+                            initialData.map(row => row[column.field])
+                          )}
+                        >
+                          Select all
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="h-8 text-xs"
+                          onClick={() => handleFilterChange(column.field, "", [])}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                      <Input
+                        ref={searchInputRef}
+                        placeholder="Search..."
+                        value={filters[column.field]?.search || ""}
+                        onChange={(e) => handleFilterChange(
+                          column.field,
+                          e.target.value,
+                          initialData.map(row => row[column.field])
+                        )}
+                        className="h-8"
+                      />
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </TableHead>
           ))}
         </TableRow>
