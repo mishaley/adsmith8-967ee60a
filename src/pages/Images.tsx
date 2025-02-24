@@ -4,6 +4,7 @@ import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
+import { useEffect } from "react";
 
 const Images = () => {
   const { data: messages = [] } = useQuery({
@@ -121,7 +122,7 @@ const Images = () => {
     }
   ];
 
-  const { data = [] } = useQuery({
+  const { data = [], refetch } = useQuery({
     queryKey: ["images"],
     queryFn: async () => {
       const { data } = await supabase
@@ -158,6 +159,28 @@ const Images = () => {
     },
   });
 
+  useEffect(() => {
+    // Subscribe to changes on the images table
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'e1images'
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
+
   return (
     <QuadrantLayout>
       {{
@@ -173,3 +196,4 @@ const Images = () => {
 };
 
 export default Images;
+

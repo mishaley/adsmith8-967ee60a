@@ -4,6 +4,7 @@ import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
+import { useEffect } from "react";
 
 const Offerings = () => {
   const { data: organizations = [] } = useQuery({
@@ -48,7 +49,7 @@ const Offerings = () => {
     }
   ];
 
-  const { data = [] } = useQuery({
+  const { data = [], refetch } = useQuery({
     queryKey: ["offerings"],
     queryFn: async () => {
       const { data } = await supabase
@@ -71,6 +72,28 @@ const Offerings = () => {
     },
   });
 
+  useEffect(() => {
+    // Subscribe to changes on the offerings table
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'b1offerings'
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
+
   return (
     <QuadrantLayout>
       {{
@@ -86,3 +109,4 @@ const Offerings = () => {
 };
 
 export default Offerings;
+

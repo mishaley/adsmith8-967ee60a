@@ -4,6 +4,7 @@ import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
+import { useEffect } from "react";
 
 const Captions = () => {
   const { data: messages = [] } = useQuery({
@@ -92,7 +93,7 @@ const Captions = () => {
     }
   ];
 
-  const { data = [] } = useQuery({
+  const { data = [], refetch } = useQuery({
     queryKey: ["captions"],
     queryFn: async () => {
       const { data } = await supabase
@@ -123,6 +124,28 @@ const Captions = () => {
     },
   });
 
+  useEffect(() => {
+    // Subscribe to changes on the captions table
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'e2captions'
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
+
   return (
     <QuadrantLayout>
       {{
@@ -138,3 +161,4 @@ const Captions = () => {
 };
 
 export default Captions;
+

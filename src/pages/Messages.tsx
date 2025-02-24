@@ -4,6 +4,7 @@ import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
+import { useEffect } from "react";
 
 const Messages = () => {
   const { data: personas = [] } = useQuery({
@@ -86,7 +87,7 @@ const Messages = () => {
     }
   ];
 
-  const { data = [] } = useQuery({
+  const { data = [], refetch } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
       const { data } = await supabase
@@ -115,6 +116,28 @@ const Messages = () => {
     },
   });
 
+  useEffect(() => {
+    // Subscribe to changes on the messages table
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'd1messages'
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch]);
+
   return (
     <QuadrantLayout>
       {{
@@ -130,3 +153,4 @@ const Messages = () => {
 };
 
 export default Messages;
+
