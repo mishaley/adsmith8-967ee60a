@@ -10,7 +10,7 @@ const Images = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("e1images")
-        .select("image_inputprompt as name, created_at");
+        .select("name:image_inputprompt, created_at");
       return data || [];
     },
   });

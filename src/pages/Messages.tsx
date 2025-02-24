@@ -10,7 +10,7 @@ const Messages = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("d1messages")
-        .select("message_name as name, created_at");
+        .select("name:message_name, created_at");
       return data || [];
     },
   });

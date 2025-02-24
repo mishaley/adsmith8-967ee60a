@@ -10,7 +10,7 @@ const Captions = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("e2captions")
-        .select("caption_name as name, created_at");
+        .select("name:caption_name, created_at");
       return data || [];
     },
   });

@@ -10,7 +10,7 @@ const Offerings = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("b1offerings")
-        .select("offering_name as name, created_at");
+        .select("name:offering_name, created_at");
       return data || [];
     },
   });
