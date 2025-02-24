@@ -38,7 +38,7 @@ const Offerings = () => {
       editable: true,
       required: true,
       options: organizationOptions,
-      displayField: "organization_name"
+      displayField: "organization_name"  // This is correct
     },
     {
       field: "created_at",
@@ -56,10 +56,12 @@ const Offerings = () => {
       const { data, error } = await supabase
         .from("b1offerings")
         .select(`
-          id:offering_id,
+          offering_id,
           offering_name,
           organization_id,
-          organization:a1organizations(organization_name),
+          organization:a1organizations (
+            organization_name
+          ),
           created_at
         `);
       
@@ -69,10 +71,10 @@ const Offerings = () => {
       }
       
       return (data || []).map(row => ({
-        id: row.id,
+        id: row.offering_id,
         offering_name: row.offering_name,
         organization_id: row.organization_id,
-        organization_name: row.organization?.organization_name,
+        organization_name: row.organization?.organization_name,  // Map the joined organization name
         created_at: row.created_at
       }));
     },
