@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -67,13 +66,11 @@ export function TableColumn({
           </div>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[calc(var(--radix-popper-anchor-width)+32px)] p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
+          className="w-[var(--radix-popper-anchor-width)] p-0 rounded-none shadow-none border-0 mt-0 bg-[#2A2A2A] text-white" 
           align="start"
-          alignOffset={-16}
           side="bottom"
-          sideOffset={16}
+          sideOffset={0}
           avoidCollisions={false}
-          sticky="always"
         >
           <div className="py-1">
             <TableHeader 
