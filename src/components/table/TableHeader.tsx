@@ -32,87 +32,85 @@ export function TableHeader({
   };
 
   return (
-    <div className="h-full">
-      <Popover>
-        <PopoverTrigger asChild>
-          <button className="flex items-center justify-between space-x-2 w-full h-full relative group cursor-pointer">
-            <span className="truncate">{column.header}</span>
-            <ChevronDown className="h-4 w-4 text-white" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent 
-          className="w-[calc(var(--radix-popper-anchor-width)+32px)] p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
-          align="start"
-          alignOffset={-16}
-          side="bottom"
-          sideOffset={16}
-          avoidCollisions={false}
-          sticky="always"
-        >
-          <div className="py-1">
-            {column.field === 'created_at' ? (
-              <>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleCreatedSort('desc')}
-                >
-                  New → Old
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleCreatedSort('asc')}
-                >
-                  Old → New
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleFixedSort('asc')}
-                >
-                  A → Z
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
-                  onClick={() => handleFixedSort('desc')}
-                >
-                  Z → A
-                </Button>
-                <div className="h-[1px] bg-[#363636] my-1" />
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]"
-                  onClick={() => clearFilter(column.field)}
-                >
-                  Clear
-                </Button>
-                <div className="px-3 py-2">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                    <Input
-                      ref={searchInputRef}
-                      value={filters[column.field] || ""}
-                      onChange={(e) => handleFilter(column.field, e.target.value)}
-                      className="pl-8 h-9 bg-white border-[#464646] text-black"
-                      autoFocus
-                    />
-                  </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className="flex items-center justify-between space-x-2 w-full h-full relative group cursor-pointer">
+          <span className="truncate">{column.header}</span>
+          <ChevronDown className="h-4 w-4 text-white" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="w-[calc(var(--radix-popper-anchor-width)+32px)] p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
+        align="start"
+        alignOffset={-16}
+        side="bottom"
+        sideOffset={16}
+        avoidCollisions={false}
+        sticky="always"
+      >
+        <div className="py-1">
+          {column.field === 'created_at' ? (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+                onClick={() => handleCreatedSort('desc')}
+              >
+                New → Old
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+                onClick={() => handleCreatedSort('asc')}
+              >
+                Old → New
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+                onClick={() => handleFixedSort('asc')}
+              >
+                A → Z
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+                onClick={() => handleFixedSort('desc')}
+              >
+                Z → A
+              </Button>
+              <div className="h-[1px] bg-[#363636] my-1" />
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]"
+                onClick={() => clearFilter(column.field)}
+              >
+                Clear
+              </Button>
+              <div className="px-3 py-2">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    ref={searchInputRef}
+                    value={filters[column.field] || ""}
+                    onChange={(e) => handleFilter(column.field, e.target.value)}
+                    className="pl-8 h-9 bg-white border-[#464646] text-black"
+                    autoFocus
+                  />
                 </div>
-              </>
-            )}
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+              </div>
+            </>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
