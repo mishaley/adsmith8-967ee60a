@@ -67,7 +67,7 @@ function SharedTable<T extends TableName>({
   return (
     <div className="w-full">
       {/* Input row container */}
-      <div className="grid" style={{ gridTemplateColumns: "1fr 100px" }}>
+      <div className="grid" style={{ gridTemplateColumns: "auto 100px" }}>
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Input
             value={newRecord["organization_name"] || ""}
@@ -87,7 +87,7 @@ function SharedTable<T extends TableName>({
       </div>
 
       {/* Table container */}
-      <div className="grid" style={{ gridTemplateColumns: "1fr 100px" }}>
+      <div className="grid" style={{ gridTemplateColumns: "auto 100px" }}>
         {/* Main columns */}
         {mainColumns.map((column) => (
           <div key={column.field} className="flex flex-col">
