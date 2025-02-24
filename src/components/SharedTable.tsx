@@ -69,7 +69,7 @@ function SharedTable<T extends TableName>({
     <div className="w-full">
       {/* Input row container */}
       <div className="grid" style={{
-        gridTemplateColumns: "300px 100px"
+        gridTemplateColumns: "minmax(auto, max-content) 100px"
       }}>
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Input 
@@ -90,7 +90,7 @@ function SharedTable<T extends TableName>({
 
       {/* Table container */}
       <div className="grid" style={{
-        gridTemplateColumns: "300px 100px"
+        gridTemplateColumns: "minmax(auto, max-content) 100px"
       }}>
         {/* Main columns */}
         {mainColumns.map(column => (
