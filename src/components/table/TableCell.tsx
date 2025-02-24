@@ -71,7 +71,7 @@ export function TableCellComponent({
               </SelectValue>
             </SelectTrigger>
             <SelectContent 
-              className="z-50"
+              className="z-50 select-content"
               position="popper"
               sideOffset={0}
               align="start"
@@ -140,9 +140,7 @@ export function TableCellComponent({
       onClick={onClick}
       data-cell-id={`${row.id}-${column.field}`}
       className={`relative w-[1%] whitespace-nowrap cursor-pointer ${
-        isEditing 
-          ? 'bg-white' + (isActive ? ' ring-2 ring-[#ecb652] ring-inset' : '')
-          : ''
+        isEditing ? 'ring-2 ring-[#ecb652] ring-inset bg-white' : ''
       }`}
     >
       <div className="h-12 flex items-center px-4 w-full">
