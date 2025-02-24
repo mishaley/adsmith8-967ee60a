@@ -22,11 +22,6 @@ export interface ColumnDefinition {
   editable: boolean;
   required: boolean;
   format?: string;
-  displayField?: string;
-  options?: string[] | { value: string; label: string }[];
-  foreignTable?: string;
-  foreignField?: string;
-  foreignDisplayField?: string;
 }
 
 export interface TableData {

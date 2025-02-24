@@ -1,10 +1,8 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDefinition, TableData, TableName } from "@/types/table";
 import { format } from "date-fns";
@@ -17,11 +15,7 @@ interface SharedTableProps {
 }
 
 const SharedTable = ({ tableName, columns, data = [], refetchKey }: SharedTableProps) => {
-  const [editingCell, setEditingCell] = useState<{
-    rowId: string;
-    field: string;
-  } | null>(null);
-  const [editValue, setEditValue] = useState<string>("");
+  const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: updateCell } = useMutation({
@@ -89,7 +83,6 @@ const SharedTable = ({ tableName, columns, data = [], refetchKey }: SharedTableP
                 onClick={() => {
                   if (column.editable) {
                     setEditingCell({ rowId: row.id, field: column.field });
-                    setEditValue(row[column.field]);
                   }
                 }}
               >
