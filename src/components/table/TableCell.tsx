@@ -54,7 +54,7 @@ export function TableCellComponent({
           value={value?.toString()}
           onValueChange={onUpdate}
         >
-          <SelectTrigger className="h-10">
+          <SelectTrigger className="h-10 border-none shadow-none focus:ring-0">
             <SelectValue>
               {selectedOption?.label || "Select..."}
             </SelectValue>
@@ -71,11 +71,11 @@ export function TableCellComponent({
     }
 
     return (
-      <Input
+      <input
         defaultValue={value}
         onBlur={(e) => onUpdate(e.target.value)}
         autoFocus={column.inputMode === "text"}
-        className="h-10"
+        className="w-full h-full bg-transparent focus:outline-none"
       />
     );
   };
@@ -113,7 +113,11 @@ export function TableCellComponent({
 
   return (
     <td className="p-0">
-      <div className="h-16 w-full px-4 flex items-center">
+      <div 
+        className={`h-16 w-full px-4 flex items-center ${
+          isEditing && column.editable ? 'border-2 border-[#ecb652]' : ''
+        }`}
+      >
         {isEditing && column.editable ? (
           <div className="w-full">
             {renderEditContent()}
