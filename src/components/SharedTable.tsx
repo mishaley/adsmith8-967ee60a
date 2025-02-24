@@ -163,12 +163,16 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   };
 
   const handleCellClick = useCallback((rowId: string, field: string) => {
-    if (activeCell && Object.keys(editedValues).length > 0) {
-      handleSave(activeCell.rowId, activeCell.field);
+    if (activeCell && (activeCell.rowId !== rowId || activeCell.field !== field)) {
+      if (Object.keys(editedValues).length > 0) {
+        handleSave(activeCell.rowId, activeCell.field);
+      }
+      setActiveCell({ rowId, field });
+      setEditedValues({});
+    } else if (!activeCell) {
+      setActiveCell({ rowId, field });
+      setEditedValues({});
     }
-    
-    setActiveCell({ rowId, field });
-    setEditedValues({});
   }, [activeCell, editedValues]);
 
   const handleCellUpdate = (field: string, value: any) => {

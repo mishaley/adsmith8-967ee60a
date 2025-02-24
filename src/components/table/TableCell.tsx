@@ -28,15 +28,6 @@ export function TableCellComponent({
   onCancel,
   onClick 
 }: TableCellProps) {
-  const [isActive, setIsActive] = useState(false);
-
-  // When the cell becomes editable, automatically set it to active
-  useEffect(() => {
-    if (isEditing && column.inputMode === "select") {
-      setIsActive(true);
-    }
-  }, [isEditing, column.inputMode]);
-
   const formatCell = (value: any, columnFormat?: string) => {
     if (!value) return "";
     if (columnFormat === "M/D/YY") {
@@ -64,13 +55,13 @@ export function TableCellComponent({
       return (
         <div onClick={(e) => e.stopPropagation()}>
           <Select
-            open={isActive}
+            open={isEditing}
+            defaultOpen={isEditing}
             value={value?.toString()}
             onValueChange={(newValue) => {
               onUpdate(newValue);
-              setIsActive(false);
+              onSave?.();
             }}
-            onOpenChange={(open) => setIsActive(open)}
           >
             <SelectTrigger className="h-10 w-full border-none shadow-none focus:ring-0 p-0 justify-start">
               <SelectValue>
@@ -100,10 +91,9 @@ export function TableCellComponent({
     return (
       <input
         defaultValue={value}
-        onFocus={() => setIsActive(true)}
         onBlur={(e) => {
           onUpdate(e.target.value);
-          setIsActive(false);
+          onSave?.();
         }}
         autoFocus={column.inputMode === "text"}
         className="w-full h-full bg-transparent focus:outline-none"
