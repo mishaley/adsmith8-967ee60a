@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { SortConfig } from "@/types/table";
 import { TableHeader } from "./TableHeader";
 import { InputRow } from "./InputRow";
 

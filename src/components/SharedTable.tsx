@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { TableActions } from "./table/TableActions";
 import { TableContent } from "./table/TableContent";
 import { useTableMutations } from "./table/TableMutations";
+import { toast } from "sonner";
 
 interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
