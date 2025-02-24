@@ -28,6 +28,11 @@ type SortConfig = {
   direction: "asc" | "desc";
 };
 
+type ActiveCell = {
+  rowId: string;
+  field: string;
+} | null;
+
 type Tables = Database['public']['Tables'];
 
 type UndoRedoState = {
@@ -38,7 +43,7 @@ type UndoRedoState = {
 };
 
 function SharedTable<T extends TableName>({ data: initialData, columns, tableName, idField }: SharedTableProps<T>) {
-  const [editingRow, setEditingRow] = useState<string | null>(null);
+  const [activeCell, setActiveCell] = useState<ActiveCell>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [sort, setSort] = useState<SortConfig>({ field: "created_at", direction: "desc" });
   const [data, setData] = useState(initialData);
@@ -95,8 +100,6 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
-      setEditingRow(null);
-      setEditedValues({});
     },
   });
 
@@ -159,13 +162,10 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     setNewRecord(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleRowClick = useCallback((rowId: string) => {
-    if (editingRow === rowId) {
-      return;
-    }
-    setEditingRow(rowId);
+  const handleCellClick = useCallback((rowId: string, field: string) => {
+    setActiveCell({ rowId, field });
     setEditedValues({});
-  }, [editingRow]);
+  }, []);
 
   const handleCellUpdate = (field: string, value: any) => {
     setEditedValues(prev => ({
@@ -174,18 +174,23 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     }));
   };
 
-  const handleSave = (rowId: string) => {
+  const handleSave = (rowId: string, field: string) => {
+    if (!editedValues[field]) return;
+    
     const row = data.find(r => r.id === rowId);
     if (!row) return;
 
-    Object.entries(editedValues).forEach(([field, newValue]) => {
-      const oldValue = row[field];
-      if (oldValue !== newValue) {
-        updateMutation.mutate({ rowId, field, value: newValue });
-        setUndoStack(prev => [...prev, { rowId, field, oldValue, newValue }]);
-        setRedoStack([]);
-      }
-    });
+    const newValue = editedValues[field];
+    const oldValue = row[field];
+    
+    if (oldValue !== newValue) {
+      updateMutation.mutate({ rowId, field, value: newValue });
+      setUndoStack(prev => [...prev, { rowId, field, oldValue, newValue }]);
+      setRedoStack([]);
+    }
+    
+    setActiveCell(null);
+    setEditedValues({});
   };
 
   const handleUndo = () => {
@@ -211,17 +216,20 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   };
 
   const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (editingRow) {
+    if (activeCell) {
       const target = e.target as HTMLElement;
       const isSelectContent = target.closest('.select-content');
-      const isActiveRow = target.closest('tr')?.dataset.rowId === editingRow;
+      const isActiveCell = target.closest('[data-cell-id]')?.dataset.cellId === `${activeCell.rowId}-${activeCell.field}`;
       
-      if (!isSelectContent && !isActiveRow) {
-        setEditingRow(null);
+      if (!isSelectContent && !isActiveCell) {
+        if (editedValues[activeCell.field]) {
+          handleSave(activeCell.rowId, activeCell.field);
+        }
+        setActiveCell(null);
         setEditedValues({});
       }
     }
-  }, [editingRow]);
+  }, [activeCell, editedValues]);
 
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
@@ -249,22 +257,21 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
           {data.map((row) => (
             <TableRow 
               key={row.id}
-              onClick={() => handleRowClick(row.id)}
-              data-row-id={row.id}
-              className="cursor-pointer hover:bg-gray-50/80"
+              className="hover:bg-gray-50/80"
             >
               {columns.map((column) => (
                 <TableCellComponent
                   key={column.field}
                   row={row}
                   column={column}
-                  isEditing={editingRow === row.id}
+                  isEditing={activeCell?.rowId === row.id && activeCell?.field === column.field}
                   onUpdate={(value) => handleCellUpdate(column.field, value)}
-                  onSave={() => handleSave(row.id)}
+                  onSave={() => handleSave(row.id, column.field)}
                   onCancel={() => {
-                    setEditingRow(null);
+                    setActiveCell(null);
                     setEditedValues({});
                   }}
+                  onClick={() => handleCellClick(row.id, column.field)}
                 />
               ))}
             </TableRow>

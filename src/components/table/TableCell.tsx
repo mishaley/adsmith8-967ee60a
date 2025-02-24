@@ -16,6 +16,7 @@ interface TableCellProps {
   onUpdate: (value: any) => void;
   onSave?: () => void;
   onCancel?: () => void;
+  onClick?: () => void;
 }
 
 export function TableCellComponent({ 
@@ -24,7 +25,8 @@ export function TableCellComponent({
   isEditing, 
   onUpdate,
   onSave,
-  onCancel 
+  onCancel,
+  onClick 
 }: TableCellProps) {
   const [isActive, setIsActive] = useState(false);
 
@@ -134,11 +136,15 @@ export function TableCellComponent({
   };
 
   return (
-    <TableCellBase className={`relative w-[1%] whitespace-nowrap ${
-      isEditing 
-        ? 'bg-white' + (isActive ? ' ring-2 ring-[#ecb652] ring-inset' : '')
-        : ''
-    }`}>
+    <TableCellBase 
+      onClick={onClick}
+      data-cell-id={`${row.id}-${column.field}`}
+      className={`relative w-[1%] whitespace-nowrap cursor-pointer ${
+        isEditing 
+          ? 'bg-white' + (isActive ? ' ring-2 ring-[#ecb652] ring-inset' : '')
+          : ''
+      }`}
+    >
       <div className="h-12 flex items-center px-4 w-full">
         {isEditing && column.editable ? (
           <div className="w-full">
