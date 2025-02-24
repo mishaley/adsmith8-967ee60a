@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableRow } from "@/components/ui/table";
 import { ColumnDef, TableRow as ITableRow, TableName, TableData } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
@@ -219,7 +220,8 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     if (activeCell) {
       const target = e.target as HTMLElement;
       const isSelectContent = target.closest('.select-content');
-      const isActiveCell = target.closest('[data-cell-id]')?.dataset.cellId === `${activeCell.rowId}-${activeCell.field}`;
+      const cellElement = target.closest('[data-cell-id]') as HTMLElement | null;
+      const isActiveCell = cellElement?.dataset.cellId === `${activeCell.rowId}-${activeCell.field}`;
       
       if (!isSelectContent && !isActiveCell) {
         if (editedValues[activeCell.field]) {
