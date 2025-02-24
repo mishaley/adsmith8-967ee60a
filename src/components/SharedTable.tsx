@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -73,7 +72,6 @@ function SharedTable<T extends TableName>({
             value={newRecord["organization_name"] || ""}
             onChange={(e) => handleInputChange("organization_name", e.target.value)}
             className="h-10 bg-white w-full rounded-md border border-input"
-            placeholder="Organization Name"
           />
         </div>
         <div className="bg-[#d3e4fd] p-4 mb-2">
