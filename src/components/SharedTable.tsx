@@ -29,7 +29,7 @@ type SortConfig = {
   direction: "asc" | "desc";
 };
 
-type TableTypes = Database['public']['Tables'];
+type Tables = Database['public']['Tables'];
 
 function SharedTable<T extends TableName>({ data: initialData, columns, tableName, idField }: SharedTableProps<T>) {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
@@ -58,11 +58,14 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value }: UpdateVariables) => {
-      const updateData = { [field]: value } as TableTypes[T]['Update'];
-      const { error } = await supabase
-        .from(tableName)
+      type TableUpdate = Tables[T]['Update'];
+      const table = supabase.from(tableName);
+      const updateData = { [field]: value } as TableUpdate;
+      
+      const { error } = await (table as any)
         .update(updateData)
         .eq(idField, rowId);
+      
       if (error) throw error;
     },
     onSuccess: () => {
@@ -74,10 +77,13 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
-      const insertData = record as TableTypes[T]['Insert'];
-      const { error } = await supabase
-        .from(tableName)
+      type TableInsert = Tables[T]['Insert'];
+      const table = supabase.from(tableName);
+      const insertData = record as unknown as TableInsert;
+      
+      const { error } = await (table as any)
         .insert([insertData]);
+      
       if (error) throw error;
     },
     onSuccess: () => {
