@@ -42,8 +42,45 @@ export function TableCellComponent({
   const value = row[column.field];
   const displayValue = column.displayField ? row[column.displayField] : value;
 
-  const renderCellContent = () => {
-    // If this is the Created column and we're in editing mode, show Save/Cancel buttons
+  const renderEditContent = () => {
+    if (column.format === "image") {
+      return <div>Image upload not implemented yet</div>;
+    }
+
+    if (column.inputMode === "select" && column.options) {
+      const selectedOption = column.options.find(option => option.value === value);
+      return (
+        <Select
+          value={value?.toString()}
+          onValueChange={onUpdate}
+        >
+          <SelectTrigger className="h-10">
+            <SelectValue>
+              {selectedOption?.label || "Select..."}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {column.options.map((option) => (
+              <SelectItem key={option.value} value={option.value.toString()}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    return (
+      <Input
+        defaultValue={value}
+        onBlur={(e) => onUpdate(e.target.value)}
+        autoFocus={column.inputMode === "text"}
+        className="h-10"
+      />
+    );
+  };
+
+  const renderDisplayContent = () => {
     if (column.field === 'created_at' && isEditing) {
       return (
         <div className="flex gap-2 items-center">
@@ -67,48 +104,6 @@ export function TableCellComponent({
       );
     }
 
-    if (isEditing && column.editable) {
-      if (column.format === "image") {
-        return <div>Image upload not implemented yet</div>;
-      }
-
-      if (column.inputMode === "select" && column.options) {
-        const selectedOption = column.options.find(option => option.value === value);
-        return (
-          <div className="absolute inset-0 px-4 py-3">
-            <Select
-              value={value?.toString()}
-              onValueChange={onUpdate}
-            >
-              <SelectTrigger className="h-10">
-                <SelectValue>
-                  {selectedOption?.label || "Select..."}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {column.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value.toString()}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        );
-      }
-
-      return (
-        <div className="absolute inset-0 px-4 py-3">
-          <Input
-            defaultValue={value}
-            onBlur={(e) => onUpdate(e.target.value)}
-            autoFocus={column.inputMode === "text"}
-            className="h-10"
-          />
-        </div>
-      );
-    }
-
     return (
       <div className="truncate">
         {formatCell(value, column.format) || displayValue || ""}
@@ -118,8 +113,14 @@ export function TableCellComponent({
 
   return (
     <td className="p-0">
-      <div className="h-16 w-full px-4 flex items-center relative">
-        {renderCellContent()}
+      <div className="h-16 w-full px-4 flex items-center">
+        {isEditing && column.editable ? (
+          <div className="w-full">
+            {renderEditContent()}
+          </div>
+        ) : (
+          renderDisplayContent()
+        )}
       </div>
     </td>
   );
