@@ -48,7 +48,7 @@ export function TableAddColumn({
         </div>
         <div className="bg-white">
           {data.map(row => (
-            <div key={row.id} className="p-4 border-b whitespace-nowrap">
+            <div key={row.id} className="p-4 border-b whitespace-nowrap text-center">
               {row[column.field] 
                 ? new Date(row[column.field]).toLocaleDateString('en-US', {
                     month: 'numeric',
