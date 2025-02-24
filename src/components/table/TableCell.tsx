@@ -123,9 +123,9 @@ export function TableCellComponent({
   };
 
   return (
-    <td className={`p-0 relative w-full ${
+    <td className={`p-0 relative w-full box-border ${
       isEditing 
-        ? 'bg-white' + (isActive ? ' border-2 border-[#ecb652]' : '')
+        ? 'bg-white' + (isActive ? ' outline outline-2 outline-[#ecb652]' : '')
         : ''
     }`}>
       <div className="h-12 w-full px-4 flex items-center">
