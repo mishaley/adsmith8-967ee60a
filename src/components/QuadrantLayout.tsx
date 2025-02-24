@@ -1,5 +1,6 @@
 
 import { cn } from "@/lib/utils";
+import MainNav from "./MainNav";
 
 interface QuadrantLayoutProps {
   children?: {
@@ -22,7 +23,7 @@ const QuadrantLayout = ({ children, className }: QuadrantLayoutProps) => {
         </div>
         {/* Q2 - Menu */}
         <div className="flex-1 bg-[#154851] text-white text-left">
-          {children?.q2}
+          <MainNav />
         </div>
       </div>
 
