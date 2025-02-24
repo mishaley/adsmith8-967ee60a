@@ -103,7 +103,7 @@ export function TableCellComponent({
   }
 
   return (
-    <div className="w-full h-full min-h-[2.5rem] flex items-center">
+    <div className="absolute inset-0 flex items-center px-4">
       {column.format ? formatCell(value, column.format) : displayValue}
     </div>
   );
