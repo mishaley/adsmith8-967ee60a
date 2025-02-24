@@ -26,8 +26,8 @@ export function TableAddColumn({
   searchInputRef
 }: TableAddColumnProps) {
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group rounded-t-md">
+    <div className="flex flex-col h-full">
+      <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
         <TableHeader
           column={column}
           handleSort={handleSort}
@@ -46,14 +46,9 @@ export function TableAddColumn({
             ADD
           </Button>
         </div>
-        <div className="bg-white rounded-b-md">
-          {data.map((row, index) => (
-            <div 
-              key={row.id} 
-              className={`p-4 border-b whitespace-nowrap ${
-                index === data.length - 1 ? 'border-b-0' : ''
-              }`}
-            >
+        <div className="bg-white">
+          {data.map(row => (
+            <div key={row.id} className="p-4 border-b whitespace-nowrap">
               {row[column.field] 
                 ? new Date(row[column.field]).toLocaleDateString('en-US', {
                     month: 'numeric',
