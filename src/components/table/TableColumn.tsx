@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -94,25 +95,28 @@ export function TableColumn({
           />
         </div>
         <div className="bg-white">
-          {data.map(row => (
-            <div 
-              key={row.id} 
-              className="p-4 border-b whitespace-nowrap cursor-pointer hover:bg-gray-50"
-              onClick={() => handleCellClick(row.id, column.field)}
-            >
-              {editingCell.rowId === row.id && editingCell.field === column.field ? (
-                <Input
-                  autoFocus
-                  defaultValue={row[column.field]}
-                  onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
-                  onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
-                  className="h-8 w-full"
-                />
-              ) : (
-                row[column.field]
-              )}
-            </div>
-          ))}
+          {data.map(row => {
+            const isEditing = editingCell.rowId === row.id && editingCell.field === column.field;
+            return (
+              <div 
+                key={row.id} 
+                className={`p-4 border-b whitespace-nowrap cursor-pointer hover:bg-gray-50 ${isEditing ? 'border-2 border-[#ecb652]' : ''}`}
+                onClick={() => handleCellClick(row.id, column.field)}
+              >
+                {isEditing ? (
+                  <input
+                    autoFocus
+                    defaultValue={row[column.field]}
+                    onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
+                    onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
+                    className="w-full bg-transparent outline-none p-0 m-0 border-none focus:ring-0"
+                  />
+                ) : (
+                  row[column.field]
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
