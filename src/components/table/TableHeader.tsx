@@ -45,50 +45,40 @@ export function TableHeader({
     <>
       {column.field === 'created_at' ? (
         <>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+          <button 
+            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
             onClick={() => handleCreatedSort('desc')}
           >
             New → Old
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+          </button>
+          <button 
+            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
             onClick={() => handleCreatedSort('asc')}
           >
             Old → New
-          </Button>
+          </button>
         </>
       ) : (
         <>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+          <button 
+            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
             onClick={() => handleFixedSort('asc')}
           >
             A → Z
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]" 
+          </button>
+          <button 
+            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
             onClick={() => handleFixedSort('desc')}
           >
             Z → A
-          </Button>
+          </button>
           <div className="h-[1px] bg-[#363636] my-1" />
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="w-full justify-start px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652]"
+          <button 
+            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0"
             onClick={() => clearFilter(column.field)}
           >
             Clear
-          </Button>
+          </button>
           <div className="px-3 py-2">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
