@@ -9,6 +9,7 @@ import { TableHeader } from "./table/TableHeader";
 import { InputRow } from "./table/InputRow";
 import { TableCellComponent } from "./table/TableCell";
 import { TableCell } from "./ui/table";
+import { Database } from "@/integrations/supabase/types";
 
 interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
@@ -57,7 +58,7 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     mutationFn: async ({ rowId, field, value }: UpdateVariables) => {
       const { error } = await supabase
         .from(tableName)
-        .update({ [field]: value })
+        .update({ [field]: value } as Database['public']['Tables'][T]['Update'])
         .eq(idField, rowId);
       if (error) throw error;
     },
@@ -72,7 +73,7 @@ function SharedTable<T extends TableName>({ data: initialData, columns, tableNam
     mutationFn: async (record: Partial<TableData<T>>) => {
       const { error } = await supabase
         .from(tableName)
-        .insert([record]);
+        .insert([record as Database['public']['Tables'][T]['Insert']]);
       if (error) throw error;
     },
     onSuccess: () => {
