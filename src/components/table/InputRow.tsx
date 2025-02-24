@@ -2,22 +2,21 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ColumnDef, TableName, TableData } from "@/types/table";
+import { ColumnDef, TableData, TableName } from "@/types/table";
 
-interface InputRowProps<T extends TableName> {
-  tableName: T;
+interface InputRowProps {
   columns: ColumnDef[];
-  newRecord: Partial<TableData<T>>;
+  newRecord: Partial<TableData<any>>;
   handleInputChange: (field: string, value: any) => void;
   handleAdd: () => void;
 }
 
-export function InputRow<T extends TableName>({
+export function InputRow({
   columns,
   newRecord,
   handleInputChange,
   handleAdd,
-}: InputRowProps<T>) {
+}: InputRowProps) {
   const renderInput = (column: ColumnDef) => {
     if (column.field === 'created_at') return null;
 
