@@ -38,8 +38,16 @@ const MainNav = () => {
         </Link>
       ))}
 
-      {/* Flexible spacer */}
-      <div className="flex-grow border-b border-white/20" />
+      {/* Flexible spacer with NEW button */}
+      <div className="flex-grow border-b border-white/20 flex flex-col">
+        <div className="flex justify-center pt-[5px]">
+          <button
+            className="w-[100px] h-[40px] rounded-full bg-[#ecb652] text-[#154851] font-bold border-2 border-white"
+          >
+            NEW
+          </button>
+        </div>
+      </div>
 
       {/* Bottom fixed items */}
       {bottomNavItems.map((item) => (
