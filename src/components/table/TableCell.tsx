@@ -76,23 +76,25 @@ export function TableCellComponent({
     if (column.inputMode === "select" && column.options) {
       const selectedOption = column.options.find(option => option.value === value);
       return (
-        <Select
-          value={value?.toString()}
-          onValueChange={onUpdate}
-        >
-          <SelectTrigger>
-            <SelectValue>
-              {selectedOption?.label || "Select..."}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {column.options.map((option) => (
-              <SelectItem key={option.value} value={option.value.toString()}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div onClick={(e) => e.stopPropagation()}>
+          <Select
+            value={value?.toString()}
+            onValueChange={onUpdate}
+          >
+            <SelectTrigger>
+              <SelectValue>
+                {selectedOption?.label || "Select..."}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {column.options.map((option) => (
+                <SelectItem key={option.value} value={option.value.toString()}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       );
     }
 
