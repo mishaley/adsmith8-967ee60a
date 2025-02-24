@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
 import { RefObject, useState } from "react";
 import { useTableMutations } from "./TableMutations";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 interface TableColumnProps {
   column: ColumnDef;
@@ -15,7 +16,6 @@ interface TableColumnProps {
   clearFilter: (field: string) => void;
   filters: Record<string, string>;
   searchInputRef: RefObject<HTMLInputElement>;
-  isDate?: boolean;
 }
 
 export function TableColumn({
@@ -28,7 +28,6 @@ export function TableColumn({
   clearFilter,
   filters,
   searchInputRef,
-  isDate = false
 }: TableColumnProps) {
   const [editingCell, setEditingCell] = useState<{ rowId: string | null, field: string | null }>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations("a1organizations", "organization_id");
@@ -54,16 +53,41 @@ export function TableColumn({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
-        <TableHeader
-          column={column}
-          handleSort={handleSort}
-          handleFilter={handleFilter}
-          clearFilter={clearFilter}
-          filters={filters}
-          searchInputRef={searchInputRef}
-        />
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
+            <TableHeader 
+              column={column} 
+              handleSort={handleSort} 
+              handleFilter={handleFilter} 
+              clearFilter={clearFilter} 
+              filters={filters} 
+              searchInputRef={searchInputRef} 
+            />
+          </div>
+        </PopoverTrigger>
+        <PopoverContent 
+          className="w-[calc(var(--radix-popper-anchor-width)+32px)] p-0 rounded-none shadow border-0 mt-0 bg-[#2A2A2A] text-white" 
+          align="start"
+          alignOffset={-16}
+          side="bottom"
+          sideOffset={16}
+          avoidCollisions={false}
+          sticky="always"
+        >
+          <div className="py-1">
+            <TableHeader 
+              column={column} 
+              handleSort={handleSort} 
+              handleFilter={handleFilter} 
+              clearFilter={clearFilter} 
+              filters={filters} 
+              searchInputRef={searchInputRef}
+              isPopoverContent={true}
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
       <div className="flex-1">
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Input 
@@ -88,13 +112,7 @@ export function TableColumn({
                   className="h-8 w-full"
                 />
               ) : (
-                isDate && row[column.field] 
-                  ? new Date(row[column.field]).toLocaleDateString('en-US', {
-                      month: 'numeric',
-                      day: 'numeric',
-                      year: '2-digit'
-                    })
-                  : row[column.field]
+                row[column.field]
               )}
             </div>
           ))}

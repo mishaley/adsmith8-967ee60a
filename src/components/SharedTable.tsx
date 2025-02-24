@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -83,14 +84,12 @@ function SharedTable<T extends TableName>({
 
   const handleSort = (field: string) => {
     if (field.includes(':')) {
-      // Handle created_at with forced direction
       const [actualField, forcedDirection] = field.split(':');
       setSort({
         field,
         direction: forcedDirection as "asc" | "desc"
       });
     } else {
-      // Handle regular fields with toggling direction
       setSort(prev => ({
         field,
         direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc"
@@ -113,41 +112,38 @@ function SharedTable<T extends TableName>({
     });
   };
 
-  const mainColumns = columns.filter(col => !col.format || col.format !== "M/D/YY");
-  const dateColumns = columns.filter(col => col.format === "M/D/YY");
-
   return (
     <div className="w-full">
       <div className="grid" style={{
-        gridTemplateColumns: "minmax(auto, max-content) minmax(100px, max-content)"
+        gridTemplateColumns: `repeat(${columns.length}, minmax(100px, max-content))`
       }}>
-        {mainColumns.map(column => (
-          <TableColumn
-            key={column.field}
-            column={column}
-            data={data}
-            newRecord={newRecord}
-            handleInputChange={handleInputChange}
-            handleSort={handleSort}
-            handleFilter={handleFilter}
-            clearFilter={clearFilter}
-            filters={filters}
-            searchInputRef={searchInputRef}
-          />
-        ))}
-        
-        {dateColumns.map(column => (
-          <TableAddColumn
-            key={column.field}
-            column={column}
-            data={data}
-            handleAdd={handleAdd}
-            handleSort={handleSort}
-            handleFilter={handleFilter}
-            clearFilter={clearFilter}
-            filters={filters}
-            searchInputRef={searchInputRef}
-          />
+        {columns.map(column => (
+          column.format === "M/D/YY" ? (
+            <TableAddColumn
+              key={column.field}
+              column={column}
+              data={data}
+              handleAdd={handleAdd}
+              handleSort={handleSort}
+              handleFilter={handleFilter}
+              clearFilter={clearFilter}
+              filters={filters}
+              searchInputRef={searchInputRef}
+            />
+          ) : (
+            <TableColumn
+              key={column.field}
+              column={column}
+              data={data}
+              newRecord={newRecord}
+              handleInputChange={handleInputChange}
+              handleSort={handleSort}
+              handleFilter={handleFilter}
+              clearFilter={clearFilter}
+              filters={filters}
+              searchInputRef={searchInputRef}
+            />
+          )
         ))}
       </div>
     </div>
