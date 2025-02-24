@@ -60,9 +60,15 @@ function SharedTable<T extends TableName>({
 
   const organizationOptions = columns.find(col => col.field === "organization_id")?.options || [];
 
+  // Define grid template columns based on content type
+  const gridTemplateColumns = columns.map(col => {
+    if (col.format === "M/D/YY") return "100px"; // Date columns
+    return "1fr"; // Other columns expand to fill space
+  }).join(" ");
+
   return (
-    <div className="grid grid-cols-3 gap-0">
-      {/* Input fields */}
+    <div style={{ display: "grid", gridTemplateColumns, gap: 0 }}>
+      {/* Input row */}
       <div className="bg-[#d3e4fd] p-4 mb-2">
         <Input
           value={newRecord["organization_name"] || ""}
@@ -99,29 +105,15 @@ function SharedTable<T extends TableName>({
         </Button>
       </div>
 
-      {/* Column headers */}
-      <div className="flex flex-col">
-        <div className="bg-[#154851] p-4 text-white font-bold">
-          {columns[0].header}
-        </div>
-        <div className="flex-1 bg-white">
-          {data.map(row => (
-            <div key={row.id} className="p-4 border-b">
-              {row[columns[0].field]}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Data columns */}
-      {columns.slice(1).map((column, index) => (
+      {/* Headers */}
+      {columns.map((column, index) => (
         <div key={column.field} className="flex flex-col">
-          <div className="bg-[#154851] p-4 text-white font-bold">
+          <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
             {column.header}
           </div>
           <div className="flex-1 bg-white">
             {data.map(row => (
-              <div key={row.id} className="p-4 border-b">
+              <div key={row.id} className="p-4 border-b overflow-hidden text-ellipsis">
                 {column.format === "M/D/YY" && row[column.field] 
                   ? new Date(row[column.field]).toLocaleDateString('en-US', {
                       month: 'numeric',
