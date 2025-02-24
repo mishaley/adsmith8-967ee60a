@@ -51,6 +51,8 @@ export function TableColumn({
     }
   };
 
+  const cellContentClass = column.field === 'created_at' ? 'text-center' : '';
+
   return (
     <div className="flex flex-col h-full">
       <Popover>
@@ -91,7 +93,7 @@ export function TableColumn({
           <Input 
             value={newRecord[column.field] || ""} 
             onChange={e => handleInputChange(column.field, e.target.value)} 
-            className="h-10 bg-white w-full rounded-md border border-input" 
+            className={`h-10 bg-white w-full rounded-md border border-input ${cellContentClass}`}
           />
         </div>
         <div className="bg-white">
@@ -110,12 +112,12 @@ export function TableColumn({
                       defaultValue={row[column.field]}
                       onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
                       onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
-                      className="w-full bg-transparent outline-none p-0 m-0 border-none focus:ring-0 whitespace-normal"
+                      className={`w-full bg-transparent outline-none p-0 m-0 border-none focus:ring-0 whitespace-normal ${cellContentClass}`}
                       style={{ minWidth: '100%' }}
                     />
                   </div>
                 ) : (
-                  <div className="truncate">{row[column.field]}</div>
+                  <div className={`truncate ${cellContentClass}`}>{row[column.field]}</div>
                 )}
               </div>
             );
