@@ -45,7 +45,7 @@ export function TableCellComponent({
   // If this is the Created column and we're in editing mode, show Save/Cancel buttons
   if (column.field === 'created_at' && isEditing) {
     return (
-      <TableCellBase>
+      <TableCellBase className="h-[2.5rem] min-w-[120px]">
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -76,12 +76,12 @@ export function TableCellComponent({
     if (column.inputMode === "select" && column.options) {
       const selectedOption = column.options.find(option => option.value === value);
       return (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} className="h-[2.5rem] min-w-[120px]">
           <Select
             value={value?.toString()}
             onValueChange={onUpdate}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-10">
               <SelectValue>
                 {selectedOption?.label || "Select..."}
               </SelectValue>
@@ -99,16 +99,19 @@ export function TableCellComponent({
     }
 
     return (
-      <Input
-        defaultValue={value}
-        onBlur={(e) => onUpdate(e.target.value)}
-        autoFocus={column.inputMode === "text"}
-      />
+      <div className="h-[2.5rem] min-w-[120px]">
+        <Input
+          defaultValue={value}
+          onBlur={(e) => onUpdate(e.target.value)}
+          autoFocus={column.inputMode === "text"}
+          className="h-10"
+        />
+      </div>
     );
   }
 
   return (
-    <div className="w-full h-full min-h-[2.5rem] flex items-center pointer-events-none">
+    <div className="w-full h-[2.5rem] min-w-[120px] flex items-center pointer-events-none">
       {column.format ? formatCell(value, column.format) : displayValue}
     </div>
   );
