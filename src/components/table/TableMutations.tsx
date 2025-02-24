@@ -5,7 +5,6 @@ import { TableName, TableData } from "@/types/table";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 import { useEffect, useCallback, useState } from "react";
-import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 
 type Tables = Database['public']['Tables'];
 
@@ -47,24 +46,26 @@ export function useTableMutations<T extends TableName>(
       isDelete?: boolean;
       oldData?: any;
     }) => {
-      const table = supabase.from(tableName);
-      
       if (isDelete) {
-        const { error } = await table.delete().eq(idField, rowId);
+        const { error } = await supabase
+          .from(tableName)
+          .delete()
+          .eq(idField, rowId);
         if (error) throw error;
       } else {
         // Get the current value before updating
-        type Row = Tables[T]['Row'];
-        const query = table
-          .select<string, Row>(field as keyof Row)
+        const { data: currentData, error: selectError } = await supabase
+          .from(tableName)
+          .select<'*', Tables[T]['Row']>('*')
           .eq(idField, rowId)
-          .single();
+          .maybeSingle();
         
-        const { data: currentData, error: selectError } = await query;
         if (selectError) throw selectError;
+
+        const updateData = { [field]: value } as Tables[T]['Update'];
         
-        const updateData = { [field]: value };
-        const { error } = await table
+        const { error } = await supabase
+          .from(tableName)
           .update(updateData)
           .eq(idField, rowId);
         
@@ -101,16 +102,17 @@ export function useTableMutations<T extends TableName>(
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
-      const table = supabase.from(tableName);
+      const insertData = record as Tables[T]['Insert'];
       
-      const { data, error } = await table
-        .insert(record)
+      const { data, error } = await supabase
+        .from(tableName)
+        .insert([insertData])
         .select();
       
       if (error) throw error;
       
       if (tableName === 'a1organizations' && data?.[0]) {
-        const orgId = data[0][idField];
+        const orgId = data[0][idField as keyof typeof data[0]];
         if (orgId) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
             body: { organization_id: orgId }
@@ -141,8 +143,11 @@ export function useTableMutations<T extends TableName>(
       try {
         if (change.isDelete) {
           // If it was a delete operation, we need to re-insert the record
-          const table = supabase.from(tableName);
-          const { error } = await table.insert([change.oldData]);
+          const insertData = change.oldData as Tables[T]['Insert'];
+          const { error } = await supabase
+            .from(tableName)
+            .insert([insertData]);
+            
           if (error) throw error;
         } else {
           // For normal updates, revert to the old value
@@ -167,8 +172,11 @@ export function useTableMutations<T extends TableName>(
       try {
         if (change.isDelete) {
           // If it was a delete operation, delete the record again
-          const table = supabase.from(tableName);
-          const { error } = await table.delete().eq(idField, change.rowId);
+          const { error } = await supabase
+            .from(tableName)
+            .delete()
+            .eq(idField, change.rowId);
+            
           if (error) throw error;
         } else {
           // For normal updates, apply the new value
