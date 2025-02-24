@@ -9,7 +9,232 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      a1organizations: {
+        Row: {
+          created_at: string
+          organization_id: string
+          organization_name: string
+          organization_wordmark: string | null
+        }
+        Insert: {
+          created_at?: string
+          organization_id?: string
+          organization_name: string
+          organization_wordmark?: string | null
+        }
+        Update: {
+          created_at?: string
+          organization_id?: string
+          organization_name?: string
+          organization_wordmark?: string | null
+        }
+        Relationships: []
+      }
+      b1offerings: {
+        Row: {
+          created_at: string
+          offering_id: string
+          offering_name: string
+          organization_id: string
+        }
+        Insert: {
+          created_at?: string
+          offering_id?: string
+          offering_name: string
+          organization_id: string
+        }
+        Update: {
+          created_at?: string
+          offering_id?: string
+          offering_name?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "b1offerings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "a1organizations"
+            referencedColumns: ["organization_id"]
+          },
+        ]
+      }
+      c1personas: {
+        Row: {
+          created_at: string
+          offering_id: string
+          persona_agemax: number
+          persona_agemin: number
+          persona_behaviors: Json | null
+          persona_demographics: Json | null
+          persona_gender: Database["public"]["Enums"]["persona_gender"]
+          persona_id: string
+          persona_interests: Json | null
+          persona_name: string
+        }
+        Insert: {
+          created_at?: string
+          offering_id: string
+          persona_agemax: number
+          persona_agemin: number
+          persona_behaviors?: Json | null
+          persona_demographics?: Json | null
+          persona_gender: Database["public"]["Enums"]["persona_gender"]
+          persona_id?: string
+          persona_interests?: Json | null
+          persona_name: string
+        }
+        Update: {
+          created_at?: string
+          offering_id?: string
+          persona_agemax?: number
+          persona_agemin?: number
+          persona_behaviors?: Json | null
+          persona_demographics?: Json | null
+          persona_gender?: Database["public"]["Enums"]["persona_gender"]
+          persona_id?: string
+          persona_interests?: Json | null
+          persona_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "c1personas_offering_id_fkey"
+            columns: ["offering_id"]
+            isOneToOne: false
+            referencedRelation: "b1offerings"
+            referencedColumns: ["offering_id"]
+          },
+        ]
+      }
+      d1messages: {
+        Row: {
+          created_at: string
+          message_id: string
+          message_name: string
+          message_status: Database["public"]["Enums"]["asset_status"]
+          message_type: Database["public"]["Enums"]["message_type"]
+          message_url: string
+          persona_id: string
+        }
+        Insert: {
+          created_at?: string
+          message_id?: string
+          message_name: string
+          message_status: Database["public"]["Enums"]["asset_status"]
+          message_type: Database["public"]["Enums"]["message_type"]
+          message_url: string
+          persona_id: string
+        }
+        Update: {
+          created_at?: string
+          message_id?: string
+          message_name?: string
+          message_status?: Database["public"]["Enums"]["asset_status"]
+          message_type?: Database["public"]["Enums"]["message_type"]
+          message_url?: string
+          persona_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "d1messages_persona_id_fkey"
+            columns: ["persona_id"]
+            isOneToOne: false
+            referencedRelation: "c1personas"
+            referencedColumns: ["persona_id"]
+          },
+        ]
+      }
+      e1images: {
+        Row: {
+          created_at: string
+          image_aspectratio: Database["public"]["Enums"]["image_aspectratio"]
+          image_format: Database["public"]["Enums"]["image_format"]
+          image_id: string
+          image_inputprompt: string | null
+          image_magicprompt: string | null
+          image_model: string | null
+          image_status: Database["public"]["Enums"]["asset_status"]
+          image_storage: string
+          image_style: string | null
+          message_id: string
+        }
+        Insert: {
+          created_at?: string
+          image_aspectratio: Database["public"]["Enums"]["image_aspectratio"]
+          image_format: Database["public"]["Enums"]["image_format"]
+          image_id?: string
+          image_inputprompt?: string | null
+          image_magicprompt?: string | null
+          image_model?: string | null
+          image_status: Database["public"]["Enums"]["asset_status"]
+          image_storage: string
+          image_style?: string | null
+          message_id: string
+        }
+        Update: {
+          created_at?: string
+          image_aspectratio?: Database["public"]["Enums"]["image_aspectratio"]
+          image_format?: Database["public"]["Enums"]["image_format"]
+          image_id?: string
+          image_inputprompt?: string | null
+          image_magicprompt?: string | null
+          image_model?: string | null
+          image_status?: Database["public"]["Enums"]["asset_status"]
+          image_storage?: string
+          image_style?: string | null
+          message_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "e1images_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "d1messages"
+            referencedColumns: ["message_id"]
+          },
+        ]
+      }
+      e2captions: {
+        Row: {
+          behavioral_hook: string
+          brand_voice: string
+          caption_id: string
+          caption_name: string
+          caption_status: Database["public"]["Enums"]["asset_status"]
+          caption_type: Database["public"]["Enums"]["caption_type"]
+          created_at: string
+          message_id: string
+        }
+        Insert: {
+          behavioral_hook: string
+          brand_voice: string
+          caption_id?: string
+          caption_name: string
+          caption_status: Database["public"]["Enums"]["asset_status"]
+          caption_type: Database["public"]["Enums"]["caption_type"]
+          created_at?: string
+          message_id: string
+        }
+        Update: {
+          behavioral_hook?: string
+          brand_voice?: string
+          caption_id?: string
+          caption_name?: string
+          caption_status?: Database["public"]["Enums"]["asset_status"]
+          caption_type?: Database["public"]["Enums"]["caption_type"]
+          created_at?: string
+          message_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "e2captions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "d1messages"
+            referencedColumns: ["message_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +243,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      asset_status: "Generated" | "Approved" | "Rejected" | "Archived"
+      caption_type: "PrimaryText" | "Headline" | "Description" | "LongHeadline"
+      image_aspectratio: "1:1" | "4:5" | "9:16" | "16:9" | "21:11"
+      image_format: "Graphic" | "POV"
+      message_type:
+        | "0nocategory"
+        | "1painpoint"
+        | "2uniqueoffering"
+        | "3valueprop"
+        | "9clientprovided"
+      persona_gender: "Women" | "Men" | "Both"
     }
     CompositeTypes: {
       [_ in never]: never
