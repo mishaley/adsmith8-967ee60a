@@ -60,72 +60,72 @@ function SharedTable<T extends TableName>({
 
   const organizationOptions = columns.find(col => col.field === "organization_id")?.options || [];
 
-  // Define grid template columns based on content type
-  const gridTemplateColumns = columns.map(col => {
-    if (col.format === "M/D/YY") return "100px"; // Date columns
-    return "1fr"; // Other columns expand to fill space
-  }).join(" ");
+  // Split columns into main and date columns
+  const mainColumns = columns.filter(col => !col.format || col.format !== "M/D/YY");
+  const dateColumns = columns.filter(col => col.format === "M/D/YY");
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns, gap: 0 }}>
-      {/* Input row */}
-      <div className="bg-[#d3e4fd] p-4 mb-2">
-        <Input
-          value={newRecord["organization_name"] || ""}
-          onChange={(e) => handleInputChange("organization_name", e.target.value)}
-          className="h-10 bg-white w-full rounded-md border border-input"
-          placeholder="Organization Name"
-        />
-      </div>
-      <div className="bg-[#d3e4fd] p-4 mb-2">
-        {columns.find(col => col.field === "organization_id") && (
-          <Select
-            value={newRecord["organization_id"] || ""}
-            onValueChange={(value) => handleInputChange("organization_id", value)}
+    <div className="w-full">
+      {/* Input row container */}
+      <div className="grid" style={{ gridTemplateColumns: "1fr 100px" }}>
+        <div className="bg-[#d3e4fd] p-4 mb-2">
+          <Input
+            value={newRecord["organization_name"] || ""}
+            onChange={(e) => handleInputChange("organization_name", e.target.value)}
+            className="h-10 bg-white w-full rounded-md border border-input"
+            placeholder="Organization Name"
+          />
+        </div>
+        <div className="bg-[#d3e4fd] p-4 mb-2">
+          <Button
+            onClick={handleAdd}
+            className="h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
           >
-            <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input">
-              <SelectValue placeholder="Select Organization" />
-            </SelectTrigger>
-            <SelectContent>
-              {organizationOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-      <div className="bg-[#d3e4fd] p-4 mb-2">
-        <Button
-          onClick={handleAdd}
-          className="h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
-        >
-          ADD
-        </Button>
+            ADD
+          </Button>
+        </div>
       </div>
 
-      {/* Headers */}
-      {columns.map((column, index) => (
-        <div key={column.field} className="flex flex-col">
-          <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
-            {column.header}
+      {/* Table container */}
+      <div className="grid" style={{ gridTemplateColumns: "1fr 100px" }}>
+        {/* Main columns */}
+        {mainColumns.map((column) => (
+          <div key={column.field} className="flex flex-col">
+            <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
+              {column.header}
+            </div>
+            <div className="flex-1 bg-white">
+              {data.map(row => (
+                <div key={row.id} className="p-4 border-b overflow-hidden text-ellipsis">
+                  {row[column.field]}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex-1 bg-white">
-            {data.map(row => (
-              <div key={row.id} className="p-4 border-b overflow-hidden text-ellipsis">
-                {column.format === "M/D/YY" && row[column.field] 
-                  ? new Date(row[column.field]).toLocaleDateString('en-US', {
-                      month: 'numeric',
-                      day: 'numeric',
-                      year: '2-digit'
-                    })
-                  : row[column.field]}
-              </div>
-            ))}
+        ))}
+
+        {/* Date columns */}
+        {dateColumns.map((column) => (
+          <div key={column.field} className="flex flex-col">
+            <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
+              {column.header}
+            </div>
+            <div className="flex-1 bg-white">
+              {data.map(row => (
+                <div key={row.id} className="p-4 border-b overflow-hidden text-ellipsis">
+                  {row[column.field] 
+                    ? new Date(row[column.field]).toLocaleDateString('en-US', {
+                        month: 'numeric',
+                        day: 'numeric',
+                        year: '2-digit'
+                      })
+                    : ''}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
