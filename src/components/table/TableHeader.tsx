@@ -31,47 +31,45 @@ export function TableHeader({
           <ChevronDown className="h-4 w-4 text-white cursor-pointer" />
         </PopoverTrigger>
         <PopoverContent 
-          className="w-full p-0 -mt-1 border-t-0" 
+          className="w-[var(--radix-popover-trigger-width)] p-0 -mt-[1px] rounded-none shadow border border-gray-200" 
           align="start" 
           sideOffset={0}
         >
-          <div className="p-2 space-y-2">
-            <div className="space-y-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full justify-start" 
-                onClick={() => handleSort(column.field)}
-              >
-                Sort A → Z
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full justify-start" 
-                onClick={() => handleSort(column.field)}
-              >
-                Sort Z → A
-              </Button>
-            </div>
-            <div className="border-t pt-2">
-              <div className="flex justify-between mb-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => clearFilter(column.field)}
-                >
-                  Clear
-                </Button>
-              </div>
+          <div className="py-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal hover:bg-gray-100" 
+              onClick={() => handleSort(column.field)}
+            >
+              Sort A → Z
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal hover:bg-gray-100" 
+              onClick={() => handleSort(column.field)}
+            >
+              Sort Z → A
+            </Button>
+            <div className="h-[1px] bg-gray-200 my-1" />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="w-full justify-start px-4 py-1.5 text-sm font-normal hover:bg-gray-100"
+              onClick={() => clearFilter(column.field)}
+            >
+              Clear
+            </Button>
+            <div className="px-3 py-2">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
                 <Input
                   ref={searchInputRef}
                   placeholder="Search..."
                   value={filters[column.field] || ""}
                   onChange={(e) => handleFilter(column.field, e.target.value)}
-                  className="pl-8"
+                  className="pl-8 h-9 border-gray-200"
                   autoFocus
                 />
               </div>
