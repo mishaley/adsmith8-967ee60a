@@ -24,57 +24,35 @@ type UpdateVariables = {
   value: any;
 };
 
-type SortDirection = "asc" | "desc" | null;
-type FilterState = { search: string; values: Set<string> };
-type Filters = { [key: string]: FilterState };
+type SortConfig = {
+  field: string;
+  direction: "asc" | "desc";
+};
 
 const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<string>("created_at");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [filters, setFilters] = useState<Filters>({});
+  const [sort, setSort] = useState<SortConfig>({ field: "created_at", direction: "desc" });
   const [data, setData] = useState(initialData);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const newFilters: Filters = {};
-    columns.forEach(column => {
-      newFilters[column.field] = {
-        search: "",
-        values: new Set(initialData.map(row => String(row[column.field])))
-      };
-    });
-    setFilters(newFilters);
-  }, [columns, initialData]);
-
-  useEffect(() => {
-    let filteredData = [...initialData];
-
-    Object.entries(filters).forEach(([field, filter]) => {
-      if (filter.values.size > 0) {
-        filteredData = filteredData.filter(row => 
-          filter.values.has(String(row[field]))
-        );
-      }
-    });
-
-    if (sortField) {
-      filteredData.sort((a, b) => {
-        const aVal = a[sortField];
-        const bVal = b[sortField];
+    let sortedData = [...initialData];
+    
+    if (sort.field) {
+      sortedData.sort((a, b) => {
+        const aVal = a[sort.field];
+        const bVal = b[sort.field];
         
-        if (sortDirection === "asc") {
-          return String(aVal).localeCompare(String(bVal));
-        } else {
-          return String(bVal).localeCompare(String(aVal));
-        }
+        return sort.direction === "asc"
+          ? String(aVal).localeCompare(String(bVal))
+          : String(bVal).localeCompare(String(aVal));
       });
     }
 
-    setData(filteredData);
-  }, [initialData, filters, sortField, sortDirection]);
+    setData(sortedData);
+  }, [initialData, sort]);
 
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
@@ -92,28 +70,8 @@ const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedT
     },
   });
 
-  const handleFilterChange = (field: string, searchTerm: string, allValues: any[]) => {
-    const lowercaseSearch = searchTerm.toLowerCase();
-    const filteredValues = new Set(
-      allValues
-        .filter(value => 
-          String(value).toLowerCase().includes(lowercaseSearch)
-        )
-        .map(String)
-    );
-
-    setFilters(prev => ({
-      ...prev,
-      [field]: {
-        search: searchTerm,
-        values: filteredValues
-      }
-    }));
-  };
-
-  const handleSort = (field: string, direction: SortDirection) => {
-    setSortField(field);
-    setSortDirection(direction);
+  const handleSort = (field: string, direction: "asc" | "desc") => {
+    setSort({ field, direction });
     setActiveFilter(null);
   };
 
@@ -187,83 +145,60 @@ const SharedTable = ({ data: initialData, columns, tableName, idField }: SharedT
           {columns.map((column) => (
             <TableHead 
               key={column.field} 
-              className="text-white font-bold uppercase flex items-center justify-between"
+              className="text-white font-bold uppercase h-10 whitespace-nowrap"
             >
-              <span>{column.header}</span>
-              <Popover 
-                open={activeFilter === column.field}
-                onOpenChange={(open) => {
-                  setActiveFilter(open ? column.field : null);
-                  if (open) {
-                    setTimeout(() => {
-                      searchInputRef.current?.focus();
-                    }, 0);
-                  }
-                }}
-              >
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="h-8 w-8 p-0 text-white hover:bg-[#1e5f6a]"
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-56" align="start">
-                  <div className="space-y-4">
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        variant="ghost"
-                        className="justify-start"
-                        onClick={() => handleSort(column.field, "asc")}
-                      >
-                        Sort A to Z
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="justify-start"
-                        onClick={() => handleSort(column.field, "desc")}
-                      >
-                        Sort Z to A
-                      </Button>
-                    </div>
-                    <Separator />
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate">{column.header}</span>
+                <Popover 
+                  open={activeFilter === column.field}
+                  onOpenChange={(open) => {
+                    setActiveFilter(open ? column.field : null);
+                    if (open) {
+                      setTimeout(() => {
+                        searchInputRef.current?.focus();
+                      }, 0);
+                    }
+                  }}
+                >
+                  <PopoverTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-6 w-6 shrink-0 text-white hover:bg-[#1e5f6a]"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56" align="start">
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-2">
                         <Button
                           variant="ghost"
-                          className="h-8 text-xs"
-                          onClick={() => handleFilterChange(
-                            column.field,
-                            "",
-                            initialData.map(row => row[column.field])
-                          )}
+                          className="justify-start"
+                          onClick={() => handleSort(column.field, "asc")}
                         >
-                          Select all
+                          Sort A to Z
                         </Button>
                         <Button
                           variant="ghost"
-                          className="h-8 text-xs"
-                          onClick={() => handleFilterChange(column.field, "", [])}
+                          className="justify-start"
+                          onClick={() => handleSort(column.field, "desc")}
                         >
-                          Clear
+                          Sort Z to A
                         </Button>
                       </div>
-                      <Input
-                        ref={searchInputRef}
-                        placeholder="Search..."
-                        value={filters[column.field]?.search || ""}
-                        onChange={(e) => handleFilterChange(
-                          column.field,
-                          e.target.value,
-                          initialData.map(row => row[column.field])
-                        )}
-                        className="h-8"
-                      />
+                      <Separator />
+                      <div className="space-y-2">
+                        <Input
+                          ref={searchInputRef}
+                          placeholder="Search..."
+                          className="h-8"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </TableHead>
           ))}
         </TableRow>
