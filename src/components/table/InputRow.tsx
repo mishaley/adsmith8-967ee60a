@@ -63,9 +63,9 @@ export function InputRow({
 
   return (
     <div className="mb-[9px]">
-      <div className="grid bg-[#d3e4fd] px-4 py-4" style={{ gridTemplateColumns: 'repeat(3, 33.33%)' }}>
+      <div className="flex bg-[#d3e4fd] px-4 py-4 gap-4">
         {columns.map((column) => (
-          <div key={column.field} className="px-4">
+          <div key={column.field} className="flex-1 min-w-0">
             {renderInput(column)}
           </div>
         ))}
