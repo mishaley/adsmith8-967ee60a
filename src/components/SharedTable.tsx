@@ -15,21 +15,25 @@ interface SharedTableProps {
   idField: string;
 }
 
+interface UpdateCellVariables {
+  rowId: string;
+  field: string;
+  value: string | number | boolean | null;
+}
+
 const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
-  const updateCellMutation = useMutation({
-    mutationFn: async ({ rowId, field, value }: { rowId: string; field: string; value: any }) => {
-      const { data, error } = await supabase
+  const updateCellMutation = useMutation<unknown, Error, UpdateCellVariables>({
+    mutationFn: async ({ rowId, field, value }) => {
+      const { error } = await supabase
         .from(tableName)
         .update({ [field]: value })
-        .eq(idField, rowId)
-        .select()
-        .single();
+        .eq(idField, rowId);
 
       if (error) throw error;
-      return data;
+      return null;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
