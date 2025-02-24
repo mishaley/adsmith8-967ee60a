@@ -32,6 +32,8 @@ export function TableHeader({
     handleSort(`${column.field}:${direction}`);
   };
 
+  const buttonStyles = "w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0 focus:outline-none focus:bg-[#363636] focus:text-[#ecb652] active:bg-[#363636] active:text-[#ecb652]";
+
   if (!isPopoverContent) {
     return (
       <div className="flex items-center justify-between space-x-2 w-full h-full relative group">
@@ -46,13 +48,13 @@ export function TableHeader({
       {column.field === 'created_at' ? (
         <>
           <button 
-            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
+            className={buttonStyles}
             onClick={() => handleCreatedSort('desc')}
           >
             New → Old
           </button>
           <button 
-            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
+            className={buttonStyles}
             onClick={() => handleCreatedSort('asc')}
           >
             Old → New
@@ -61,20 +63,20 @@ export function TableHeader({
       ) : (
         <>
           <button 
-            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
+            className={buttonStyles}
             onClick={() => handleFixedSort('asc')}
           >
             A → Z
           </button>
           <button 
-            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0" 
+            className={buttonStyles}
             onClick={() => handleFixedSort('desc')}
           >
             Z → A
           </button>
           <div className="h-[1px] bg-[#363636] my-1" />
           <button 
-            className="w-full text-left px-4 py-1.5 text-sm font-normal text-white hover:bg-[#363636] hover:text-[#ecb652] bg-transparent border-0"
+            className={buttonStyles}
             onClick={() => clearFilter(column.field)}
           >
             Clear
