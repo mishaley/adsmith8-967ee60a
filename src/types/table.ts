@@ -7,6 +7,14 @@ export type InputMode =
   | "integer"
   | "image";
 
+export type TableName = 
+  | "a1organizations"
+  | "b1offerings"
+  | "c1personas"
+  | "d1messages"
+  | "e1images"
+  | "e2captions";
+
 export interface ColumnDefinition {
   field: string;
   header: string;

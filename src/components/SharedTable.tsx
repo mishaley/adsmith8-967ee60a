@@ -3,20 +3,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ColumnDefinition, TableData } from "@/types/table";
+import { ColumnDefinition, TableData, TableName } from "@/types/table";
 import { format } from "date-fns";
 
 interface SharedTableProps {
-  tableName: string;
+  tableName: TableName;
   columns: ColumnDefinition[];
   data: TableData[];
   refetchKey: string;
 }
 
-const SharedTable = ({ tableName, columns, data, refetchKey }: SharedTableProps) => {
+const SharedTable = ({ tableName, columns, data = [], refetchKey }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{
     rowId: string;
     field: string;
