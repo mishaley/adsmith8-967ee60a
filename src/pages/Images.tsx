@@ -37,7 +37,12 @@ const Images = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable data={data} columns={columns} />,
+        q4: <SharedTable 
+          data={data} 
+          columns={columns} 
+          tableName="e1images" 
+          idField="image_id" 
+        />,
       }}
     </QuadrantLayout>
   );

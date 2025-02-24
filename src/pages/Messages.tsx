@@ -37,7 +37,12 @@ const Messages = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable data={data} columns={columns} />,
+        q4: <SharedTable 
+          data={data} 
+          columns={columns} 
+          tableName="d1messages" 
+          idField="message_id" 
+        />,
       }}
     </QuadrantLayout>
   );
