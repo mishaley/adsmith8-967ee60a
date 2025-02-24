@@ -1,7 +1,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { ColumnDef, TableRow as ITableRow } from "@/types/table";
+import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -11,18 +11,16 @@ import { supabase } from "@/integrations/supabase/client";
 interface SharedTableProps {
   data: ITableRow[];
   columns: ColumnDef[];
-  tableName?: string;
-  idField?: string;
+  tableName: TableName;
+  idField: string;
 }
 
-const SharedTable = ({ data, columns, tableName = "", idField = "id" }: SharedTableProps) => {
+const SharedTable = ({ data, columns, tableName, idField }: SharedTableProps) => {
   const [editingCell, setEditingCell] = useState<{ rowId: string; field: string } | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: updateCell } = useMutation({
     mutationFn: async ({ rowId, field, value }: { rowId: string; field: string; value: any }) => {
-      if (!tableName) return null;
-
       const { data, error } = await supabase
         .from(tableName)
         .update({ [field]: value })
