@@ -78,7 +78,7 @@ function SharedTable<T extends TableName>({
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Button
             onClick={handleAdd}
-            className="h-10 w-[100px] rounded-full bg-[#ecb652] font-bold text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
+            className="h-10 w-[100px] rounded-full bg-[#ecb652] text-[14px] text-[#154851] border-2 border-white hover:bg-[#ecb652]/90"
           >
             ADD
           </Button>
@@ -90,7 +90,7 @@ function SharedTable<T extends TableName>({
         {/* Main columns */}
         {mainColumns.map((column) => (
           <div key={column.field} className="flex flex-col h-full">
-            <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
+            <div className="bg-[#154851] p-4 text-white text-[14px] whitespace-nowrap">
               {column.header}
             </div>
             <div className="flex-1 bg-white">
@@ -106,7 +106,7 @@ function SharedTable<T extends TableName>({
         {/* Date columns */}
         {dateColumns.map((column) => (
           <div key={column.field} className="flex flex-col h-full">
-            <div className="bg-[#154851] p-4 text-white font-bold whitespace-nowrap">
+            <div className="bg-[#154851] p-4 text-white text-[14px] whitespace-nowrap">
               {column.header}
             </div>
             <div className="flex-1 bg-white">
