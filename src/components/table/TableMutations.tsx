@@ -46,8 +46,8 @@ export function useTableMutations<T extends TableName>(
       const table = supabase.from(tableName);
       
       // Get the current value before updating
-      const { data: currentData } = await table
-        .select(field as string)
+      const { data: currentData } = await (table as any)
+        .select(`${field}`)
         .eq(idField, rowId)
         .single();
       
