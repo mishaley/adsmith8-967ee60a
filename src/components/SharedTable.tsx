@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { ArrowUpDown } from "lucide-react";
 
 interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
@@ -59,6 +60,13 @@ function SharedTable<T extends TableName>({
     }));
   };
 
+  const handleSort = (field: string) => {
+    setSort(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc"
+    }));
+  };
+
   const organizationOptions = columns.find(col => col.field === "organization_id")?.options || [];
 
   // Split columns into main and date columns
@@ -72,8 +80,12 @@ function SharedTable<T extends TableName>({
     }}>
         {/* Main columns */}
         {mainColumns.map(column => <div key={column.field} className="flex flex-col h-full">
-            <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold">
-              {column.header}
+            <div 
+              className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] flex items-center justify-between group"
+              onClick={() => handleSort(column.field)}
+            >
+              <span>{column.header}</span>
+              <ArrowUpDown className={`h-4 w-4 transition-opacity ${sort.field === column.field ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'}`} />
             </div>
             <div className="flex-1">
               <div className="bg-[#d3e4fd] p-4 mb-2">
@@ -89,8 +101,12 @@ function SharedTable<T extends TableName>({
 
         {/* Date columns with ADD button */}
         {dateColumns.map(column => <div key={column.field} className="flex flex-col h-full">
-            <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold">
-              {column.header}
+            <div 
+              className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] flex items-center justify-between group"
+              onClick={() => handleSort(column.field)}
+            >
+              <span>{column.header}</span>
+              <ArrowUpDown className={`h-4 w-4 transition-opacity ${sort.field === column.field ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'}`} />
             </div>
             <div className="flex-1">
               <div className="bg-[#d3e4fd] p-4 mb-2">
