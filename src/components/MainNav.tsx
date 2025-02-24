@@ -24,12 +24,13 @@ const MainNav = () => {
   return (
     <div className="flex flex-col h-full">
       {/* Top fixed items */}
-      {topNavItems.map((item) => (
+      {topNavItems.map((item, index) => (
         <Link
           key={item.path}
           to={item.path}
           className={cn(
-            "h-[50px] flex items-center pl-[18px] border-b border-white/20",
+            "h-[50px] flex items-center pl-[18px]",
+            index === 0 && "border-b border-white/20", // Only HOME gets bottom border
             currentPath === item.path && "bg-[#d3e4fd] text-[#0c343d] font-bold border-r-[#d3e4fd]"
           )}
         >
