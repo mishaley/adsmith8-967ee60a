@@ -16,7 +16,7 @@ const QuadrantLayout = ({ children, className }: QuadrantLayoutProps) => {
   return (
     <div className={cn("flex h-screen w-full", className)}>
       {/* Left Column - Fixed width */}
-      <div className="flex flex-col w-[160px] min-w-[160px]">
+      <div className="flex flex-col w-[170px] min-w-[170px]">
         {/* Q1 - Logo */}
         <div className="h-[100px] min-h-[100px] bg-[#0c343d] p-[18px]">
           {children?.q1}
