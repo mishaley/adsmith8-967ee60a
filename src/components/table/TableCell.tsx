@@ -123,7 +123,7 @@ export function TableCellComponent({
   };
 
   return (
-    <TableCellBase className={`${
+    <TableCellBase className={`relative w-[1%] whitespace-nowrap ${
       isEditing 
         ? 'bg-white' + (isActive ? ' ring-2 ring-[#ecb652] ring-inset' : '')
         : ''
