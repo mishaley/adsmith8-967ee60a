@@ -136,7 +136,7 @@ export function TableCellComponent({
     <TableCellBase 
       onClick={onClick}
       data-cell-id={`${row.id}-${column.field}`}
-      className={`relative px-4 py-2 min-w-0 ${
+      className={`relative w-[33.33%] px-4 py-2 ${
         isEditing ? 'ring-2 ring-[#ecb652] ring-inset bg-white' : ''
       }`}
     >

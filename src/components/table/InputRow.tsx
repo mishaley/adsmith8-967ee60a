@@ -63,15 +63,9 @@ export function InputRow({
 
   return (
     <div className="mb-[9px]">
-      <div 
-        className="grid bg-[#d3e4fd] px-4 py-4" 
-        style={{ 
-          gridTemplateColumns: `${columns.map(() => '1fr').join(' ')}`,
-          columnGap: '1rem',
-        }}
-      >
+      <div className="grid bg-[#d3e4fd] px-4 py-4" style={{ gridTemplateColumns: 'repeat(3, 33.33%)' }}>
         {columns.map((column) => (
-          <div key={column.field} className="min-w-0">
+          <div key={column.field} className="px-4">
             {renderInput(column)}
           </div>
         ))}
