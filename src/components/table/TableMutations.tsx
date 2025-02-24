@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -53,14 +54,14 @@ export function useTableMutations<T extends TableName>(
         if (error) throw error;
       } else {
         // Get the current value before updating
-        const { data: currentData } = await (table as any)
-          .select(String(field))
+        const { data: currentData } = await table
+          .select(`${field as string}`)
           .eq(idField, rowId)
           .single();
         
         const updateData = { [field]: value } as TableUpdate;
         
-        const { error } = await (table as any)
+        const { error } = await table
           .update(updateData)
           .eq(idField, rowId);
         
@@ -101,7 +102,7 @@ export function useTableMutations<T extends TableName>(
       const table = supabase.from(tableName);
       const insertData = record as unknown as TableInsert;
       
-      const { data, error } = await (table as any)
+      const { data, error } = await table
         .insert([insertData])
         .select();
       
