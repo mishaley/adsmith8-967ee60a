@@ -57,8 +57,6 @@ export function TableColumn({
   const handleCellClick = (rowId: string, field: string, event: React.MouseEvent) => {
     if (column.editable) {
       setEditingCell({ rowId, field });
-      // If it's a select input, prevent the click from bubbling
-      // This allows the Select component to handle the click directly
       if (column.inputMode === 'select') {
         event.preventDefault();
         event.stopPropagation();
@@ -69,8 +67,10 @@ export function TableColumn({
   const handleCellBlur = (rowId: string, field: string, value: any) => {
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
-      const currentValue = data.find(row => row.id === rowId)?.[field];
-      updateMutation.mutate({ rowId, field, value, currentValue });
+      const currentRow = data.find(row => row.id === rowId);
+      const currentValue = currentRow?.[field];
+      const valueToUpdate = column.inputMode === 'select' ? value : value;
+      updateMutation.mutate({ rowId, field, value: valueToUpdate, currentValue });
     }
   };
 
@@ -117,7 +117,6 @@ export function TableColumn({
 
     if (isEditing) {
       if (column.inputMode === 'select' && column.options) {
-        const selectedOption = column.options.find(opt => opt.value === row[column.field]);
         return (
           <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
             <Select
@@ -128,7 +127,7 @@ export function TableColumn({
               }}
             >
               <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
-                <SelectValue defaultValue={selectedOption?.value} className="text-base" />
+                <SelectValue defaultValue={row[column.field]} className="text-base" />
               </SelectTrigger>
               <SelectContent>
                 {column.options.map((option) => (

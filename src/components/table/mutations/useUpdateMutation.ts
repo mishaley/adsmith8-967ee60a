@@ -27,6 +27,7 @@ export const useUpdateMutation = (
   const queryClient = useQueryClient();
 
   return useMutation<MutationResponse, Error, UpdateParams>({
+    mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }) => {
       console.log('🟦 Starting mutation with params:', {
         tableName,
