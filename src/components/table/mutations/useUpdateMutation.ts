@@ -5,14 +5,8 @@ import { TableName } from "@/types/table";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 
-type OfferingData = {
-  offering_id: string;
-  offering_name: string;
-  organization_id: string;
-  created_at: string;
-  a1organizations: {
-    organization_name: string;
-  } | null;
+type OfferingData = Database['public']['Tables']['b1offerings']['Row'] & {
+  a1organizations: Pick<Database['public']['Tables']['a1organizations']['Row'], 'organization_name'> | null;
 }
 
 interface UpdateParams {
@@ -39,21 +33,13 @@ export const useUpdateMutation = (
         const { data, error } = await table
           .update(updateData)
           .eq(idField, rowId)
-          .select(`
-            offering_id,
-            offering_name,
-            organization_id,
-            created_at,
-            a1organizations (
-              organization_name
-            )
-          `)
+          .select('*, a1organizations!inner(organization_name)')
           .maybeSingle();
         
         if (error) throw error;
         if (!data) throw new Error('No data returned from update');
         
-        const typedData = data as OfferingData;
+        const typedData = data as unknown as OfferingData;
         
         if (!isUndo && onSuccessfulUpdate) {
           onSuccessfulUpdate(rowId, field, typedData[field], value);
