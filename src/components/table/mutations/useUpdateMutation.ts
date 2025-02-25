@@ -21,19 +21,12 @@ export const useUpdateMutation = (
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: UpdateParams) => {
-      const table = supabase.from(tableName);
-      const updateData = { [field]: value };
-
       if (tableName === 'b1offerings') {
-        const { data, error } = await table
-          .update(updateData)
-          .eq(idField, rowId)
-          .select(`
-            *,
-            a1organizations (
-              organization_name
-            )
-          `)
+        const { data, error } = await supabase
+          .from('b1offerings')
+          .update({ [field]: value })
+          .eq('offering_id', rowId)
+          .select('offering_id, offering_name, organization_id, created_at, a1organizations(organization_name)')
           .maybeSingle();
         
         if (error) throw error;
@@ -45,8 +38,9 @@ export const useUpdateMutation = (
         
         return data;
       } else {
-        const { data, error } = await table
-          .update(updateData)
+        const { data, error } = await supabase
+          .from(tableName)
+          .update({ [field]: value })
           .eq(idField, rowId)
           .select()
           .maybeSingle();
