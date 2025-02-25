@@ -34,8 +34,7 @@ const Personas = () => {
       header: "Persona",
       inputMode: "text",
       editable: true,
-      required: true,
-      width: "160px"
+      required: true
     },
     {
       field: "offering_id",
@@ -44,8 +43,7 @@ const Personas = () => {
       editable: true,
       required: true,
       options: offeringOptions,
-      displayField: "offering_name",
-      width: "200px"
+      displayField: "offering_name"
     },
     {
       field: "persona_gender",
@@ -53,24 +51,21 @@ const Personas = () => {
       inputMode: "select",
       editable: true,
       required: true,
-      options: genderOptions,
-      width: "120px"
+      options: genderOptions
     },
     {
       field: "persona_agemin",
       header: "Age Min",
       inputMode: "text",
       editable: true,
-      required: true,
-      width: "80px"
+      required: true
     },
     {
       field: "persona_agemax",
       header: "Age Max",
       inputMode: "text",
       editable: true,
-      required: true,
-      width: "80px"
+      required: true
     },
     {
       field: "created_at",
@@ -78,8 +73,7 @@ const Personas = () => {
       inputMode: "text",
       editable: false,
       required: false,
-      format: "M/D/YY",
-      width: "120px"
+      format: "M/D/YY"
     }
   ];
 
