@@ -50,42 +50,46 @@ export function TableColumn({
 
     if (isEditing && column.inputMode === 'select' && column.options) {
       return (
-        <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
-          <Select
-            defaultValue={row[column.field]}
-            onValueChange={(value) => handleSelect(row.id, column.field, value)}
+        <Select
+          defaultValue={row[column.field]}
+          onValueChange={(value) => handleSelect(row.id, column.field, value)}
+          defaultOpen={true}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingCell({ rowId: null, field: null });
+            }
+          }}
+        >
+          <SelectTrigger className="w-full h-full border-none shadow-none focus:ring-0 p-0 bg-transparent text-base font-normal">
+            <SelectValue placeholder={displayValue} />
+          </SelectTrigger>
+          <SelectContent 
+            className="bg-white border rounded-md shadow-md z-50 min-w-[200px]"
+            position="popper"
+            sideOffset={5}
           >
-            <SelectTrigger className="w-full bg-white border-none shadow-none focus:ring-0 px-0">
-              <SelectValue placeholder={displayValue} />
-            </SelectTrigger>
-            <SelectContent 
-              className="bg-white border rounded-md shadow-md z-50 min-w-[200px]"
-              position="popper"
-              sideOffset={5}
-            >
-              {column.options.map((option) => (
-                <SelectItem 
-                  key={option.value} 
-                  value={option.value}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            {column.options.map((option) => (
+              <SelectItem 
+                key={option.value} 
+                value={option.value}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       );
     }
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <div className="w-full relative" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full" onClick={(e) => e.stopPropagation()}>
           <input
             autoFocus
             defaultValue={row[column.field]}
             onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-            className="w-full bg-white outline-none focus:ring-0 text-base p-0"
+            className="w-full bg-transparent outline-none focus:ring-0 text-base p-0"
           />
         </div>
       );
