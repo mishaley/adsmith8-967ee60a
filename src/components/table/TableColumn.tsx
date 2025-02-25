@@ -33,7 +33,7 @@ export function TableColumn({
       rowId, 
       field, 
       value: newValue,
-      currentValue: ''  // We don't need this value for the actual update
+      currentValue: ''
     });
     setEditingCell({ rowId: null, field: null });
   };
@@ -55,12 +55,20 @@ export function TableColumn({
             defaultValue={row[column.field]}
             onValueChange={(value) => handleSelect(row.id, column.field, value)}
           >
-            <SelectTrigger className="w-full h-full bg-transparent border-none">
-              <SelectValue />
+            <SelectTrigger className="w-full bg-white border-none shadow-none focus:ring-0 px-0">
+              <SelectValue placeholder={displayValue} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent 
+              className="bg-white border rounded-md shadow-md z-50 min-w-[200px]"
+              position="popper"
+              sideOffset={5}
+            >
               {column.options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem 
+                  key={option.value} 
+                  value={option.value}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                >
                   {option.label}
                 </SelectItem>
               ))}
