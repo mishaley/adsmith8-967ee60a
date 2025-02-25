@@ -117,7 +117,7 @@ const Messages = () => {
   });
 
   useEffect(() => {
-    // Subscribe to changes on the messages table
+    // Subscribe to changes on the messages table for all events (INSERT, UPDATE, DELETE)
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -127,7 +127,8 @@ const Messages = () => {
           schema: 'public',
           table: 'd1messages'
         },
-        () => {
+        (payload) => {
+          console.log('Database change:', payload);
           refetch();
         }
       )
@@ -153,4 +154,3 @@ const Messages = () => {
 };
 
 export default Messages;
-
