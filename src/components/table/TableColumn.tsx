@@ -103,10 +103,10 @@ export function TableColumn({
   };
 
   return (
-    <div className="flex flex-col h-full min-w-[100px]">
+    <div className="flex flex-col h-full">
       <Popover>
         <PopoverTrigger asChild>
-          <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
+          <div className="bg-[#154851] p-4 text-white text-[16px] uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
             <TableHeader 
               column={column} 
               handleSort={handleSort} 
