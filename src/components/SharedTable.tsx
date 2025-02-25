@@ -1,5 +1,5 @@
 
-import { ColumnDef, TableRow as ITableRow, TableName, TableInsert, TableField } from "@/types/table";
+import { ColumnDef, TableRow as ITableRow, TableName, DbRecord, DbInsert, asTableField } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
   columns: ColumnDef[];
   tableName: T;
-  idField: TableField<T>;
+  idField: keyof DbRecord<T>;
 }
 
 function SharedTable<T extends TableName>({
@@ -24,7 +24,7 @@ function SharedTable<T extends TableName>({
     direction: "desc" as "asc" | "desc"
   });
   const [data, setData] = useState(initialData);
-  const [newRecord, setNewRecord] = useState<Partial<TableInsert<T>>>({});
+  const [newRecord, setNewRecord] = useState<Partial<DbInsert<T>>>({});
   const [filters, setFilters] = useState<Record<string, string>>({});
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { createMutation } = useTableMutations<T>(tableName, idField);
@@ -65,17 +65,17 @@ function SharedTable<T extends TableName>({
 
   const handleAdd = () => {
     const missingFields = columns
-      .filter(col => col.required && !newRecord[col.field as keyof TableInsert<T>])
+      .filter(col => col.required && !newRecord[col.field as keyof DbInsert<T>])
       .map(col => col.header);
     if (missingFields.length > 0) {
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    createMutation.mutate(newRecord as TableInsert<T>);
+    createMutation.mutate(newRecord as DbInsert<T>);
     setNewRecord({});
   };
 
-  const handleInputChange = (field: TableField<T>, value: any) => {
+  const handleInputChange = (field: keyof DbRecord<T>, value: any) => {
     setNewRecord(prev => ({
       ...prev,
       [field]: value

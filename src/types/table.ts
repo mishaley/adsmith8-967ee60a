@@ -2,6 +2,7 @@
 import type { Database } from "@/integrations/supabase/types";
 
 export type TableName = keyof Database['public']['Tables'];
+type Tables = Database['public']['Tables'];
 
 export type InputMode = "text" | "select" | "textarea";
 
@@ -26,7 +27,11 @@ export interface TableRow {
   [key: string]: any;
 }
 
-// Utility types for table operations
-export type TableField<T extends TableName> = keyof Database['public']['Tables'][T]['Row'];
-export type TableRecord<T extends TableName> = Database['public']['Tables'][T]['Row'];
-export type TableInsert<T extends TableName> = Database['public']['Tables'][T]['Insert'];
+export type DbRecord<T extends TableName> = Tables[T]['Row'];
+export type DbInsert<T extends TableName> = Tables[T]['Insert'];
+export type DbUpdate<T extends TableName> = Tables[T]['Update'];
+
+// Safe type assertion helper
+export function asTableField<T extends TableName>(field: string): keyof DbRecord<T> {
+  return field as keyof DbRecord<T>;
+}

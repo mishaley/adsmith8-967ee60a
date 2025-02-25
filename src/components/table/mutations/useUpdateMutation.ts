@@ -1,19 +1,19 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName, TableField, TableRecord } from "@/types/table";
+import { TableName, DbRecord, asTableField } from "@/types/table";
 
 interface UpdateMutationParams<T extends TableName> {
   tableName: T;
-  idField: TableField<T>;
+  idField: keyof DbRecord<T>;
   onHistoryChange?: (change: {
     rowId: string;
-    field: TableField<T>;
+    field: keyof DbRecord<T>;
     oldValue: any;
     newValue: any;
     tableName: T;
     isDelete?: boolean;
-    oldData?: Partial<TableRecord<T>>;
+    oldData?: Partial<DbRecord<T>>;
   }) => void;
 }
 
@@ -28,34 +28,34 @@ export function useUpdateMutation<T extends TableName>({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false, isDelete = false, oldData }: { 
       rowId: string; 
-      field: TableField<T>; 
+      field: keyof DbRecord<T>; 
       value: any;
       isUndo?: boolean;
       isDelete?: boolean;
-      oldData?: Partial<TableRecord<T>>;
+      oldData?: Partial<DbRecord<T>>;
     }) => {
       if (isDelete) {
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq(idField, rowId);
+          .eq(asTableField<T>(idField as string), rowId);
         if (error) throw error;
       } else {
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
           .select()
-          .eq(idField, rowId)
+          .eq(asTableField<T>(idField as string), rowId)
           .single();
         
         if (selectError) throw selectError;
 
         if (currentData) {
-          const updateData = { [field]: value };
+          const updateData = { [field]: value } as Partial<DbRecord<T>>;
           
           const { error } = await supabase
             .from(tableName)
             .update(updateData)
-            .eq(idField, rowId);
+            .eq(asTableField<T>(idField as string), rowId);
           
           if (error) throw error;
 
