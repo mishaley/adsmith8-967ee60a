@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -36,14 +37,15 @@ export function TableColumn({
   searchInputRef,
 }: TableColumnProps) {
   const [editingCell, setEditingCell] = useState<{ rowId: string | null, field: string | null }>({ rowId: null, field: null });
-  const { updateMutation } = useTableMutations("a1organizations", "organization_id");
+  const { updateMutation } = useTableMutations("b1offerings", "offering_id");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (editingCell.rowId && editingCell.field === column.field) {
         const target = event.target as HTMLElement;
         if (!target.closest('.select-wrapper')) {
-          handleCellBlur(editingCell.rowId, editingCell.field, data.find(row => row.id === editingCell.rowId)?.[column.field]);
+          const currentRow = data.find(row => row.id === editingCell.rowId);
+          handleCellBlur(editingCell.rowId, editingCell.field, currentRow?.[editingCell.field]);
         }
       }
     };
@@ -69,8 +71,7 @@ export function TableColumn({
     if (column.editable) {
       const currentRow = data.find(row => row.id === rowId);
       const currentValue = currentRow?.[field];
-      const valueToUpdate = column.inputMode === 'select' ? value : value;
-      updateMutation.mutate({ rowId, field, value: valueToUpdate, currentValue });
+      updateMutation.mutate({ rowId, field, value, currentValue });
     }
   };
 
@@ -120,16 +121,16 @@ export function TableColumn({
         return (
           <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
             <Select
-              defaultValue={row[column.field]}
-              open={true}
+              value={row[column.field]}
               onValueChange={(value) => {
+                console.log('Select value changed:', value);
                 handleCellBlur(row.id, column.field, value);
               }}
             >
               <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
-                <SelectValue defaultValue={row[column.field]} className="text-base" />
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[100]">
                 {column.options.map((option) => (
                   <SelectItem key={option.value} value={option.value} className="text-base">
                     {option.label}
