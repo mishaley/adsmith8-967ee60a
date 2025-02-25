@@ -13,7 +13,7 @@ type MutationParams = {
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
   return useMutation({
     mutationFn: async ({ rowId, field, value }: MutationParams) => {
-      console.log('Selected new value for update:', value);
+      console.log('Running update mutation with:', { rowId, field, value });
       
       const { error } = await supabase
         .from(tableName)
