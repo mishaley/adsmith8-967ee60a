@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -96,10 +97,17 @@ export function TableColumn({
       if (column.inputMode === 'select' && column.options) {
         const selectedOption = column.options.find(opt => opt.value === row[column.field]);
         return (
-          <div className="w-full relative">
+          <div className="w-full relative" onBlur={() => handleCellBlur(row.id, column.field, row[column.field])}>
             <Select
               defaultValue={row[column.field]}
-              onValueChange={(value) => handleCellBlur(row.id, column.field, value)}
+              onValueChange={(value) => {
+                handleCellBlur(row.id, column.field, value);
+              }}
+              onOpenChange={(open) => {
+                if (!open) {
+                  setEditingCell({ rowId: null, field: null });
+                }
+              }}
             >
               <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
                 <SelectValue defaultValue={selectedOption?.value} className="text-base" />
