@@ -68,7 +68,7 @@ export function TableColumn({
           onValueChange={(value) => handleInputChange(column.field, value)}
         >
           <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input">
-            <SelectValue placeholder="Select..." />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {column.options.map((option) => (
