@@ -26,27 +26,37 @@ export const useUpdateMutation = (
           .from('b1offerings')
           .update({ [field]: value })
           .eq('offering_id', rowId)
-          .select('offering_id, offering_name, organization_id, created_at, a1organizations(organization_name)')
-          .maybeSingle();
+          .select(`offering_id, offering_name, organization_id, created_at`)
+          .single();
         
         if (error) throw error;
-        if (!data) throw new Error('No data returned from update');
+        
+        // Fetch the organization name in a separate query
+        const { data: orgData } = await supabase
+          .from('a1organizations')
+          .select('organization_name')
+          .eq('organization_id', data.organization_id)
+          .single();
+        
+        const result = {
+          ...data,
+          organization_name: orgData?.organization_name
+        };
         
         if (!isUndo && onSuccessfulUpdate) {
           onSuccessfulUpdate(rowId, field, data[field], value);
         }
         
-        return data;
+        return result;
       } else {
         const { data, error } = await supabase
           .from(tableName)
           .update({ [field]: value })
           .eq(idField, rowId)
           .select()
-          .maybeSingle();
+          .single();
         
         if (error) throw error;
-        if (!data) throw new Error('No data returned from update');
         
         if (!isUndo && onSuccessfulUpdate) {
           onSuccessfulUpdate(rowId, field, data[field], value);
