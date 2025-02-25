@@ -13,6 +13,10 @@ serve(async (req) => {
   }
 
   try {
+    // Check if this is a dry run
+    const { dryRun = true } = await req.json().catch(() => ({ dryRun: true }));
+    console.log(`Running in ${dryRun ? 'dry run' : 'delete'} mode`);
+
     // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -41,12 +45,31 @@ serve(async (req) => {
     if (storageError) throw storageError
     console.log('Found storage folders:', storageData)
 
+    // Identify invalid folders
     const invalidFolders = storageData
-      .filter(item => item.name !== '.emptyFolderPlaceholder')
+      ?.filter(item => item.name !== '.emptyFolderPlaceholder')
       .filter(item => !validOrgIds.has(item.name))
-      .map(item => `organizations/${item.name}`)
+      .map(item => `organizations/${item.name}`) ?? [];
 
-    console.log('Invalid folders to remove:', invalidFolders)
+    console.log('Invalid folders that would be removed:', invalidFolders)
+
+    if (dryRun) {
+      return new Response(
+        JSON.stringify({
+          mode: 'dry run',
+          message: 'This was a dry run - no files were deleted',
+          wouldDelete: invalidFolders,
+          validOrgIds: Array.from(validOrgIds),
+          foundFolders: storageData?.map(item => item.name) ?? []
+        }),
+        { 
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+    }
 
     const deletedFolders: string[] = []
     const errors: string[] = []
@@ -95,6 +118,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
+        mode: 'delete',
         success: true,
         message: 'Cleanup completed',
         deleted: deletedFolders,
