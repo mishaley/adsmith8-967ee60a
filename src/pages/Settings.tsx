@@ -59,26 +59,16 @@ const Settings = () => {
         }, 'image/png');
       });
 
-      // Create simple file path using organization ID
-      const filePath = `organizations/${organizationId}/wordmark.png`;
-
-      // If there's an existing wordmark, remove it first
-      if (organizations.find(org => org.organization_id === organizationId)?.organization_wordmark) {
-        const { error: deleteError } = await supabase.storage
-          .from("adsmith_assets")
-          .remove([`organizations/${organizationId}/wordmark.png`]);
-        
-        if (deleteError) {
-          console.error('Error deleting existing wordmark:', deleteError);
-        }
-      }
+      // Create timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filePath = `organizations/${organizationId}/docs/${organizationId}_wordmark_${timestamp}.png`;
 
       // Upload PNG to Supabase storage
       const { data, error } = await supabase.storage
         .from("adsmith_assets")
         .upload(filePath, blob, {
           contentType: 'image/png',
-          upsert: true // Use upsert to ensure we don't create duplicates
+          upsert: false // Don't use upsert to keep historical versions
         });
 
       if (error) throw error;
