@@ -3,6 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
+
+type Tables = Database['public']['Tables']
 
 interface UpdateParams {
   rowId: string;
@@ -28,30 +31,39 @@ export const useUpdateMutation = (
         const { data, error } = await table
           .update(updateData)
           .eq(idField, rowId)
-          .select(`*, a1organizations (organization_name)`);
+          .select(`
+            offering_id,
+            offering_name,
+            organization_id,
+            created_at,
+            a1organizations (
+              organization_name
+            )
+          `).single();
         
         if (error) throw error;
-        if (!data?.length) throw new Error('No data returned from update');
+        if (!data) throw new Error('No data returned from update');
         
         if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, data[0][field], value);
+          onSuccessfulUpdate(rowId, field, data[field], value);
         }
         
-        return data[0];
+        return data;
       } else {
         const { data, error } = await table
           .update(updateData)
           .eq(idField, rowId)
-          .select();
+          .select()
+          .single();
         
         if (error) throw error;
-        if (!data?.length) throw new Error('No data returned from update');
+        if (!data) throw new Error('No data returned from update');
         
         if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, data[0][field], value);
+          onSuccessfulUpdate(rowId, field, data[field], value);
         }
         
-        return data[0];
+        return data;
       }
     },
     onSuccess: () => {
