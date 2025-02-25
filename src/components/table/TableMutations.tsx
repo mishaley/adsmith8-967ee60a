@@ -35,18 +35,6 @@ export function useTableMutations<T extends TableName>(
   const [changeHistory, setChangeHistory] = useState<ChangeHistoryEntry<T>[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
-  const getSelectQuery = (table: T) => {
-    if (table === 'b1offerings') {
-      return `
-        *,
-        a1organizations (
-          organization_name
-        )
-      `;
-    }
-    return '*';
-  };
-
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: { 
@@ -56,12 +44,22 @@ export function useTableMutations<T extends TableName>(
       isUndo?: boolean;
     }) => {
       const table = supabase.from(tableName);
-      const updateData = { [field]: value };
+      const updateData = { [field]: value } as TableUpdate<T>;
       
-      const { data, error } = await table
-        .update(updateData)
-        .eq(idField, rowId)
-        .select(getSelectQuery(tableName));
+      let query = table.update(updateData).eq(idField, rowId);
+      
+      if (tableName === 'b1offerings') {
+        query = query.select(`
+          *,
+          a1organizations (
+            organization_name
+          )
+        `) as any;
+      } else {
+        query = query.select('*');
+      }
+      
+      const { data, error } = await query;
       
       if (error) {
         console.error('Update error:', error);
@@ -108,11 +106,22 @@ export function useTableMutations<T extends TableName>(
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
       const table = supabase.from(tableName);
-      const insertData = record;
+      const insertData = record as TableInsert<T>;
       
-      const { data, error } = await table
-        .insert([insertData])
-        .select(getSelectQuery(tableName));
+      let query = table.insert([insertData]);
+      
+      if (tableName === 'b1offerings') {
+        query = query.select(`
+          *,
+          a1organizations (
+            organization_name
+          )
+        `) as any;
+      } else {
+        query = query.select('*');
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       
