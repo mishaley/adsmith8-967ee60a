@@ -114,7 +114,7 @@ const Settings = () => {
                         {org.organization_wordmark && (
                           <div className="h-8 flex items-center">
                             <img
-                              src={`${supabase.storageClient.getPublicUrl('adsmith_assets', org.organization_wordmark).data.publicUrl}`}
+                              src={`${supabase.storage.from('adsmith_assets').getPublicUrl(org.organization_wordmark).data.publicUrl}`}
                               alt={`${org.organization_name} wordmark`}
                               className="max-h-full w-auto object-contain"
                             />
