@@ -34,6 +34,7 @@ export function useTableMutations(
     async (params: UpdateParams) => {
       const result = await updateMutation.mutateAsync({
         id: params.rowId,
+        idField: idField,
         data: { [params.field]: params.value }
       });
       return result;
@@ -46,6 +47,7 @@ export function useTableMutations(
     mutate: (params: UpdateParams) => {
       updateMutation.mutate({
         id: params.rowId,
+        idField: idField,
         data: { [params.field]: params.value }
       });
     },

@@ -17,11 +17,11 @@ export function useUpdateMutation<TData = any>({
   onError,
 }: UseUpdateMutationOptions<TData>) {
   return useMutation({
-    mutationFn: async (variables: { id: string; data: Partial<TData> }) => {
+    mutationFn: async (variables: { id: string; idField: string; data: Partial<TData> }) => {
       const { data, error } = await client
         .from(table)
         .update(variables.data)
-        .eq('id', variables.id)
+        .eq(variables.idField, variables.id)
         .select()
         .single();
 
