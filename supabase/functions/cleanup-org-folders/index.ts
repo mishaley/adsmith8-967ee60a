@@ -27,6 +27,7 @@ serve(async (req) => {
     if (orgError) throw orgError
 
     const validOrgIds = new Set(organizations.map(org => org.organization_id))
+    console.log('Valid organization IDs:', Array.from(validOrgIds))
 
     // List all folders in the organizations directory
     const { data: storageData, error: storageError } = await supabase
@@ -38,26 +39,57 @@ serve(async (req) => {
       })
 
     if (storageError) throw storageError
+    console.log('Found storage folders:', storageData)
 
     const invalidFolders = storageData
       .filter(item => item.name !== '.emptyFolderPlaceholder')
       .filter(item => !validOrgIds.has(item.name))
       .map(item => `organizations/${item.name}`)
 
+    console.log('Invalid folders to remove:', invalidFolders)
+
     const deletedFolders: string[] = []
     const errors: string[] = []
 
-    // Delete invalid folders
+    // Delete invalid folders and their contents recursively
     for (const folderPath of invalidFolders) {
-      const { error: deleteError } = await supabase
+      // List all files in the folder
+      const { data: files, error: listError } = await supabase
+        .storage
+        .from('adsmith_assets')
+        .list(folderPath, {
+          sortBy: { column: 'name', order: 'asc' },
+        })
+
+      if (listError) {
+        errors.push(`Error listing files in ${folderPath}: ${listError.message}`)
+        continue
+      }
+
+      // Delete all files in the folder
+      if (files && files.length > 0) {
+        const filePaths = files.map(file => `${folderPath}/${file.name}`)
+        const { error: deleteFilesError } = await supabase
+          .storage
+          .from('adsmith_assets')
+          .remove(filePaths)
+
+        if (deleteFilesError) {
+          errors.push(`Error deleting files in ${folderPath}: ${deleteFilesError.message}`)
+        }
+      }
+
+      // After files are deleted, try to remove the empty folder
+      const { error: deleteFolderError } = await supabase
         .storage
         .from('adsmith_assets')
         .remove([`${folderPath}/.emptyFolderPlaceholder`])
 
-      if (deleteError) {
-        errors.push(`Error deleting ${folderPath}: ${deleteError.message}`)
+      if (deleteFolderError) {
+        errors.push(`Error deleting folder ${folderPath}: ${deleteFolderError.message}`)
       } else {
         deletedFolders.push(folderPath)
+        console.log(`Successfully deleted folder: ${folderPath}`)
       }
     }
 
@@ -76,6 +108,7 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Cleanup error:', error)
     return new Response(
       JSON.stringify({
         success: false,
