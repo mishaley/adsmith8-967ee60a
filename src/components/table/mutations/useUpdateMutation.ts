@@ -12,6 +12,13 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
+type MutationResponse = {
+  rowId: string;
+  field: string;
+  value: any;
+  data: any[] | null;
+} | null;
+
 export const useUpdateMutation = (
   tableName: TableName,
   idField: string,
@@ -19,8 +26,8 @@ export const useUpdateMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateParams) => {
+  return useMutation<MutationResponse, Error, UpdateParams>({
+    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }) => {
       console.log('🟦 Starting mutation with params:', {
         tableName,
         idField,
@@ -31,9 +38,17 @@ export const useUpdateMutation = (
         isUndo
       });
 
+      // Compare stringified values to handle object comparisons
+      const isSameValue = JSON.stringify(value) === JSON.stringify(currentValue);
+      
       // Skip if no change
-      if (value === currentValue) {
-        console.log('🟨 Skipping update - value unchanged');
+      if (isSameValue) {
+        console.log('🟨 Skipping update - value unchanged:', {
+          value,
+          currentValue,
+          stringifiedValue: JSON.stringify(value),
+          stringifiedCurrent: JSON.stringify(currentValue)
+        });
         return null;
       }
 
