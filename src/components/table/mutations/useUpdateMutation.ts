@@ -1,35 +1,34 @@
 
-import { useMutation } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { TableName } from "@/types/table";
-import { toast } from "sonner";
+import { UseMutationOptions, useMutation } from "@tanstack/react-query";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { PostgrestResponse } from "@supabase/postgrest-js";
 
-type TableValue = string | number | boolean | null;
+interface UseUpdateMutationOptions<TData = any> {
+  client: SupabaseClient;
+  table: string;
+  onSuccess?: (data: TData) => void;
+  onError?: (error: Error) => void;
+}
 
-type UpdateParams = {
-  rowId: string;
-  field: string;
-  value: TableValue;
-  currentValue: TableValue;
-};
-
-const useUpdateMutation = (tableName: TableName, idField: string) => {
-  const updateMutation = useMutation({
-    mutationFn: async (params: UpdateParams) => {
-      const { error } = await supabase
-        .from(tableName)
-        .update({ [params.field]: params.value })
-        .eq(idField, params.rowId);
+export function useUpdateMutation<TData = any>({
+  client,
+  table,
+  onSuccess,
+  onError,
+}: UseUpdateMutationOptions<TData>) {
+  return useMutation({
+    mutationFn: async (variables: { id: string; data: Partial<TData> }) => {
+      const { data, error } = await client
+        .from(table)
+        .update(variables.data)
+        .eq('id', variables.id)
+        .select()
+        .single();
 
       if (error) throw error;
-      return { success: true };
+      return data as TData;
     },
-    onError: (error: Error) => {
-      toast.error("Failed to update: " + error.message);
-    }
+    onSuccess,
+    onError,
   });
-
-  return { updateMutation };
-};
-
-export { useUpdateMutation };
+}

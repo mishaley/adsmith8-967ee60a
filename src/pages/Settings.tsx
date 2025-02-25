@@ -8,6 +8,7 @@ import { useState } from "react";
 
 const Settings = () => {
   const [isUploading, setIsUploading] = useState<string | null>(null);
+  const [isTestingCleanup, setIsTestingCleanup] = useState(false);
 
   const { data: organizations = [], refetch } = useQuery({
     queryKey: ["organizations"],
@@ -95,6 +96,7 @@ const Settings = () => {
 
   const testCleanupFunction = async () => {
     try {
+      setIsTestingCleanup(true);
       const { data, error } = await supabase.functions.invoke('cleanup-org-folders', {
         body: { dryRun: true }
       });
@@ -110,6 +112,8 @@ const Settings = () => {
     } catch (err) {
       console.error('Error invoking function:', err);
       toast.error('Failed to invoke cleanup function');
+    } finally {
+      setIsTestingCleanup(false);
     }
   };
 
@@ -118,7 +122,7 @@ const Settings = () => {
       {{
         q4: (
           <div className="w-full max-w-2xl mx-auto p-4">
-            <table className="w-full">
+            <table className="w-full mb-8">
               <thead>
                 <tr>
                   <th className="text-left p-4 bg-[#154851] text-white">Organization</th>
@@ -166,16 +170,17 @@ const Settings = () => {
             </table>
 
             {/* Cleanup Test Button Section */}
-            <div className="mt-8 p-4 border rounded-lg bg-gray-50">
-              <h2 className="text-lg font-semibold mb-2">Storage Cleanup</h2>
+            <div className="p-4 border rounded-lg bg-gray-50">
+              <h2 className="text-lg font-semibold mb-2">Storage Cleanup Test</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Test the cleanup function in dry-run mode to see which organization folders would be removed.
               </p>
               <Button 
                 onClick={testCleanupFunction}
                 variant="outline"
+                disabled={isTestingCleanup}
               >
-                Test Cleanup Function
+                {isTestingCleanup ? 'Testing...' : 'Test Cleanup Function'}
               </Button>
             </div>
           </div>
@@ -186,4 +191,3 @@ const Settings = () => {
 };
 
 export default Settings;
-
