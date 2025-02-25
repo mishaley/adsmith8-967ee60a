@@ -5,6 +5,7 @@ import { TableName, TableData } from "@/types/table";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 import { useEffect, useCallback, useState } from "react";
+import { PostgrestResponse } from "@supabase/supabase-js";
 
 type Tables = Database['public']['Tables'];
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
@@ -44,22 +45,28 @@ export function useTableMutations<T extends TableName>(
       isUndo?: boolean;
     }) => {
       const table = supabase.from(tableName);
-      const updateData = { [field]: value } as TableUpdate<T>;
-      
-      let query = table.update(updateData).eq(idField, rowId);
+      const updateData = { [field]: value } as Tables[T]['Update'];
+
+      let result: PostgrestResponse<Tables[T]['Row']>;
       
       if (tableName === 'b1offerings') {
-        query = query.select(`
-          *,
-          a1organizations (
-            organization_name
-          )
-        `) as any;
+        result = await table
+          .update(updateData)
+          .eq(idField, rowId)
+          .select(`
+            *,
+            a1organizations (
+              organization_name
+            )
+          `) as PostgrestResponse<Tables[T]['Row']>;
       } else {
-        query = query.select('*');
+        result = await table
+          .update(updateData)
+          .eq(idField, rowId)
+          .select() as PostgrestResponse<Tables[T]['Row']>;
       }
-      
-      const { data, error } = await query;
+
+      const { data, error } = result;
       
       if (error) {
         console.error('Update error:', error);
@@ -106,22 +113,26 @@ export function useTableMutations<T extends TableName>(
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
       const table = supabase.from(tableName);
-      const insertData = record as TableInsert<T>;
-      
-      let query = table.insert([insertData]);
+      const insertData = record as Tables[T]['Insert'];
+
+      let result: PostgrestResponse<Tables[T]['Row']>;
       
       if (tableName === 'b1offerings') {
-        query = query.select(`
-          *,
-          a1organizations (
-            organization_name
-          )
-        `) as any;
+        result = await table
+          .insert([insertData])
+          .select(`
+            *,
+            a1organizations (
+              organization_name
+            )
+          `) as PostgrestResponse<Tables[T]['Row']>;
       } else {
-        query = query.select('*');
+        result = await table
+          .insert([insertData])
+          .select() as PostgrestResponse<Tables[T]['Row']>;
       }
       
-      const { data, error } = await query;
+      const { data, error } = result;
       
       if (error) throw error;
       
