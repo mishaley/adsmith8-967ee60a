@@ -1,6 +1,6 @@
 
 import { toast } from "sonner";
-import { TableName } from "@/types/table";
+import { TableName, DbRecord, DbInsert, asTableField } from "@/types/table";
 import { useUpdateMutation } from "./mutations/useUpdateMutation";
 import { useCreateMutation } from "./mutations/useCreateMutation";
 import { useTableHistory } from "./hooks/useTableHistory";
@@ -14,7 +14,7 @@ interface TableMutationsResult<T extends TableName> {
 
 export function useTableMutations<T extends TableName>(
   tableName: T,
-  idField: string
+  idField: keyof DbRecord<T>
 ): TableMutationsResult<T> {
   const { changeHistory, currentIndex, setCurrentIndex, addToHistory } = useTableHistory<T>();
   
@@ -31,18 +31,16 @@ export function useTableMutations<T extends TableName>(
       const change = changeHistory[currentIndex];
       try {
         if (change.isDelete) {
-          // If it was a delete operation, we need to re-insert the record
-          const insertData = change.oldData;
+          const insertData = change.oldData as DbInsert<T>;
           const { error } = await supabase
             .from(tableName)
             .insert([insertData]);
             
           if (error) throw error;
         } else {
-          // For normal updates, revert to the old value
           await updateMutation.mutateAsync({
             rowId: change.rowId,
-            field: change.field,
+            field: asTableField<T>(String(change.field)),
             value: change.oldValue,
             isUndo: true
           });
@@ -60,18 +58,16 @@ export function useTableMutations<T extends TableName>(
       const change = changeHistory[currentIndex + 1];
       try {
         if (change.isDelete) {
-          // If it was a delete operation, delete the record again
           const { error } = await supabase
             .from(tableName)
             .delete()
-            .eq(idField, change.rowId);
+            .eq(String(idField), change.rowId);
             
           if (error) throw error;
         } else {
-          // For normal updates, apply the new value
           await updateMutation.mutateAsync({
             rowId: change.rowId,
-            field: change.field,
+            field: asTableField<T>(String(change.field)),
             value: change.newValue,
             isUndo: true
           });

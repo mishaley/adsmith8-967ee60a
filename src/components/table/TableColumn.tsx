@@ -80,13 +80,13 @@ export function TableColumn<T extends TableName>({
 
   const confirmDelete = async () => {
     if (deletingRow) {
-      const oldData = { ...deletingRow } as Partial<DbRecord<T>>;
+      const oldData = { ...deletingRow };
       updateMutation.mutate({
         rowId: deletingRow.id,
         field: idField,
         value: null,
         isDelete: true,
-        oldData
+        oldData: oldData as Partial<DbRecord<T>>
       });
     }
     setShowDeleteDialog(false);

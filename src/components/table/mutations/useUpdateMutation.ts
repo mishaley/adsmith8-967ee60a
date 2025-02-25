@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName, DbRecord, asTableField } from "@/types/table";
+import { TableName, DbRecord, asTableField, asDbRecord } from "@/types/table";
 
 interface UpdateMutationParams<T extends TableName> {
   tableName: T;
@@ -38,24 +38,24 @@ export function useUpdateMutation<T extends TableName>({
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq(asTableField<T>(idField as string), rowId);
+          .eq(String(idField), rowId);
         if (error) throw error;
       } else {
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
           .select()
-          .eq(asTableField<T>(idField as string), rowId)
+          .eq(String(idField), rowId)
           .single();
         
         if (selectError) throw selectError;
 
         if (currentData) {
-          const updateData = { [field]: value } as Partial<DbRecord<T>>;
+          const updateData = { [String(field)]: value };
           
           const { error } = await supabase
             .from(tableName)
             .update(updateData)
-            .eq(asTableField<T>(idField as string), rowId);
+            .eq(String(idField), rowId);
           
           if (error) throw error;
 
@@ -63,11 +63,11 @@ export function useUpdateMutation<T extends TableName>({
             onHistoryChange({
               rowId,
               field,
-              oldValue: isDelete ? oldData : currentData[field],
+              oldValue: isDelete ? oldData : currentData[String(field)],
               newValue: value,
               tableName,
               isDelete,
-              oldData
+              oldData: asDbRecord<T>(oldData)
             });
           }
         }
