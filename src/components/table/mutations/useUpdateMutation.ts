@@ -1,30 +1,38 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName } from "@/types/table";
+import { TableName, TableField, TableRecord } from "@/types/table";
 
-interface UpdateMutationParams {
-  tableName: TableName;
-  idField: string;
-  onHistoryChange?: (change: any) => void;
+interface UpdateMutationParams<T extends TableName> {
+  tableName: T;
+  idField: TableField<T>;
+  onHistoryChange?: (change: {
+    rowId: string;
+    field: TableField<T>;
+    oldValue: any;
+    newValue: any;
+    tableName: T;
+    isDelete?: boolean;
+    oldData?: Partial<TableRecord<T>>;
+  }) => void;
 }
 
-export function useUpdateMutation({ 
+export function useUpdateMutation<T extends TableName>({ 
   tableName, 
   idField, 
   onHistoryChange 
-}: UpdateMutationParams) {
+}: UpdateMutationParams<T>) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false, isDelete = false, oldData }: { 
       rowId: string; 
-      field: string; 
+      field: TableField<T>; 
       value: any;
       isUndo?: boolean;
       isDelete?: boolean;
-      oldData?: any;
+      oldData?: Partial<TableRecord<T>>;
     }) => {
       if (isDelete) {
         const { error } = await supabase

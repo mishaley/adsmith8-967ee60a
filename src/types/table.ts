@@ -26,6 +26,7 @@ export interface TableRow {
   [key: string]: any;
 }
 
-export type DbRow<T extends TableName> = Database['public']['Tables'][T]['Row'];
-export type DbInsert<T extends TableName> = Database['public']['Tables'][T]['Insert'];
-export type DbUpdate<T extends TableName> = Database['public']['Tables'][T]['Update'];
+// Utility types for table operations
+export type TableField<T extends TableName> = keyof Database['public']['Tables'][T]['Row'];
+export type TableRecord<T extends TableName> = Database['public']['Tables'][T]['Row'];
+export type TableInsert<T extends TableName> = Database['public']['Tables'][T]['Insert'];

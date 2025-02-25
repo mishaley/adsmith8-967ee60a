@@ -1,4 +1,4 @@
-import { ColumnDef, TableRow, TableName } from "@/types/table";
+import { ColumnDef, TableRow, TableName, TableField, TableRecord } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
 import { RefObject, useState } from "react";
@@ -15,22 +15,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
-import { Database } from "@/integrations/supabase/types";
-
-type Tables = Database['public']['Tables'];
 
 interface TableColumnProps<T extends TableName> {
   column: ColumnDef;
   data: TableRow[];
-  newRecord: Partial<Tables[T]['Insert']>;
-  handleInputChange: (field: keyof Tables[T]['Insert'], value: any) => void;
+  newRecord: Partial<TableRecord<T>>;
+  handleInputChange: (field: TableField<T>, value: any) => void;
   handleSort: (field: string) => void;
   handleFilter: (field: string, value: string) => void;
   clearFilter: (field: string) => void;
   filters: Record<string, string>;
   searchInputRef: RefObject<HTMLInputElement>;
   tableName: T;
-  idField: keyof Tables[T]['Row'] & string;
+  idField: TableField<T>;
 }
 
 export function TableColumn<T extends TableName>({
@@ -52,20 +49,20 @@ export function TableColumn<T extends TableName>({
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const { updateMutation } = useTableMutations(tableName, idField);
 
-  const handleCellClick = (rowId: string, field: keyof Tables[T]['Row']) => {
+  const handleCellClick = (rowId: string, field: TableField<T>) => {
     if (column.editable) {
       setEditingCell({ rowId, field: field as string });
     }
   };
 
-  const handleCellBlur = (rowId: string, field: keyof Tables[T]['Row'], value: any) => {
+  const handleCellBlur = (rowId: string, field: TableField<T>, value: any) => {
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
       updateMutation.mutate({ rowId, field, value });
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, rowId: string, field: keyof Tables[T]['Row'], value: any) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, rowId: string, field: TableField<T>, value: any) => {
     if (e.key === 'Enter') {
       handleCellBlur(rowId, field, value);
     }
@@ -78,7 +75,7 @@ export function TableColumn<T extends TableName>({
 
   const confirmDelete = async () => {
     if (deletingRow) {
-      const oldData = { ...deletingRow } as Partial<Tables[T]['Row']>;
+      const oldData = { ...deletingRow } as Partial<TableRecord<T>>;
       updateMutation.mutate({
         rowId: deletingRow.id,
         field: idField,

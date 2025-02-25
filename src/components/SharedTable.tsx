@@ -1,19 +1,16 @@
 
-import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
+import { ColumnDef, TableRow as ITableRow, TableName, TableInsert, TableField } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
 import { toast } from "sonner";
 import { TableColumn } from "./table/TableColumn";
 import { TableAddColumn } from "./table/TableAddColumn";
-import { Database } from "@/integrations/supabase/types";
-
-type Tables = Database['public']['Tables'];
 
 interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
   columns: ColumnDef[];
   tableName: T;
-  idField: keyof Tables[T]['Row'] & string;
+  idField: TableField<T>;
 }
 
 function SharedTable<T extends TableName>({
@@ -27,10 +24,10 @@ function SharedTable<T extends TableName>({
     direction: "desc" as "asc" | "desc"
   });
   const [data, setData] = useState(initialData);
-  const [newRecord, setNewRecord] = useState<Partial<Tables[T]['Insert']>>({});
+  const [newRecord, setNewRecord] = useState<Partial<TableInsert<T>>>({});
   const [filters, setFilters] = useState<Record<string, string>>({});
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { createMutation } = useTableMutations(tableName, idField);
+  const { createMutation } = useTableMutations<T>(tableName, idField);
 
   useEffect(() => {
     let filteredData = [...initialData];
@@ -68,17 +65,17 @@ function SharedTable<T extends TableName>({
 
   const handleAdd = () => {
     const missingFields = columns
-      .filter(col => col.required && !newRecord[col.field as keyof Tables[T]['Insert']])
+      .filter(col => col.required && !newRecord[col.field as keyof TableInsert<T>])
       .map(col => col.header);
     if (missingFields.length > 0) {
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    createMutation.mutate(newRecord as Tables[T]['Insert']);
+    createMutation.mutate(newRecord as TableInsert<T>);
     setNewRecord({});
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: TableField<T>, value: any) => {
     setNewRecord(prev => ({
       ...prev,
       [field]: value
@@ -134,7 +131,7 @@ function SharedTable<T extends TableName>({
               searchInputRef={searchInputRef}
             />
           ) : (
-            <TableColumn
+            <TableColumn<T>
               key={column.field}
               column={column}
               data={data}
