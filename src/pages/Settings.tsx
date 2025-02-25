@@ -112,9 +112,13 @@ const Settings = () => {
                     <td className="p-4">
                       <div className="flex items-center gap-4">
                         {org.organization_wordmark && (
-                          <span className="text-sm text-gray-500">
-                            ✓ Uploaded
-                          </span>
+                          <div className="h-8 flex items-center">
+                            <img
+                              src={`${supabase.storageClient.getPublicUrl('adsmith_assets', org.organization_wordmark).data.publicUrl}`}
+                              alt={`${org.organization_name} wordmark`}
+                              className="max-h-full w-auto object-contain"
+                            />
+                          </div>
                         )}
                         <Button
                           variant="outline"
@@ -148,3 +152,4 @@ const Settings = () => {
 };
 
 export default Settings;
+
