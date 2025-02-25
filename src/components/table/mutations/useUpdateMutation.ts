@@ -11,6 +11,17 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
+// Explicitly type the offering response to avoid deep type instantiation
+interface OfferingResponse {
+  offering_id: string;
+  offering_name: string;
+  organization_id: string;
+  created_at: string;
+  a1organizations?: {
+    organization_name: string;
+  } | null;
+}
+
 export const useUpdateMutation = (
   tableName: TableName,
   idField: string,
@@ -21,8 +32,10 @@ export const useUpdateMutation = (
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: UpdateParams) => {
+      let result;
+
       if (tableName === 'b1offerings') {
-        // First update the record
+        // Perform the update
         const { error: updateError } = await supabase
           .from('b1offerings')
           .update({ [field]: value })
@@ -30,49 +43,40 @@ export const useUpdateMutation = (
         
         if (updateError) throw updateError;
 
-        // Then fetch the updated record with organization data
+        // Fetch the updated data
         const { data, error: fetchError } = await supabase
           .from('b1offerings')
-          .select(`
-            offering_id,
-            offering_name,
-            organization_id,
-            created_at,
-            a1organizations (
-              organization_name
-            )
-          `)
+          .select('*, a1organizations!inner(organization_name)')
           .eq('offering_id', rowId)
-          .single();
+          .limit(1)
+          .maybeSingle();
         
         if (fetchError) throw fetchError;
+        if (!data) throw new Error('Record not found after update');
         
-        const result = {
+        result = {
           ...data,
           organization_name: data.a1organizations?.organization_name
         };
-        
-        if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, data[field], value);
-        }
-        
-        return result;
       } else {
         const { data, error } = await supabase
           .from(tableName)
           .update({ [field]: value })
           .eq(idField, rowId)
           .select()
-          .single();
+          .maybeSingle();
         
         if (error) throw error;
+        if (!data) throw new Error('Record not found after update');
         
-        if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, data[field], value);
-        }
-        
-        return data;
+        result = data;
       }
+
+      if (!isUndo && onSuccessfulUpdate) {
+        onSuccessfulUpdate(rowId, field, result[field], value);
+      }
+
+      return result;
     },
     onError: (error: Error) => {
       console.error('Mutation error:', error);
