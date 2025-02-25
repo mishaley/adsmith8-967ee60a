@@ -1,3 +1,4 @@
+
 import { TableHeader } from "./TableHeader";
 import { useState } from "react";
 import { useTableMutations } from "./TableMutations";
@@ -58,11 +59,16 @@ export function TableColumn({
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
 
     if (isEditing && column.inputMode === 'select' && column.options) {
-      const searchBy = column.searchField || 'value';
-      const filteredOptions = column.options.filter(option => 
-        !filters[column.field] || 
-        option[searchBy].toLowerCase().includes(filters[column.field].toLowerCase())
-      );
+      const currentFilter = filters[column.field]?.toLowerCase() || '';
+      const filteredOptions = column.options.filter(option => {
+        if (!currentFilter) return true;
+        // If organization_name field exists, search by that
+        if (column.field === 'organization_id') {
+          return option.label.toLowerCase().includes(currentFilter);
+        }
+        // Default search by value
+        return option.value.toLowerCase().includes(currentFilter);
+      });
 
       return (
         <Select
