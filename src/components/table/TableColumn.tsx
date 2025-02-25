@@ -24,9 +24,11 @@ export function TableColumn({
   clearFilter,
   filters,
   searchInputRef,
+  tableName,
+  idField
 }: TableColumnProps) {
   const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
-  const { updateMutation } = useTableMutations("c1personas", "persona_id");
+  const { updateMutation } = useTableMutations(tableName, idField);
 
   const isAgeColumn = column.field === 'persona_agemin' || column.field === 'persona_agemax';
 
@@ -86,7 +88,7 @@ export function TableColumn({
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <div className="w-full" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full min-w-[300px]" onClick={(e) => e.stopPropagation()}>
           <input
             autoFocus
             defaultValue={row[column.field]}
@@ -98,7 +100,7 @@ export function TableColumn({
     }
 
     return (
-      <div className={`text-base whitespace-nowrap ${isAgeColumn ? 'text-center' : ''}`}>
+      <div className={`text-base whitespace-nowrap min-w-[300px] ${isAgeColumn ? 'text-center' : ''}`}>
         {displayValue}
       </div>
     );

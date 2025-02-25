@@ -1,5 +1,5 @@
 
-import { ColumnDef, TableRow } from "@/types/table";
+import { ColumnDef, TableRow, TableName } from "@/types/table";
 import { RefObject } from "react";
 
 export interface TableColumnProps {
@@ -12,6 +12,8 @@ export interface TableColumnProps {
   clearFilter: (field: string) => void;
   filters: Record<string, string>;
   searchInputRef: RefObject<HTMLInputElement>;
+  tableName: TableName;
+  idField: string;
 }
 
 export interface EditingCell {

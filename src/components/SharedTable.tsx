@@ -149,6 +149,8 @@ function SharedTable<T extends TableName>({
               clearFilter={clearFilter}
               filters={filters}
               searchInputRef={searchInputRef}
+              tableName={tableName}
+              idField={idField}
             />
           )
         ))}
