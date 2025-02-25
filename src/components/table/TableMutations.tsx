@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -49,12 +48,7 @@ export function useTableMutations<T extends TableName>(
         .from(tableName)
         .update(updateData)
         .eq(idField, rowId)
-        .select(`
-          *,
-          organization:a1organizations (
-            organization_name
-          )
-        `);
+        .select();
       
       if (error) {
         console.error('Update error:', error);
