@@ -12,13 +12,15 @@ export const useUpdateMutation = (
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: {
+    mutationFn: async (params: {
       rowId: string;
       field: string;
       value: any;
       currentValue: any;
       isUndo?: boolean;
     }) => {
+      const { rowId, field, value, currentValue, isUndo = false } = params;
+      
       console.log('🟦 Starting mutation with params:', {
         tableName,
         idField,
@@ -50,17 +52,6 @@ export const useUpdateMutation = (
       }
 
       return { rowId, field, value, data };
-    },
-    onError: (error: Error) => {
-      console.error('🟥 Mutation error:', error);
-      toast.error(`Failed to update: ${error.message}`);
-    },
-    onSuccess: (data) => {
-      if (data) {
-        queryClient.invalidateQueries({ queryKey: ["offerings"] });
-        queryClient.invalidateQueries({ queryKey: ["organizations"] });
-        toast.success("Update successful");
-      }
     }
   });
 };

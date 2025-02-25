@@ -21,16 +21,18 @@ export function TableCellEditor({ row, column, onBlur, cellContentClass, onKeyPr
     return (
       <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
         <Select
-          defaultValue={row[column.field]}
+          value={row[column.field]}
           onValueChange={(value) => {
             console.log('Select value changed to:', value);
-            onBlur(value);
+            if (value !== row[column.field]) {
+              onBlur(value);
+            }
           }}
         >
           <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="z-[100]">
+          <SelectContent className="z-[100] bg-white">
             {column.options.map((option) => (
               <SelectItem key={option.value} value={option.value} className="text-base">
                 {option.label}
