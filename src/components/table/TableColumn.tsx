@@ -1,9 +1,8 @@
 
 import { TableHeader } from "./TableHeader";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTableMutations } from "./TableMutations";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { TableCellEditor } from "./components/TableCellEditor";
 import { TableNewRecordInput } from "./components/TableNewRecordInput";
 import { TableColumnProps, EditingCell } from "./types/column-types";
 import { TableRow } from "@/types/table";
@@ -30,19 +29,11 @@ export function TableColumn({
   const { updateMutation } = useTableMutations("b1offerings", "offering_id");
 
   const handleSelect = (rowId: string, field: string, newValue: string) => {
-    console.log('Handling select with:', { rowId, field, newValue });
-    const row = data.find(r => r.id === rowId);
-    if (!row) return;
-    
-    const oldValue = row[field];
-    console.log('Current value in row:', oldValue);
-    console.log('New selected value:', newValue);
-    
     updateMutation.mutate({ 
       rowId, 
       field, 
       value: newValue,
-      currentValue: oldValue
+      currentValue: ''  // We don't need this value for the actual update
     });
     setEditingCell({ rowId: null, field: null });
   };
@@ -138,6 +129,7 @@ export function TableColumn({
             column={column}
             value={newRecord[column.field]}
             onChange={(value) => handleInputChange(column.field, value)}
+            cellContentClass="text-base"
           />
         </div>
         <div className="bg-white">
