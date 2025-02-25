@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -42,10 +43,10 @@ export function useTableMutations<T extends TableName>(
       value: any;
       isUndo?: boolean;
     }) => {
-      const updateData = { [field]: value } as unknown as TableUpdate<T>;
+      const table = supabase.from(tableName);
+      const updateData = { [field]: value };
       
-      const { data, error } = await supabase
-        .from(tableName)
+      const { data, error } = await (table as any)
         .update(updateData)
         .eq(idField, rowId)
         .select();
@@ -64,7 +65,7 @@ export function useTableMutations<T extends TableName>(
         const newChange: ChangeHistoryEntry<T> = {
           rowId,
           field,
-          oldValue: (data[0] as Record<string, any>)[field],
+          oldValue: data[0][field as keyof typeof data[0]],
           newValue: value,
           tableName
         };
@@ -90,10 +91,10 @@ export function useTableMutations<T extends TableName>(
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
-      const insertData = record as unknown as TableInsert<T>;
+      const table = supabase.from(tableName);
+      const insertData = record;
       
-      const { data, error } = await supabase
-        .from(tableName)
+      const { data, error } = await (table as any)
         .insert([insertData])
         .select();
       
@@ -101,7 +102,7 @@ export function useTableMutations<T extends TableName>(
       
       // Handle organization creation specifically
       if (tableName === 'a1organizations' && data?.[0]) {
-        const org = data[0] as unknown as TableRow<'a1organizations'>;
+        const org = data[0] as Tables['a1organizations']['Row'];
         if (org.organization_id) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
             body: { organization_id: org.organization_id }
