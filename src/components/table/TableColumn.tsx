@@ -1,29 +1,11 @@
 
-import { ColumnDef, TableRow } from "@/types/table";
-import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
-import { RefObject, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTableMutations } from "./TableMutations";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-interface TableColumnProps {
-  column: ColumnDef;
-  data: TableRow[];
-  newRecord: Record<string, any>;
-  handleInputChange: (field: string, value: any) => void;
-  handleSort: (field: string) => void;
-  handleFilter: (field: string, value: string) => void;
-  clearFilter: (field: string) => void;
-  filters: Record<string, string>;
-  searchInputRef: RefObject<HTMLInputElement>;
-}
+import { TableCellEditor } from "./components/TableCellEditor";
+import { TableNewRecordInput } from "./components/TableNewRecordInput";
+import { TableColumnProps, EditingCell } from "./types/column-types";
 
 export function TableColumn({
   column,
@@ -36,7 +18,7 @@ export function TableColumn({
   filters,
   searchInputRef,
 }: TableColumnProps) {
-  const [editingCell, setEditingCell] = useState<{ rowId: string | null, field: string | null }>({ rowId: null, field: null });
+  const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations("b1offerings", "offering_id");
 
   useEffect(() => {
@@ -83,75 +65,19 @@ export function TableColumn({
 
   const cellContentClass = column.field === 'created_at' ? 'text-center' : '';
 
-  const renderInput = () => {
-    if (column.inputMode === 'select' && column.options) {
-      return (
-        <Select
-          value={newRecord[column.field] || ""}
-          onValueChange={(value) => handleInputChange(column.field, value)}
-        >
-          <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {column.options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      );
-    }
-    return (
-      <Input 
-        value={newRecord[column.field] || ""} 
-        onChange={e => handleInputChange(column.field, e.target.value)} 
-        className={`h-10 bg-white w-full rounded-md border border-input ${cellContentClass}`}
-      />
-    );
-  };
-
   const renderCell = (row: TableRow) => {
     const isEditing = editingCell.rowId === row.id && editingCell.field === column.field;
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
 
     if (isEditing) {
-      if (column.inputMode === 'select' && column.options) {
-        return (
-          <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
-            <Select
-              value={row[column.field]}
-              onValueChange={(value) => {
-                console.log('Select value changed:', value);
-                handleCellBlur(row.id, column.field, value);
-              }}
-            >
-              <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="z-[100]">
-                {column.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value} className="text-base">
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        );
-      }
       return (
-        <div className="w-full relative">
-          <input
-            autoFocus
-            defaultValue={row[column.field]}
-            onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
-            onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
-            className={`absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 ${cellContentClass} text-base`}
-          />
-          <div className="invisible">{row[column.field]}</div>
-        </div>
+        <TableCellEditor
+          row={row}
+          column={column}
+          onBlur={(value) => handleCellBlur(row.id, column.field, value)}
+          cellContentClass={cellContentClass}
+          onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
+        />
       );
     }
     return (
@@ -196,7 +122,12 @@ export function TableColumn({
       </Popover>
       <div className="flex-1">
         <div className="bg-[#d3e4fd] p-4 mb-2">
-          {renderInput()}
+          <TableNewRecordInput
+            column={column}
+            value={newRecord[column.field]}
+            onChange={(value) => handleInputChange(column.field, value)}
+            cellContentClass={cellContentClass}
+          />
         </div>
         <div className="bg-white">
           {data.map(row => (

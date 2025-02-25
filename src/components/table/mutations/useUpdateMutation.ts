@@ -38,25 +38,10 @@ export const useUpdateMutation = (
         isUndo
       });
 
-      // Compare stringified values to handle object comparisons
-      const isSameValue = JSON.stringify(value) === JSON.stringify(currentValue);
-      
-      // Skip if no change
-      if (isSameValue) {
-        console.log('🟨 Skipping update - value unchanged:', {
-          value,
-          currentValue,
-          stringifiedValue: JSON.stringify(value),
-          stringifiedCurrent: JSON.stringify(currentValue)
-        });
+      if (JSON.stringify(value) === JSON.stringify(currentValue)) {
+        console.log('🟨 Skipping update - value unchanged');
         return null;
       }
-
-      console.log('🟩 Attempting Supabase update:', {
-        table: tableName,
-        updateData: { [field]: value },
-        whereCondition: { [idField]: rowId }
-      });
 
       const { data, error } = await supabase
         .from(tableName)
@@ -69,16 +54,7 @@ export const useUpdateMutation = (
         throw error;
       }
 
-      console.log('🟩 Supabase update response:', data);
-
-      // Call success callback if not undoing
       if (!isUndo && onSuccessfulUpdate) {
-        console.log('🟩 Calling onSuccessfulUpdate callback with:', {
-          rowId,
-          field,
-          currentValue,
-          value
-        });
         onSuccessfulUpdate(rowId, field, currentValue, value);
       }
 
@@ -90,19 +66,10 @@ export const useUpdateMutation = (
     },
     onSuccess: (data) => {
       if (data) {
-        console.log('🟩 Mutation successful, invalidating queries:', data);
         queryClient.invalidateQueries({ queryKey: ["offerings"] });
         queryClient.invalidateQueries({ queryKey: ["organizations"] });
         toast.success("Update successful");
-      } else {
-        console.log('🟨 Mutation skipped (no changes)');
       }
-    },
-    onMutate: (variables) => {
-      console.log('🟦 Mutation starting with variables:', variables);
-    },
-    onSettled: (data, error) => {
-      console.log('🟦 Mutation settled:', { data, error });
     }
   });
 };
