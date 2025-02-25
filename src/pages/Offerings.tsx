@@ -38,7 +38,8 @@ const Offerings = () => {
       editable: true,
       required: true,
       options: organizationOptions,
-      displayField: "organization_name"
+      displayField: "organization_name",
+      searchField: "label" // Add this to search by organization name
     },
     {
       field: "created_at",

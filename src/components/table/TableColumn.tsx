@@ -1,4 +1,3 @@
-
 import { TableHeader } from "./TableHeader";
 import { useState } from "react";
 import { useTableMutations } from "./TableMutations";
@@ -59,6 +58,12 @@ export function TableColumn({
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
 
     if (isEditing && column.inputMode === 'select' && column.options) {
+      const searchBy = column.searchField || 'value';
+      const filteredOptions = column.options.filter(option => 
+        !filters[column.field] || 
+        option[searchBy].toLowerCase().includes(filters[column.field].toLowerCase())
+      );
+
       return (
         <Select
           defaultValue={row[column.field]}
@@ -78,7 +83,7 @@ export function TableColumn({
             position="popper"
             sideOffset={5}
           >
-            {column.options.map((option) => (
+            {filteredOptions.map((option) => (
               <SelectItem 
                 key={option.value} 
                 value={option.value}

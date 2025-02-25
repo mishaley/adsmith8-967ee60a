@@ -19,6 +19,7 @@ export interface ColumnDef {
   format?: string;
   options?: SelectOption[];
   displayField?: string;
+  searchField?: string; // Add this field to specify which field to search by
   width?: string;
 }
 
