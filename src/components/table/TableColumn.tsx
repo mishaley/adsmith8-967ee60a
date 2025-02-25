@@ -6,6 +6,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { TableCellEditor } from "./components/TableCellEditor";
 import { TableNewRecordInput } from "./components/TableNewRecordInput";
 import { TableColumnProps, EditingCell } from "./types/column-types";
+import { TableRow } from "@/types/table";
 
 export function TableColumn({
   column,
@@ -49,10 +50,12 @@ export function TableColumn({
   };
 
   const handleCellBlur = (rowId: string, field: string, value: any) => {
+    console.log('Handling cell blur:', { rowId, field, value });
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
       const currentRow = data.find(row => row.id === rowId);
       const currentValue = currentRow?.[field];
+      console.log('Updating with:', { currentValue, newValue: value });
       updateMutation.mutate({ rowId, field, value, currentValue });
     }
   };
