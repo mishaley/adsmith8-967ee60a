@@ -1,7 +1,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName, TableData } from "@/types/table";
+import { TableName } from "@/types/table";
 
 interface UpdateParams {
   rowId: string;

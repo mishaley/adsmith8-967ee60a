@@ -23,7 +23,7 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
         value={value || ""}
         onValueChange={onChange}
       >
-        <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input text-base">
+        <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input text-base px-4">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -41,7 +41,7 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
     <Input 
       value={value || ""} 
       onChange={e => onChange(e.target.value)} 
-      className="h-10 bg-white w-full rounded-md border border-input !text-base"
+      className="h-10 bg-white w-full rounded-md border border-input !text-base px-4"
       style={{ fontSize: '16px' }}
     />
   );
