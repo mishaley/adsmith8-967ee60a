@@ -1,103 +1,77 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName, TableData } from "@/types/table";
+import { TableName } from "@/types/table";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 import { useEffect, useCallback, useState } from "react";
 import { PostgrestResponse } from "@supabase/supabase-js";
 
 type Tables = Database['public']['Tables'];
-type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
-type TableUpdate<T extends TableName> = Tables[T]['Update'];
-type TableInsert<T extends TableName> = Tables[T]['Insert'];
-type TableRow<T extends TableName> = Tables[T]['Row'];
 
-interface ChangeHistoryEntry<T extends TableName = TableName> {
+interface ChangeHistoryEntry {
   rowId: string;
-  field: TableColumns<T>;
+  field: string;
   oldValue: any;
   newValue: any;
-  tableName: T;
+  tableName: TableName;
 }
 
-interface TableMutationsResult<T extends TableName> {
+interface TableMutationsResult {
   updateMutation: ReturnType<typeof useMutation>;
   createMutation: ReturnType<typeof useMutation>;
 }
 
 const MAX_HISTORY = 100;
 
-export function useTableMutations<T extends TableName>(
-  tableName: T,
+export function useTableMutations(
+  tableName: TableName,
   idField: string
-): TableMutationsResult<T> {
+): TableMutationsResult {
   const queryClient = useQueryClient();
-  const [changeHistory, setChangeHistory] = useState<ChangeHistoryEntry<T>[]>([]);
+  const [changeHistory, setChangeHistory] = useState<ChangeHistoryEntry[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: { 
       rowId: string; 
-      field: TableColumns<T>; 
+      field: string; 
       value: any;
       isUndo?: boolean;
     }) => {
       const table = supabase.from(tableName);
-      const updateData = { [field]: value } as Tables[T]['Update'];
+      const updateData = { [field]: value };
 
-      let result: PostgrestResponse<Tables[T]['Row']>;
-      
       if (tableName === 'b1offerings') {
-        result = await table
+        const { data, error } = await table
           .update(updateData)
           .eq(idField, rowId)
-          .select(`
-            *,
-            a1organizations (
-              organization_name
-            )
-          `) as PostgrestResponse<Tables[T]['Row']>;
-      } else {
-        result = await table
-          .update(updateData)
-          .eq(idField, rowId)
-          .select() as PostgrestResponse<Tables[T]['Row']>;
-      }
-
-      const { data, error } = result;
-      
-      if (error) {
-        console.error('Update error:', error);
-        throw error;
-      }
-      
-      if (!data || data.length === 0) {
-        throw new Error('No data returned from update');
-      }
-
-      // Only add to history if it's not an undo/redo operation
-      if (!isUndo && data?.[0]) {
-        // Remove any future history if we're not at the end
-        const newHistory = changeHistory.slice(0, currentIndex + 1);
+          .select(`*, a1organizations (organization_name)`);
         
-        // Add the new change
-        const newChange: ChangeHistoryEntry<T> = {
-          rowId,
-          field,
-          oldValue: data[0][field as keyof typeof data[0]],
-          newValue: value,
-          tableName
-        };
-
-        // Keep only the last MAX_HISTORY changes
-        const updatedHistory = [...newHistory, newChange].slice(-MAX_HISTORY);
-        setChangeHistory(updatedHistory);
-        setCurrentIndex(updatedHistory.length - 1);
+        if (error) throw error;
+        if (!data?.length) throw new Error('No data returned from update');
+        
+        if (!isUndo) {
+          updateChangeHistory(rowId, field, data[0][field], value);
+        }
+        
+        return data[0];
+      } else {
+        const { data, error } = await table
+          .update(updateData)
+          .eq(idField, rowId)
+          .select();
+        
+        if (error) throw error;
+        if (!data?.length) throw new Error('No data returned from update');
+        
+        if (!isUndo) {
+          updateChangeHistory(rowId, field, data[0][field], value);
+        }
+        
+        return data[0];
       }
-
-      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["offerings"] });
@@ -111,41 +85,29 @@ export function useTableMutations<T extends TableName>(
 
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
-    mutationFn: async (record: Partial<TableData<T>>) => {
+    mutationFn: async (record: any) => {
       const table = supabase.from(tableName);
-      const insertData = record as Tables[T]['Insert'];
-
-      let result: PostgrestResponse<Tables[T]['Row']>;
       
       if (tableName === 'b1offerings') {
-        result = await table
-          .insert([insertData])
-          .select(`
-            *,
-            a1organizations (
-              organization_name
-            )
-          `) as PostgrestResponse<Tables[T]['Row']>;
+        const { data, error } = await table
+          .insert([record])
+          .select(`*, a1organizations (organization_name)`);
+        
+        if (error) throw error;
+        if (!data?.length) throw new Error('No data returned from insert');
+        
+        return data[0];
       } else {
-        result = await table
-          .insert([insertData])
-          .select() as PostgrestResponse<Tables[T]['Row']>;
-      }
-      
-      const { data, error } = result;
-      
-      if (error) throw error;
-      
-      if (!data || data.length === 0) {
-        throw new Error('No data returned from insert');
-      }
+        const { data, error } = await table
+          .insert([record])
+          .select();
+        
+        if (error) throw error;
+        if (!data?.length) throw new Error('No data returned from insert');
 
-      // Handle organization creation specifically
-      if (tableName === 'a1organizations' && data?.[0]) {
-        const org = data[0] as Tables['a1organizations']['Row'];
-        if (org.organization_id) {
+        if (tableName === 'a1organizations' && data[0].organization_id) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
-            body: { organization_id: org.organization_id }
+            body: { organization_id: data[0].organization_id }
           });
           
           if (folderError) {
@@ -154,9 +116,9 @@ export function useTableMutations<T extends TableName>(
             throw folderError;
           }
         }
+        
+        return data[0];
       }
-      
-      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["offerings"] });
@@ -166,6 +128,20 @@ export function useTableMutations<T extends TableName>(
       toast.error("Failed to create record: " + error.message);
     }
   });
+
+  const updateChangeHistory = (rowId: string, field: string, oldValue: any, newValue: any) => {
+    const newHistory = changeHistory.slice(0, currentIndex + 1);
+    const newChange: ChangeHistoryEntry = {
+      rowId,
+      field,
+      oldValue,
+      newValue,
+      tableName
+    };
+    const updatedHistory = [...newHistory, newChange].slice(-MAX_HISTORY);
+    setChangeHistory(updatedHistory);
+    setCurrentIndex(updatedHistory.length - 1);
+  };
 
   const undo = useCallback(async () => {
     if (currentIndex >= 0) {
