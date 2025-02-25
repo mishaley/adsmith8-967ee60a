@@ -31,14 +31,49 @@ const Settings = () => {
     try {
       setIsUploading(organizationId);
 
-      // Upload image to Supabase storage
+      // Convert to PNG if needed and create a new file object
+      const img = new Image();
+      const loadImagePromise = new Promise((resolve, reject) => {
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+
+      const image = await loadImagePromise as HTMLImageElement;
+      
+      // Create canvas to convert to PNG
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width;
+      canvas.height = image.height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+      
+      ctx.drawImage(image, 0, 0);
+      
+      // Convert to blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error('Failed to convert to PNG'));
+        }, 'image/png');
+      });
+
+      // Create timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filePath = `organizations/${organizationId}/docs/${organizationId}__wordmark_${timestamp}.png`;
+
+      // Upload PNG to Supabase storage
       const { data, error } = await supabase.storage
-        .from("wordmarks")
-        .upload(`${organizationId}/${file.name}`, file);
+        .from("adsmith_assets")
+        .upload(filePath, blob, {
+          contentType: 'image/png',
+          upsert: false
+        });
 
       if (error) throw error;
 
-      // Update organization record with wordmark URL
+      // Update organization record with wordmark path
       const { error: updateError } = await supabase
         .from("a1organizations")
         .update({ 
@@ -52,6 +87,7 @@ const Settings = () => {
       refetch();
     } catch (error: any) {
       toast.error(`Upload failed: ${error.message}`);
+      console.error('Upload error:', error);
     } finally {
       setIsUploading(null);
     }
