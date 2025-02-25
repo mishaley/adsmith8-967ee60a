@@ -80,12 +80,14 @@ export function TableColumn({
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <input
-          autoFocus
-          defaultValue={row[column.field]}
-          onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-          className="absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 text-base"
-        />
+        <div className="w-full relative" onClick={(e) => e.stopPropagation()}>
+          <input
+            autoFocus
+            defaultValue={row[column.field]}
+            onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
+            className="w-full bg-white outline-none focus:ring-0 text-base p-0"
+          />
+        </div>
       );
     }
 
