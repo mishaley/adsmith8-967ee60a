@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
@@ -47,9 +48,12 @@ export const useUpdateMutation = (
       if (!data) return null;
 
       return {
-        ...data,
+        offering_id: data.offering_id,
+        offering_name: data.offering_name,
+        organization_id: data.organization_id,
+        created_at: data.created_at,
         organization_name: data.a1organizations?.organization_name
-      } as OfferingWithOrg;
+      };
     } else {
       const { data, error } = await supabase
         .from(tableName)
@@ -91,9 +95,12 @@ export const useUpdateMutation = (
         if (!data) throw new Error('No data returned from update');
 
         const result = {
-          ...data,
+          offering_id: data.offering_id,
+          offering_name: data.offering_name,
+          organization_id: data.organization_id,
+          created_at: data.created_at,
           organization_name: data.a1organizations?.organization_name
-        } as OfferingWithOrg;
+        };
 
         if (!isUndo && onSuccessfulUpdate) {
           onSuccessfulUpdate(rowId, field, currentValue, value);
@@ -123,7 +130,9 @@ export const useUpdateMutation = (
       toast.error(`Failed to update: ${error.message}`);
     },
     onSuccess: () => {
+      // Invalidate both organizations and offerings queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["offerings"] });
+      queryClient.invalidateQueries({ queryKey: ["organizations"] });
       toast.success("Update successful");
     },
   });
