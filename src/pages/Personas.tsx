@@ -54,7 +54,7 @@ const Personas = () => {
       editable: true,
       required: true,
       options: genderOptions,
-      width: "140px"
+      width: "120px"
     },
     {
       field: "persona_agemin",
