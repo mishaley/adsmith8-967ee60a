@@ -3,7 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
-import { Database } from "@/integrations/supabase/types";
 
 interface UpdateParams {
   rowId: string;
@@ -13,31 +12,22 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
-type OfferingRow = {
+interface BaseOffering {
   offering_id: string;
   offering_name: string;
   organization_id: string;
   created_at: string;
-  a1organizations?: {
+}
+
+interface OfferingResponse extends BaseOffering {
+  a1organizations: {
     organization_name: string | null;
   } | null;
-};
+}
 
-type TransformedOffering = {
-  offering_id: string;
-  offering_name: string;
-  organization_id: string;
-  created_at: string;
+interface TransformedOffering extends BaseOffering {
   organization_name: string | null;
-};
-
-const transformOfferingData = (data: OfferingRow): TransformedOffering => ({
-  offering_id: data.offering_id,
-  offering_name: data.offering_name,
-  organization_id: data.organization_id,
-  created_at: data.created_at,
-  organization_name: data.a1organizations?.organization_name ?? null
-});
+}
 
 export const useUpdateMutation = (
   tableName: TableName,
@@ -45,6 +35,14 @@ export const useUpdateMutation = (
   onSuccessfulUpdate?: (rowId: string, field: string, oldValue: any, newValue: any) => void
 ) => {
   const queryClient = useQueryClient();
+
+  const transformOffering = (data: OfferingResponse): TransformedOffering => ({
+    offering_id: data.offering_id,
+    offering_name: data.offering_name,
+    organization_id: data.organization_id,
+    created_at: data.created_at,
+    organization_name: data.a1organizations?.organization_name ?? null
+  });
 
   const fetchData = async (id: string) => {
     if (tableName === 'b1offerings') {
@@ -65,7 +63,7 @@ export const useUpdateMutation = (
       if (error) throw error;
       if (!data) return null;
 
-      return transformOfferingData(data as OfferingRow);
+      return transformOffering(data as OfferingResponse);
     } else {
       const { data, error } = await supabase
         .from(tableName)
@@ -107,7 +105,7 @@ export const useUpdateMutation = (
           if (error) throw error;
           if (!data) throw new Error('No data returned from update');
 
-          const result = transformOfferingData(data as OfferingRow);
+          const result = transformOffering(data as OfferingResponse);
 
           if (!isUndo && onSuccessfulUpdate) {
             onSuccessfulUpdate(rowId, field, currentValue, value);
