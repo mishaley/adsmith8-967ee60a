@@ -10,16 +10,20 @@ interface UpdateParams {
   currentValue: any;
 }
 
+interface UpdateResult {
+  success: true;
+}
+
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
-  return useMutation({
-    mutationFn: async ({ rowId, field, value }: UpdateParams) => {      
+  return useMutation<UpdateResult, Error, UpdateParams>({
+    mutationFn: async ({ rowId, field, value }) => {      
       const { error } = await supabase
         .from(tableName)
         .update({ [field]: value })
         .eq(idField, rowId);
 
       if (error) throw error;
-      return { success: true } as const;
+      return { success: true };
     }
   });
 };
