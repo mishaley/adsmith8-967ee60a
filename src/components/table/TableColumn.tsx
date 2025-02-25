@@ -30,10 +30,8 @@ export function TableColumn({
   const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations(tableName, idField);
 
-  const isAgeColumn = column.field === 'persona_agemin' || column.field === 'persona_agemax';
-
   const handleSelect = (rowId: string, field: string, newValue: string) => {
-    updateMutation.mutate({ 
+    updateMutation.mutateAsync({ 
       rowId, 
       field, 
       value: newValue,
@@ -49,7 +47,10 @@ export function TableColumn({
   };
 
   const getColumnWidth = () => {
-    if (isAgeColumn) return '90px';
+    // For Age Min and Age Max columns, let them be as wide as their headers
+    if (column.field === 'persona_agemin' || column.field === 'persona_agemax') {
+      return 'min-content';
+    }
     if (column.field === 'message_name') return 'max-content';
     return 'auto';
   };
@@ -62,8 +63,6 @@ export function TableColumn({
       const currentFilter = filters[column.field]?.toLowerCase() || '';
       const filteredOptions = column.options.filter(option => {
         if (!currentFilter) return true;
-        
-        // Always search by the label (organization name) for all select fields
         return option.label.toLowerCase().includes(currentFilter);
       });
 
@@ -107,14 +106,14 @@ export function TableColumn({
             autoFocus
             defaultValue={row[column.field]}
             onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${isAgeColumn ? 'text-center' : ''}`}
+            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${column.field.includes('age') ? 'text-center' : ''}`}
           />
         </div>
       );
     }
 
     return (
-      <div className={`text-base whitespace-nowrap ${isAgeColumn ? 'text-center' : ''}`}>
+      <div className={`text-base whitespace-nowrap ${column.field.includes('age') ? 'text-center' : ''}`}>
         {displayValue}
       </div>
     );
@@ -161,7 +160,7 @@ export function TableColumn({
             column={column}
             value={newRecord[column.field]}
             onChange={(value) => handleInputChange(column.field, value)}
-            cellContentClass={`text-base ${isAgeColumn ? 'text-center' : ''}`}
+            cellContentClass={`text-base ${column.field.includes('age') ? 'text-center' : ''}`}
           />
         </div>
         <div className="bg-white">
