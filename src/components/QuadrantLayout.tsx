@@ -1,6 +1,7 @@
 
 import { cn } from "@/lib/utils";
 import MainNav from "./MainNav";
+import { OrganizationSelector } from "./OrganizationSelector";
 
 interface QuadrantLayoutProps {
   children?: {
@@ -19,7 +20,7 @@ const QuadrantLayout = ({ children, className }: QuadrantLayoutProps) => {
       <div className="flex flex-col w-[170px] min-w-[170px]">
         {/* Q1 - Logo */}
         <div className="h-[100px] min-h-[100px] bg-[#0c343d] p-[18px]">
-          {children?.q1}
+          {children?.q1 || <OrganizationSelector />}
         </div>
         {/* Q2 - Menu */}
         <div className="flex-1 bg-[#154851] text-white text-left">
