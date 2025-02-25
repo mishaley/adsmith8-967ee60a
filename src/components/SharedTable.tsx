@@ -113,7 +113,7 @@ function SharedTable<T extends TableName>({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-fit">
       <div className="grid auto-cols-min" style={{
         gridTemplateColumns: `repeat(${columns.length}, minmax(min-content, auto))`
       }}>
