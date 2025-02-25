@@ -117,8 +117,9 @@ const Messages = () => {
   });
 
   useEffect(() => {
+    // Subscribe to ALL changes on messages table
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('messages-changes')
       .on(
         'postgres_changes',
         {
@@ -126,27 +127,9 @@ const Messages = () => {
           schema: 'public',
           table: 'd1messages'
         },
-        async (payload) => {
-          if (payload.new && 'message_id' in payload.new) {
-            const { data } = await supabase
-              .from("d1messages")
-              .select(`
-                id:message_id,
-                message_name,
-                persona_id,
-                persona:c1personas(persona_name),
-                message_type,
-                message_url,
-                message_status,
-                created_at
-              `)
-              .eq('message_id', payload.new.message_id)
-              .single();
-
-            if (data) {
-              refetch();
-            }
-          }
+        () => {
+          // Immediately refetch to get the latest data with joined tables
+          refetch();
         }
       )
       .subscribe();
@@ -171,4 +154,3 @@ const Messages = () => {
 };
 
 export default Messages;
-
