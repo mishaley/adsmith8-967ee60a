@@ -1,5 +1,5 @@
 
-import { TableRow, ColumnDef } from "@/types/table";
+import React from 'react';
 import {
   Select,
   SelectContent,
@@ -7,25 +7,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ColumnDef } from '@/types/table';
 
 interface TableCellEditorProps {
-  row: TableRow;
+  value: string;
   column: ColumnDef;
-  onBlur: (value: any) => void;
-  cellContentClass: string;
-  onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onUpdate: (value: string) => void;
+  className?: string;
 }
 
-export function TableCellEditor({ row, column, onBlur }: TableCellEditorProps) {
+export const TableCellEditor: React.FC<TableCellEditorProps> = ({
+  value,
+  column,
+  onUpdate,
+  className = ''
+}) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
   if (column.inputMode === 'select' && column.options) {
     return (
-      <div className="w-full relative select-wrapper">
-        <Select 
-          onValueChange={onBlur} 
-          defaultValue={row[column.field]}
+      <div className="w-full" onClick={(e) => e.stopPropagation()}>
+        <Select
+          defaultValue={value}
+          onValueChange={onUpdate}
         >
-          <SelectTrigger>
-            <SelectValue />
+          <SelectTrigger className="w-full bg-white border-none shadow-none focus:ring-0">
+            <SelectValue placeholder="Select..." />
           </SelectTrigger>
           <SelectContent>
             {column.options.map((option) => (
@@ -43,15 +54,13 @@ export function TableCellEditor({ row, column, onBlur }: TableCellEditorProps) {
   }
 
   return (
-    <div className="w-full relative">
-      <input
-        autoFocus
-        defaultValue={row[column.field]}
-        onBlur={(e) => onBlur(e.target.value)}
-        onKeyPress={onKeyPress}
-        className={`absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 ${cellContentClass} text-base`}
-      />
-      <div className="invisible">{row[column.field]}</div>
-    </div>
+    <input
+      type="text"
+      defaultValue={value}
+      onBlur={(e) => onUpdate(e.target.value)}
+      onKeyDown={handleKeyDown}
+      className={`w-full bg-transparent outline-none p-0 ${className}`}
+      autoFocus
+    />
   );
-}
+};

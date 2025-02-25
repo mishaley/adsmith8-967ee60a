@@ -14,11 +14,14 @@ export function useTableMutations(
   tableName: TableName,
   idField: string
 ): TableMutationsResult {
-  const createMutation = useCreateMutation(tableName);
   const updateMutation = useUpdateMutation(tableName, idField);
+  const createMutation = useCreateMutation(tableName);
   
   const { addToHistory, undo, redo } = useChangeHistory(
-    params => updateMutation.mutateAsync(params)
+    async (params) => {
+      const result = await updateMutation.mutateAsync(params);
+      return result;
+    }
   );
 
   useUndoRedo(undo, redo);
