@@ -19,30 +19,34 @@ interface TableNewRecordInputProps {
 export function TableNewRecordInput({ column, value, onChange, cellContentClass }: TableNewRecordInputProps) {
   if (column.inputMode === 'select' && column.options) {
     return (
-      <Select
-        value={value || ""}
-        onValueChange={onChange}
-      >
-        <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input text-base px-4">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {column.options.map((option) => (
-            <SelectItem key={option.value} value={option.value} className="text-base">
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="-ml-4">
+        <Select
+          value={value || ""}
+          onValueChange={onChange}
+        >
+          <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input text-base px-4">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {column.options.map((option) => (
+              <SelectItem key={option.value} value={option.value} className="text-base">
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     );
   }
 
   return (
-    <Input 
-      value={value || ""} 
-      onChange={e => onChange(e.target.value)} 
-      className="h-10 bg-white w-full rounded-md border border-input !text-base px-4"
-      style={{ fontSize: '16px' }}
-    />
+    <div className="-ml-4">
+      <Input 
+        value={value || ""} 
+        onChange={e => onChange(e.target.value)} 
+        className="h-10 bg-white w-full rounded-md border border-input !text-base px-4"
+        style={{ fontSize: '16px' }}
+      />
+    </div>
   );
 }
