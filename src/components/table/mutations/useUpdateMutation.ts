@@ -17,8 +17,8 @@ interface UpdateResponse {
 
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
   return {
-    updateMutation: useMutation<UpdateResponse, Error, UpdateParams>({
-      mutationFn: async ({ rowId, field, value }) => {      
+    updateMutation: useMutation({
+      mutationFn: async ({ rowId, field, value }: UpdateParams): Promise<UpdateResponse> => {      
         const { error } = await supabase
           .from(tableName)
           .update({ [field]: value })
