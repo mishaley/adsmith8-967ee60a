@@ -19,6 +19,7 @@ export interface ColumnDef {
   format?: string;
   options?: SelectOption[];
   displayField?: string;
+  width?: string;
 }
 
 export interface TableRow {

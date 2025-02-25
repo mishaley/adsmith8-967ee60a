@@ -35,7 +35,7 @@ const Personas = () => {
       inputMode: "text",
       editable: true,
       required: true,
-      width: "200px"
+      width: "160px"
     },
     {
       field: "offering_id",
@@ -45,7 +45,7 @@ const Personas = () => {
       required: true,
       options: offeringOptions,
       displayField: "offering_name",
-      width: "180px"
+      width: "240px"
     },
     {
       field: "persona_gender",
@@ -58,7 +58,7 @@ const Personas = () => {
     },
     {
       field: "persona_agemin",
-      header: "Agemin",
+      header: "Age Min",
       inputMode: "text",
       editable: true,
       required: true,
@@ -66,7 +66,7 @@ const Personas = () => {
     },
     {
       field: "persona_agemax",
-      header: "Agemax",
+      header: "Age Max",
       inputMode: "text",
       editable: true,
       required: true,
@@ -113,7 +113,6 @@ const Personas = () => {
   });
 
   useEffect(() => {
-    // Subscribe to changes on the personas table
     const channel = supabase
       .channel('schema-db-changes')
       .on(

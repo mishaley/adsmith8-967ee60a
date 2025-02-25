@@ -6,8 +6,8 @@ import { TableName } from "@/types/table";
 interface UpdateParams {
   rowId: string;
   field: string;
-  value: string;
-  currentValue: string;
+  value: any;
+  currentValue: any;
 }
 
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
@@ -19,7 +19,7 @@ export const useUpdateMutation = (tableName: TableName, idField: string) => {
         .eq(idField, rowId);
 
       if (error) throw error;
-      return { success: true };
+      return { success: true } as const;
     }
   });
 };
