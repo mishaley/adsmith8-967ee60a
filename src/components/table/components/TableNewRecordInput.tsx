@@ -23,12 +23,12 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
         value={value || ""}
         onValueChange={onChange}
       >
-        <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input">
+        <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input text-base">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {column.options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem key={option.value} value={option.value} className="text-base">
               {option.label}
             </SelectItem>
           ))}
@@ -41,7 +41,7 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
     <Input 
       value={value || ""} 
       onChange={e => onChange(e.target.value)} 
-      className={`h-10 bg-white w-full rounded-md border border-input ${cellContentClass}`}
+      className="h-10 bg-white w-full rounded-md border border-input text-base"
     />
   );
 }
