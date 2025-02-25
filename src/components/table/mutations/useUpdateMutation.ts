@@ -11,17 +11,6 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
-// Explicitly type the offering response to avoid deep type instantiation
-interface OfferingResponse {
-  offering_id: string;
-  offering_name: string;
-  organization_id: string;
-  created_at: string;
-  a1organizations?: {
-    organization_name: string;
-  } | null;
-}
-
 export const useUpdateMutation = (
   tableName: TableName,
   idField: string,
@@ -32,51 +21,45 @@ export const useUpdateMutation = (
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: UpdateParams) => {
-      let result;
+      // Simple update operation
+      const { data, error } = await supabase
+        .from(tableName)
+        .update({ [field]: value })
+        .eq(idField, rowId)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      if (!data) throw new Error('No data returned from update');
 
+      // If this is an offering, we need to refetch to get the organization name
       if (tableName === 'b1offerings') {
-        // Perform the update
-        const { error: updateError } = await supabase
+        const { data: fullData, error: fetchError } = await supabase
           .from('b1offerings')
-          .update({ [field]: value })
-          .eq('offering_id', rowId);
-        
-        if (updateError) throw updateError;
-
-        // Fetch the updated data
-        const { data, error: fetchError } = await supabase
-          .from('b1offerings')
-          .select('*, a1organizations!inner(organization_name)')
+          .select('*, a1organizations(organization_name)')
           .eq('offering_id', rowId)
-          .limit(1)
-          .maybeSingle();
+          .single();
         
         if (fetchError) throw fetchError;
-        if (!data) throw new Error('Record not found after update');
-        
-        result = {
-          ...data,
-          organization_name: data.a1organizations?.organization_name
+        if (!fullData) throw new Error('Failed to fetch updated data');
+
+        const result = {
+          ...fullData,
+          organization_name: fullData.a1organizations?.organization_name
         };
-      } else {
-        const { data, error } = await supabase
-          .from(tableName)
-          .update({ [field]: value })
-          .eq(idField, rowId)
-          .select()
-          .maybeSingle();
-        
-        if (error) throw error;
-        if (!data) throw new Error('Record not found after update');
-        
-        result = data;
+
+        if (!isUndo && onSuccessfulUpdate) {
+          onSuccessfulUpdate(rowId, field, data[field], value);
+        }
+
+        return result;
       }
 
       if (!isUndo && onSuccessfulUpdate) {
-        onSuccessfulUpdate(rowId, field, result[field], value);
+        onSuccessfulUpdate(rowId, field, data[field], value);
       }
 
-      return result;
+      return data;
     },
     onError: (error: Error) => {
       console.error('Mutation error:', error);
