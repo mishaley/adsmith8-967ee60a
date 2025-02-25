@@ -1,5 +1,5 @@
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
@@ -11,11 +11,15 @@ type UpdateParams = {
   currentValue: string | number;
 };
 
+type UpdateResult = {
+  success: boolean;
+};
+
 const updateRecord = async (
   tableName: TableName, 
   idField: string, 
   params: UpdateParams
-) => {
+): Promise<UpdateResult> => {
   const { error } = await supabase
     .from(tableName)
     .update({ [params.field]: params.value })
@@ -26,8 +30,8 @@ const updateRecord = async (
 };
 
 export const useUpdateMutation = (tableName: TableName, idField: string) => ({
-  updateMutation: useMutation({
-    mutationFn: (params: UpdateParams) => updateRecord(tableName, idField, params),
+  updateMutation: useMutation<UpdateResult, Error, UpdateParams>({
+    mutationFn: (params) => updateRecord(tableName, idField, params),
     onError: (error: Error) => {
       toast.error("Failed to update: " + error.message);
     }
