@@ -62,12 +62,9 @@ export function TableColumn({
       const currentFilter = filters[column.field]?.toLowerCase() || '';
       const filteredOptions = column.options.filter(option => {
         if (!currentFilter) return true;
-        // If organization_name field exists, search by that
-        if (column.field === 'organization_id') {
-          return option.label.toLowerCase().includes(currentFilter);
-        }
-        // Default search by value
-        return option.value.toLowerCase().includes(currentFilter);
+        
+        // Always search by the label (organization name) for all select fields
+        return option.label.toLowerCase().includes(currentFilter);
       });
 
       return (
