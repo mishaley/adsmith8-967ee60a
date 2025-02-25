@@ -72,7 +72,7 @@ export function TableColumn({
               <SelectItem 
                 key={option.value} 
                 value={option.value}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-base"
               >
                 {option.label}
               </SelectItem>
@@ -96,14 +96,14 @@ export function TableColumn({
     }
 
     return (
-      <div className="truncate text-base">
+      <div className="text-base">
         {displayValue}
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-w-[100px]">
       <Popover>
         <PopoverTrigger asChild>
           <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
@@ -150,7 +150,7 @@ export function TableColumn({
           {data.map(row => (
             <div 
               key={row.id} 
-              className={`p-4 border-b whitespace-nowrap cursor-pointer hover:bg-gray-50 ${
+              className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
                 editingCell.rowId === row.id && editingCell.field === column.field ? 'ring-2 ring-inset ring-[#ecb652]' : ''
               }`}
               onClick={() => handleCellClick(row.id, column.field)}

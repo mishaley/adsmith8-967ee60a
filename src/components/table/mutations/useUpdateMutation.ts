@@ -19,7 +19,8 @@ export const useUpdateMutation = (tableName: TableName, idField: string) => {
         .eq(idField, rowId);
 
       if (error) throw error;
-      return { success: true } satisfies { success: true };
+      
+      return true;
     }
   });
 };
