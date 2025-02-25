@@ -5,8 +5,12 @@ import { TableName } from "@/types/table";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 
-type OfferingData = Database['public']['Tables']['b1offerings']['Row'] & {
-  a1organizations: Pick<Database['public']['Tables']['a1organizations']['Row'], 'organization_name'> | null;
+// Simplified type definitions to avoid deep nesting
+type BaseOffering = Database['public']['Tables']['b1offerings']['Row'];
+type BaseOrganization = Database['public']['Tables']['a1organizations']['Row'];
+
+type OfferingWithOrg = BaseOffering & {
+  a1organizations: Pick<BaseOrganization, 'organization_name'> | null;
 }
 
 interface UpdateParams {
@@ -39,13 +43,13 @@ export const useUpdateMutation = (
         if (error) throw error;
         if (!data) throw new Error('No data returned from update');
         
-        const typedData = data as unknown as OfferingData;
+        const result = data as OfferingWithOrg;
         
         if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, typedData[field], value);
+          onSuccessfulUpdate(rowId, field, result[field], value);
         }
         
-        return typedData;
+        return result;
       } else {
         const { data, error } = await table
           .update(updateData)
