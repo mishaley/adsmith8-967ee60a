@@ -97,7 +97,7 @@ export function TableColumn({
       if (column.inputMode === 'select' && column.options) {
         const selectedOption = column.options.find(opt => opt.value === row[column.field]);
         return (
-          <div className="w-full relative" onBlur={() => handleCellBlur(row.id, column.field, row[column.field])}>
+          <div className="w-full relative">
             <Select
               defaultValue={row[column.field]}
               onValueChange={(value) => {
@@ -105,7 +105,7 @@ export function TableColumn({
               }}
               onOpenChange={(open) => {
                 if (!open) {
-                  setEditingCell({ rowId: null, field: null });
+                  handleCellBlur(row.id, column.field, row[column.field]);
                 }
               }}
             >
