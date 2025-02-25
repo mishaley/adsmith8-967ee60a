@@ -5,22 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 const Settings = () => {
   const [isUploading, setIsUploading] = useState<string | null>(null);
-  const [isTestingCleanup, setIsTestingCleanup] = useState(false);
-  const [isDeletingOrgs, setIsDeletingOrgs] = useState(false);
 
   const { data: organizations = [], refetch } = useQuery({
     queryKey: ["organizations"],
@@ -106,58 +93,12 @@ const Settings = () => {
     }
   };
 
-  const testCleanupFunction = async () => {
-    try {
-      setIsTestingCleanup(true);
-      const { data, error } = await supabase.functions.invoke('cleanup-org-folders', {
-        body: { dryRun: true }
-      });
-      
-      if (error) {
-        console.error('Cleanup function error:', error);
-        toast.error('Failed to test cleanup: ' + error.message);
-        return;
-      }
-      
-      console.log('Cleanup function response:', data);
-      toast.success('Cleanup test completed successfully! Check console for details.');
-    } catch (err) {
-      console.error('Error invoking function:', err);
-      toast.error('Failed to invoke cleanup function');
-    } finally {
-      setIsTestingCleanup(false);
-    }
-  };
-
-  const executeCleanup = async () => {
-    try {
-      setIsDeletingOrgs(true);
-      const { data, error } = await supabase.functions.invoke('cleanup-org-folders', {
-        body: { dryRun: false }
-      });
-      
-      if (error) {
-        console.error('Cleanup execution error:', error);
-        toast.error('Failed to execute cleanup: ' + error.message);
-        return;
-      }
-      
-      console.log('Cleanup execution response:', data);
-      toast.success('Storage cleanup completed successfully!');
-    } catch (err) {
-      console.error('Error executing cleanup:', err);
-      toast.error('Failed to execute cleanup');
-    } finally {
-      setIsDeletingOrgs(false);
-    }
-  };
-
   return (
     <QuadrantLayout>
       {{
         q4: (
           <div className="w-full max-w-2xl mx-auto p-4">
-            <table className="w-full mb-8">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="text-left p-4 bg-[#154851] text-white">Organization</th>
@@ -203,49 +144,6 @@ const Settings = () => {
                 ))}
               </tbody>
             </table>
-
-            {/* Cleanup Section */}
-            <div className="p-4 border rounded-lg bg-gray-50">
-              <h2 className="text-lg font-semibold mb-2">Storage Cleanup</h2>
-              <p className="text-sm text-gray-600 mb-4">
-                Manage organization folders in storage. Use test mode first to see which folders would be affected.
-              </p>
-              <div className="flex gap-4">
-                <Button 
-                  onClick={testCleanupFunction}
-                  variant="outline"
-                  disabled={isTestingCleanup || isDeletingOrgs}
-                >
-                  {isTestingCleanup ? 'Testing...' : 'Test Cleanup'}
-                </Button>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      disabled={isDeletingOrgs || isTestingCleanup}
-                    >
-                      {isDeletingOrgs ? 'Deleting...' : 'Delete Invalid Folders'}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete all organization folders that don't match with valid organization IDs in the database.
-                        This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={executeCleanup}>
-                        Yes, Delete Folders
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
           </div>
         ),
       }}
