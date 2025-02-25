@@ -1,7 +1,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName } from "@/types/table";
+import { TableName, TableData } from "@/types/table";
 
 interface UpdateParams {
   rowId: string;
@@ -10,16 +10,12 @@ interface UpdateParams {
   currentValue: string;
 }
 
-interface UpdateResult {
-  success: boolean;
-}
-
 export const useUpdateMutation = (
   tableName: TableName, 
   idField: string
 ) => {
-  return useMutation<UpdateResult, Error, UpdateParams>({
-    mutationFn: async ({ rowId, field, value }) => {      
+  return useMutation({
+    mutationFn: async ({ rowId, field, value }: UpdateParams) => {      
       const { error } = await supabase
         .from(tableName)
         .update({ [field]: value })
