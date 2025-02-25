@@ -48,6 +48,12 @@ export function TableColumn({
     }
   };
 
+  const getColumnWidth = () => {
+    if (isAgeColumn) return '90px';
+    if (column.field === 'message_name') return 'max-content';
+    return 'auto';
+  };
+
   const renderCell = (row: TableRow) => {
     const isEditing = editingCell.rowId === row.id && editingCell.field === column.field;
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
@@ -88,7 +94,7 @@ export function TableColumn({
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <div className="w-full min-w-[300px]" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full" onClick={(e) => e.stopPropagation()}>
           <input
             autoFocus
             defaultValue={row[column.field]}
@@ -100,14 +106,14 @@ export function TableColumn({
     }
 
     return (
-      <div className={`text-base whitespace-nowrap min-w-[300px] ${isAgeColumn ? 'text-center' : ''}`}>
+      <div className={`text-base whitespace-nowrap ${isAgeColumn ? 'text-center' : ''}`}>
         {displayValue}
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" style={{ width: getColumnWidth() }}>
       <Popover>
         <PopoverTrigger asChild>
           <div className="whitespace-nowrap bg-[#154851] p-4 text-white text-[16px] uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
