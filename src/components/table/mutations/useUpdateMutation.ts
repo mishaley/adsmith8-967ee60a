@@ -1,38 +1,28 @@
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
+
+type UpdateMutationParams = {
+  rowId: string;
+  field: string;
+  value: string;
+  currentValue: string;
+  isUndo?: boolean;
+};
 
 export const useUpdateMutation = (
   tableName: TableName,
   idField: string,
   onSuccessfulUpdate?: (rowId: string, field: string, oldValue: any, newValue: any) => void
 ) => {
-  const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async (params: {
-      rowId: string;
-      field: string;
-      value: any;
-      currentValue: any;
-      isUndo?: boolean;
-    }) => {
-      const { rowId, field, value, currentValue, isUndo = false } = params;
+    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateMutationParams) => {
+      console.log('Update mutation called with:', { rowId, field, value, currentValue });
       
-      console.log('🟦 Starting mutation with params:', {
-        tableName,
-        idField,
-        rowId,
-        field,
-        value,
-        currentValue,
-        isUndo
-      });
-
       if (value === currentValue) {
-        console.log('🟨 Skipping update - value unchanged');
+        console.log('Values are identical, skipping update');
         return null;
       }
 
@@ -43,7 +33,7 @@ export const useUpdateMutation = (
         .select();
 
       if (error) {
-        console.error('🟥 Supabase update error:', error);
+        console.error('Update failed:', error);
         throw error;
       }
 
@@ -51,7 +41,7 @@ export const useUpdateMutation = (
         onSuccessfulUpdate(rowId, field, currentValue, value);
       }
 
-      return { rowId, field, value, data };
+      return { success: true, data };
     }
   });
 };
