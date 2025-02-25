@@ -103,7 +103,7 @@ const Messages = () => {
         created_at
       `);
     
-    const transformedData = (data || []).map(row => ({
+    return (data || []).map(row => ({
       id: row.id,
       message_name: row.message_name,
       persona_id: row.persona_id,
@@ -113,23 +113,17 @@ const Messages = () => {
       message_status: row.message_status,
       created_at: row.created_at
     }));
-
-    setTableData(transformedData);
-    return transformedData;
   };
 
-  const { data } = useQuery({
+  // Initial data fetch
+  useQuery({
     queryKey: ["messages"],
-    queryFn: fetchMessages
+    queryFn: fetchMessages,
+    onSuccess: (data) => setTableData(data)
   });
 
   useEffect(() => {
-    if (data) {
-      setTableData(data);
-    }
-  }, [data]);
-
-  useEffect(() => {
+    // Enable REPLICA IDENTITY FULL for the table to ensure we get complete row data
     const channel = supabase
       .channel('table-db-changes')
       .on(
@@ -139,21 +133,42 @@ const Messages = () => {
           schema: 'public',
           table: 'd1messages'
         },
-        (payload) => {
+        async (payload) => {
           if (payload.new && payload.new.message_id) {
-            // Update the specific row directly from the payload
-            setTableData(prevData => 
-              prevData.map(row => {
-                if (row.id === payload.new.message_id) {
-                  return {
-                    ...row,
-                    ...payload.new,
-                    id: payload.new.message_id,
-                  };
-                }
-                return row;
-              })
-            );
+            // After a successful update, fetch the complete row data
+            const { data } = await supabase
+              .from("d1messages")
+              .select(`
+                id:message_id,
+                message_name,
+                persona_id,
+                persona:c1personas(persona_name),
+                message_type,
+                message_url,
+                message_status,
+                created_at
+              `)
+              .eq('message_id', payload.new.message_id)
+              .single();
+
+            if (data) {
+              const updatedRow = {
+                id: data.id,
+                message_name: data.message_name,
+                persona_id: data.persona_id,
+                persona_name: data.persona?.persona_name,
+                message_type: data.message_type,
+                message_url: data.message_url,
+                message_status: data.message_status,
+                created_at: data.created_at
+              };
+
+              setTableData(prevData => 
+                prevData.map(row => 
+                  row.id === updatedRow.id ? updatedRow : row
+                )
+              );
+            }
           }
         }
       )
