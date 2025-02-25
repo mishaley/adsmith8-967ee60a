@@ -3,12 +3,12 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 
-type MutationParams = {
+interface MutationParams {
   rowId: string;
   field: string;
   value: string;
   currentValue: string;
-};
+}
 
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
   return useMutation({
