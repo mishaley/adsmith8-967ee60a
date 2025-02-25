@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -8,6 +7,8 @@ import { useEffect, useCallback, useState } from "react";
 
 type Tables = Database['public']['Tables'];
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
+type TableUpdate<T extends TableName> = Tables[T]['Update'];
+type TableInsert<T extends TableName> = Tables[T]['Insert'];
 
 interface ChangeHistoryEntry<T extends TableName = TableName> {
   rowId: string;
@@ -41,14 +42,7 @@ export function useTableMutations<T extends TableName>(
       isUndo?: boolean;
     }) => {
       const table = supabase.from(tableName);
-      let updateData = {};
-      
-      // Handle organization updates differently
-      if (field === 'organization_id' as TableColumns<T>) {
-        updateData = { organization_id: value };
-      } else {
-        updateData = { [field]: value };
-      }
+      const updateData = { [field]: value } as TableUpdate<T>;
       
       const { data, error } = await table
         .update(updateData)
@@ -74,7 +68,7 @@ export function useTableMutations<T extends TableName>(
         const newChange: ChangeHistoryEntry<T> = {
           rowId,
           field,
-          oldValue: data[0][field],
+          oldValue: data[0][field as keyof typeof data[0]],
           newValue: value,
           tableName
         };
@@ -100,9 +94,8 @@ export function useTableMutations<T extends TableName>(
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
-      type TableInsert = Tables[T]['Insert'];
       const table = supabase.from(tableName);
-      const insertData = record as unknown as TableInsert;
+      const insertData = record as TableInsert<T>;
       
       const { data, error } = await table
         .insert([insertData])
@@ -110,15 +103,19 @@ export function useTableMutations<T extends TableName>(
       
       if (error) throw error;
       
-      if (tableName === 'a1organizations' && data?.[0]?.organization_id) {
-        const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
-          body: { organization_id: data[0].organization_id }
-        });
-        
-        if (folderError) {
-          console.error('Error creating folders:', folderError);
-          toast.error("Organization created but failed to create folders");
-          throw folderError;
+      // Handle organization creation specifically
+      if (tableName === 'a1organizations' && data?.[0]) {
+        const createdOrg = data[0] as Tables['a1organizations']['Row'];
+        if (createdOrg.organization_id) {
+          const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
+            body: { organization_id: createdOrg.organization_id }
+          });
+          
+          if (folderError) {
+            console.error('Error creating folders:', folderError);
+            toast.error("Organization created but failed to create folders");
+            throw folderError;
+          }
         }
       }
       
