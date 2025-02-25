@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
@@ -13,8 +12,12 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
-type OfferingWithOrg = Database['public']['Tables']['b1offerings']['Row'] & {
-  a1organizations: Pick<Database['public']['Tables']['a1organizations']['Row'], 'organization_name'> | null;
+type OfferingWithOrg = {
+  offering_id: string;
+  offering_name: string;
+  organization_id: string;
+  created_at: string;
+  organization_name?: string | null;
 };
 
 export const useUpdateMutation = (
@@ -24,33 +27,64 @@ export const useUpdateMutation = (
 ) => {
   const queryClient = useQueryClient();
 
+  const fetchData = async (id: string) => {
+    if (tableName === 'b1offerings') {
+      const { data, error } = await supabase
+        .from('b1offerings')
+        .select(`
+          offering_id,
+          offering_name,
+          organization_id,
+          created_at,
+          a1organizations (
+            organization_name
+          )
+        `)
+        .eq('offering_id', id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        ...data,
+        organization_name: data.a1organizations?.organization_name
+      } as OfferingWithOrg;
+    } else {
+      const { data, error } = await supabase
+        .from(tableName)
+        .select('*')
+        .eq(idField, id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    }
+  };
+
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateParams) => {
-      if (tableName === 'b1offerings') {
-        // Handle offerings table separately due to join
-        if (value === currentValue) {
-          const { data, error } = await supabase
-            .from('b1offerings')
-            .select('*, a1organizations(organization_name)')
-            .eq('offering_id', rowId)
-            .maybeSingle();
-          
-          if (error) throw error;
-          if (!data) throw new Error('Failed to fetch data');
-          
-          const result = {
-            ...data,
-            organization_name: (data as OfferingWithOrg).a1organizations?.organization_name
-          };
-          return result;
-        }
+      if (value === currentValue) {
+        const data = await fetchData(rowId);
+        if (!data) throw new Error('Failed to fetch data');
+        return data;
+      }
 
+      if (tableName === 'b1offerings') {
         const { data, error } = await supabase
           .from('b1offerings')
           .update({ [field]: value })
           .eq('offering_id', rowId)
-          .select('*, a1organizations(organization_name)')
+          .select(`
+            offering_id,
+            offering_name,
+            organization_id,
+            created_at,
+            a1organizations (
+              organization_name
+            )
+          `)
           .maybeSingle();
         
         if (error) throw error;
@@ -58,8 +92,8 @@ export const useUpdateMutation = (
 
         const result = {
           ...data,
-          organization_name: (data as OfferingWithOrg).a1organizations?.organization_name
-        };
+          organization_name: data.a1organizations?.organization_name
+        } as OfferingWithOrg;
 
         if (!isUndo && onSuccessfulUpdate) {
           onSuccessfulUpdate(rowId, field, currentValue, value);
@@ -67,19 +101,6 @@ export const useUpdateMutation = (
 
         return result;
       } else {
-        // Handle all other tables
-        if (value === currentValue) {
-          const { data, error } = await supabase
-            .from(tableName)
-            .select()
-            .eq(idField, rowId)
-            .maybeSingle();
-          
-          if (error) throw error;
-          if (!data) throw new Error('Failed to fetch data');
-          return data;
-        }
-
         const { data, error } = await supabase
           .from(tableName)
           .update({ [field]: value })
