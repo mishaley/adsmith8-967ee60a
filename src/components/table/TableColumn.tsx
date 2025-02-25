@@ -28,19 +28,18 @@ export function TableColumn({
   idField
 }: TableColumnProps) {
   const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
-  const { updateMutation } = useTableMutations(tableName, idField);
+  const { mutate } = useTableMutations(tableName, idField);
 
   const isCreatedColumn = column.field === 'created_at';
 
   const handleSelect = (rowId: string, field: string, newValue: string) => {
-    const mutation = updateMutation.mutate({ 
+    mutate({ 
       rowId, 
       field, 
       value: newValue,
       currentValue: ''
     });
     setEditingCell({ rowId: null, field: null });
-    return mutation;
   };
 
   const handleCellClick = (rowId: string, field: string) => {

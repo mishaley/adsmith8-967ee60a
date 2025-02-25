@@ -5,16 +5,18 @@ import { useUpdateMutation } from "./mutations/useUpdateMutation";
 import { useChangeHistory } from "./history/useChangeHistory";
 import { useUndoRedo } from "./hooks/useUndoRedo";
 
-interface TableMutationsResult {
-  updateMutation: ReturnType<typeof useUpdateMutation>;
-  createMutation: ReturnType<typeof useCreateMutation>;
+interface UpdateParams {
+  rowId: string;
+  field: string;
+  value: string | number;
+  currentValue: string | number;
 }
 
 export function useTableMutations(
   tableName: TableName,
   idField: string
-): TableMutationsResult {
-  const updateMutation = useUpdateMutation(tableName, idField);
+) {
+  const { updateMutation } = useUpdateMutation(tableName, idField);
   const createMutation = useCreateMutation(tableName);
   
   const { addToHistory, undo, redo } = useChangeHistory(
@@ -26,5 +28,8 @@ export function useTableMutations(
 
   useUndoRedo(undo, redo);
 
-  return { updateMutation, createMutation };
+  return { 
+    mutate: updateMutation.mutate,
+    createMutation 
+  };
 }

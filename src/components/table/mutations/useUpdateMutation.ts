@@ -14,23 +14,23 @@ interface UpdateParams {
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
   const queryClient = useQueryClient();
   
-  const mutation = useMutation({
-    mutationFn: async ({ rowId, field, value }: UpdateParams) => {      
-      const { error } = await supabase
-        .from(tableName)
-        .update({ [field]: value })
-        .eq(idField, rowId);
+  return {
+    updateMutation: useMutation({
+      mutationFn: async ({ rowId, field, value }: UpdateParams) => {      
+        const { error } = await supabase
+          .from(tableName)
+          .update({ [field]: value })
+          .eq(idField, rowId);
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [tableName.toLowerCase()] });
-      toast.success("Updated successfully");
-    },
-    onError: (error: Error) => {
-      toast.error("Failed to update: " + error.message);
-    }
-  });
-
-  return { updateMutation: mutation };
+        if (error) throw error;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: [tableName.toLowerCase()] });
+        toast.success("Updated successfully");
+      },
+      onError: (error: Error) => {
+        toast.error("Failed to update: " + error.message);
+      }
+    })
+  };
 };
