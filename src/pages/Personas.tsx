@@ -62,7 +62,7 @@ const Personas = () => {
       inputMode: "text",
       editable: true,
       required: true,
-      width: "120px"
+      width: "80px"
     },
     {
       field: "persona_agemax",
@@ -70,7 +70,7 @@ const Personas = () => {
       inputMode: "text",
       editable: true,
       required: true,
-      width: "120px"
+      width: "80px"
     },
     {
       field: "created_at",
