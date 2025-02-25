@@ -114,8 +114,8 @@ function SharedTable<T extends TableName>({
 
   return (
     <div className="w-fit">
-      <div className="inline-grid" style={{
-        gridTemplateColumns: columns.map(col => `minmax(${col.width || 'auto'}, 1fr)`).join(' ')
+      <div className="grid auto-cols-min" style={{
+        gridTemplateColumns: columns.map(() => 'min-content').join(' ')
       }}>
         {columns.map(column => (
           column.format === "M/D/YY" ? (
