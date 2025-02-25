@@ -14,7 +14,7 @@ serve(async (req) => {
 
   try {
     // Check if this is a dry run
-    const { dryRun = true } = await req.json().catch(() => ({ dryRun: true }));
+    const { dryRun = false } = await req.json().catch(() => ({ dryRun: false }));
     console.log(`Running in ${dryRun ? 'dry run' : 'delete'} mode`);
 
     // Initialize Supabase client
@@ -51,7 +51,7 @@ serve(async (req) => {
       .filter(item => !validOrgIds.has(item.name))
       .map(item => `organizations/${item.name}`) ?? [];
 
-    console.log('Invalid folders that would be removed:', invalidFolders)
+    console.log('Invalid folders to be removed:', invalidFolders)
 
     if (dryRun) {
       return new Response(
