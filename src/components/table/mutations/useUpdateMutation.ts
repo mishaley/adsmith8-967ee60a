@@ -22,33 +22,24 @@ export const useUpdateMutation = (
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateParams) => {
-      // If the value hasn't changed, just return the current data
+      // If the value hasn't changed, just fetch the current data
       if (value === currentValue) {
-        // For offerings, we need to fetch the full data to maintain consistency
+        const { data, error } = await supabase
+          .from(tableName)
+          .select(tableName === 'b1offerings' ? '*, a1organizations(organization_name)' : '*')
+          .eq(idField, rowId)
+          .maybeSingle();
+        
+        if (error) throw error;
+        if (!data) throw new Error('Failed to fetch data');
+        
+        // For offerings, add the organization name to the response
         if (tableName === 'b1offerings') {
-          const { data, error } = await supabase
-            .from('b1offerings')
-            .select('*, a1organizations(organization_name)')
-            .eq('offering_id', rowId)
-            .single();
-          
-          if (error) throw error;
-          if (!data) throw new Error('Failed to fetch data');
-
           return {
             ...data,
             organization_name: data.a1organizations?.organization_name
           };
         }
-        
-        const { data, error } = await supabase
-          .from(tableName)
-          .select()
-          .eq(idField, rowId)
-          .single();
-        
-        if (error) throw error;
-        if (!data) throw new Error('Failed to fetch data');
         
         return data;
       }
@@ -58,26 +49,17 @@ export const useUpdateMutation = (
         .from(tableName)
         .update({ [field]: value })
         .eq(idField, rowId)
-        .select()
-        .single();
+        .select(tableName === 'b1offerings' ? '*, a1organizations(organization_name)' : '*')
+        .maybeSingle();
       
       if (error) throw error;
       if (!data) throw new Error('No data returned from update');
 
-      // If this is an offering, we need to refetch to get the organization name
+      // For offerings, add the organization name to the response
       if (tableName === 'b1offerings') {
-        const { data: fullData, error: fetchError } = await supabase
-          .from('b1offerings')
-          .select('*, a1organizations(organization_name)')
-          .eq('offering_id', rowId)
-          .single();
-        
-        if (fetchError) throw fetchError;
-        if (!fullData) throw new Error('Failed to fetch updated data');
-
         const result = {
-          ...fullData,
-          organization_name: fullData.a1organizations?.organization_name
+          ...data,
+          organization_name: data.a1organizations?.organization_name
         };
 
         if (!isUndo && onSuccessfulUpdate) {
