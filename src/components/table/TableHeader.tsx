@@ -51,9 +51,11 @@ export function TableHeader({
 
   if (!isPopoverContent) {
     return (
-      <div className="flex items-center justify-between space-x-2 w-full h-full relative group">
-        <span className="truncate block">{column.header}</span>
-        <ChevronDown className="h-4 w-4 text-white shrink-0" />
+      <div className="flex items-center gap-2 w-full h-full relative group">
+        <div className="flex-1 min-w-0">
+          <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{column.header}</span>
+        </div>
+        <ChevronDown className="h-4 w-4 text-white flex-none" />
       </div>
     );
   }

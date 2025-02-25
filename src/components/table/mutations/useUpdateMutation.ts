@@ -20,7 +20,7 @@ export const useUpdateMutation = (tableName: TableName, idField: string) => {
 
       if (error) throw error;
       
-      return true as const;
+      return { success: true };
     }
   });
 };
