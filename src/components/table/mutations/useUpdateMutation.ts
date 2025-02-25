@@ -4,21 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
 
-interface UpdateParams {
-  rowId: string;
-  field: string;
-  value: any;
-  currentValue: any;
-  isUndo?: boolean;
-}
-
-type MutationResponse = {
-  rowId: string;
-  field: string;
-  value: any;
-  data: any[] | null;
-} | null;
-
 export const useUpdateMutation = (
   tableName: TableName,
   idField: string,
@@ -26,8 +11,14 @@ export const useUpdateMutation = (
 ) => {
   const queryClient = useQueryClient();
 
-  return useMutation<MutationResponse, Error, UpdateParams>({
-    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }) => {
+  return useMutation({
+    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: {
+      rowId: string;
+      field: string;
+      value: any;
+      currentValue: any;
+      isUndo?: boolean;
+    }) => {
       console.log('🟦 Starting mutation with params:', {
         tableName,
         idField,
@@ -38,7 +29,7 @@ export const useUpdateMutation = (
         isUndo
       });
 
-      if (JSON.stringify(value) === JSON.stringify(currentValue)) {
+      if (value === currentValue) {
         console.log('🟨 Skipping update - value unchanged');
         return null;
       }

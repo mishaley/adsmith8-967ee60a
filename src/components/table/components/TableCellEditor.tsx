@@ -21,9 +21,9 @@ export function TableCellEditor({ row, column, onBlur, cellContentClass, onKeyPr
     return (
       <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
         <Select
-          value={row[column.field]}
+          defaultValue={row[column.field]}
           onValueChange={(value) => {
-            console.log('Select value changed:', value);
+            console.log('Select value changed to:', value);
             onBlur(value);
           }}
         >
