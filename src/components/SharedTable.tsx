@@ -114,10 +114,13 @@ function SharedTable<T extends TableName>({
 
   return (
     <div className="w-full">
-      <div className="grid" style={{
-        gridTemplateColumns: `repeat(${columns.length}, minmax(100px, max-content))`
-      }}>
-        {columns.map(column => (
+      <div 
+        className="grid" 
+        style={{
+          gridTemplateColumns: `repeat(${columns.length}, minmax(100px, max-content))`
+        }}
+      >
+        {columns.map(column => 
           column.format === "M/D/YY" ? (
             <TableAddColumn
               key={column.field}
@@ -146,7 +149,7 @@ function SharedTable<T extends TableName>({
               idField={idField}
             />
           )
-        ))}
+        )}
       </div>
     </div>
   );
