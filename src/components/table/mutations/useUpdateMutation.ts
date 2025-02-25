@@ -8,6 +8,7 @@ interface UpdateParams {
   rowId: string;
   field: string;
   value: any;
+  currentValue: any;
   isUndo?: boolean;
 }
 
@@ -20,8 +21,39 @@ export const useUpdateMutation = (
 
   return useMutation({
     mutationKey: [tableName, 'update'],
-    mutationFn: async ({ rowId, field, value, isUndo = false }: UpdateParams) => {
-      // Simple update operation
+    mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateParams) => {
+      // If the value hasn't changed, just return the current data
+      if (value === currentValue) {
+        // For offerings, we need to fetch the full data to maintain consistency
+        if (tableName === 'b1offerings') {
+          const { data, error } = await supabase
+            .from('b1offerings')
+            .select('*, a1organizations(organization_name)')
+            .eq('offering_id', rowId)
+            .single();
+          
+          if (error) throw error;
+          if (!data) throw new Error('Failed to fetch data');
+
+          return {
+            ...data,
+            organization_name: data.a1organizations?.organization_name
+          };
+        }
+        
+        const { data, error } = await supabase
+          .from(tableName)
+          .select()
+          .eq(idField, rowId)
+          .single();
+        
+        if (error) throw error;
+        if (!data) throw new Error('Failed to fetch data');
+        
+        return data;
+      }
+
+      // If the value has changed, proceed with the update
       const { data, error } = await supabase
         .from(tableName)
         .update({ [field]: value })
@@ -49,14 +81,14 @@ export const useUpdateMutation = (
         };
 
         if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, data[field], value);
+          onSuccessfulUpdate(rowId, field, currentValue, value);
         }
 
         return result;
       }
 
       if (!isUndo && onSuccessfulUpdate) {
-        onSuccessfulUpdate(rowId, field, data[field], value);
+        onSuccessfulUpdate(rowId, field, currentValue, value);
       }
 
       return data;

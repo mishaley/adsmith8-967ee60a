@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -70,7 +69,8 @@ export function TableColumn({
   const handleCellBlur = (rowId: string, field: string, value: any) => {
     setEditingCell({ rowId: null, field: null });
     if (column.editable) {
-      updateMutation.mutate({ rowId, field, value });
+      const currentValue = data.find(row => row.id === rowId)?.[field];
+      updateMutation.mutate({ rowId, field, value, currentValue });
     }
   };
 
