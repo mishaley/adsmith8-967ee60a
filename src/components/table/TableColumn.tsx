@@ -30,14 +30,17 @@ export function TableColumn({
   const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations(tableName, idField);
 
+  const isCreatedColumn = column.field === 'created_at';
+
   const handleSelect = (rowId: string, field: string, newValue: string) => {
-    updateMutation.mutateAsync({ 
+    const mutation = updateMutation.mutate({ 
       rowId, 
       field, 
       value: newValue,
       currentValue: ''
     });
     setEditingCell({ rowId: null, field: null });
+    return mutation;
   };
 
   const handleCellClick = (rowId: string, field: string) => {
@@ -106,14 +109,14 @@ export function TableColumn({
             autoFocus
             defaultValue={row[column.field]}
             onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${column.field.includes('age') ? 'text-center' : ''}`}
+            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${isCreatedColumn ? 'text-center' : 'text-left'}`}
           />
         </div>
       );
     }
 
     return (
-      <div className={`text-base whitespace-nowrap ${column.field.includes('age') ? 'text-center' : ''}`}>
+      <div className={`text-base whitespace-nowrap ${isCreatedColumn ? 'text-center' : 'text-left'}`}>
         {displayValue}
       </div>
     );
@@ -160,7 +163,7 @@ export function TableColumn({
             column={column}
             value={newRecord[column.field]}
             onChange={(value) => handleInputChange(column.field, value)}
-            cellContentClass={`text-base ${column.field.includes('age') ? 'text-center' : ''}`}
+            cellContentClass={`text-base ${isCreatedColumn ? 'text-center' : 'text-left'}`}
           />
         </div>
         <div className="bg-white">
