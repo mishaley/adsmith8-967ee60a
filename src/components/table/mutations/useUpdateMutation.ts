@@ -3,15 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
-import { Database } from "@/integrations/supabase/types";
-
-// Simplified type definitions to avoid deep nesting
-type BaseOffering = Database['public']['Tables']['b1offerings']['Row'];
-type BaseOrganization = Database['public']['Tables']['a1organizations']['Row'];
-
-type OfferingWithOrg = BaseOffering & {
-  a1organizations: Pick<BaseOrganization, 'organization_name'> | null;
-}
 
 interface UpdateParams {
   rowId: string;
@@ -37,19 +28,22 @@ export const useUpdateMutation = (
         const { data, error } = await table
           .update(updateData)
           .eq(idField, rowId)
-          .select('*, a1organizations!inner(organization_name)')
+          .select(`
+            *,
+            a1organizations (
+              organization_name
+            )
+          `)
           .maybeSingle();
         
         if (error) throw error;
         if (!data) throw new Error('No data returned from update');
         
-        const result = data as OfferingWithOrg;
-        
         if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, result[field], value);
+          onSuccessfulUpdate(rowId, field, data[field], value);
         }
         
-        return result;
+        return data;
       } else {
         const { data, error } = await table
           .update(updateData)
