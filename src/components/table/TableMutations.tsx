@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -6,7 +7,6 @@ import { Database } from "@/integrations/supabase/types";
 import { useEffect, useCallback, useState } from "react";
 
 type Tables = Database['public']['Tables'];
-
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
 
 interface ChangeHistoryEntry<T extends TableName = TableName> {
@@ -40,17 +40,30 @@ export function useTableMutations<T extends TableName>(
       value: any;
       isUndo?: boolean;
     }) => {
-      type TableUpdate = Tables[T]['Update'];
       const table = supabase.from(tableName);
+      let updateData = {};
       
-      const updateData = { [field]: value } as TableUpdate;
+      // Handle organization updates differently
+      if (field === 'organization_id' as TableColumns<T>) {
+        updateData = { organization_id: value };
+      } else {
+        updateData = { [field]: value };
+      }
       
       const { data, error } = await table
         .update(updateData)
         .eq(idField, rowId)
-        .select();
+        .select(`
+          *,
+          organization:a1organizations (
+            organization_name
+          )
+        `);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
       
       // Only add to history if it's not an undo/redo operation
       if (!isUndo && data?.[0]) {
@@ -61,7 +74,7 @@ export function useTableMutations<T extends TableName>(
         const newChange: ChangeHistoryEntry<T> = {
           rowId,
           field,
-          oldValue: data[0][field as keyof typeof data[0]],
+          oldValue: data[0][field],
           newValue: value,
           tableName
         };
@@ -74,11 +87,13 @@ export function useTableMutations<T extends TableName>(
 
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["offerings"] });
+      toast.success("Update successful");
     },
-    onError: (error) => {
-      toast.error("Failed to update: " + error.message);
+    onError: (error: Error) => {
+      console.error('Mutation error:', error);
+      toast.error(`Failed to update: ${error.message}`);
     }
   });
 
@@ -89,7 +104,7 @@ export function useTableMutations<T extends TableName>(
       const table = supabase.from(tableName);
       const insertData = record as unknown as TableInsert;
       
-      const { data, error } = await (table as any)
+      const { data, error } = await table
         .insert([insertData])
         .select();
       
@@ -110,10 +125,10 @@ export function useTableMutations<T extends TableName>(
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
+      queryClient.invalidateQueries({ queryKey: ["offerings"] });
       toast.success("Record created successfully");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast.error("Failed to create record: " + error.message);
     }
   });
