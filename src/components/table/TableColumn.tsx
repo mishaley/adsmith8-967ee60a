@@ -28,6 +28,8 @@ export function TableColumn({
   const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations("c1personas", "persona_id");
 
+  const isAgeColumn = column.field === 'persona_agemin' || column.field === 'persona_agemax';
+
   const handleSelect = (rowId: string, field: string, newValue: string) => {
     updateMutation.mutate({ 
       rowId, 
@@ -89,14 +91,14 @@ export function TableColumn({
             autoFocus
             defaultValue={row[column.field]}
             onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-            className="w-full bg-transparent outline-none focus:ring-0 text-base p-0"
+            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${isAgeColumn ? 'text-center' : ''}`}
           />
         </div>
       );
     }
 
     return (
-      <div className="text-base whitespace-nowrap">
+      <div className={`text-base whitespace-nowrap ${isAgeColumn ? 'text-center' : ''}`}>
         {displayValue}
       </div>
     );
@@ -106,7 +108,7 @@ export function TableColumn({
     <div className="flex flex-col h-full">
       <Popover>
         <PopoverTrigger asChild>
-          <div className="bg-[#154851] p-4 text-white text-[16px] uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group whitespace-nowrap">
+          <div className="bg-[#154851] p-4 text-white text-[16px] whitespace-nowrap uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group">
             <TableHeader 
               column={column} 
               handleSort={handleSort} 
@@ -143,7 +145,7 @@ export function TableColumn({
             column={column}
             value={newRecord[column.field]}
             onChange={(value) => handleInputChange(column.field, value)}
-            cellContentClass="text-base"
+            cellContentClass={`text-base ${isAgeColumn ? 'text-center' : ''}`}
           />
         </div>
         <div className="bg-white">
