@@ -49,7 +49,12 @@ export function useTableMutations<T extends TableName>(
       const { data, error } = await (table as any)
         .update(updateData)
         .eq(idField, rowId)
-        .select();
+        .select(`
+          *,
+          organization:a1organizations!b1offerings_organization_id_fkey (
+            organization_name
+          )
+        `);
       
       if (error) {
         console.error('Update error:', error);
@@ -96,7 +101,12 @@ export function useTableMutations<T extends TableName>(
       
       const { data, error } = await (table as any)
         .insert([insertData])
-        .select();
+        .select(`
+          *,
+          organization:a1organizations!b1offerings_organization_id_fkey (
+            organization_name
+          )
+        `);
       
       if (error) throw error;
       
