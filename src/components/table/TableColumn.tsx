@@ -95,22 +95,25 @@ export function TableColumn({
 
     if (isEditing) {
       if (column.inputMode === 'select' && column.options) {
+        const selectedOption = column.options.find(opt => opt.value === row[column.field]);
         return (
-          <Select
-            defaultValue={row[column.field]}
-            onValueChange={(value) => handleCellBlur(row.id, column.field, value)}
-          >
-            <SelectTrigger className="h-8 bg-transparent border-none focus:ring-0">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {column.options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="w-full relative">
+            <Select
+              defaultValue={row[column.field]}
+              onValueChange={(value) => handleCellBlur(row.id, column.field, value)}
+            >
+              <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent">
+                <SelectValue defaultValue={selectedOption?.value} />
+              </SelectTrigger>
+              <SelectContent>
+                {column.options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         );
       }
       return (
