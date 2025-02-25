@@ -55,9 +55,15 @@ export function TableColumn({
     };
   }, [editingCell, column.field, data]);
 
-  const handleCellClick = (rowId: string, field: string) => {
+  const handleCellClick = (rowId: string, field: string, event: React.MouseEvent) => {
     if (column.editable) {
       setEditingCell({ rowId, field });
+      // If it's a select input, prevent the click from bubbling
+      // This allows the Select component to handle the click directly
+      if (column.inputMode === 'select') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
     }
   };
 
@@ -113,9 +119,10 @@ export function TableColumn({
       if (column.inputMode === 'select' && column.options) {
         const selectedOption = column.options.find(opt => opt.value === row[column.field]);
         return (
-          <div className="w-full relative select-wrapper">
+          <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
             <Select
               defaultValue={row[column.field]}
+              open={true}
               onValueChange={(value) => {
                 handleCellBlur(row.id, column.field, value);
               }}
@@ -198,7 +205,7 @@ export function TableColumn({
               className={`p-4 border-b whitespace-nowrap cursor-pointer hover:bg-gray-50 ${
                 editingCell.rowId === row.id && editingCell.field === column.field ? 'ring-2 ring-inset ring-[#ecb652]' : ''
               }`}
-              onClick={() => handleCellClick(row.id, column.field)}
+              onClick={(e) => handleCellClick(row.id, column.field, e)}
             >
               {renderCell(row)}
             </div>
