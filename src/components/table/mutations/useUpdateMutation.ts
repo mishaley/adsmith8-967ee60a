@@ -13,13 +13,31 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
-type OfferingWithOrg = {
+type OfferingRow = {
   offering_id: string;
   offering_name: string;
   organization_id: string;
   created_at: string;
-  organization_name?: string | null;
+  a1organizations?: {
+    organization_name: string | null;
+  } | null;
 };
+
+type TransformedOffering = {
+  offering_id: string;
+  offering_name: string;
+  organization_id: string;
+  created_at: string;
+  organization_name: string | null;
+};
+
+const transformOfferingData = (data: OfferingRow): TransformedOffering => ({
+  offering_id: data.offering_id,
+  offering_name: data.offering_name,
+  organization_id: data.organization_id,
+  created_at: data.created_at,
+  organization_name: data.a1organizations?.organization_name ?? null
+});
 
 export const useUpdateMutation = (
   tableName: TableName,
@@ -47,13 +65,7 @@ export const useUpdateMutation = (
       if (error) throw error;
       if (!data) return null;
 
-      return {
-        offering_id: data.offering_id,
-        offering_name: data.offering_name,
-        organization_id: data.organization_id,
-        created_at: data.created_at,
-        organization_name: data.a1organizations?.organization_name
-      };
+      return transformOfferingData(data as OfferingRow);
     } else {
       const { data, error } = await supabase
         .from(tableName)
@@ -69,60 +81,59 @@ export const useUpdateMutation = (
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateParams) => {
-      if (value === currentValue) {
-        const data = await fetchData(rowId);
-        if (!data) throw new Error('Failed to fetch data');
-        return data;
-      }
-
-      if (tableName === 'b1offerings') {
-        const { data, error } = await supabase
-          .from('b1offerings')
-          .update({ [field]: value })
-          .eq('offering_id', rowId)
-          .select(`
-            offering_id,
-            offering_name,
-            organization_id,
-            created_at,
-            a1organizations (
-              organization_name
-            )
-          `)
-          .maybeSingle();
-        
-        if (error) throw error;
-        if (!data) throw new Error('No data returned from update');
-
-        const result = {
-          offering_id: data.offering_id,
-          offering_name: data.offering_name,
-          organization_id: data.organization_id,
-          created_at: data.created_at,
-          organization_name: data.a1organizations?.organization_name
-        };
-
-        if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, currentValue, value);
+      try {
+        if (value === currentValue) {
+          const data = await fetchData(rowId);
+          if (!data) throw new Error('Failed to fetch data');
+          return data;
         }
 
-        return result;
-      } else {
-        const { data, error } = await supabase
-          .from(tableName)
-          .update({ [field]: value })
-          .eq(idField, rowId)
-          .select()
-          .maybeSingle();
-        
-        if (error) throw error;
-        if (!data) throw new Error('No data returned from update');
+        if (tableName === 'b1offerings') {
+          const { data, error } = await supabase
+            .from('b1offerings')
+            .update({ [field]: value })
+            .eq('offering_id', rowId)
+            .select(`
+              offering_id,
+              offering_name,
+              organization_id,
+              created_at,
+              a1organizations (
+                organization_name
+              )
+            `)
+            .maybeSingle();
+          
+          if (error) throw error;
+          if (!data) throw new Error('No data returned from update');
 
-        if (!isUndo && onSuccessfulUpdate) {
-          onSuccessfulUpdate(rowId, field, currentValue, value);
+          const result = transformOfferingData(data as OfferingRow);
+
+          if (!isUndo && onSuccessfulUpdate) {
+            onSuccessfulUpdate(rowId, field, currentValue, value);
+          }
+
+          return result;
+        } else {
+          const { data, error } = await supabase
+            .from(tableName)
+            .update({ [field]: value })
+            .eq(idField, rowId)
+            .select()
+            .maybeSingle();
+          
+          if (error) throw error;
+          if (!data) throw new Error('No data returned from update');
+
+          if (!isUndo && onSuccessfulUpdate) {
+            onSuccessfulUpdate(rowId, field, currentValue, value);
+          }
+
+          return data;
         }
-
-        return data;
+      } catch (error) {
+        console.error('Detailed error:', error);
+        throw error;
       }
     },
     onError: (error: Error) => {
@@ -130,7 +141,6 @@ export const useUpdateMutation = (
       toast.error(`Failed to update: ${error.message}`);
     },
     onSuccess: () => {
-      // Invalidate both organizations and offerings queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ["offerings"] });
       queryClient.invalidateQueries({ queryKey: ["organizations"] });
       toast.success("Update successful");
