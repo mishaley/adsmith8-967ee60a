@@ -70,13 +70,13 @@ export const useUpdateMutation = (
         return data;
       }
     },
+    onError: (error: Error) => {
+      console.error('Mutation error:', error);
+      toast.error(`Failed to update: ${error.message}`);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["offerings"] });
       toast.success("Update successful");
     },
-    onError: (error: Error) => {
-      console.error('Mutation error:', error);
-      toast.error(`Failed to update: ${error.message}`);
-    }
   });
 };
