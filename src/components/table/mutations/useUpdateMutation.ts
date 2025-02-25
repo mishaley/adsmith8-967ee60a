@@ -4,11 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
 
+type TableValue = string | number | boolean | null;
+
 type UpdateParams = {
   rowId: string;
   field: string;
-  value: string | number | boolean | null;
-  currentValue: string | number | boolean | null;
+  value: TableValue;
+  currentValue: TableValue;
 };
 
 const useUpdateMutation = (tableName: TableName, idField: string) => {
