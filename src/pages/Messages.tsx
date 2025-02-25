@@ -116,14 +116,18 @@ const Messages = () => {
   };
 
   // Initial data fetch
-  useQuery({
+  const { data: messagesData } = useQuery({
     queryKey: ["messages"],
-    queryFn: fetchMessages,
-    onSuccess: (data) => setTableData(data)
+    queryFn: fetchMessages
   });
 
   useEffect(() => {
-    // Enable REPLICA IDENTITY FULL for the table to ensure we get complete row data
+    if (messagesData) {
+      setTableData(messagesData);
+    }
+  }, [messagesData]);
+
+  useEffect(() => {
     const channel = supabase
       .channel('table-db-changes')
       .on(
@@ -135,7 +139,6 @@ const Messages = () => {
         },
         async (payload) => {
           if (payload.new && payload.new.message_id) {
-            // After a successful update, fetch the complete row data
             const { data } = await supabase
               .from("d1messages")
               .select(`
