@@ -16,31 +16,22 @@ interface TableCellEditorProps {
   onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-export function TableCellEditor({ row, column, onBlur, cellContentClass, onKeyPress }: TableCellEditorProps) {
+export function TableCellEditor({ row, column, onBlur }: TableCellEditorProps) {
   if (column.inputMode === 'select' && column.options) {
-    const initialValue = row[column.field];
-    
     return (
-      <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
-        <Select
-          onValueChange={(selectedValue) => {
-            if (selectedValue !== initialValue) {
-              console.log('Selected new value:', selectedValue);
-              console.log('Previous value was:', initialValue);
-              onBlur(selectedValue);
-            }
-          }}
-          defaultValue={initialValue}
+      <div className="w-full relative select-wrapper">
+        <Select 
+          onValueChange={onBlur} 
+          defaultValue={row[column.field]}
         >
-          <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
+          <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="z-[100] bg-white">
+          <SelectContent>
             {column.options.map((option) => (
               <SelectItem 
                 key={option.value} 
                 value={option.value}
-                className="text-base"
               >
                 {option.label}
               </SelectItem>
