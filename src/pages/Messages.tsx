@@ -4,11 +4,9 @@ import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const Messages = () => {
-  const [tableData, setTableData] = useState<any[]>([]);
-  
   const { data: personas = [] } = useQuery({
     queryKey: ["personas"],
     queryFn: async () => {
@@ -89,56 +87,47 @@ const Messages = () => {
     }
   ];
 
-  const fetchMessages = async () => {
-    const { data } = await supabase
-      .from("d1messages")
-      .select(`
-        id:message_id,
-        message_name,
-        persona_id,
-        persona:c1personas(persona_name),
-        message_type,
-        message_url,
-        message_status,
-        created_at
-      `);
-    
-    return (data || []).map(row => ({
-      id: row.id,
-      message_name: row.message_name,
-      persona_id: row.persona_id,
-      persona_name: row.persona?.persona_name,
-      message_type: row.message_type,
-      message_url: row.message_url,
-      message_status: row.message_status,
-      created_at: row.created_at
-    }));
-  };
-
-  // Initial data fetch
-  const { data: messagesData } = useQuery({
+  const { data = [], refetch } = useQuery({
     queryKey: ["messages"],
-    queryFn: fetchMessages
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("d1messages")
+        .select(`
+          id:message_id,
+          message_name,
+          persona_id,
+          persona:c1personas(persona_name),
+          message_type,
+          message_url,
+          message_status,
+          created_at
+        `);
+      
+      return (data || []).map(row => ({
+        id: row.id,
+        message_name: row.message_name,
+        persona_id: row.persona_id,
+        persona_name: row.persona?.persona_name,
+        message_type: row.message_type,
+        message_url: row.message_url,
+        message_status: row.message_status,
+        created_at: row.created_at
+      }));
+    }
   });
 
   useEffect(() => {
-    if (messagesData) {
-      setTableData(messagesData);
-    }
-  }, [messagesData]);
-
-  useEffect(() => {
     const channel = supabase
-      .channel('table-db-changes')
+      .channel('schema-db-changes')
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: '*',
           schema: 'public',
           table: 'd1messages'
         },
         async (payload) => {
-          if (payload.new && payload.new.message_id) {
+          if (payload.new && 'message_id' in payload.new) {
             const { data } = await supabase
               .from("d1messages")
               .select(`
@@ -155,22 +144,7 @@ const Messages = () => {
               .single();
 
             if (data) {
-              const updatedRow = {
-                id: data.id,
-                message_name: data.message_name,
-                persona_id: data.persona_id,
-                persona_name: data.persona?.persona_name,
-                message_type: data.message_type,
-                message_url: data.message_url,
-                message_status: data.message_status,
-                created_at: data.created_at
-              };
-
-              setTableData(prevData => 
-                prevData.map(row => 
-                  row.id === updatedRow.id ? updatedRow : row
-                )
-              );
+              refetch();
             }
           }
         }
@@ -180,13 +154,13 @@ const Messages = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [refetch]);
 
   return (
     <QuadrantLayout>
       {{
         q4: <SharedTable 
-          data={tableData} 
+          data={data} 
           columns={columns} 
           tableName="d1messages" 
           idField="message_id" 
@@ -197,3 +171,4 @@ const Messages = () => {
 };
 
 export default Messages;
+

@@ -116,8 +116,27 @@ const Personas = () => {
           schema: 'public',
           table: 'c1personas'
         },
-        () => {
-          refetch();
+        async (payload) => {
+          if (payload.new && 'persona_id' in payload.new) {
+            const { data } = await supabase
+              .from("c1personas")
+              .select(`
+                id:persona_id,
+                persona_name,
+                offering_id,
+                offering:b1offerings(offering_name),
+                persona_gender,
+                persona_agemin,
+                persona_agemax,
+                created_at
+              `)
+              .eq('persona_id', payload.new.persona_id)
+              .single();
+
+            if (data) {
+              refetch();
+            }
+          }
         }
       )
       .subscribe();
@@ -137,3 +156,4 @@ const Personas = () => {
 };
 
 export default Personas;
+

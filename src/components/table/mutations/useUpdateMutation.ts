@@ -25,11 +25,14 @@ const updateRecord = async (
   return { success: true };
 };
 
-export const useUpdateMutation = (tableName: TableName, idField: string) => ({
-  updateMutation: useMutation({
+export const useUpdateMutation = (tableName: TableName, idField: string) => {
+  const mutation = useMutation({
     mutationFn: (params: UpdateParams) => updateRecord(tableName, idField, params),
     onError: (error: Error) => {
       toast.error("Failed to update: " + error.message);
     }
-  })
-});
+  });
+
+  return { updateMutation: mutation };
+};
+
