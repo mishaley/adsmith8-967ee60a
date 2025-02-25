@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -8,7 +7,6 @@ import { useEffect, useCallback, useState } from "react";
 
 type Tables = Database['public']['Tables'];
 
-// Helper type to get column names for a specific table
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
 
 interface ChangeHistoryEntry<T extends TableName = TableName> {
@@ -45,22 +43,17 @@ export function useTableMutations<T extends TableName>(
       type TableUpdate = Tables[T]['Update'];
       const table = supabase.from(tableName);
       
-      // Get the current value before updating
-      const { data: currentData } = await (table as any)
-        .select(String(field))
-        .eq(idField, rowId)
-        .single();
-      
       const updateData = { [field]: value } as TableUpdate;
       
-      const { error } = await (table as any)
+      const { data, error } = await table
         .update(updateData)
-        .eq(idField, rowId);
+        .eq(idField, rowId)
+        .select();
       
       if (error) throw error;
-
+      
       // Only add to history if it's not an undo/redo operation
-      if (!isUndo && currentData) {
+      if (!isUndo && data?.[0]) {
         // Remove any future history if we're not at the end
         const newHistory = changeHistory.slice(0, currentIndex + 1);
         
@@ -68,7 +61,7 @@ export function useTableMutations<T extends TableName>(
         const newChange: ChangeHistoryEntry<T> = {
           rowId,
           field,
-          oldValue: currentData[field as keyof typeof currentData],
+          oldValue: data[0][field as keyof typeof data[0]],
           newValue: value,
           tableName
         };
@@ -78,10 +71,15 @@ export function useTableMutations<T extends TableName>(
         setChangeHistory(updatedHistory);
         setCurrentIndex(updatedHistory.length - 1);
       }
+
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [tableName.replace(/^\w+/, "").toLowerCase()] });
     },
+    onError: (error) => {
+      toast.error("Failed to update: " + error.message);
+    }
   });
 
   const createMutation = useMutation({
