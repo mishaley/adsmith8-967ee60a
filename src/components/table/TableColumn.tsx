@@ -1,5 +1,5 @@
 
-import { ColumnDef, TableRow, TableName, DbRecord, DbInsert, asTableField } from "@/types/table";
+import { ColumnDef, TableRow, TableName, DbRecord, DbInsert } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
 import { RefObject, useState } from "react";
@@ -61,7 +61,7 @@ export function TableColumn<T extends TableName>({
     if (column.editable) {
       updateMutation.mutate({ 
         rowId, 
-        field: asTableField<T>(field), 
+        field: field as keyof DbRecord<T>, 
         value 
       });
     }
@@ -80,20 +80,18 @@ export function TableColumn<T extends TableName>({
 
   const confirmDelete = async () => {
     if (deletingRow) {
-      const oldData = { ...deletingRow };
+      const oldData = { ...deletingRow } as unknown as Partial<DbRecord<T>>;
       updateMutation.mutate({
         rowId: deletingRow.id,
         field: idField,
         value: null,
         isDelete: true,
-        oldData: oldData as Partial<DbRecord<T>>
+        oldData
       });
     }
     setShowDeleteDialog(false);
     setDeletingRow(null);
   };
-
-  const cellContentClass = column.field === 'created_at' ? 'text-center' : '';
 
   return (
     <div className="flex flex-col h-full">
@@ -133,9 +131,9 @@ export function TableColumn<T extends TableName>({
       <div className="flex-1">
         <div className="bg-[#d3e4fd] p-4 mb-2">
           <Input 
-            value={newRecord[column.field] || ""} 
-            onChange={e => handleInputChange(column.field, e.target.value)} 
-            className={`h-10 bg-white w-full rounded-md border border-input ${cellContentClass}`}
+            value={newRecord[column.field as keyof DbInsert<T>] || ""} 
+            onChange={e => handleInputChange(column.field as keyof DbRecord<T>, e.target.value)} 
+            className="h-10 bg-white w-full rounded-md border border-input"
           />
         </div>
         <div className="bg-white">
@@ -158,12 +156,12 @@ export function TableColumn<T extends TableName>({
                       defaultValue={row[column.field]}
                       onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
                       onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
-                      className={`absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 ${cellContentClass}`}
+                      className="absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0"
                     />
                     <div className="invisible">{row[column.field]}</div>
                   </div>
                 ) : (
-                  <div className={`truncate ${cellContentClass}`}>
+                  <div className="truncate">
                     {row[column.field]}
                     {showDeleteButton && (
                       <button

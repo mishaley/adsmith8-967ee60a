@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TableName, DbRecord, asTableField, asDbRecord } from "@/types/table";
+import { TableName, DbRecord, DbInsert } from "@/types/table";
 
 interface UpdateMutationParams<T extends TableName> {
   tableName: T;
@@ -28,7 +28,7 @@ export function useUpdateMutation<T extends TableName>({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false, isDelete = false, oldData }: { 
       rowId: string; 
-      field: keyof DbRecord<T>; 
+      field: keyof DbRecord<T>;
       value: any;
       isUndo?: boolean;
       isDelete?: boolean;
@@ -38,24 +38,24 @@ export function useUpdateMutation<T extends TableName>({
         const { error } = await supabase
           .from(tableName)
           .delete()
-          .eq(String(idField), rowId);
+          .eq(idField, rowId);
         if (error) throw error;
       } else {
         const { data: currentData, error: selectError } = await supabase
           .from(tableName)
-          .select()
-          .eq(String(idField), rowId)
+          .select('*')
+          .eq(idField, rowId)
           .single();
         
         if (selectError) throw selectError;
 
         if (currentData) {
-          const updateData = { [String(field)]: value };
+          const updateData = { [field]: value } as Partial<DbRecord<T>>;
           
           const { error } = await supabase
             .from(tableName)
             .update(updateData)
-            .eq(String(idField), rowId);
+            .eq(idField, rowId);
           
           if (error) throw error;
 
@@ -63,11 +63,11 @@ export function useUpdateMutation<T extends TableName>({
             onHistoryChange({
               rowId,
               field,
-              oldValue: isDelete ? oldData : currentData[String(field)],
+              oldValue: isDelete ? oldData : currentData[field as keyof typeof currentData],
               newValue: value,
               tableName,
               isDelete,
-              oldData: asDbRecord<T>(oldData)
+              oldData: oldData as Partial<DbRecord<T>>
             });
           }
         }
