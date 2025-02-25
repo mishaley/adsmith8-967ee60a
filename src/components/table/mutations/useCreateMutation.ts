@@ -48,7 +48,7 @@ export const useCreateMutation = (tableName: TableName) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["offerings"] });
+      queryClient.invalidateQueries({ queryKey: [tableName.toLowerCase()] });
       toast.success("Record created successfully");
     },
     onError: (error: Error) => {
