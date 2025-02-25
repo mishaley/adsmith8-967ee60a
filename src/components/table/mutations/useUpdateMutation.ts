@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName } from "@/types/table";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
 
 interface UpdateParams {
   rowId: string;
@@ -11,6 +12,10 @@ interface UpdateParams {
   currentValue: any;
   isUndo?: boolean;
 }
+
+type OfferingWithOrg = Database['public']['Tables']['b1offerings']['Row'] & {
+  a1organizations: Pick<Database['public']['Tables']['a1organizations']['Row'], 'organization_name'> | null;
+};
 
 export const useUpdateMutation = (
   tableName: TableName,
@@ -22,44 +27,38 @@ export const useUpdateMutation = (
   return useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, currentValue, isUndo = false }: UpdateParams) => {
-      // If the value hasn't changed, just fetch the current data
-      if (value === currentValue) {
+      if (tableName === 'b1offerings') {
+        // Handle offerings table separately due to join
+        if (value === currentValue) {
+          const { data, error } = await supabase
+            .from('b1offerings')
+            .select('*, a1organizations(organization_name)')
+            .eq('offering_id', rowId)
+            .maybeSingle();
+          
+          if (error) throw error;
+          if (!data) throw new Error('Failed to fetch data');
+          
+          const result = {
+            ...data,
+            organization_name: (data as OfferingWithOrg).a1organizations?.organization_name
+          };
+          return result;
+        }
+
         const { data, error } = await supabase
-          .from(tableName)
-          .select(tableName === 'b1offerings' ? '*, a1organizations(organization_name)' : '*')
-          .eq(idField, rowId)
+          .from('b1offerings')
+          .update({ [field]: value })
+          .eq('offering_id', rowId)
+          .select('*, a1organizations(organization_name)')
           .maybeSingle();
         
         if (error) throw error;
-        if (!data) throw new Error('Failed to fetch data');
-        
-        // For offerings, add the organization name to the response
-        if (tableName === 'b1offerings') {
-          return {
-            ...data,
-            organization_name: data.a1organizations?.organization_name
-          };
-        }
-        
-        return data;
-      }
+        if (!data) throw new Error('No data returned from update');
 
-      // If the value has changed, proceed with the update
-      const { data, error } = await supabase
-        .from(tableName)
-        .update({ [field]: value })
-        .eq(idField, rowId)
-        .select(tableName === 'b1offerings' ? '*, a1organizations(organization_name)' : '*')
-        .maybeSingle();
-      
-      if (error) throw error;
-      if (!data) throw new Error('No data returned from update');
-
-      // For offerings, add the organization name to the response
-      if (tableName === 'b1offerings') {
         const result = {
           ...data,
-          organization_name: data.a1organizations?.organization_name
+          organization_name: (data as OfferingWithOrg).a1organizations?.organization_name
         };
 
         if (!isUndo && onSuccessfulUpdate) {
@@ -67,13 +66,36 @@ export const useUpdateMutation = (
         }
 
         return result;
-      }
+      } else {
+        // Handle all other tables
+        if (value === currentValue) {
+          const { data, error } = await supabase
+            .from(tableName)
+            .select()
+            .eq(idField, rowId)
+            .maybeSingle();
+          
+          if (error) throw error;
+          if (!data) throw new Error('Failed to fetch data');
+          return data;
+        }
 
-      if (!isUndo && onSuccessfulUpdate) {
-        onSuccessfulUpdate(rowId, field, currentValue, value);
-      }
+        const { data, error } = await supabase
+          .from(tableName)
+          .update({ [field]: value })
+          .eq(idField, rowId)
+          .select()
+          .maybeSingle();
+        
+        if (error) throw error;
+        if (!data) throw new Error('No data returned from update');
 
-      return data;
+        if (!isUndo && onSuccessfulUpdate) {
+          onSuccessfulUpdate(rowId, field, currentValue, value);
+        }
+
+        return data;
+      }
     },
     onError: (error: Error) => {
       console.error('Mutation error:', error);
