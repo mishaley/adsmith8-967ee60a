@@ -7,8 +7,8 @@ import { toast } from "sonner";
 type UpdateParams = {
   rowId: string;
   field: string;
-  value: any;
-  currentValue: any;
+  value: string | number | boolean | null;
+  currentValue: string | number | boolean | null;
 };
 
 const useUpdateMutation = (tableName: TableName, idField: string) => {
