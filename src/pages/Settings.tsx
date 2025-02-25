@@ -61,7 +61,7 @@ const Settings = () => {
 
       // Create timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filePath = `organizations/${organizationId}/docs/${organizationId}__wordmark_${timestamp}.png`;
+      const filePath = `organizations/${organizationId}/docs/${organizationId}__wordmark__${timestamp}.png`;
 
       // Upload PNG to Supabase storage
       const { data, error } = await supabase.storage
