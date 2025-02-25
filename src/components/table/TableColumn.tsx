@@ -28,8 +28,6 @@ export function TableColumn({
   const [editingCell, setEditingCell] = useState<EditingCell>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations("c1personas", "persona_id");
 
-  const isAgeColumn = column.field === 'persona_agemin' || column.field === 'persona_agemax';
-
   const handleSelect = (rowId: string, field: string, newValue: string) => {
     updateMutation.mutate({ 
       rowId, 
@@ -86,21 +84,19 @@ export function TableColumn({
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <div className="w-full flex justify-center" onClick={(e) => e.stopPropagation()}>
+        <div className="w-full" onClick={(e) => e.stopPropagation()}>
           <input
             autoFocus
             defaultValue={row[column.field]}
             onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 text-center`}
+            className="w-full bg-transparent outline-none focus:ring-0 text-base p-0"
           />
         </div>
       );
     }
 
-    const cellClass = isAgeColumn ? 'flex justify-center items-center h-full' : '';
-
     return (
-      <div className={`text-base whitespace-nowrap ${cellClass}`}>
+      <div className="text-base whitespace-nowrap">
         {displayValue}
       </div>
     );
@@ -110,7 +106,7 @@ export function TableColumn({
     <div className="flex flex-col h-full">
       <Popover>
         <PopoverTrigger asChild>
-          <div className={`bg-[#154851] p-4 text-white text-[16px] uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group whitespace-nowrap ${isAgeColumn ? 'text-center' : ''}`}>
+          <div className="bg-[#154851] p-4 text-white text-[16px] uppercase font-semibold cursor-pointer hover:bg-[#1a5a65] group whitespace-nowrap">
             <TableHeader 
               column={column} 
               handleSort={handleSort} 
@@ -147,7 +143,7 @@ export function TableColumn({
             column={column}
             value={newRecord[column.field]}
             onChange={(value) => handleInputChange(column.field, value)}
-            cellContentClass={`text-base ${isAgeColumn ? 'text-center' : ''}`}
+            cellContentClass="text-base"
           />
         </div>
         <div className="bg-white">
