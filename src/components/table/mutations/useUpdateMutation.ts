@@ -17,47 +17,24 @@ export const useUpdateMutation = (tableName: TableName, idField: string) => {
   return {
     updateMutation: useMutation({
       mutationFn: async ({ rowId, field, value }: UpdateParams) => {      
-        const { error, data } = await supabase
+        const { error } = await supabase
           .from(tableName)
           .update({ [field]: value })
-          .eq(idField, rowId)
-          .select(`
-            ${idField},
-            message_name,
-            persona_id,
-            message_type,
-            message_url,
-            message_status,
-            created_at,
-            persona:c1personas(persona_name)
-          `);
+          .eq(idField, rowId);
 
         if (error) throw error;
-        
-        // Transform the data to match the expected format
-        const transformedData = data?.[0] ? {
-          id: data[0][idField],
-          message_name: data[0].message_name,
-          persona_id: data[0].persona_id,
-          persona_name: data[0].persona?.persona_name,
-          message_type: data[0].message_type,
-          message_url: data[0].message_url,
-          message_status: data[0].message_status,
-          created_at: data[0].created_at
-        } : null;
 
-        return transformedData;
+        // Return the updated field and value
+        return { id: rowId, [field]: value };
       },
-      onSuccess: (data) => {
-        if (data) {
-          // Update the cache with the transformed data
-          queryClient.setQueryData([tableName.toLowerCase()], (oldData: any[] | undefined) => {
-            if (!oldData) return oldData;
-            return oldData.map(item => 
-              item.id === data.id ? data : item
-            );
-          });
-        }
+      onSuccess: (updatedData) => {
+        // Update the cache by merging the updated field with existing data
+        queryClient.setQueryData([tableName.toLowerCase()], (oldData: any[] | undefined) => {
+          if (!oldData) return oldData;
+          return oldData.map(item => 
+            item.id === updatedData.id ? { ...item, ...updatedData } : item
+          );
+        });
         toast.success("Updated successfully");
       },
       onError: (error: Error) => {
