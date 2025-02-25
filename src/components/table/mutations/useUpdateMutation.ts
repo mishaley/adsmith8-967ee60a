@@ -11,25 +11,25 @@ interface UpdateParams {
   currentValue: string | number;
 }
 
-const useUpdateMutation = (tableName: TableName, idField: string) => {
-  const mutationFn = async ({ rowId, field, value }: UpdateParams) => {      
-    const { error } = await supabase
-      .from(tableName)
-      .update({ [field]: value })
-      .eq(idField, rowId);
+interface UpdateResponse {
+  success: boolean;
+}
 
-    if (error) throw error;
-    return { success: true } as const;
-  };
-
+export const useUpdateMutation = (tableName: TableName, idField: string) => {
   return {
-    updateMutation: useMutation({
-      mutationFn,
+    updateMutation: useMutation<UpdateResponse, Error, UpdateParams>({
+      mutationFn: async ({ rowId, field, value }) => {      
+        const { error } = await supabase
+          .from(tableName)
+          .update({ [field]: value })
+          .eq(idField, rowId);
+
+        if (error) throw error;
+        return { success: true };
+      },
       onError: (error: Error) => {
         toast.error("Failed to update: " + error.message);
       }
     })
   };
 };
-
-export { useUpdateMutation };

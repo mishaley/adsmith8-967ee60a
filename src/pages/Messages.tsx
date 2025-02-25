@@ -115,17 +115,15 @@ const Messages = () => {
     }));
   };
 
-  const { refetch } = useQuery({
+  // Initial data fetch
+  useQuery({
     queryKey: ["messages"],
     queryFn: fetchMessages,
-    onSettled: (data) => {
-      if (data) {
-        setTableData(data);
-      }
-    }
+    onSuccess: (data) => setTableData(data)
   });
 
   useEffect(() => {
+    // Enable REPLICA IDENTITY FULL for the table to ensure we get complete row data
     const channel = supabase
       .channel('table-db-changes')
       .on(
@@ -135,10 +133,43 @@ const Messages = () => {
           schema: 'public',
           table: 'd1messages'
         },
-        async () => {
-          // When we receive an update, refetch the data
-          const newData = await fetchMessages();
-          setTableData(newData);
+        async (payload) => {
+          if (payload.new && payload.new.message_id) {
+            // After a successful update, fetch the complete row data
+            const { data } = await supabase
+              .from("d1messages")
+              .select(`
+                id:message_id,
+                message_name,
+                persona_id,
+                persona:c1personas(persona_name),
+                message_type,
+                message_url,
+                message_status,
+                created_at
+              `)
+              .eq('message_id', payload.new.message_id)
+              .single();
+
+            if (data) {
+              const updatedRow = {
+                id: data.id,
+                message_name: data.message_name,
+                persona_id: data.persona_id,
+                persona_name: data.persona?.persona_name,
+                message_type: data.message_type,
+                message_url: data.message_url,
+                message_status: data.message_status,
+                created_at: data.created_at
+              };
+
+              setTableData(prevData => 
+                prevData.map(row => 
+                  row.id === updatedRow.id ? updatedRow : row
+                )
+              );
+            }
+          }
         }
       )
       .subscribe();
