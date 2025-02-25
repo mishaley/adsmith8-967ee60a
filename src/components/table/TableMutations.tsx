@@ -39,7 +39,7 @@ export function useTableMutations<T extends TableName>(
     if (table === 'b1offerings') {
       return `
         *,
-        organization:a1organizations (
+        a1organizations (
           organization_name
         )
       `;
@@ -58,7 +58,7 @@ export function useTableMutations<T extends TableName>(
       const table = supabase.from(tableName);
       const updateData = { [field]: value };
       
-      const { data, error } = await (table as any)
+      const { data, error } = await table
         .update(updateData)
         .eq(idField, rowId)
         .select(getSelectQuery(tableName));
@@ -68,6 +68,10 @@ export function useTableMutations<T extends TableName>(
         throw error;
       }
       
+      if (!data || data.length === 0) {
+        throw new Error('No data returned from update');
+      }
+
       // Only add to history if it's not an undo/redo operation
       if (!isUndo && data?.[0]) {
         // Remove any future history if we're not at the end
@@ -88,9 +92,9 @@ export function useTableMutations<T extends TableName>(
         setCurrentIndex(updatedHistory.length - 1);
       }
 
-      return data;
+      return data[0];
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["offerings"] });
       toast.success("Update successful");
     },
@@ -106,12 +110,16 @@ export function useTableMutations<T extends TableName>(
       const table = supabase.from(tableName);
       const insertData = record;
       
-      const { data, error } = await (table as any)
+      const { data, error } = await table
         .insert([insertData])
         .select(getSelectQuery(tableName));
       
       if (error) throw error;
       
+      if (!data || data.length === 0) {
+        throw new Error('No data returned from insert');
+      }
+
       // Handle organization creation specifically
       if (tableName === 'a1organizations' && data?.[0]) {
         const org = data[0] as Tables['a1organizations']['Row'];
@@ -128,7 +136,7 @@ export function useTableMutations<T extends TableName>(
         }
       }
       
-      return data;
+      return data[0];
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["offerings"] });

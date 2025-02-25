@@ -60,7 +60,7 @@ const Offerings = () => {
           offering_name,
           organization_id,
           created_at,
-          organization:a1organizations (
+          a1organizations (
             organization_name
           )
         `);
@@ -74,7 +74,7 @@ const Offerings = () => {
         id: row.offering_id,
         offering_name: row.offering_name,
         organization_id: row.organization_id,
-        organization_name: row.organization?.organization_name,
+        organization_name: row.a1organizations?.organization_name,
         created_at: row.created_at
       }));
     },
