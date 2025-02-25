@@ -1,5 +1,5 @@
 
-import { ColumnDef, TableRow as ITableRow, TableName, DbRecord, DbInsert, asTableField } from "@/types/table";
+import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ interface SharedTableProps<T extends TableName> {
   data: ITableRow[];
   columns: ColumnDef[];
   tableName: T;
-  idField: keyof DbRecord<T>;
+  idField: string;
 }
 
 function SharedTable<T extends TableName>({
@@ -24,10 +24,10 @@ function SharedTable<T extends TableName>({
     direction: "desc" as "asc" | "desc"
   });
   const [data, setData] = useState(initialData);
-  const [newRecord, setNewRecord] = useState<Partial<DbInsert<T>>>({});
+  const [newRecord, setNewRecord] = useState<Record<string, any>>({});
   const [filters, setFilters] = useState<Record<string, string>>({});
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const { createMutation } = useTableMutations<T>(tableName, idField);
+  const { createMutation } = useTableMutations(tableName, idField);
 
   useEffect(() => {
     let filteredData = [...initialData];
@@ -65,17 +65,17 @@ function SharedTable<T extends TableName>({
 
   const handleAdd = () => {
     const missingFields = columns
-      .filter(col => col.required && !newRecord[col.field as keyof DbInsert<T>])
+      .filter(col => col.required && !newRecord[col.field])
       .map(col => col.header);
     if (missingFields.length > 0) {
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    createMutation.mutate(newRecord as DbInsert<T>);
+    createMutation.mutate(newRecord);
     setNewRecord({});
   };
 
-  const handleInputChange = (field: keyof DbRecord<T>, value: any) => {
+  const handleInputChange = (field: string, value: any) => {
     setNewRecord(prev => ({
       ...prev,
       [field]: value
@@ -114,13 +114,10 @@ function SharedTable<T extends TableName>({
 
   return (
     <div className="w-full">
-      <div 
-        className="grid" 
-        style={{
-          gridTemplateColumns: `repeat(${columns.length}, minmax(100px, max-content))`
-        }}
-      >
-        {columns.map(column => 
+      <div className="grid" style={{
+        gridTemplateColumns: `repeat(${columns.length}, minmax(100px, max-content))`
+      }}>
+        {columns.map(column => (
           column.format === "M/D/YY" ? (
             <TableAddColumn
               key={column.field}
@@ -134,7 +131,7 @@ function SharedTable<T extends TableName>({
               searchInputRef={searchInputRef}
             />
           ) : (
-            <TableColumn<T>
+            <TableColumn
               key={column.field}
               column={column}
               data={data}
@@ -145,11 +142,9 @@ function SharedTable<T extends TableName>({
               clearFilter={clearFilter}
               filters={filters}
               searchInputRef={searchInputRef}
-              tableName={tableName}
-              idField={idField}
             />
           )
-        )}
+        ))}
       </div>
     </div>
   );
