@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
@@ -102,12 +101,12 @@ export function TableColumn({
               defaultValue={row[column.field]}
               onValueChange={(value) => handleCellBlur(row.id, column.field, value)}
             >
-              <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent">
-                <SelectValue defaultValue={selectedOption?.value} />
+              <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
+                <SelectValue defaultValue={selectedOption?.value} className="text-base" />
               </SelectTrigger>
               <SelectContent>
                 {column.options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem key={option.value} value={option.value} className="text-base">
                     {option.label}
                   </SelectItem>
                 ))}
@@ -123,14 +122,14 @@ export function TableColumn({
             defaultValue={row[column.field]}
             onBlur={(e) => handleCellBlur(row.id, column.field, e.target.value)}
             onKeyPress={(e) => handleKeyPress(e, row.id, column.field, (e.target as HTMLInputElement).value)}
-            className={`absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 ${cellContentClass}`}
+            className={`absolute inset-0 bg-transparent outline-none p-0 m-0 border-none focus:ring-0 ${cellContentClass} text-base`}
           />
           <div className="invisible">{row[column.field]}</div>
         </div>
       );
     }
     return (
-      <div className={`truncate ${cellContentClass}`}>{displayValue}</div>
+      <div className={`truncate ${cellContentClass} text-base`}>{displayValue}</div>
     );
   };
 
