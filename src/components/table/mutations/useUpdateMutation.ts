@@ -12,6 +12,16 @@ interface UpdateParams {
   isUndo?: boolean;
 }
 
+type OfferingWithOrganization = {
+  offering_id: string;
+  offering_name: string;
+  organization_id: string;
+  created_at: string;
+  a1organizations?: {
+    organization_name: string;
+  } | null;
+};
+
 export const useUpdateMutation = (
   tableName: TableName,
   idField: string,
@@ -28,39 +38,69 @@ export const useUpdateMutation = (
       }
 
       // Perform the update
-      const { data: updatedData, error: updateError } = await supabase
+      let query = supabase
         .from(tableName)
         .update({ [field]: value })
-        .eq(idField, rowId)
-        .select(`*, a1organizations (organization_name)`)
-        .maybeSingle();
+        .eq(idField, rowId);
 
-      if (updateError) {
-        console.error('Update error:', updateError);
-        throw new Error(updateError.message);
-      }
-
-      if (!updatedData) {
-        throw new Error('No data returned from update');
-      }
-
-      // Call the success callback if this isn't an undo operation
-      if (!isUndo && onSuccessfulUpdate) {
-        onSuccessfulUpdate(rowId, field, currentValue, value);
-      }
-
-      // Transform the data for offerings table
+      // Add join for b1offerings table
       if (tableName === 'b1offerings') {
-        return {
-          id: updatedData.offering_id,
-          offering_name: updatedData.offering_name,
-          organization_id: updatedData.organization_id,
-          organization_name: updatedData.a1organizations?.organization_name,
-          created_at: updatedData.created_at
-        };
-      }
+        const { data, error } = await query
+          .select(`
+            offering_id,
+            offering_name,
+            organization_id,
+            created_at,
+            a1organizations (
+              organization_name
+            )
+          `)
+          .maybeSingle();
 
-      return updatedData;
+        if (error) {
+          console.error('Update error:', error);
+          throw new Error(error.message);
+        }
+
+        if (!data) {
+          throw new Error('No data returned from update');
+        }
+
+        // Transform the data
+        const transformedData = {
+          id: data.offering_id,
+          offering_name: data.offering_name,
+          organization_id: data.organization_id,
+          organization_name: data.a1organizations?.organization_name || null,
+          created_at: data.created_at
+        };
+
+        // Call the success callback if this isn't an undo operation
+        if (!isUndo && onSuccessfulUpdate) {
+          onSuccessfulUpdate(rowId, field, currentValue, value);
+        }
+
+        return transformedData;
+      } else {
+        // For other tables, just select all columns
+        const { data, error } = await query.select().maybeSingle();
+        
+        if (error) {
+          console.error('Update error:', error);
+          throw new Error(error.message);
+        }
+
+        if (!data) {
+          throw new Error('No data returned from update');
+        }
+
+        // Call the success callback if this isn't an undo operation
+        if (!isUndo && onSuccessfulUpdate) {
+          onSuccessfulUpdate(rowId, field, currentValue, value);
+        }
+
+        return data;
+      }
     },
     onError: (error: Error) => {
       console.error('Mutation error:', error);
