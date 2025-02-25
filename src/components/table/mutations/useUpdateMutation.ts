@@ -14,7 +14,7 @@ interface UpdateParams {
 export const useUpdateMutation = (tableName: TableName, idField: string) => {
   const queryClient = useQueryClient();
   
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: async ({ rowId, field, value }: UpdateParams) => {      
       const { error } = await supabase
         .from(tableName)
@@ -31,4 +31,6 @@ export const useUpdateMutation = (tableName: TableName, idField: string) => {
       toast.error("Failed to update: " + error.message);
     }
   });
+
+  return { updateMutation: mutation };
 };

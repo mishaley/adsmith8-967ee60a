@@ -32,14 +32,28 @@ function SharedTable<T extends TableName>({
   useEffect(() => {
     let filteredData = [...initialData];
     
+    // Apply filters
     Object.entries(filters).forEach(([field, searchTerm]) => {
       if (searchTerm) {
-        filteredData = filteredData.filter(row => 
-          String(row[field]).toLowerCase().includes(searchTerm.toLowerCase())
-        );
+        filteredData = filteredData.filter(row => {
+          const column = columns.find(col => col.field === field);
+          
+          // Handle select fields (like organization_id) specially
+          if (column?.inputMode === 'select' && column.options && column.displayField) {
+            // Find the display value for this field using the options
+            const matchingOption = column.options.find(opt => opt.value === row[field]);
+            if (!matchingOption) return false;
+            
+            return matchingOption.label.toLowerCase().includes(searchTerm.toLowerCase());
+          }
+          
+          // Default text search
+          return String(row[field]).toLowerCase().includes(searchTerm.toLowerCase());
+        });
       }
     });
 
+    // Apply sorting
     if (sort.field) {
       const [field, forcedDirection] = sort.field.split(':');
       const direction = forcedDirection || sort.direction;
@@ -61,7 +75,7 @@ function SharedTable<T extends TableName>({
     }
     
     setData(filteredData);
-  }, [initialData, sort, filters]);
+  }, [initialData, sort, filters, columns]);
 
   const handleAdd = () => {
     const missingFields = columns
@@ -110,13 +124,6 @@ function SharedTable<T extends TableName>({
       delete newFilters[field];
       return newFilters;
     });
-  };
-
-  const getColumnWidth = (column: ColumnDef) => {
-    if (column.field === 'persona_agemin' || column.field === 'persona_agemax') {
-      return '90px';
-    }
-    return 'max-content';
   };
 
   return (
