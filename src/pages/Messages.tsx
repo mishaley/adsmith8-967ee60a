@@ -4,9 +4,11 @@ import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ColumnDef } from "@/types/table";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Messages = () => {
+  const [tableData, setTableData] = useState<any[]>([]);
+  
   const { data: personas = [] } = useQuery({
     queryKey: ["personas"],
     queryFn: async () => {
@@ -87,7 +89,7 @@ const Messages = () => {
     }
   ];
 
-  const { data = [], refetch } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
       const { data } = await supabase
@@ -103,7 +105,7 @@ const Messages = () => {
           created_at
         `);
       
-      return (data || []).map(row => ({
+      const transformedData = (data || []).map(row => ({
         id: row.id,
         message_name: row.message_name,
         persona_id: row.persona_id,
@@ -113,13 +115,23 @@ const Messages = () => {
         message_status: row.message_status,
         created_at: row.created_at
       }));
+
+      setTableData(transformedData);
+      return transformedData;
     },
   });
 
   useEffect(() => {
-    // Subscribe to changes on the messages table for all events (INSERT, UPDATE, DELETE)
+    // Set initial data
+    if (data) {
+      setTableData(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    // Subscribe to changes on the messages table
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('table-db-changes')
       .on(
         'postgres_changes',
         {
@@ -127,9 +139,43 @@ const Messages = () => {
           schema: 'public',
           table: 'd1messages'
         },
-        (payload) => {
-          console.log('Database change:', payload);
-          refetch();
+        async (payload) => {
+          // When a change occurs, update the specific row in the table data
+          if (payload.eventType === 'UPDATE') {
+            const { data } = await supabase
+              .from("d1messages")
+              .select(`
+                id:message_id,
+                message_name,
+                persona_id,
+                persona:c1personas(persona_name),
+                message_type,
+                message_url,
+                message_status,
+                created_at
+              `)
+              .eq('message_id', payload.new.message_id)
+              .single();
+
+            if (data) {
+              const transformedData = {
+                id: data.id,
+                message_name: data.message_name,
+                persona_id: data.persona_id,
+                persona_name: data.persona?.persona_name,
+                message_type: data.message_type,
+                message_url: data.message_url,
+                message_status: data.message_status,
+                created_at: data.created_at
+              };
+
+              setTableData(prevData => 
+                prevData.map(row => 
+                  row.id === transformedData.id ? transformedData : row
+                )
+              );
+            }
+          }
         }
       )
       .subscribe();
@@ -137,13 +183,13 @@ const Messages = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [refetch]);
+  }, []);
 
   return (
     <QuadrantLayout>
       {{
         q4: <SharedTable 
-          data={data} 
+          data={tableData} 
           columns={columns} 
           tableName="d1messages" 
           idField="message_id" 
@@ -154,3 +200,4 @@ const Messages = () => {
 };
 
 export default Messages;
+
