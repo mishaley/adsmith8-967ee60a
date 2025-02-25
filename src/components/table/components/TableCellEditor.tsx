@@ -18,24 +18,30 @@ interface TableCellEditorProps {
 
 export function TableCellEditor({ row, column, onBlur, cellContentClass, onKeyPress }: TableCellEditorProps) {
   if (column.inputMode === 'select' && column.options) {
+    const initialValue = row[column.field];
+    
     return (
       <div className="w-full relative select-wrapper" onClick={(e) => e.stopPropagation()}>
         <Select
-          defaultValue={row[column.field]}
-          onValueChange={(newValue) => {
-            console.log('Select onChange:', {
-              oldValue: row[column.field],
-              newValue
-            });
-            onBlur(newValue);
+          onValueChange={(selectedValue) => {
+            if (selectedValue !== initialValue) {
+              console.log('Selected new value:', selectedValue);
+              console.log('Previous value was:', initialValue);
+              onBlur(selectedValue);
+            }
           }}
+          defaultValue={initialValue}
         >
           <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="z-[100] bg-white">
             {column.options.map((option) => (
-              <SelectItem key={option.value} value={option.value} className="text-base">
+              <SelectItem 
+                key={option.value} 
+                value={option.value}
+                className="text-base"
+              >
                 {option.label}
               </SelectItem>
             ))}
