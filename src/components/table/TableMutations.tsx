@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TableName, TableData } from "@/types/table";
@@ -9,6 +10,7 @@ type Tables = Database['public']['Tables'];
 type TableColumns<T extends TableName> = keyof Tables[T]['Row'];
 type TableUpdate<T extends TableName> = Tables[T]['Update'];
 type TableInsert<T extends TableName> = Tables[T]['Insert'];
+type TableRow<T extends TableName> = Tables[T]['Row'];
 
 interface ChangeHistoryEntry<T extends TableName = TableName> {
   rowId: string;
@@ -41,10 +43,10 @@ export function useTableMutations<T extends TableName>(
       value: any;
       isUndo?: boolean;
     }) => {
-      const table = supabase.from(tableName);
-      const updateData = { [field]: value } as TableUpdate<T>;
+      const updateData = { [field]: value } as unknown as TableUpdate<T>;
       
-      const { data, error } = await table
+      const { data, error } = await supabase
+        .from(tableName)
         .update(updateData)
         .eq(idField, rowId)
         .select(`
@@ -68,7 +70,7 @@ export function useTableMutations<T extends TableName>(
         const newChange: ChangeHistoryEntry<T> = {
           rowId,
           field,
-          oldValue: data[0][field as keyof typeof data[0]],
+          oldValue: (data[0] as Record<string, any>)[field],
           newValue: value,
           tableName
         };
@@ -94,10 +96,10 @@ export function useTableMutations<T extends TableName>(
   const createMutation = useMutation({
     mutationKey: [tableName, 'create'],
     mutationFn: async (record: Partial<TableData<T>>) => {
-      const table = supabase.from(tableName);
-      const insertData = record as TableInsert<T>;
+      const insertData = record as unknown as TableInsert<T>;
       
-      const { data, error } = await table
+      const { data, error } = await supabase
+        .from(tableName)
         .insert([insertData])
         .select();
       
@@ -105,10 +107,10 @@ export function useTableMutations<T extends TableName>(
       
       // Handle organization creation specifically
       if (tableName === 'a1organizations' && data?.[0]) {
-        const createdOrg = data[0] as Tables['a1organizations']['Row'];
-        if (createdOrg.organization_id) {
+        const org = data[0] as unknown as TableRow<'a1organizations'>;
+        if (org.organization_id) {
           const { error: folderError } = await supabase.functions.invoke('create-org-folders', {
-            body: { organization_id: createdOrg.organization_id }
+            body: { organization_id: org.organization_id }
           });
           
           if (folderError) {
