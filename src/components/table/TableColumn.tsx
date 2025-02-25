@@ -2,7 +2,7 @@
 import { ColumnDef, TableRow } from "@/types/table";
 import { Input } from "@/components/ui/input";
 import { TableHeader } from "./TableHeader";
-import { RefObject, useState } from "react";
+import { RefObject, useState, useEffect } from "react";
 import { useTableMutations } from "./TableMutations";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -38,6 +38,22 @@ export function TableColumn({
 }: TableColumnProps) {
   const [editingCell, setEditingCell] = useState<{ rowId: string | null, field: string | null }>({ rowId: null, field: null });
   const { updateMutation } = useTableMutations("a1organizations", "organization_id");
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (editingCell.rowId && editingCell.field === column.field) {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.select-wrapper')) {
+          handleCellBlur(editingCell.rowId, editingCell.field, data.find(row => row.id === editingCell.rowId)?.[column.field]);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [editingCell, column.field, data]);
 
   const handleCellClick = (rowId: string, field: string) => {
     if (column.editable) {
@@ -97,16 +113,11 @@ export function TableColumn({
       if (column.inputMode === 'select' && column.options) {
         const selectedOption = column.options.find(opt => opt.value === row[column.field]);
         return (
-          <div className="w-full relative">
+          <div className="w-full relative select-wrapper">
             <Select
               defaultValue={row[column.field]}
               onValueChange={(value) => {
                 handleCellBlur(row.id, column.field, value);
-              }}
-              onOpenChange={(open) => {
-                if (!open) {
-                  handleCellBlur(row.id, column.field, row[column.field]);
-                }
               }}
             >
               <SelectTrigger className="h-full w-full bg-transparent border-none focus:ring-0 p-0 hover:bg-transparent text-base">
