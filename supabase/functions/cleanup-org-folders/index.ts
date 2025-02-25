@@ -13,11 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    // Check if this is a dry run
     const { dryRun = false } = await req.json().catch(() => ({ dryRun: false }));
     console.log(`Running in ${dryRun ? 'dry run' : 'delete'} mode`);
 
-    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -76,43 +74,62 @@ serve(async (req) => {
 
     // Delete invalid folders and their contents recursively
     for (const folderPath of invalidFolders) {
-      // List all files in the folder
-      const { data: files, error: listError } = await supabase
-        .storage
-        .from('adsmith_assets')
-        .list(folderPath, {
-          sortBy: { column: 'name', order: 'asc' },
-        })
+      try {
+        // First, recursively list all contents
+        const allContents: string[] = []
+        
+        // Function to recursively list contents of a folder
+        const listFolderContents = async (path: string) => {
+          const { data: contents, error: listError } = await supabase
+            .storage
+            .from('adsmith_assets')
+            .list(path, {
+              sortBy: { column: 'name', order: 'asc' },
+            })
 
-      if (listError) {
-        errors.push(`Error listing files in ${folderPath}: ${listError.message}`)
-        continue
-      }
+          if (listError) {
+            errors.push(`Error listing contents in ${path}: ${listError.message}`)
+            return
+          }
 
-      // Delete all files in the folder
-      if (files && files.length > 0) {
-        const filePaths = files.map(file => `${folderPath}/${file.name}`)
-        const { error: deleteFilesError } = await supabase
-          .storage
-          .from('adsmith_assets')
-          .remove(filePaths)
+          if (!contents) return
 
-        if (deleteFilesError) {
-          errors.push(`Error deleting files in ${folderPath}: ${deleteFilesError.message}`)
+          for (const item of contents) {
+            const fullPath = `${path}/${item.name}`
+            if (item.metadata?.mimetype) {
+              // It's a file
+              allContents.push(fullPath)
+            } else {
+              // It's a folder, recurse into it
+              await listFolderContents(fullPath)
+            }
+          }
         }
-      }
 
-      // After files are deleted, try to remove the empty folder
-      const { error: deleteFolderError } = await supabase
-        .storage
-        .from('adsmith_assets')
-        .remove([`${folderPath}/.emptyFolderPlaceholder`])
+        // List all contents recursively
+        await listFolderContents(folderPath)
+        
+        // Add the .emptyFolderPlaceholder if it exists
+        allContents.push(`${folderPath}/.emptyFolderPlaceholder`)
 
-      if (deleteFolderError) {
-        errors.push(`Error deleting folder ${folderPath}: ${deleteFolderError.message}`)
-      } else {
-        deletedFolders.push(folderPath)
-        console.log(`Successfully deleted folder: ${folderPath}`)
+        console.log(`Found files to delete in ${folderPath}:`, allContents)
+
+        // Delete all contents in one operation
+        if (allContents.length > 0) {
+          const { error: deleteError } = await supabase
+            .storage
+            .from('adsmith_assets')
+            .remove(allContents)
+
+          if (deleteError) {
+            errors.push(`Error deleting contents in ${folderPath}: ${deleteError.message}`)
+          } else {
+            deletedFolders.push(folderPath)
+            console.log(`Successfully deleted folder and contents: ${folderPath}`)
+          }
+        }
+      } catch (err) {
+        errors.push(`Unexpected error processing ${folderPath}: ${err.message}`)
       }
     }
 
