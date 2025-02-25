@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -112,10 +111,17 @@ function SharedTable<T extends TableName>({
     });
   };
 
+  const getColumnWidth = (column: ColumnDef) => {
+    if (column.field === 'persona_agemin' || column.field === 'persona_agemax') {
+      return '90px';
+    }
+    return 'max-content';
+  };
+
   return (
     <div className="w-fit">
-      <div className="grid" style={{
-        gridTemplateColumns: `repeat(${columns.length}, max-content)`
+      <div className="grid auto-cols-max" style={{
+        gridTemplateColumns: columns.map(col => getColumnWidth(col)).join(' ')
       }}>
         {columns.map(column => (
           column.format === "M/D/YY" ? (
