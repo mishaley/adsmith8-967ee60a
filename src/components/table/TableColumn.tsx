@@ -60,8 +60,8 @@ export function TableColumn({
             }
           }}
         >
-          <SelectTrigger className="w-full h-full border-none shadow-none focus:ring-0 p-0 bg-transparent text-base font-normal">
-            <SelectValue placeholder={displayValue} />
+          <SelectTrigger className="w-full h-full border-none shadow-none focus:ring-0 px-0 bg-transparent text-base font-normal flex items-center">
+            <SelectValue className="text-left" placeholder={displayValue} />
           </SelectTrigger>
           <SelectContent 
             className="bg-white border rounded-md shadow-md z-50 min-w-[200px]"
