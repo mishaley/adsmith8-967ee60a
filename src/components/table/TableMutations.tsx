@@ -35,6 +35,18 @@ export function useTableMutations<T extends TableName>(
   const [changeHistory, setChangeHistory] = useState<ChangeHistoryEntry<T>[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
+  const getSelectQuery = (table: T) => {
+    if (table === 'b1offerings') {
+      return `
+        *,
+        organization:a1organizations (
+          organization_name
+        )
+      `;
+    }
+    return '*';
+  };
+
   const updateMutation = useMutation({
     mutationKey: [tableName, 'update'],
     mutationFn: async ({ rowId, field, value, isUndo = false }: { 
@@ -49,12 +61,7 @@ export function useTableMutations<T extends TableName>(
       const { data, error } = await (table as any)
         .update(updateData)
         .eq(idField, rowId)
-        .select(`
-          *,
-          organization:a1organizations!b1offerings_organization_id_fkey (
-            organization_name
-          )
-        `);
+        .select(getSelectQuery(tableName));
       
       if (error) {
         console.error('Update error:', error);
@@ -101,12 +108,7 @@ export function useTableMutations<T extends TableName>(
       
       const { data, error } = await (table as any)
         .insert([insertData])
-        .select(`
-          *,
-          organization:a1organizations!b1offerings_organization_id_fkey (
-            organization_name
-          )
-        `);
+        .select(getSelectQuery(tableName));
       
       if (error) throw error;
       

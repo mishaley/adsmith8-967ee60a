@@ -60,7 +60,7 @@ const Offerings = () => {
           offering_name,
           organization_id,
           created_at,
-          organization:a1organizations!b1offerings_organization_id_fkey (
+          organization:a1organizations (
             organization_name
           )
         `);
