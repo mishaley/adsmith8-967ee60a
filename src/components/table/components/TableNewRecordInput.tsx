@@ -27,7 +27,12 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
           <SelectTrigger className="h-10 bg-white w-full rounded-md border border-input text-base px-4">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent 
+            className="bg-white border rounded-md shadow-md z-50"
+            align="start"
+            sideOffset={0}
+            alignOffset={-16}
+          >
             {column.options.map((option) => (
               <SelectItem key={option.value} value={option.value} className="text-base">
                 {option.label}
