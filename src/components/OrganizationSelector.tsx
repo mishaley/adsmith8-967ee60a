@@ -38,18 +38,20 @@ export const OrganizationSelector = () => {
   }, [selectedOrgId]);
 
   return (
-    <div className="relative h-full w-full group p-[18px]">
-      {selectedOrg?.organization_wordmark && (
-        <img
-          src={`${
-            supabase.storage
-              .from("adsmith_assets")
-              .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl
-          }`}
-          alt={`${selectedOrg.organization_name} wordmark`}
-          className="max-h-full max-w-full w-auto h-auto object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-        />
-      )}
+    <div className="relative h-full w-full group">
+      <div className="absolute inset-[18px]">
+        {selectedOrg?.organization_wordmark && (
+          <img
+            src={`${
+              supabase.storage
+                .from("adsmith_assets")
+                .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl
+            }`}
+            alt={`${selectedOrg.organization_name} wordmark`}
+            className="max-h-full max-w-full w-auto h-auto object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          />
+        )}
+      </div>
       <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
         <SelectTrigger className="absolute bottom-0 left-0 right-0 bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <SelectValue placeholder="Select organization" />
