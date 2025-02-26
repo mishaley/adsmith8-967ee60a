@@ -33,6 +33,7 @@ const TitleUpdater = () => {
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
     document.title = title;
+    window.history.replaceState({}, title, window.location.pathname);
   }, [location]);
 
   return null;
@@ -42,7 +43,7 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === '/') {
+    if (location.pathname === '/' || location.pathname === '/index') {
       window.history.replaceState({}, 'Images', '/images');
     } else {
       const path = location.pathname.substring(1);
