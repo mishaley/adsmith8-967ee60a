@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { getColumns } from "./columns";
+import { toast } from "sonner";
 
 const Images = () => {
   const { data: messages = [] } = useQuery({
@@ -80,6 +81,33 @@ const Images = () => {
     };
   }, [refetch]);
 
+  const handleCreateImage = async (newRecord: any) => {
+    try {
+      toast.loading('Generating images...');
+      
+      const { error } = await supabase.functions.invoke('generate-images', {
+        body: {
+          message_id: newRecord.message_id,
+          image_format: newRecord.image_format,
+          image_resolution: newRecord.image_resolution,
+          image_style: newRecord.image_style,
+          image_model: newRecord.image_model,
+          image_inputprompt: newRecord.image_inputprompt
+        }
+      });
+
+      if (error) {
+        toast.error('Failed to generate images: ' + error.message);
+        return;
+      }
+
+      toast.success('Images generated successfully');
+      refetch();
+    } catch (error) {
+      toast.error('Failed to generate images: ' + (error as Error).message);
+    }
+  };
+
   return (
     <QuadrantLayout>
       {{
@@ -87,7 +115,8 @@ const Images = () => {
           data={data} 
           columns={getColumns(messageOptions)} 
           tableName="e1images" 
-          idField="image_id" 
+          idField="image_id"
+          onAdd={handleCreateImage}
         />,
       }}
     </QuadrantLayout>

@@ -1,4 +1,3 @@
-
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -11,13 +10,15 @@ interface SharedTableProps<T extends TableName> {
   columns: ColumnDef[];
   tableName: T;
   idField: string;
+  onAdd?: (record: any) => Promise<void>;
 }
 
 function SharedTable<T extends TableName>({
   data: initialData,
   columns,
   tableName,
-  idField
+  idField,
+  onAdd
 }: SharedTableProps<T>) {
   const [sort, setSort] = useState({
     field: "created_at",
@@ -85,8 +86,14 @@ function SharedTable<T extends TableName>({
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    createMutation.mutate(newRecord);
-    setNewRecord({});
+    if (onAdd) {
+      onAdd(newRecord).then(() => {
+        setNewRecord({});
+      });
+    } else {
+      createMutation.mutate(newRecord);
+      setNewRecord({});
+    }
   };
 
   const handleInputChange = (field: string, value: any) => {
