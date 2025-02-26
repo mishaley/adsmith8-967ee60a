@@ -58,29 +58,28 @@ export const OrganizationSelector = () => {
           </div>
         )}
       </div>
-      <div className="absolute bottom-0 left-0">
-        <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
-          <SelectTrigger className="w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <SelectValue placeholder="Select organization" />
-          </SelectTrigger>
-          <SelectContent 
-            className="bg-[#2A2A2A] text-white border-none w-[170px]" 
-            align="start"
-            side="bottom"
-            position="popper"
-          >
-            {organizations.map((org) => (
-              <SelectItem
-                key={org.organization_id}
-                value={org.organization_id}
-                className="text-white hover:bg-[#3A3A3A] focus:bg-[#3A3A3A]"
-              >
-                {org.organization_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+        <SelectTrigger className="absolute bottom-0 left-0 w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <SelectValue placeholder="Select organization" />
+        </SelectTrigger>
+        <SelectContent 
+          className="bg-[#2A2A2A] text-white border-none w-[170px]"
+          align="start"
+          side="bottom"
+          avoidCollisions={false}
+          collisionPadding={0}
+        >
+          {organizations.map((org) => (
+            <SelectItem
+              key={org.organization_id}
+              value={org.organization_id}
+              className="text-white hover:bg-[#3A3A3A] focus:bg-[#3A3A3A]"
+            >
+              {org.organization_name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };
