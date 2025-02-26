@@ -1,4 +1,3 @@
-
 import { TableHeader } from "./TableHeader";
 import { useState } from "react";
 import { useTableMutations } from "./TableMutations";
@@ -6,6 +5,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { TableNewRecordInput } from "./components/TableNewRecordInput";
 import { TableColumnProps, EditingCell } from "./types/column-types";
 import { TableRow } from "@/types/table";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
