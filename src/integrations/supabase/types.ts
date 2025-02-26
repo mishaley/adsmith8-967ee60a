@@ -246,7 +246,12 @@ export type Database = {
       asset_status: "Generated" | "Approved" | "Rejected" | "Archived"
       caption_type: "PrimaryText" | "Headline" | "Description" | "LongHeadline"
       image_format: "Graphic" | "POV"
-      image_resolution: "1:1" | "4:5" | "9:16" | "16:9" | "21:11"
+      image_resolution:
+        | "RESOLUTION_1024_1024"
+        | "RESOLUTION_896_1120"
+        | "RESOLUTION_720_1280"
+        | "RESOLUTION_1280_720"
+        | "RESOLUTION_1344_704"
       message_type:
         | "0nocategory"
         | "1painpoint"
