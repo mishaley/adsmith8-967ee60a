@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import Campaigns from "./pages/Campaigns";
 import Organizations from "./pages/Organizations";
@@ -14,6 +14,19 @@ import Images from "./pages/Images";
 import Captions from "./pages/Captions";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
+
+const TitleUpdater = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    const path = location.pathname.substring(1);
+    const title = path.charAt(0).toUpperCase() + path.slice(1);
+    document.title = title || 'Home';
+  }, [location]);
+
+  return null;
+};
 
 const queryClient = new QueryClient();
 
@@ -23,6 +36,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <TitleUpdater />
         <Routes>
           <Route path="/home" element={<Home />} />
           <Route path="/campaigns" element={<Campaigns />} />
