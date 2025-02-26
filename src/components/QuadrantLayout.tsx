@@ -19,7 +19,7 @@ const QuadrantLayout = ({ children, className }: QuadrantLayoutProps) => {
       {/* Left Column - Fixed width */}
       <div className="flex flex-col w-[170px] min-w-[170px]">
         {/* Q1 - Logo */}
-        <div className="h-[100px] min-h-[100px] bg-[#0c343d] p-[18px]">
+        <div className="h-[100px] min-h-[100px] bg-[#0c343d]">
           {children?.q1 || <OrganizationSelector />}
         </div>
         {/* Q2 - Menu */}
