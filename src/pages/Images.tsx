@@ -28,11 +28,11 @@ const Images = () => {
   ];
 
   const resolutionOptions = [
-    { value: "1:1", label: "1:1" },
-    { value: "4:5", label: "4:5" },
-    { value: "9:16", label: "9:16" },
-    { value: "16:9", label: "16:9" },
-    { value: "21:11", label: "21:11" }
+    { value: "RESOLUTION_1024_1024", label: "1:1" },
+    { value: "RESOLUTION_896_1120", label: "4:5" },
+    { value: "RESOLUTION_720_1280", label: "9:16" },
+    { value: "RESOLUTION_1280_720", label: "16:9" },
+    { value: "RESOLUTION_1344_704", label: "21:11" }
   ];
 
   const statusOptions = [
@@ -71,7 +71,7 @@ const Images = () => {
     },
     {
       field: "image_resolution",
-      header: "Resolution",
+      header: "Aspect Ratio",
       inputMode: "select",
       editable: true,
       required: true,
