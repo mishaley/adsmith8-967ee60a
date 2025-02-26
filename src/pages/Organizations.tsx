@@ -30,8 +30,13 @@ const Organizations = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("a1organizations")
-        .select("id:organization_id, organization_name, created_at");
-      return data || [];
+        .select("id:organization_id, organization_name, created_at")
+        .order('created_at', { ascending: false });
+      return (data || []).map(row => ({
+        ...row,
+        // Ensure created_at is properly formatted as an ISO string
+        created_at: new Date(row.created_at).toISOString()
+      }));
     },
   });
 
