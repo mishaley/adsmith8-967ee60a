@@ -58,15 +58,14 @@ export const OrganizationSelector = () => {
           </div>
         )}
       </div>
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0">
         <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
-          <SelectTrigger className="bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <SelectTrigger className="w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <SelectValue placeholder="Select organization" />
           </SelectTrigger>
           <SelectContent 
             className="bg-[#2A2A2A] text-white border-none w-[170px]" 
             align="start"
-            sideOffset={0}
             side="bottom"
             position="popper"
           >
