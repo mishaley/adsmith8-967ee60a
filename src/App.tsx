@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,16 +23,29 @@ const TitleUpdater = () => {
     const path = location.pathname.substring(1);
     if (!path) {
       document.title = 'Home';
+      window.history.replaceState({}, 'Home', window.location.pathname);
       return;
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
     document.title = title;
+    window.history.replaceState({}, title, window.location.pathname);
   }, [location]);
 
   return null;
 };
 
 const AppRoutes = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Force URL update when route changes
+    const path = location.pathname.substring(1);
+    if (path) {
+      const title = path.charAt(0).toUpperCase() + path.slice(1);
+      window.history.replaceState({}, title, window.location.pathname);
+    }
+  }, [location]);
+
   return (
     <>
       <TitleUpdater />
