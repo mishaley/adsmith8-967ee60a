@@ -31,6 +31,7 @@ export function TableColumn({
   const { mutate } = useTableMutations(tableName, idField);
 
   const isCreatedColumn = column.field === 'created_at';
+  const isImageColumn = column.format === 'image';
 
   const handleSelect = (rowId: string, field: string, newValue: string) => {
     mutate({ 
@@ -49,7 +50,7 @@ export function TableColumn({
   };
 
   const getColumnWidth = () => {
-    // For Age Min and Age Max columns, let them be as wide as their headers
+    if (isImageColumn) return '120px';
     if (column.field === 'persona_agemin' || column.field === 'persona_agemax') {
       return 'min-content';
     }
@@ -60,6 +61,22 @@ export function TableColumn({
   const renderCell = (row: TableRow) => {
     const isEditing = editingCell.rowId === row.id && editingCell.field === column.field;
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
+
+    if (isImageColumn && row[column.field]) {
+      const { data } = supabase.storage
+        .from('adsmith_assets')
+        .getPublicUrl(row[column.field]);
+      
+      return (
+        <div className="w-[100px] h-[100px] flex items-center justify-center">
+          <img 
+            src={data.publicUrl} 
+            alt="Generated image"
+            className="max-w-full max-h-full object-contain rounded-md"
+          />
+        </div>
+      );
+    }
 
     if (isEditing && column.inputMode === 'select' && column.options) {
       const currentFilter = filters[column.field]?.toLowerCase() || '';
