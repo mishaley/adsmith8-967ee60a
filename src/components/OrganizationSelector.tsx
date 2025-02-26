@@ -63,11 +63,12 @@ export const OrganizationSelector = () => {
           <SelectValue placeholder="Select organization" />
         </SelectTrigger>
         <SelectContent 
-          className="bg-[#2A2A2A] text-white border-none w-[170px] -ml-1" 
+          className="bg-[#2A2A2A] text-white border-none w-[170px]" 
           align="start"
           alignOffset={0}
-          sideOffset={-1}
+          sideOffset={0}
           side="bottom"
+          position="popper"
         >
           {organizations.map((org) => (
             <SelectItem
