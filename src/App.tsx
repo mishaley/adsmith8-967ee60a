@@ -38,9 +38,10 @@ const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Force URL update when route changes
-    const path = location.pathname.substring(1);
-    if (path) {
+    if (location.pathname === '/') {
+      window.history.replaceState({}, 'Images', '/images');
+    } else {
+      const path = location.pathname.substring(1);
       const title = path.charAt(0).toUpperCase() + path.slice(1);
       window.history.replaceState({}, title, window.location.pathname);
     }
@@ -68,16 +69,25 @@ const AppRoutes = () => {
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    // Set initial state on app load
+    if (window.location.pathname === '/') {
+      window.history.replaceState({}, 'Images', '/images');
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
