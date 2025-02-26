@@ -22,8 +22,8 @@ const TitleUpdater = () => {
   useEffect(() => {
     const path = location.pathname.substring(1);
     if (!path) {
-      document.title = 'Home';
-      window.history.replaceState({}, 'Home', window.location.pathname);
+      document.title = 'Images';
+      window.history.replaceState({}, 'Images', '/images');
       return;
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
@@ -59,7 +59,7 @@ const AppRoutes = () => {
         <Route path="/images" element={<Images />} />
         <Route path="/captions" element={<Captions />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/images" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
