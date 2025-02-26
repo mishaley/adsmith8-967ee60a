@@ -62,7 +62,12 @@ export const OrganizationSelector = () => {
         <SelectTrigger className="absolute bottom-0 left-0 right-0 bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <SelectValue placeholder="Select organization" />
         </SelectTrigger>
-        <SelectContent className="bg-[#2A2A2A] text-white border-none">
+        <SelectContent 
+          className="bg-[#2A2A2A] text-white border-none w-[170px]" 
+          align="start"
+          sideOffset={100}
+          side="right"
+        >
           {organizations.map((org) => (
             <SelectItem
               key={org.organization_id}
