@@ -147,12 +147,12 @@ export type Database = {
       e1images: {
         Row: {
           created_at: string
-          image_aspectratio: Database["public"]["Enums"]["image_aspectratio"]
           image_format: Database["public"]["Enums"]["image_format"]
           image_id: string
           image_inputprompt: string | null
           image_magicprompt: string | null
           image_model: string | null
+          image_resolution: Database["public"]["Enums"]["image_resolution"]
           image_status: Database["public"]["Enums"]["asset_status"]
           image_storage: string
           image_style: string | null
@@ -160,12 +160,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          image_aspectratio: Database["public"]["Enums"]["image_aspectratio"]
           image_format: Database["public"]["Enums"]["image_format"]
           image_id?: string
           image_inputprompt?: string | null
           image_magicprompt?: string | null
           image_model?: string | null
+          image_resolution: Database["public"]["Enums"]["image_resolution"]
           image_status: Database["public"]["Enums"]["asset_status"]
           image_storage: string
           image_style?: string | null
@@ -173,12 +173,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          image_aspectratio?: Database["public"]["Enums"]["image_aspectratio"]
           image_format?: Database["public"]["Enums"]["image_format"]
           image_id?: string
           image_inputprompt?: string | null
           image_magicprompt?: string | null
           image_model?: string | null
+          image_resolution?: Database["public"]["Enums"]["image_resolution"]
           image_status?: Database["public"]["Enums"]["asset_status"]
           image_storage?: string
           image_style?: string | null
@@ -245,8 +245,8 @@ export type Database = {
     Enums: {
       asset_status: "Generated" | "Approved" | "Rejected" | "Archived"
       caption_type: "PrimaryText" | "Headline" | "Description" | "LongHeadline"
-      image_aspectratio: "1:1" | "4:5" | "9:16" | "16:9" | "21:11"
       image_format: "Graphic" | "POV"
+      image_resolution: "1:1" | "4:5" | "9:16" | "16:9" | "21:11"
       message_type:
         | "0nocategory"
         | "1painpoint"

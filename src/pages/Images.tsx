@@ -27,7 +27,7 @@ const Images = () => {
     { value: "POV", label: "POV" }
   ];
 
-  const aspectRatioOptions = [
+  const resolutionOptions = [
     { value: "1:1", label: "1:1" },
     { value: "4:5", label: "4:5" },
     { value: "9:16", label: "9:16" },
@@ -70,12 +70,12 @@ const Images = () => {
       options: imageFormatOptions
     },
     {
-      field: "image_aspectratio",
-      header: "Aspect Ratio",
+      field: "image_resolution",
+      header: "Resolution",
       inputMode: "select",
       editable: true,
       required: true,
-      options: aspectRatioOptions
+      options: resolutionOptions
     },
     {
       field: "image_style",
@@ -136,7 +136,7 @@ const Images = () => {
           message_id,
           message:d1messages(message_name),
           image_format,
-          image_aspectratio,
+          image_resolution,
           image_style,
           image_model,
           image_inputprompt,
@@ -151,7 +151,7 @@ const Images = () => {
         message_id: row.message_id,
         message_name: row.message?.message_name,
         image_format: row.image_format,
-        image_aspectratio: row.image_aspectratio,
+        image_resolution: row.image_resolution,
         image_style: row.image_style,
         image_model: row.image_model,
         image_inputprompt: row.image_inputprompt,
@@ -198,3 +198,4 @@ const Images = () => {
 };
 
 export default Images;
+

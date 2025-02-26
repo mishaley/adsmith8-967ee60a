@@ -39,3 +39,4 @@ type TableTypes = {
 }
 
 export type TableData<T extends TableName> = TableTypes[T];
+
