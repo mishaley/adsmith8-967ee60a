@@ -16,6 +16,11 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
+// Initialize URL state before React renders
+if (window.location.pathname === '/' || window.location.pathname === '/index') {
+  window.history.replaceState({}, 'Images', '/images');
+}
+
 const TitleUpdater = () => {
   const location = useLocation();
   
@@ -28,7 +33,6 @@ const TitleUpdater = () => {
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
     document.title = title;
-    window.history.replaceState({}, title, window.location.pathname);
   }, [location]);
 
   return null;
@@ -69,25 +73,16 @@ const AppRoutes = () => {
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  useEffect(() => {
-    // Set initial state on app load
-    if (window.location.pathname === '/') {
-      window.history.replaceState({}, 'Images', '/images');
-    }
-  }, []);
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-};
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;
