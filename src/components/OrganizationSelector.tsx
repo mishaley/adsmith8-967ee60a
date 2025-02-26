@@ -40,7 +40,7 @@ export const OrganizationSelector = () => {
   return (
     <div className="relative h-full w-full group">
       <div className="absolute inset-[18px]">
-        {selectedOrg?.organization_wordmark && (
+        {selectedOrg?.organization_wordmark ? (
           <img
             src={`${
               supabase.storage
@@ -50,6 +50,12 @@ export const OrganizationSelector = () => {
             alt={`${selectedOrg.organization_name} wordmark`}
             className="max-h-full max-w-full w-auto h-auto object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
           />
+        ) : (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center">
+            <h1 className="font-lora text-white text-2xl font-semibold">
+              {selectedOrg?.organization_name}
+            </h1>
+          </div>
         )}
       </div>
       <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
