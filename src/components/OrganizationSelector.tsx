@@ -65,8 +65,9 @@ export const OrganizationSelector = () => {
         <SelectContent 
           className="bg-[#2A2A2A] text-white border-none w-[170px]" 
           align="start"
-          sideOffset={-100}
-          side="right"
+          alignOffset={-170}
+          sideOffset={0}
+          side="bottom"
         >
           {organizations.map((org) => (
             <SelectItem
