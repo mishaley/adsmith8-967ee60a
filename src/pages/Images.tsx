@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -47,7 +46,7 @@ const Images = () => {
       field: "image_storage",
       header: "Image",
       inputMode: "text",
-      editable: true,
+      editable: false,
       required: true,
       format: "image"
     },
@@ -101,14 +100,14 @@ const Images = () => {
       field: "image_magicprompt",
       header: "Magic Prompt",
       inputMode: "text",
-      editable: true,
+      editable: false,
       required: false
     },
     {
       field: "image_status",
       header: "Status",
       inputMode: "select",
-      editable: true,
+      editable: false,
       required: true,
       options: statusOptions
     },
@@ -160,7 +159,6 @@ const Images = () => {
   });
 
   useEffect(() => {
-    // Subscribe to changes on the images table
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -196,4 +194,3 @@ const Images = () => {
 };
 
 export default Images;
-
