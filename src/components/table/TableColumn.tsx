@@ -1,3 +1,4 @@
+
 import { TableHeader } from "./TableHeader";
 import { useState } from "react";
 import { useTableMutations } from "./TableMutations";
@@ -5,14 +6,9 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { TableNewRecordInput } from "./components/TableNewRecordInput";
 import { TableColumnProps, EditingCell } from "./types/column-types";
 import { TableRow } from "@/types/table";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { TableImageCell } from "./components/TableImageCell";
+import { TableSelectCell } from "./components/TableSelectCell";
+import { TableTextCell } from "./components/TableTextCell";
 
 export function TableColumn({
   column,
@@ -63,19 +59,7 @@ export function TableColumn({
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
 
     if (isImageColumn && row[column.field]) {
-      const { data } = supabase.storage
-        .from('adsmith_assets')
-        .getPublicUrl(row[column.field]);
-      
-      return (
-        <div className="w-[100px] h-[100px] flex items-center justify-center">
-          <img 
-            src={data.publicUrl} 
-            alt="Generated image"
-            className="max-w-full max-h-full object-contain rounded-md"
-          />
-        </div>
-      );
+      return <TableImageCell imagePath={row[column.field]} />;
     }
 
     if (isEditing && column.inputMode === 'select' && column.options) {
@@ -86,48 +70,27 @@ export function TableColumn({
       });
 
       return (
-        <Select
-          defaultValue={row[column.field]}
-          onValueChange={(value) => handleSelect(row.id, column.field, value)}
-          defaultOpen={true}
+        <TableSelectCell
+          value={row[column.field]}
+          displayValue={displayValue}
+          options={filteredOptions}
+          onSelect={(value) => handleSelect(row.id, column.field, value)}
           onOpenChange={(open) => {
             if (!open) {
               setEditingCell({ rowId: null, field: null });
             }
           }}
-        >
-          <SelectTrigger className="w-full h-full border-none shadow-none focus:ring-0 px-0 bg-transparent text-base font-normal flex items-center">
-            <SelectValue className="text-left" placeholder={displayValue} />
-          </SelectTrigger>
-          <SelectContent 
-            className="bg-white border rounded-md shadow-md z-50 min-w-[200px]"
-            position="popper"
-            sideOffset={5}
-          >
-            {filteredOptions.map((option) => (
-              <SelectItem 
-                key={option.value} 
-                value={option.value}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-base"
-              >
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        />
       );
     }
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <div className="w-full" onClick={(e) => e.stopPropagation()}>
-          <input
-            autoFocus
-            defaultValue={row[column.field]}
-            onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
-            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${isCreatedColumn ? 'text-center' : 'text-left'}`}
-          />
-        </div>
+        <TableTextCell
+          value={row[column.field]}
+          onBlur={(value) => handleSelect(row.id, column.field, value)}
+          isCenter={isCreatedColumn}
+        />
       );
     }
 
