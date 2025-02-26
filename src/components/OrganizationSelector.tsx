@@ -38,7 +38,7 @@ export const OrganizationSelector = () => {
   }, [selectedOrgId]);
 
   return (
-    <div className="relative h-full w-full group">
+    <div className="relative h-full w-full group p-[18px]">
       {selectedOrg?.organization_wordmark && (
         <img
           src={`${
@@ -47,7 +47,7 @@ export const OrganizationSelector = () => {
               .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl
           }`}
           alt={`${selectedOrg.organization_name} wordmark`}
-          className="max-h-[calc(100%-36px)] max-w-full w-auto h-auto object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          className="max-h-full max-w-full w-auto h-auto object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
         />
       )}
       <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
