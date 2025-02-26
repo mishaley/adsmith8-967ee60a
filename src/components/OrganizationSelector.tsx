@@ -73,7 +73,7 @@ export const OrganizationSelector = () => {
             <SelectItem
               key={org.organization_id}
               value={org.organization_id}
-              className="text-white hover:bg-[#3A3A3A] focus:bg-[#3A3A3A]"
+              className="text-white hover:text-[#F97316] hover:bg-[#3A3A3A] focus:bg-[#3A3A3A] focus:text-[#F97316]"
             >
               {org.organization_name}
             </SelectItem>
