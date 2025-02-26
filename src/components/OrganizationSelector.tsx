@@ -63,17 +63,17 @@ export const OrganizationSelector = () => {
           <SelectValue placeholder="Select organization" />
         </SelectTrigger>
         <SelectContent 
-          className="bg-[#2A2A2A] text-white border-none w-[170px]"
+          className="bg-[#2A2A2A] border-none min-w-[170px]"
           align="start"
           side="bottom"
-          avoidCollisions={false}
-          collisionPadding={0}
+          alignOffset={0}
+          sideOffset={0}
         >
           {organizations.map((org) => (
             <SelectItem
               key={org.organization_id}
               value={org.organization_id}
-              className="pl-8 pr-3 py-2 text-white hover:text-[#ecb652] hover:bg-[#3A3A3A] focus:bg-[#3A3A3A] focus:text-[#ecb652]"
+              className="pl-8 pr-3 py-2 text-[#555555] hover:text-[#ecb652] hover:bg-[#3A3A3A] focus:bg-[#3A3A3A] focus:text-[#ecb652]"
             >
               {org.organization_name}
             </SelectItem>
