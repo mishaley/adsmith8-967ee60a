@@ -14,6 +14,15 @@ interface IdeogramResponse {
   prompt: string;
 }
 
+// Map UI resolution values to Ideogram API values
+const resolutionMap: Record<string, string> = {
+  '1:1': 'RESOLUTION_1024_1024',
+  '4:5': 'RESOLUTION_896_1120',
+  '9:16': 'RESOLUTION_720_1280',
+  '16:9': 'RESOLUTION_1280_720',
+  '21:11': 'RESOLUTION_1344_704'
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -21,10 +30,13 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting image generation request');
     const { message_id, image_format, image_resolution, image_style, image_model, image_inputprompt } = await req.json();
+    console.log('Received params:', { message_id, image_format, image_resolution, image_style, image_model, image_inputprompt });
 
     // Input validation
     if (!message_id || !image_format || !image_resolution || !image_inputprompt) {
+      console.error('Missing required fields:', { message_id, image_format, image_resolution, image_inputprompt });
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -37,6 +49,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    console.log('Resolving organization ID for message:', message_id);
     // Get organization_id through the relationship chain
     const { data: messageData, error: messageError } = await supabase
       .from('d1messages')
@@ -62,12 +75,26 @@ serve(async (req) => {
 
     const organization_id = messageData.c1personas?.b1offerings?.organization_id;
     if (!organization_id) {
+      console.error('Could not resolve organization ID from message data:', messageData);
       return new Response(
         JSON.stringify({ error: 'Could not resolve organization ID' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
 
+    console.log('Resolved organization_id:', organization_id);
+
+    // Map the UI resolution value to Ideogram API value
+    const apiResolution = resolutionMap[image_resolution];
+    if (!apiResolution) {
+      console.error('Invalid resolution value:', image_resolution);
+      return new Response(
+        JSON.stringify({ error: 'Invalid resolution value' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    console.log('Calling Ideogram API');
     // Call Ideogram API
     const ideogramResponse = await fetch('https://api.ideogram.ai/api/v1/images/generate', {
       method: 'POST',
@@ -77,7 +104,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         prompt: image_inputprompt,
-        resolution: image_resolution,
+        resolution: apiResolution,
         style: image_style || 'auto',
         visibility: 'private',
         magic_prompt: 'on',
@@ -90,16 +117,19 @@ serve(async (req) => {
       const errorText = await ideogramResponse.text();
       console.error('Ideogram API error:', errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate images' }),
+        JSON.stringify({ error: `Failed to generate images: ${errorText}` }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
 
     const ideogramData: IdeogramResponse = await ideogramResponse.json();
+    console.log('Received response from Ideogram API');
 
     // Process and store each image
+    console.log('Processing generated images');
     const imageRecords = await Promise.all(
-      ideogramData.images.map(async (image) => {
+      ideogramData.images.map(async (image, index) => {
+        console.log(`Processing image ${index + 1}`);
         const imageResponse = await fetch(image.url);
         if (!imageResponse.ok) {
           throw new Error(`Failed to fetch image from ${image.url}`);
@@ -109,6 +139,7 @@ serve(async (req) => {
         const imageId = crypto.randomUUID();
         const imagePath = `organizations/${organization_id}/media/${imageId}.png`;
 
+        console.log(`Uploading image ${index + 1} to storage path:`, imagePath);
         // Upload to Supabase Storage
         const { error: uploadError } = await supabase.storage
           .from('adsmith_assets')
@@ -138,6 +169,7 @@ serve(async (req) => {
       })
     );
 
+    console.log('Saving image records to database');
     // Insert all image records
     const { error: dbError } = await supabase
       .from('e1images')
@@ -151,6 +183,7 @@ serve(async (req) => {
       );
     }
 
+    console.log('Successfully completed image generation process');
     return new Response(
       JSON.stringify({ success: true, images: imageRecords }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
