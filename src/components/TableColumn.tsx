@@ -1,9 +1,10 @@
-import { TableHeader } from "./TableHeader";
+
+import { TableHeader } from "@/components/table/TableHeader";
 import { useState } from "react";
-import { useTableMutations } from "./TableMutations";
+import { useTableMutations } from "@/components/table/TableMutations";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { TableNewRecordInput } from "./components/TableNewRecordInput";
-import { TableColumnProps, EditingCell } from "./types/column-types";
+import { TableNewRecordInput } from "@/components/table/components/TableNewRecordInput";
+import { TableColumnProps, EditingCell } from "@/components/table/types/column-types";
 import { TableRow } from "@/types/table";
 import {
   Select,

@@ -28,13 +28,13 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
             <SelectValue />
           </SelectTrigger>
           <SelectContent 
-            className="bg-white border rounded-md shadow-md z-50"
+            className="bg-white border rounded-md shadow-md z-50 w-[var(--radix-select-trigger-width)]"
             align="start"
             sideOffset={0}
-            alignOffset={-16}
+            alignOffset={0}
           >
             {column.options.map((option) => (
-              <SelectItem key={option.value} value={option.value} className="text-base">
+              <SelectItem key={option.value} value={option.value} className="text-base pl-8">
                 {option.label}
               </SelectItem>
             ))}
