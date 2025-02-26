@@ -38,7 +38,7 @@ export const OrganizationSelector = () => {
   }, [selectedOrgId]);
 
   return (
-    <div className="relative h-full w-full group">
+    <div className="h-full w-full">
       <div className="absolute inset-[18px]">
         {selectedOrg?.organization_wordmark ? (
           <img
@@ -58,29 +58,33 @@ export const OrganizationSelector = () => {
           </div>
         )}
       </div>
-      <div className="absolute bottom-0 left-0">
-        <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
-          <SelectTrigger className="w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+        <div className="absolute bottom-0 left-0">
+          <SelectTrigger 
+            className="w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 hover:opacity-100 transition-opacity duration-200"
+          >
             <SelectValue placeholder="Select organization" />
           </SelectTrigger>
-          <SelectContent 
-            className="bg-[#2A2A2A] text-white border-none w-[170px]" 
-            align="start"
-            side="bottom"
-            position="popper"
-          >
-            {organizations.map((org) => (
-              <SelectItem
-                key={org.organization_id}
-                value={org.organization_id}
-                className="text-white hover:bg-[#3A3A3A] focus:bg-[#3A3A3A]"
-              >
-                {org.organization_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        </div>
+        <SelectContent 
+          className="bg-[#2A2A2A] text-white border-none"
+          align="start"
+          side="bottom"
+          avoidCollisions={false}
+          collisionPadding={0}
+          sticky="always"
+        >
+          {organizations.map((org) => (
+            <SelectItem
+              key={org.organization_id}
+              value={org.organization_id}
+              className="text-white hover:bg-[#3A3A3A] focus:bg-[#3A3A3A]"
+            >
+              {org.organization_name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };
