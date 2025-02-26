@@ -78,7 +78,7 @@ serve(async (req) => {
       body: JSON.stringify({
         prompt: image_inputprompt,
         resolution: image_resolution,
-        style: 'auto',
+        style: image_style || 'auto',
         visibility: 'private',
         magic_prompt: 'on',
         rendering: 'quality',
@@ -121,11 +121,6 @@ serve(async (req) => {
           console.error('Storage upload error:', uploadError);
           throw uploadError;
         }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('adsmith_assets')
-          .getPublicUrl(imagePath);
 
         // Create database record
         return {
