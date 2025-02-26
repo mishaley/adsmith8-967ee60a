@@ -1,3 +1,4 @@
+
 import { ColumnDef, TableRow as ITableRow, TableName } from "@/types/table";
 import { useState, useEffect, useRef } from "react";
 import { useTableMutations } from "./table/TableMutations";
@@ -64,8 +65,8 @@ function SharedTable<T extends TableName>({
         const bVal = b[field];
         
         if (field === 'created_at') {
-          const aDate = new Date(aVal).getTime();
-          const bDate = new Date(bVal).getTime();
+          const aDate = new Date(aVal || '').getTime();
+          const bDate = new Date(bVal || '').getTime();
           return direction === "asc" ? aDate - bDate : bDate - aDate;
         }
         
