@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -48,7 +49,8 @@ const Images = () => {
       inputMode: "text",
       editable: false,
       required: true,
-      format: "image"
+      format: "image",
+      newRecordHidden: true
     },
     {
       field: "message_id",
@@ -101,7 +103,8 @@ const Images = () => {
       header: "Magic Prompt",
       inputMode: "text",
       editable: false,
-      required: false
+      required: false,
+      newRecordHidden: true
     },
     {
       field: "image_status",
@@ -109,7 +112,8 @@ const Images = () => {
       inputMode: "select",
       editable: false,
       required: true,
-      options: statusOptions
+      options: statusOptions,
+      newRecordHidden: true
     },
     {
       field: "created_at",

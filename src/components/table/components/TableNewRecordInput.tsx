@@ -17,6 +17,10 @@ interface TableNewRecordInputProps {
 }
 
 export function TableNewRecordInput({ column, value, onChange, cellContentClass }: TableNewRecordInputProps) {
+  if (column.newRecordHidden) {
+    return null;
+  }
+
   if (column.inputMode === 'select' && column.options) {
     return (
       <div className="-ml-4">
