@@ -19,7 +19,7 @@ const Offerings = () => {
   });
 
   // Fetch enum values for offering_objective
-  const { data: objectiveEnumValues = [] } = useQuery({
+  const { data: objectiveEnumValues = [] as string[] } = useQuery({
     queryKey: ["offering_objective_enum"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_enum_values', { 
@@ -28,15 +28,15 @@ const Offerings = () => {
       
       if (error) {
         console.error("Error fetching offering_objective enum values:", error);
-        return [];
+        return [] as string[];
       }
       
-      return data || [];
+      return data || [] as string[];
     },
   });
 
   // Fetch enum values for offering_specialcategory
-  const { data: specialCategoryEnumValues = [] } = useQuery({
+  const { data: specialCategoryEnumValues = [] as string[] } = useQuery({
     queryKey: ["offering_specialcategory_enum"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_enum_values', { 
@@ -45,10 +45,10 @@ const Offerings = () => {
       
       if (error) {
         console.error("Error fetching offering_specialcategory enum values:", error);
-        return [];
+        return [] as string[];
       }
       
-      return data || [];
+      return data || [] as string[];
     },
   });
 
@@ -57,12 +57,12 @@ const Offerings = () => {
     label: org.organization_name
   }));
 
-  const objectiveOptions = objectiveEnumValues.map((value: string) => ({
+  const objectiveOptions = objectiveEnumValues.map((value) => ({
     value: value,
     label: value
   }));
 
-  const specialCategoryOptions = specialCategoryEnumValues.map((value: string) => ({
+  const specialCategoryOptions = specialCategoryEnumValues.map((value) => ({
     value: value,
     label: value
   }));
