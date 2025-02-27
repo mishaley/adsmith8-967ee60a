@@ -14,10 +14,15 @@ serve(async (req) => {
 
   try {
     const apiKey = Deno.env.get('IDEOGRAM_API_KEY');
+    console.log('API key available:', apiKey ? 'Yes (length: ' + apiKey.length + ')' : 'No');
+    
     if (!apiKey) {
       console.error('IDEOGRAM_API_KEY not found in environment');
       return new Response(
-        JSON.stringify({ error: 'IDEOGRAM_API_KEY not configured' }),
+        JSON.stringify({ 
+          error: 'IDEOGRAM_API_KEY not configured',
+          message: 'Please add the IDEOGRAM_API_KEY secret in the Supabase dashboard under Edge Functions > Settings > Secrets'
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200
@@ -52,13 +57,15 @@ serve(async (req) => {
           'Content-Type': 'application/json'
         };
 
+        console.log('Request headers:', JSON.stringify(headers));
+        console.log('Making request to:', testUrl);
+        
         // Making a minimal request based on the documentation
         const testRequest = {
           prompt: "Test connection to Ideogram API",
           aspect_ratio: "ASPECT_1_1"
         };
 
-        console.log('Making request to:', testUrl);
         const testResponse = await fetch(testUrl, {
           method: 'POST',
           headers,
@@ -68,15 +75,15 @@ serve(async (req) => {
         console.log('Test response status:', testResponse.status);
         
         if (!testResponse.ok) {
+          let errorText = await testResponse.text();
+          console.error('API error response:', errorText);
+          
           let errorDetails;
           try {
-            errorDetails = await testResponse.json();
+            errorDetails = JSON.parse(errorText);
           } catch (e) {
-            const text = await testResponse.text();
-            errorDetails = text.substring(0, 200) + (text.length > 200 ? '...' : '');
+            errorDetails = errorText.substring(0, 200) + (errorText.length > 200 ? '...' : '');
           }
-          
-          console.error('API test failed:', JSON.stringify(errorDetails));
           
           return new Response(
             JSON.stringify({ 
