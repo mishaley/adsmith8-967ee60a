@@ -50,15 +50,15 @@ serve(async (req) => {
         console.log('Testing Ideogram API...');
         
         // Using the correct Ideogram API endpoint
-        const testUrl = 'https://api.ideogram.ai/v1/generate';
+        const testUrl = 'https://api.ideogram.ai/api/v1/text2image';
         
         const headers = {
-          'Authorization': apiKey,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         };
 
         console.log('Request headers:', JSON.stringify({
-          Authorization: apiKey ? '[REDACTED]' : 'undefined',
+          Authorization: apiKey ? 'Bearer [REDACTED]' : 'undefined',
           'Content-Type': 'application/json'
         }));
         console.log('Making request to:', testUrl);
@@ -66,9 +66,8 @@ serve(async (req) => {
         // Making a minimal request
         const testRequest = {
           prompt: "test image",
-          style: "photographic",
-          aspect_ratio: "1:1",
-          steps: 25
+          width: 512,
+          height: 512
         };
 
         console.log('Request body:', JSON.stringify(testRequest));
