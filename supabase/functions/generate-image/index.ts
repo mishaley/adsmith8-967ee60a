@@ -42,6 +42,7 @@ serve(async (req) => {
     // If test parameter is present, verify the API key
     if (body.test === true) {
       try {
+        console.log('Testing API key...');
         const testResponse = await fetch('https://api.ideogram.ai/me', {
           method: 'GET',
           headers: {
@@ -50,11 +51,15 @@ serve(async (req) => {
         });
 
         const responseData = await testResponse.json();
+        console.log('API test response:', responseData);
         
         if (!testResponse.ok) {
           console.error('API Key validation failed:', responseData);
           return new Response(
-            JSON.stringify({ error: 'Invalid API key' }),
+            JSON.stringify({ 
+              error: 'Invalid API key',
+              details: responseData 
+            }),
             { 
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               status: 200
@@ -72,7 +77,10 @@ serve(async (req) => {
       } catch (error) {
         console.error('Error testing API key:', error);
         return new Response(
-          JSON.stringify({ error: 'Failed to validate API key' }),
+          JSON.stringify({ 
+            error: 'Failed to validate API key',
+            details: error.message
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200
@@ -83,6 +91,7 @@ serve(async (req) => {
 
     // Image generation logic
     const prompt = body.prompt || "Cute doggy";
+    console.log('Generating image with prompt:', prompt);
     
     try {
       const response = await fetch('https://api.ideogram.ai/generate', {
@@ -95,11 +104,15 @@ serve(async (req) => {
       });
 
       const data = await response.json();
+      console.log('Ideogram API response:', JSON.stringify(data).substring(0, 200) + '...');
 
       if (!response.ok) {
         console.error('Image generation failed:', data);
         return new Response(
-          JSON.stringify({ error: 'Failed to generate image' }),
+          JSON.stringify({ 
+            error: 'Failed to generate image',
+            details: data
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200
@@ -107,10 +120,28 @@ serve(async (req) => {
         );
       }
 
-      const image_url = data.url || data.data?.[0]?.url;
+      // Fixed response format handling
+      let image_url = null;
+      
+      // Handle different response formats from Ideogram API
+      if (data.url) {
+        // Direct URL in the response
+        image_url = data.url;
+      } else if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+        // URL in the first item of the data array
+        image_url = data.data[0].url;
+      } else if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+        // Some APIs return an images array
+        image_url = data.images[0].url;
+      }
+
       if (!image_url) {
+        console.error('Unexpected response format:', data);
         return new Response(
-          JSON.stringify({ error: 'No image URL in response' }),
+          JSON.stringify({ 
+            error: 'No image URL found in response', 
+            response_format: JSON.stringify(data).substring(0, 100) + '...' 
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 200
@@ -118,6 +149,7 @@ serve(async (req) => {
         );
       }
 
+      console.log('Successfully generated image URL:', image_url);
       return new Response(
         JSON.stringify({ image_url }),
         { 
@@ -128,7 +160,10 @@ serve(async (req) => {
     } catch (error) {
       console.error('Image generation error:', error);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate image' }),
+        JSON.stringify({ 
+          error: 'Failed to generate image',
+          details: error.message
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200
@@ -138,7 +173,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Edge function error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: 'Internal server error',
+        details: error.message
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200
