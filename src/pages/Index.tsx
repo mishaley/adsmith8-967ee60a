@@ -1,13 +1,42 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import Home from './Home';
+import Organizations from './Organizations';
+import Offerings from './Offerings';
+import Messages from './Messages';
+import Personas from './Personas';
+import Campaigns from './Campaigns';
+import Images from './Images';
+import Captions from './Captions';
+import Settings from './Settings';
+import NotFound from './NotFound';
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If we're at the root, redirect to /images
+    if (window.location.pathname === '/') {
+      navigate('/images');
+    }
+  }, [navigate]);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/organizations" element={<Organizations />} />
+      <Route path="/offerings" element={<Offerings />} />
+      <Route path="/messages" element={<Messages />} />
+      <Route path="/personas" element={<Personas />} />
+      <Route path="/campaigns" element={<Campaigns />} />
+      <Route path="/images" element={<Images />} />
+      <Route path="/captions" element={<Captions />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
