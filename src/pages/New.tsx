@@ -31,13 +31,13 @@ const New = () => {
       {{
         q4: (
           <div className="max-w-3xl">
-            <table className="w-full border-collapse table-fixed">
+            <table className="w-full border-collapse">
               <tbody>
                 <tr>
                   <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
                     <span className="font-medium">Organization</span>
                   </td>
-                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "auto" }}>
+                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
                     <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
                       <SelectTrigger className="w-full bg-white">
                         <SelectValue placeholder="" />
