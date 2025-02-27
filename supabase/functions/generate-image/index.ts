@@ -45,29 +45,39 @@ serve(async (req) => {
         console.log('Testing API key...');
         console.log('API Key first 4 chars:', apiKey.substring(0, 4));
         
-        const testResponse = await fetch('https://ideogram.ai/api/v1/me', {
+        // Let's try with the API endpoint
+        const testUrl = 'https://api.ideogram.ai/api/v1/me';
+        console.log('Testing API endpoint:', testUrl);
+        
+        const headers = {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/json',
+          'User-Agent': 'Supabase Edge Function'
+        };
+        console.log('Request headers:', headers);
+
+        const testResponse = await fetch(testUrl, {
           method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Accept': 'application/json'
-          }
+          headers
         });
 
         console.log('Test response status:', testResponse.status);
         console.log('Test response headers:', Object.fromEntries(testResponse.headers.entries()));
         
-        let responseData;
         const responseText = await testResponse.text();
-        console.log('Raw response:', responseText.substring(0, 200));
+        console.log('Raw response:', responseText);
         
+        let responseData;
         try {
           responseData = JSON.parse(responseText);
+          console.log('Parsed response:', responseData);
         } catch (e) {
           console.error('Failed to parse response as JSON:', e);
+          console.error('Response text:', responseText);
           return new Response(
             JSON.stringify({ 
               error: 'Invalid response from Ideogram API',
-              details: responseText.substring(0, 200)
+              details: `Status: ${testResponse.status}, Response: ${responseText.substring(0, 200)}`
             }),
             { 
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -81,7 +91,8 @@ serve(async (req) => {
           return new Response(
             JSON.stringify({ 
               error: 'Invalid API key',
-              details: responseData 
+              details: responseData,
+              status: testResponse.status
             }),
             { 
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -117,28 +128,39 @@ serve(async (req) => {
     console.log('Generating image with prompt:', prompt);
     
     try {
-      const response = await fetch('https://ideogram.ai/api/v1/images', {
+      const generateUrl = 'https://api.ideogram.ai/api/v1/images';
+      console.log('Using generation endpoint:', generateUrl);
+
+      const headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'Supabase Edge Function'
+      };
+      console.log('Generation request headers:', headers);
+
+      const response = await fetch(generateUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ prompt })
       });
 
-      let data;
-      const responseText = await response.text();
-      console.log('Raw generation response:', responseText.substring(0, 200));
+      console.log('Generation response status:', response.status);
+      console.log('Generation response headers:', Object.fromEntries(response.headers.entries()));
       
+      const responseText = await response.text();
+      console.log('Raw generation response:', responseText);
+      
+      let data;
       try {
         data = JSON.parse(responseText);
+        console.log('Parsed generation response:', data);
       } catch (e) {
         console.error('Failed to parse generation response as JSON:', e);
         return new Response(
           JSON.stringify({ 
             error: 'Invalid response from Ideogram API',
-            details: responseText.substring(0, 200)
+            details: `Status: ${response.status}, Response: ${responseText.substring(0, 200)}`
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -152,7 +174,8 @@ serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             error: 'Failed to generate image',
-            details: data
+            details: data,
+            status: response.status
           }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
