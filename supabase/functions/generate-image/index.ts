@@ -21,9 +21,11 @@ serve(async (req) => {
     // Clean up the API key - remove any "Bearer " prefix if present
     const cleanApiKey = apiKey.replace(/^Bearer\s+/i, '').trim();
     
-    // If test parameter is present, just verify the API key
-    const url = new URL(req.url);
-    if (url.searchParams.get('test') === 'true') {
+    // Parse the request body
+    const body = await req.json();
+    
+    // If test parameter is present in the body, just verify the API key
+    if (body.test === true) {
       // Make a test request to Ideogram API
       const testResponse = await fetch('https://api.ideogram.ai/me', {
         method: 'GET',
@@ -33,8 +35,7 @@ serve(async (req) => {
       });
 
       if (!testResponse.ok) {
-        const errorText = await testResponse.text();
-        throw new Error(`API Key validation failed: ${testResponse.status} - ${errorText}`);
+        throw new Error(`API Key validation failed: ${testResponse.status}`);
       }
 
       const userData = await testResponse.json();
@@ -49,17 +50,9 @@ serve(async (req) => {
       );
     }
 
-    // Regular image generation logic continues below
-    let prompt = "Cute doggy";
-    try {
-      const body = await req.json();
-      if (body.prompt) {
-        prompt = body.prompt;
-      }
-    } catch (e) {
-      console.log("No body provided, using default prompt");
-    }
-
+    // Regular image generation logic
+    const prompt = body.prompt || "Cute doggy";
+    
     const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
       headers: {
@@ -73,7 +66,7 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error("Ideogram API error status:", response.status);
       console.error("Ideogram API error response:", errorText);
-      throw new Error(`Ideogram API request failed: ${response.status} - ${errorText}`);
+      throw new Error(`Ideogram API request failed: ${response.status}`);
     }
 
     const data = await response.json();
@@ -92,7 +85,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("Edge function error:", error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500
