@@ -50,7 +50,7 @@ serve(async (req) => {
         console.log('Testing Ideogram API...');
         
         // Using the correct Ideogram API endpoint
-        const testUrl = 'https://api.ideogram.ai/api/v1/text2image';
+        const testUrl = 'https://api.ideogram.ai/generate';
         
         const headers = {
           'Authorization': `Bearer ${apiKey}`,
