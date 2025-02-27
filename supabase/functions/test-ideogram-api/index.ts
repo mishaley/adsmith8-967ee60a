@@ -49,21 +49,16 @@ serve(async (req) => {
       try {
         console.log('Testing Ideogram API...');
         
-        // The secret is actually an email address for Ideogram's API
-        const email = apiKey;
-        console.log('Using email format for authorization');
-        
-        // Using the correct Ideogram API endpoint from the documentation
-        const testUrl = 'https://api.ideogram.ai/api/generate';
+        // Using the correct Ideogram API endpoint
+        const testUrl = 'https://api.ideogram.com/api/v1/text2image';
         
         const headers = {
-          // Ideogram API expects the API key in this format
-          'Authorization': email,
+          'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         };
 
         console.log('Request headers:', JSON.stringify({
-          Authorization: email ? `${email.substring(0, 3)}...` : 'undefined',
+          Authorization: apiKey ? 'Bearer [REDACTED]' : 'undefined',
           'Content-Type': 'application/json'
         }));
         console.log('Making request to:', testUrl);
@@ -71,9 +66,8 @@ serve(async (req) => {
         // Making a minimal request based on the documentation
         const testRequest = {
           prompt: "test image",
-          style: "photographic", // Using a valid style parameter
-          aspect_ratio: "1:1",   // Using correct aspect ratio format
-          steps: 25              // Adding steps parameter
+          width: 512,
+          height: 512
         };
 
         console.log('Request body:', JSON.stringify(testRequest));
