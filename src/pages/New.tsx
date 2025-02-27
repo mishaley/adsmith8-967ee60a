@@ -199,8 +199,8 @@ const New = () => {
                           <button
                             type="button"
                             className={`flex h-9 w-full items-center justify-between rounded px-3 py-2 text-sm ${
-                              !selectedOrgId ? "opacity-50 cursor-not-allowed bg-gray-100" : "bg-white"
-                            }`}
+                              !selectedOrgId ? "opacity-50 cursor-not-allowed" : ""
+                            } bg-white`}
                             disabled={!selectedOrgId}
                             onClick={(e) => {
                               const dropdown = e.currentTarget.nextElementSibling;
@@ -233,7 +233,7 @@ const New = () => {
                                 <div
                                   key={offering.offering_id}
                                   className={`flex items-center space-x-2 rounded px-2 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
-                                    selectedOfferingIds.includes(offering.offering_id) ? "bg-gray-100" : ""
+                                    selectedOfferingIds.includes(offering.offering_id) ? "bg-gray-100" : "bg-white"
                                   }`}
                                   onClick={() => handleOfferingChange(offering.offering_id)}
                                 >
