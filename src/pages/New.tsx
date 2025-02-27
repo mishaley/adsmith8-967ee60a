@@ -38,21 +38,23 @@ const New = () => {
                     <span className="font-medium">Organization</span>
                   </td>
                   <td className="border border-transparent p-4" style={{ width: "99%" }}>
-                    <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
-                      <SelectTrigger className="w-full bg-white">
-                        <SelectValue placeholder="" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {organizations.map((org) => (
-                          <SelectItem 
-                            key={org.organization_id} 
-                            value={org.organization_id}
-                          >
-                            {org.organization_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="relative inline-block w-auto">
+                      <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {organizations.map((org) => (
+                            <SelectItem 
+                              key={org.organization_id} 
+                              value={org.organization_id}
+                            >
+                              {org.organization_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </td>
                 </tr>
               </tbody>
