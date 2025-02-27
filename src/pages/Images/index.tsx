@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -85,6 +86,7 @@ const Images = () => {
   const handleCreateImage = async (newRecord: any) => {
     try {
       toast.loading('Generating images...');
+      console.log('Sending request with data:', newRecord);
       
       const { data, error } = await supabase.functions.invoke('generate-images', {
         body: {
@@ -97,6 +99,8 @@ const Images = () => {
         }
       });
 
+      console.log('Response received:', { data, error });
+
       if (error) {
         console.error('Function error:', error);
         toast.error('Failed to generate images: ' + error.message);
@@ -105,12 +109,13 @@ const Images = () => {
 
       if (data?.error) {
         console.error('API error:', data.error);
-        toast.error('Failed to generate images: ' + data.error);
+        toast.error('Failed to generate images: ' + (data.details || data.error));
         return;
       }
 
       if (data?.images) {
         const imageUrls = data.images.map((img: any) => img.image_storage);
+        console.log('Generated image URLs:', imageUrls);
         setGeneratedImages(imageUrls);
         toast.success('Images generated successfully');
       }
