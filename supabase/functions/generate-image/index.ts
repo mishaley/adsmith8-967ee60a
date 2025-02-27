@@ -20,7 +20,7 @@ serve(async (req) => {
       throw new Error('Ideogram API key not found in environment');
     }
 
-    const response = await fetch('https://api.ideogram.ai/api/v1/text2image', {
+    const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -28,7 +28,9 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         prompt: "A cute doggy",
-        style: "photo"
+        style: "photo",
+        aspect_ratio: "1:1",
+        cfg_scale: 7.5
       })
     });
 
