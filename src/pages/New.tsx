@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,11 +11,33 @@ import {
   SelectSeparator,
 } from "@/components/ui/select";
 
+const STORAGE_KEY = "selectedOrganizationId";
+const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
+
 const New = () => {
-  const [selectedOrgId, setSelectedOrgId] = useState<string>("");
+  // Initialize with the stored organization ID from localStorage (same as OrganizationSelector)
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(
+    localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID
+  );
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
   const [selectedMessageId, setSelectedMessageId] = useState<string>("");
+
+  // Watch for changes to the organization in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newOrgId = localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID;
+      setSelectedOrgId(newOrgId);
+    };
+
+    // Set up event listener for localStorage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const { data: organizations = [] } = useQuery({
     queryKey: ["organizations"],
@@ -109,6 +130,11 @@ const New = () => {
       setSelectedOrgId("");
     } else {
       setSelectedOrgId(value);
+      // When organization changes in this component, update localStorage 
+      // to keep it in sync with the Q1 selector
+      localStorage.setItem(STORAGE_KEY, value);
+      // Dispatch storage event for other components to sync
+      window.dispatchEvent(new Event('storage'));
     }
   };
 
