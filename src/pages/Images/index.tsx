@@ -31,11 +31,14 @@ const Images = () => {
     setIsLoading(true);
     try {
       console.log("Frontend: Starting image generation request");
-      const { data, error } = await supabase.functions.invoke('generate-image');
+      const { data, error } = await supabase.functions.invoke('generate-image', {
+        body: { prompt: "Cute doggy" }
+      });
       
       console.log("Frontend: Response received", { data, error });
       
       if (error) {
+        console.error("Frontend: Supabase function error:", error);
         throw error;
       }
 

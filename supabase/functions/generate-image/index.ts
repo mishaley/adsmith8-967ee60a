@@ -13,11 +13,15 @@ serve(async (req) => {
 
   try {
     console.log("Edge Function: Starting Ideogram API request");
+    
+    // Log the API key presence (not the actual key)
+    const apiKey = Deno.env.get('IDEOGRAM_API_KEY');
+    console.log("Edge Function: API key present:", !!apiKey);
 
     const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('IDEOGRAM_API_KEY')}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -34,6 +38,10 @@ serve(async (req) => {
     console.log("Edge Function: Response status:", response.status);
     const data = await response.json();
     console.log("Edge Function: Response data:", data);
+
+    if (!response.ok) {
+      throw new Error(`Ideogram API error: ${data.message || 'Unknown error'}`);
+    }
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
