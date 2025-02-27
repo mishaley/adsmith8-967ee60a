@@ -35,7 +35,13 @@ serve(async (req) => {
     const data = await response.json();
     console.log("Response received:", data);
 
-    return new Response(JSON.stringify(data), {
+    // Extract the image URL from the Ideogram response
+    const image_url = data.output?.[0]?.image_url;
+    if (!image_url) {
+      throw new Error('No image URL in Ideogram response');
+    }
+
+    return new Response(JSON.stringify({ image_url }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
