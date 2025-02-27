@@ -14,7 +14,8 @@ serve(async (req) => {
 
   try {
     const apiKey = Deno.env.get('IDEOGRAM_API_KEY');
-    console.log("Checking API key:", apiKey ? "API key found" : "API key missing");
+    console.log("API Key length:", apiKey ? apiKey.length : 0);
+    console.log("First 4 chars of API key:", apiKey ? apiKey.substring(0, 4) : "none");
     
     if (!apiKey) {
       throw new Error('IDEOGRAM_API_KEY environment variable is not set');
@@ -30,11 +31,23 @@ serve(async (req) => {
       console.log("No body provided, using default prompt");
     }
 
-    console.log("Making request to Ideogram API");
+    console.log("Making request to Ideogram API with prompt:", prompt);
+    
+    // Log the full request details (except the full API key)
+    console.log("Request details:", {
+      url: 'https://api.ideogram.ai/generate',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey.substring(0, 4)}...`,
+      },
+      body: { prompt }
+    });
+
     const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiKey.trim()}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ prompt })
@@ -42,12 +55,14 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("Ideogram API error status:", response.status);
+      console.error("Ideogram API error headers:", Object.fromEntries(response.headers.entries()));
       console.error("Ideogram API error response:", errorText);
       throw new Error(`Ideogram API request failed: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log("Successful response from Ideogram API:", JSON.stringify(data));
+    console.log("Successful response from Ideogram API");
 
     const image_url = data.url || data.data?.[0]?.url;
     if (!image_url) {
@@ -55,6 +70,7 @@ serve(async (req) => {
       throw new Error('No image URL in Ideogram response');
     }
 
+    console.log("Successfully generated image URL");
     return new Response(
       JSON.stringify({ image_url }),
       { 
@@ -67,7 +83,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: "If you're seeing an unauthorized error, please verify the IDEOGRAM_API_KEY is properly set in Supabase Edge Function Secrets"
+        details: "If you're seeing an unauthorized error, please check:\n1. IDEOGRAM_API_KEY is set in Supabase Edge Function Secrets\n2. The API key is valid and not expired\n3. The API key doesn't have any whitespace"
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
