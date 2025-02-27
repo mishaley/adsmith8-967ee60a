@@ -20,7 +20,11 @@ serve(async (req) => {
       throw new Error('Ideogram API key not found in environment');
     }
 
-    console.log("2. Making request to Ideogram API...");
+    // Parse the request body for the prompt
+    const { prompt } = await req.json();
+    console.log("2. Received prompt:", prompt);
+
+    console.log("3. Making request to Ideogram API...");
     const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
       method: 'POST',
       headers: {
@@ -28,25 +32,35 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt: "test",
-        num_images: 1
+        prompt: prompt || "A cute doggy",
+        style: "photo",
+        width: 1024,
+        height: 1024,
+        steps: 30,
+        cfg_scale: 7.5,
+        num_images: 1,
+        seed: Math.floor(Math.random() * 1000000)
       })
     });
 
-    console.log("3. Response status:", response.status);
-    const text = await response.text();
-    console.log("4. Response body:", text);
+    console.log("4. Response status:", response.status);
+    const responseData = await response.json();
+    console.log("5. Response data:", responseData);
+
+    if (!response.ok) {
+      throw new Error(`Ideogram API error: ${response.status} - ${JSON.stringify(responseData)}`);
+    }
 
     return new Response(JSON.stringify({ 
+      image_url: responseData.image_url,
       status: response.status,
-      response: text 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: response.ok ? 200 : 500
+      status: 200
     });
 
   } catch (error) {
-    console.error("5. Error:", error.message);
+    console.error("Error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
