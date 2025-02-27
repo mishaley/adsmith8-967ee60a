@@ -51,35 +51,30 @@ serve(async (req) => {
           }
         });
 
+        const userData = await testResponse.json();
+        
         if (!testResponse.ok) {
           return new Response(
-            JSON.stringify({ 
-              error: `API Key validation failed: ${testResponse.status}`
-            }),
+            JSON.stringify({ error: 'Invalid API key' }),
             { 
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-              status: testResponse.status
+              status: 401
             }
           );
         }
 
-        const userData = await testResponse.json();
         return new Response(
           JSON.stringify({ 
             status: 'API Key is valid',
             user: userData
           }),
           { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }
         );
       } catch (error) {
         return new Response(
-          JSON.stringify({ 
-            error: 'Error validating API key',
-            details: error.message
-          }),
+          JSON.stringify({ error: 'Failed to validate API key' }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 500
@@ -91,54 +86,57 @@ serve(async (req) => {
     // Regular image generation logic
     const prompt = body.prompt || "Cute doggy";
     
-    const response = await fetch('https://api.ideogram.ai/generate', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${cleanApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt })
-    });
+    try {
+      const response = await fetch('https://api.ideogram.ai/generate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${cleanApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt })
+      });
 
-    if (!response.ok) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate image' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: response.status
+          }
+        );
+      }
+
+      const image_url = data.url || data.data?.[0]?.url;
+      if (!image_url) {
+        return new Response(
+          JSON.stringify({ error: 'No image URL in response' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500
+          }
+        );
+      }
+
       return new Response(
-        JSON.stringify({ 
-          error: `Ideogram API request failed: ${response.status}` 
-        }),
+        JSON.stringify({ image_url }),
         { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: response.status
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
-    }
-
-    const data = await response.json();
-    const image_url = data.url || data.data?.[0]?.url;
-    if (!image_url) {
+    } catch (error) {
       return new Response(
-        JSON.stringify({ error: 'No image URL in response' }),
+        JSON.stringify({ error: 'Failed to generate image' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 500
         }
       );
     }
-
-    return new Response(
-      JSON.stringify({ image_url }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
-      }
-    );
-
   } catch (error) {
-    console.error("Edge function error:", error.message);
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        details: error.stack
-      }),
+      JSON.stringify({ error: 'Internal server error' }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500

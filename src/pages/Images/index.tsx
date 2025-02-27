@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -95,16 +96,19 @@ const Images = () => {
       });
       
       if (error) {
-        toast.error('Error testing API key: ' + error.message);
+        toast.error('Error: ' + error.message);
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
         return;
       }
 
       if (data?.status === 'API Key is valid') {
         toast.success('API key is valid!');
-      } else if (data?.error) {
-        toast.error(data.error);
       } else {
-        toast.error('API key validation failed');
+        toast.error('Unexpected response from server');
       }
     } catch (error) {
       toast.error('Error: ' + (error as Error).message);
@@ -123,15 +127,23 @@ const Images = () => {
       });
       
       if (error) {
-        console.error('Error generating image:', error);
+        toast.error('Error: ' + error.message);
+        return;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
         return;
       }
 
       if (data?.image_url) {
         setGeneratedImageUrl(data.image_url);
+        toast.success('Image generated successfully!');
+      } else {
+        toast.error('No image URL in response');
       }
     } catch (error) {
-      console.error('Error:', error);
+      toast.error('Error: ' + (error as Error).message);
     } finally {
       setIsGenerating(false);
     }
