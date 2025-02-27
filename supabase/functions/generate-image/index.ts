@@ -20,19 +20,19 @@ serve(async (req) => {
       throw new Error('Ideogram API key not found in environment');
     }
 
-    const response = await fetch('https://api.ideogram.ai/generate', {
+    const response = await fetch('https://api.ideogram.ai/api/v1/text2image', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        image_request: {
-          prompt: "A cute doggy",
-          aspect_ratio: "ASPECT_1_1",
-          model: "V_2",
-          magic_prompt_option: "AUTO"
-        }
+        prompt: "A cute doggy",
+        style: "photo",
+        width: 1024,
+        height: 1024,
+        steps: 30,
+        samples: 1
       })
     });
 
@@ -46,7 +46,7 @@ serve(async (req) => {
     console.log("Response received:", JSON.stringify(data));
 
     // Extract the image URL from the Ideogram response
-    const image_url = data.data?.[0]?.url;
+    const image_url = data.output?.[0]?.image_url;
     if (!image_url) {
       console.error("No image URL in response data:", data);
       throw new Error('No image URL in Ideogram response');
