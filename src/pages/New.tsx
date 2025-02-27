@@ -9,6 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectSeparator,
 } from "@/components/ui/select";
 
 const New = () => {
@@ -52,6 +53,10 @@ const New = () => {
                               {org.organization_name}
                             </SelectItem>
                           ))}
+                          <SelectSeparator className="my-1" />
+                          <SelectItem value="" className="text-gray-500">
+                            Clear
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
