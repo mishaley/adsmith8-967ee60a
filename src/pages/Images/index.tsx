@@ -3,15 +3,10 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getColumns } from "./columns";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 const Images = () => {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -85,68 +80,15 @@ const Images = () => {
     };
   }, [refetch]);
 
-  const testIdeogramApi = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('ideogram-api-test');
-
-      if (error) {
-        toast({
-          title: "API Test Failed",
-          description: `Error: ${error.message}`,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (data.error) {
-        toast({
-          title: "API Test Failed",
-          description: data.error + (data.details ? `: ${JSON.stringify(data.details)}` : ''),
-          variant: "destructive"
-        });
-        return;
-      }
-
-      toast({
-        title: "API Test Successful",
-        description: "Successfully connected to Ideogram API"
-      });
-    } catch (err) {
-      toast({
-        title: "API Test Failed", 
-        description: `Unexpected error: ${err instanceof Error ? err.message : String(err)}`,
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <QuadrantLayout>
       {{
-        q4: (
-          <div className="flex flex-col space-y-4">
-            <SharedTable 
-              data={data} 
-              columns={getColumns(messageOptions)} 
-              tableName="e1images" 
-              idField="image_id" 
-            />
-            <div className="w-1/2 border rounded-md p-4 bg-white">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">AI image generation test</h3>
-                <Button 
-                  onClick={testIdeogramApi} 
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Testing..." : "Test API"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        ),
+        q4: <SharedTable 
+          data={data} 
+          columns={getColumns(messageOptions)} 
+          tableName="e1images" 
+          idField="image_id" 
+        />,
       }}
     </QuadrantLayout>
   );
