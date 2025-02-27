@@ -3,11 +3,13 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getColumns } from "./columns";
 import { toast } from "sonner";
 
 const Images = () => {
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -85,7 +87,7 @@ const Images = () => {
     try {
       toast.loading('Generating images...');
       
-      const { error } = await supabase.functions.invoke('generate-images', {
+      const { data, error } = await supabase.functions.invoke('generate-images', {
         body: {
           message_id: newRecord.message_id,
           image_format: newRecord.image_format,
@@ -97,13 +99,32 @@ const Images = () => {
       });
 
       if (error) {
+        console.error('Function error:', error);
         toast.error('Failed to generate images: ' + error.message);
         return;
+      }
+
+      if (data?.error) {
+        console.error('API error:', data.error);
+        toast.error('Failed to generate images: ' + data.error);
+        return;
+      }
+
+      // If we got images back, show them in the test section
+      if (data?.images) {
+        const imageUrls = await Promise.all(data.images.map(async (image: any) => {
+          const { data: { publicUrl } } = supabase.storage
+            .from('adsmith_assets')
+            .getPublicUrl(image.image_storage);
+          return publicUrl;
+        }));
+        setGeneratedImages(imageUrls);
       }
 
       toast.success('Images generated successfully');
       refetch();
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast.error('Failed to generate images: ' + (error as Error).message);
     }
   };
@@ -111,13 +132,34 @@ const Images = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable 
-          data={data} 
-          columns={getColumns(messageOptions)} 
-          tableName="e1images" 
-          idField="image_id"
-          onAdd={handleCreateImage}
-        />,
+        q4: (
+          <div className="space-y-8">
+            <SharedTable 
+              data={data} 
+              columns={getColumns(messageOptions)} 
+              tableName="e1images" 
+              idField="image_id"
+              onAdd={handleCreateImage}
+            />
+            
+            {/* Test section for generated images */}
+            {generatedImages.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold mb-4">Recently Generated Images:</h3>
+                <div className="flex gap-4">
+                  {generatedImages.map((url, index) => (
+                    <img 
+                      key={index} 
+                      src={url} 
+                      alt={`Generated ${index + 1}`}
+                      className="h-[100px] object-contain"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ),
       }}
     </QuadrantLayout>
   );
