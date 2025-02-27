@@ -3,3 +3,6 @@ project_id = "kyxotvtinlpackztktxe"
 
 [functions.create-org-folders]
 verify_jwt = false
+
+[functions.ideogram-test]
+verify_jwt = false
