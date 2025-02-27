@@ -3,17 +3,10 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getColumns } from "./columns";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 const Images = () => {
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isTesting, setIsTesting] = useState(false);
-
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -87,120 +80,15 @@ const Images = () => {
     };
   }, [refetch]);
 
-  const handleTestApiKey = async () => {
-    try {
-      setIsTesting(true);
-      
-      const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { test: true }
-      });
-      
-      if (error) {
-        toast.error('Error: ' + error.message);
-        return;
-      }
-
-      if (data?.error) {
-        toast.error(data.error);
-        return;
-      }
-
-      if (data?.status === 'API Key is valid') {
-        toast.success('API key is valid!');
-      } else {
-        toast.error('Unexpected response from server');
-      }
-    } catch (error) {
-      toast.error('Error: ' + (error as Error).message);
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
-  const handleGenerateImage = async () => {
-    try {
-      setIsGenerating(true);
-      setGeneratedImageUrl(null);
-      
-      const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt: "Cute doggy" }
-      });
-      
-      if (error) {
-        toast.error('Error: ' + error.message);
-        return;
-      }
-
-      if (data?.error) {
-        toast.error(data.error);
-        return;
-      }
-
-      if (data?.image_url) {
-        setGeneratedImageUrl(data.image_url);
-        toast.success('Image generated successfully!');
-      } else {
-        toast.error('No image URL in response');
-      }
-    } catch (error) {
-      toast.error('Error: ' + (error as Error).message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   return (
     <QuadrantLayout>
       {{
-        q4: (
-          <div className="space-y-6">
-            <SharedTable 
-              data={data} 
-              columns={getColumns(messageOptions)} 
-              tableName="e1images" 
-              idField="image_id" 
-            />
-            
-            <div className="w-1/2 bg-white rounded-lg shadow p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">AI image generation test</h3>
-                <div className="space-x-2">
-                  <Button 
-                    variant="outline"
-                    onClick={handleTestApiKey}
-                    disabled={isTesting}
-                  >
-                    {isTesting ? 'Testing...' : 'Test API Key'}
-                  </Button>
-                  <Button 
-                    onClick={handleGenerateImage}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating ? 'Generating...' : 'Run'}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className={cn(
-                "w-full h-[300px] border rounded-lg",
-                "flex items-center justify-center",
-                !generatedImageUrl && "bg-gray-50"
-              )}>
-                {generatedImageUrl ? (
-                  <img 
-                    src={generatedImageUrl} 
-                    alt="Generated" 
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : (
-                  <p className="text-gray-500">
-                    {isGenerating ? 'Generating image...' : 'Generated image will appear here'}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        ),
+        q4: <SharedTable 
+          data={data} 
+          columns={getColumns(messageOptions)} 
+          tableName="e1images" 
+          idField="image_id" 
+        />,
       }}
     </QuadrantLayout>
   );
