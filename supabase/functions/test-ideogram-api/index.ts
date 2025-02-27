@@ -44,8 +44,9 @@ serve(async (req) => {
       try {
         console.log('Testing API key...');
         
-        // Testing with a simple endpoint that just verifies authentication
-        const testUrl = 'https://api.ideogram.ai/api/v1/me';
+        // Update to use the correct API endpoint
+        // According to error message, the previous endpoint was not found
+        const testUrl = 'https://api.ideogram.ai/api/v1/token';
         
         const headers = {
           'Authorization': `Bearer ${apiKey}`,
@@ -53,6 +54,7 @@ serve(async (req) => {
           'User-Agent': 'Supabase Edge Function'
         };
 
+        console.log('Making request to:', testUrl);
         const testResponse = await fetch(testUrl, {
           method: 'GET',
           headers
@@ -62,6 +64,7 @@ serve(async (req) => {
         
         if (!testResponse.ok) {
           const text = await testResponse.text();
+          console.log('Error response text:', text);
           let errorDetails;
           
           try {
