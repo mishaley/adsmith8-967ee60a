@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -102,6 +101,8 @@ const Images = () => {
 
       if (data?.status === 'API Key is valid') {
         toast.success('API key is valid!');
+      } else if (data?.error) {
+        toast.error(data.error);
       } else {
         toast.error('API key validation failed');
       }
