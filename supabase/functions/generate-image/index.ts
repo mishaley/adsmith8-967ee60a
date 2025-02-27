@@ -20,7 +20,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'IDEOGRAM_API_KEY not configured' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200 // Return 200 for client handling
+          status: 200
         }
       );
     }
@@ -43,7 +43,7 @@ serve(async (req) => {
     if (body.test === true) {
       try {
         console.log('Testing API key...');
-        const testResponse = await fetch('https://api.ideogram.ai/me', {
+        const testResponse = await fetch('https://ideogram.ai/api/v1/me', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${apiKey}`
@@ -94,7 +94,7 @@ serve(async (req) => {
     console.log('Generating image with prompt:', prompt);
     
     try {
-      const response = await fetch('https://api.ideogram.ai/generate', {
+      const response = await fetch('https://ideogram.ai/api/v1/images', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
