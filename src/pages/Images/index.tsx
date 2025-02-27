@@ -92,8 +92,7 @@ const Images = () => {
       setIsTesting(true);
       
       const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: {},
-        query: { test: 'true' }
+        body: { test: true }
       });
       
       if (error) {
