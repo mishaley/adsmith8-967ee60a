@@ -29,7 +29,11 @@ const New = () => {
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
-    setSelectedOrgId(value);
+    if (value === "clear-selection") {
+      setSelectedOrgId("");
+    } else {
+      setSelectedOrgId(value);
+    }
   };
 
   return (
