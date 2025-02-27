@@ -15,6 +15,7 @@ import {
 const New = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
   const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
+  const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
 
   const { data: organizations = [] } = useQuery({
     queryKey: ["organizations"],
@@ -29,7 +30,7 @@ const New = () => {
   });
 
   // Query offerings based on selected organization
-  const { data: offerings = [], refetch: refetchOfferings } = useQuery({
+  const { data: offerings = [] } = useQuery({
     queryKey: ["offerings", selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
@@ -45,10 +46,32 @@ const New = () => {
     enabled: !!selectedOrgId, // Only run query if an organization is selected
   });
 
+  // Query personas based on selected offering
+  const { data: personas = [] } = useQuery({
+    queryKey: ["personas", selectedOfferingId],
+    queryFn: async () => {
+      if (!selectedOfferingId) return [];
+      
+      const { data, error } = await supabase
+        .from("c1personas")
+        .select("persona_id, persona_name")
+        .eq("offering_id", selectedOfferingId);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!selectedOfferingId, // Only run query if an offering is selected
+  });
+
   // Reset offering selection when organization changes
   useEffect(() => {
     setSelectedOfferingId("");
   }, [selectedOrgId]);
+
+  // Reset persona selection when offering changes
+  useEffect(() => {
+    setSelectedPersonaId("");
+  }, [selectedOfferingId]);
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
@@ -65,6 +88,15 @@ const New = () => {
       setSelectedOfferingId("");
     } else {
       setSelectedOfferingId(value);
+    }
+  };
+
+  // Handle persona selection change
+  const handlePersonaChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedPersonaId("");
+    } else {
+      setSelectedPersonaId(value);
     }
   };
 
@@ -127,6 +159,42 @@ const New = () => {
                             </SelectItem>
                           ))}
                           {offerings.length > 0 && (
+                            <>
+                              <SelectSeparator className="my-1" />
+                              <SelectItem value="clear-selection" className="text-gray-500">
+                                Clear
+                              </SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
+                    <span className="font-medium">Persona</span>
+                  </td>
+                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
+                    <div className="relative inline-block w-auto">
+                      <Select 
+                        value={selectedPersonaId} 
+                        onValueChange={handlePersonaChange}
+                        disabled={!selectedOfferingId}
+                      >
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {personas.map((persona) => (
+                            <SelectItem 
+                              key={persona.persona_id} 
+                              value={persona.persona_id}
+                            >
+                              {persona.persona_name}
+                            </SelectItem>
+                          ))}
+                          {personas.length > 0 && (
                             <>
                               <SelectSeparator className="my-1" />
                               <SelectItem value="clear-selection" className="text-gray-500">
