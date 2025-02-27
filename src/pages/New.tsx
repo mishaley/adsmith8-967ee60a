@@ -14,7 +14,7 @@ import {
 
 const New = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
-  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
+  const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
   const [selectedMessageId, setSelectedMessageId] = useState<string>("");
 
@@ -47,21 +47,28 @@ const New = () => {
     enabled: !!selectedOrgId, // Only run query if an organization is selected
   });
 
-  // Query personas based on selected offering
+  // Get offering names map for display
+  const offeringsMap = offerings.reduce((acc, offering) => {
+    acc[offering.offering_id] = offering.offering_name;
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Query personas based on selected offerings
+  // Now uses "in" filter to find personas from any of the selected offerings
   const { data: personas = [] } = useQuery({
-    queryKey: ["personas", selectedOfferingId],
+    queryKey: ["personas", selectedOfferingIds],
     queryFn: async () => {
-      if (!selectedOfferingId) return [];
+      if (!selectedOfferingIds.length) return [];
       
       const { data, error } = await supabase
         .from("c1personas")
-        .select("persona_id, persona_name")
-        .eq("offering_id", selectedOfferingId);
+        .select("persona_id, persona_name, offering_id")
+        .in("offering_id", selectedOfferingIds);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedOfferingId, // Only run query if an offering is selected
+    enabled: selectedOfferingIds.length > 0, // Only run query if offerings are selected
   });
 
   // Query messages based on selected persona
@@ -81,15 +88,15 @@ const New = () => {
     enabled: !!selectedPersonaId, // Only run query if a persona is selected
   });
 
-  // Reset offering selection when organization changes
+  // Reset offerings selection when organization changes
   useEffect(() => {
-    setSelectedOfferingId("");
+    setSelectedOfferingIds([]);
   }, [selectedOrgId]);
 
-  // Reset persona selection when offering changes
+  // Reset persona selection when offerings change
   useEffect(() => {
     setSelectedPersonaId("");
-  }, [selectedOfferingId]);
+  }, [selectedOfferingIds]);
 
   // Reset message selection when persona changes
   useEffect(() => {
@@ -105,12 +112,19 @@ const New = () => {
     }
   };
 
-  // Handle offering selection change
+  // Handle offering selection changes - now adds/removes from array
   const handleOfferingChange = (value: string) => {
     if (value === "clear-selection") {
-      setSelectedOfferingId("");
+      setSelectedOfferingIds([]);
     } else {
-      setSelectedOfferingId(value);
+      // Check if the value is already selected
+      if (selectedOfferingIds.includes(value)) {
+        // If already selected, remove it
+        setSelectedOfferingIds(selectedOfferingIds.filter(id => id !== value));
+      } else {
+        // If not already selected, add it
+        setSelectedOfferingIds([...selectedOfferingIds, value]);
+      }
     }
   };
 
@@ -130,6 +144,12 @@ const New = () => {
     } else {
       setSelectedMessageId(value);
     }
+  };
+
+  // Create display text for selected offerings
+  const getSelectedOfferingsText = () => {
+    if (selectedOfferingIds.length === 0) return "";
+    return selectedOfferingIds.map(id => offeringsMap[id]).join(", ");
   };
 
   return (
@@ -173,33 +193,74 @@ const New = () => {
                   </td>
                   <td className="border border-transparent p-4" style={{ width: "99%" }}>
                     <div className="relative inline-block w-auto">
-                      <Select 
-                        value={selectedOfferingId} 
-                        onValueChange={handleOfferingChange}
-                        disabled={!selectedOrgId}
-                      >
-                        <SelectTrigger className="w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {offerings.map((offering) => (
-                            <SelectItem 
-                              key={offering.offering_id} 
-                              value={offering.offering_id}
+                      {/* The multi-select offering dropdown */}
+                      <div className="flex flex-col space-y-1">
+                        <div className="relative w-full">
+                          <button
+                            type="button"
+                            className={`flex h-9 w-full items-center justify-between rounded px-3 py-2 text-sm ${
+                              !selectedOrgId ? "opacity-50 cursor-not-allowed bg-gray-100" : "bg-white"
+                            }`}
+                            disabled={!selectedOrgId}
+                            onClick={(e) => {
+                              const dropdown = e.currentTarget.nextElementSibling;
+                              if (dropdown) {
+                                dropdown.classList.toggle("hidden");
+                              }
+                            }}
+                          >
+                            <span className="truncate">
+                              {getSelectedOfferingsText() || "Select offerings..."}
+                            </span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4 opacity-50"
                             >
-                              {offering.offering_name}
-                            </SelectItem>
-                          ))}
-                          {offerings.length > 0 && (
-                            <>
-                              <SelectSeparator className="my-1" />
-                              <SelectItem value="clear-selection" className="text-gray-500">
-                                Clear
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </button>
+                          <div className="absolute z-50 hidden w-full rounded-md border border-gray-200 bg-white shadow-md mt-1">
+                            <div className="max-h-60 overflow-auto p-1">
+                              {offerings.map((offering) => (
+                                <div
+                                  key={offering.offering_id}
+                                  className={`flex items-center space-x-2 rounded px-2 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                    selectedOfferingIds.includes(offering.offering_id) ? "bg-gray-100" : ""
+                                  }`}
+                                  onClick={() => handleOfferingChange(offering.offering_id)}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedOfferingIds.includes(offering.offering_id)}
+                                    onChange={() => {}}
+                                    className="h-4 w-4"
+                                  />
+                                  <span>{offering.offering_name}</span>
+                                </div>
+                              ))}
+                              {offerings.length > 0 && (
+                                <>
+                                  <div className="my-1 h-px bg-gray-200" />
+                                  <div
+                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
+                                    onClick={() => handleOfferingChange("clear-selection")}
+                                  >
+                                    Clear
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -212,7 +273,7 @@ const New = () => {
                       <Select 
                         value={selectedPersonaId} 
                         onValueChange={handlePersonaChange}
-                        disabled={!selectedOfferingId}
+                        disabled={selectedOfferingIds.length === 0}
                       >
                         <SelectTrigger className="w-full bg-white">
                           <SelectValue placeholder="" />
