@@ -117,7 +117,7 @@ const Images = () => {
               idField="image_id" 
             />
             
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="w-1/2 bg-white rounded-lg shadow p-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">AI image generation test</h3>
                 <Button 
