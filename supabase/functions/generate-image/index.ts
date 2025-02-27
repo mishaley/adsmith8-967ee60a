@@ -42,11 +42,19 @@ serve(async (req) => {
     const data = await response.json();
     console.log("Response received:", JSON.stringify(data));
 
-    // Extract the image URL from the Ideogram response
+    // Extract the image URL from the Ideogram response based on documentation
     const image_url = data.data?.[0]?.url;
     if (!image_url) {
-      console.error("No image URL in response data:", data);
-      throw new Error('No image URL in Ideogram response');
+      // Try alternate path based on documentation
+      const url = data.data?.[0]?.uri || data.data?.[0]?.url;
+      if (!url) {
+        console.error("No image URL in response data:", data);
+        throw new Error('No image URL in Ideogram response');
+      }
+      return new Response(JSON.stringify({ image_url: url }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200
+      });
     }
 
     return new Response(JSON.stringify({ image_url }), {
