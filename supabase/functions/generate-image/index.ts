@@ -20,15 +20,23 @@ serve(async (req) => {
       throw new Error('Ideogram API key not found');
     }
 
+    let prompt = "Cute doggy";
+    try {
+      const body = await req.json();
+      if (body.prompt) {
+        prompt = body.prompt;
+      }
+    } catch (e) {
+      console.log("No body provided, using default prompt");
+    }
+
     const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: "Cute doggy"
-      })
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {

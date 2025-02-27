@@ -88,7 +88,11 @@ const Images = () => {
   const handleGenerateImage = async () => {
     try {
       setIsGenerating(true);
-      const { data, error } = await supabase.functions.invoke('generate-image');
+      setGeneratedImageUrl(null);
+      
+      const { data, error } = await supabase.functions.invoke('generate-image', {
+        body: { prompt: "Cute doggy" }
+      });
       
       if (error) {
         console.error('Error generating image:', error);
