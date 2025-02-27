@@ -33,19 +33,23 @@ serve(async (req) => {
       body: JSON.stringify({
         prompt: prompt || "A cute doggy",
         n: 1,
-        model: "dalle-3", // Using DALL-E 3 as the default model
+        model: "dalle-3",
         size: "1024x1024",
         quality: "standard",
         style: "vivid"
       })
     });
 
-    console.log("4. Response status:", response.status);
     const responseData = await response.json();
-    console.log("5. Response data:", responseData);
+    console.log("4. Response status:", response.status);
+    console.log("5. Response data:", JSON.stringify(responseData, null, 2));
 
     if (!response.ok) {
       throw new Error(`ModelsLab API error: ${response.status} - ${JSON.stringify(responseData)}`);
+    }
+
+    if (!responseData.data?.[0]?.url) {
+      throw new Error('No image URL in ModelsLab API response');
     }
 
     // ModelsLab returns an array of image URLs
@@ -61,7 +65,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      status: 500
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
     });
