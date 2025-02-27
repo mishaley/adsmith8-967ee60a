@@ -18,9 +18,43 @@ const Offerings = () => {
     },
   });
 
+  const { data: objectiveEnumValues = [] } = useQuery({
+    queryKey: ["offering_objective_enum"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_enum_values', { enum_name: 'offering_objective' });
+      if (error) {
+        console.error("Error fetching offering_objective enum values:", error);
+        return [];
+      }
+      return data || [];
+    },
+  });
+
+  const { data: specialCategoryEnumValues = [] } = useQuery({
+    queryKey: ["offering_specialcategory_enum"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_enum_values', { enum_name: 'offering_specialcategory' });
+      if (error) {
+        console.error("Error fetching offering_specialcategory enum values:", error);
+        return [];
+      }
+      return data || [];
+    },
+  });
+
   const organizationOptions = organizations.map(org => ({
     value: org.organization_id,
     label: org.organization_name
+  }));
+
+  const objectiveOptions = objectiveEnumValues.map(value => ({
+    value: value,
+    label: value
+  }));
+
+  const specialCategoryOptions = specialCategoryEnumValues.map(value => ({
+    value: value,
+    label: value
   }));
 
   const columns: ColumnDef[] = [
@@ -39,7 +73,23 @@ const Offerings = () => {
       required: true,
       options: organizationOptions,
       displayField: "organization_name",
-      searchField: "label" // Add this to search by organization name
+      searchField: "label"
+    },
+    {
+      field: "offering_objective",
+      header: "Objective",
+      inputMode: "select",
+      editable: true,
+      required: true,
+      options: objectiveOptions
+    },
+    {
+      field: "offering_specialcategory",
+      header: "Special Category",
+      inputMode: "select",
+      editable: true,
+      required: true,
+      options: specialCategoryOptions
     },
     {
       field: "created_at",
@@ -60,6 +110,8 @@ const Offerings = () => {
           offering_id,
           offering_name,
           organization_id,
+          offering_objective,
+          offering_specialcategory,
           created_at,
           a1organizations (
             organization_name
@@ -76,6 +128,8 @@ const Offerings = () => {
         offering_name: row.offering_name,
         organization_id: row.organization_id,
         organization_name: row.a1organizations?.organization_name,
+        offering_objective: row.offering_objective,
+        offering_specialcategory: row.offering_specialcategory,
         created_at: row.created_at
       }));
     },

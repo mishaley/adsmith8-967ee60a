@@ -35,18 +35,24 @@ export type Database = {
           created_at: string
           offering_id: string
           offering_name: string
+          offering_objective: Database["public"]["Enums"]["offering_objective"]
+          offering_specialcategory: Database["public"]["Enums"]["offering_specialcategory"]
           organization_id: string
         }
         Insert: {
           created_at?: string
           offering_id?: string
           offering_name: string
+          offering_objective: Database["public"]["Enums"]["offering_objective"]
+          offering_specialcategory?: Database["public"]["Enums"]["offering_specialcategory"]
           organization_id: string
         }
         Update: {
           created_at?: string
           offering_id?: string
           offering_name?: string
+          offering_objective?: Database["public"]["Enums"]["offering_objective"]
+          offering_specialcategory?: Database["public"]["Enums"]["offering_specialcategory"]
           organization_id?: string
         }
         Relationships: [
@@ -258,6 +264,13 @@ export type Database = {
         | "2uniqueoffering"
         | "3valueprop"
         | "9clientprovided"
+      offering_objective: "Sales" | "App"
+      offering_specialcategory:
+        | "None"
+        | "Financial products and services"
+        | "Employment"
+        | "Housing"
+        | "Social issues, elections or politics"
       persona_gender: "Women" | "Men" | "Both"
     }
     CompositeTypes: {
