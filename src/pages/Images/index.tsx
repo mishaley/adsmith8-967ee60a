@@ -7,10 +7,12 @@ import { useEffect, useState } from "react";
 import { getColumns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const Images = () => {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
@@ -85,6 +87,32 @@ const Images = () => {
     };
   }, [refetch]);
 
+  const handleTestApiKey = async () => {
+    try {
+      setIsTesting(true);
+      
+      const { data, error } = await supabase.functions.invoke('generate-image', {
+        body: {},
+        query: { test: 'true' }
+      });
+      
+      if (error) {
+        toast.error('Error testing API key: ' + error.message);
+        return;
+      }
+
+      if (data?.status === 'API Key is valid') {
+        toast.success('API key is valid!');
+      } else {
+        toast.error('API key validation failed');
+      }
+    } catch (error) {
+      toast.error('Error: ' + (error as Error).message);
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
   const handleGenerateImage = async () => {
     try {
       setIsGenerating(true);
@@ -124,12 +152,21 @@ const Images = () => {
             <div className="w-1/2 bg-white rounded-lg shadow p-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">AI image generation test</h3>
-                <Button 
-                  onClick={handleGenerateImage}
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? 'Generating...' : 'Run'}
-                </Button>
+                <div className="space-x-2">
+                  <Button 
+                    variant="outline"
+                    onClick={handleTestApiKey}
+                    disabled={isTesting}
+                  >
+                    {isTesting ? 'Testing...' : 'Test API Key'}
+                  </Button>
+                  <Button 
+                    onClick={handleGenerateImage}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? 'Generating...' : 'Run'}
+                  </Button>
+                </div>
               </div>
               
               <div className={cn(
