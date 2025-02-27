@@ -18,53 +18,24 @@ const Offerings = () => {
     },
   });
 
-  // Fetch enum values for offering_objective
-  const { data: objectiveEnumValues = [] as string[] } = useQuery({
-    queryKey: ["offering_objective_enum"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_enum_values', { 
-        enum_name: 'offering_objective' 
-      });
-      
-      if (error) {
-        console.error("Error fetching offering_objective enum values:", error);
-        return [] as string[];
-      }
-      
-      return data || [] as string[];
-    },
-  });
+  // Define objective options directly like in Personas
+  const objectiveOptions = [
+    { value: "Sales", label: "Sales" },
+    { value: "App", label: "App" }
+  ];
 
-  // Fetch enum values for offering_specialcategory
-  const { data: specialCategoryEnumValues = [] as string[] } = useQuery({
-    queryKey: ["offering_specialcategory_enum"],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_enum_values', { 
-        enum_name: 'offering_specialcategory' 
-      });
-      
-      if (error) {
-        console.error("Error fetching offering_specialcategory enum values:", error);
-        return [] as string[];
-      }
-      
-      return data || [] as string[];
-    },
-  });
+  // Define specialCategory options directly like in Personas
+  const specialCategoryOptions = [
+    { value: "None", label: "None" },
+    { value: "Financial products and services", label: "Financial products and services" },
+    { value: "Employment", label: "Employment" },
+    { value: "Housing", label: "Housing" },
+    { value: "Social issues, elections or politics", label: "Social issues, elections or politics" }
+  ];
 
   const organizationOptions = organizations.map(org => ({
     value: org.organization_id,
     label: org.organization_name
-  }));
-
-  const objectiveOptions = objectiveEnumValues.map((value) => ({
-    value: value,
-    label: value
-  }));
-
-  const specialCategoryOptions = specialCategoryEnumValues.map((value) => ({
-    value: value,
-    label: value
   }));
 
   const columns: ColumnDef[] = [
