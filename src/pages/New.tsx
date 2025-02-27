@@ -34,7 +34,7 @@ const New = () => {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap">
+                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
                     <span className="font-medium">Organization</span>
                   </td>
                   <td className="border border-transparent p-4">
@@ -42,7 +42,7 @@ const New = () => {
                       <SelectTrigger className="w-full bg-white">
                         <SelectValue placeholder="" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {organizations.map((org) => (
                           <SelectItem 
                             key={org.organization_id} 
