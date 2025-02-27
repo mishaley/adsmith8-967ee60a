@@ -32,7 +32,7 @@ export function TableNewRecordInput({ column, value, onChange, cellContentClass 
             <SelectValue />
           </SelectTrigger>
           <SelectContent 
-            className="bg-white border rounded-md shadow-md z-50 w-[var(--radix-select-trigger-width)]"
+            className="bg-white border rounded-md shadow-md z-50"
             align="start"
             sideOffset={0}
             alignOffset={0}

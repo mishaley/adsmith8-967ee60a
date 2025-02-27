@@ -74,7 +74,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 overflow-hidden shadow-md rounded-none min-w-[var(--radix-select-trigger-width)]",
+        "relative z-50 overflow-hidden shadow-md rounded-none",
         className
       )}
       position={position}
@@ -85,7 +85,7 @@ const SelectContent = React.forwardRef<
         className={cn(
           "p-1",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+            "h-[var(--radix-select-trigger-height)] w-full"
         )}
       >
         {children}

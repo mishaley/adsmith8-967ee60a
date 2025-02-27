@@ -254,7 +254,7 @@ const New = () => {
                               <path d="m6 9 6 6 6-6" />
                             </svg>
                           </button>
-                          <div className="absolute z-50 hidden w-full rounded-md border border-gray-200 bg-white shadow-md mt-1">
+                          <div className="absolute z-50 hidden w-auto min-w-full rounded-md border border-gray-200 bg-white shadow-md mt-1">
                             <div className="max-h-60 overflow-auto p-1">
                               {offerings.map((offering) => (
                                 <div
@@ -270,7 +270,7 @@ const New = () => {
                                     onChange={() => {}}
                                     className="h-4 w-4"
                                   />
-                                  <span className="truncate">{offering.offering_name}</span>
+                                  <span>{offering.offering_name}</span>
                                 </div>
                               ))}
                               {offerings.length > 0 && (
