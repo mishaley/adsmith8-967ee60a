@@ -1,12 +1,15 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getColumns } from "./columns";
+import { Button } from "@/components/ui/button";
 
 const Images = () => {
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -21,6 +24,22 @@ const Images = () => {
     value: message.message_id,
     label: message.message_name
   }));
+
+  const handleGenerateImage = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-image');
+      
+      if (error) throw error;
+      if (!data?.image_url) throw new Error('No image URL in response');
+      
+      setGeneratedImage(data.image_url);
+    } catch (error) {
+      console.error('Error generating image:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const { data = [], refetch } = useQuery({
     queryKey: ["images"],
@@ -83,12 +102,41 @@ const Images = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable 
-          data={data} 
-          columns={getColumns(messageOptions)} 
-          tableName="e1images" 
-          idField="image_id" 
-        />,
+        q4: (
+          <div className="space-y-8">
+            <SharedTable 
+              data={data} 
+              columns={getColumns(messageOptions)} 
+              tableName="e1images" 
+              idField="image_id" 
+            />
+            <div className="bg-[#F6F6F7] rounded-lg p-6 shadow-sm" style={{ height: '300px', width: '500px' }}>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-[#403E43]">Ideogram Test</h2>
+                <Button 
+                  variant="default" 
+                  onClick={handleGenerateImage}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Generating...' : 'Run'}
+                </Button>
+              </div>
+              <div className="flex items-center justify-center h-[200px] bg-white rounded-md">
+                {isLoading ? (
+                  <div className="text-gray-500">Generating image...</div>
+                ) : generatedImage ? (
+                  <img 
+                    src={generatedImage} 
+                    alt="Generated image"
+                    className="max-h-full max-w-full object-contain rounded-md"
+                  />
+                ) : (
+                  <div className="text-gray-500">Click 'Run' to generate an image</div>
+                )}
+              </div>
+            </div>
+          </div>
+        ),
       }}
     </QuadrantLayout>
   );
