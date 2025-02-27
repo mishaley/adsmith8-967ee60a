@@ -14,7 +14,7 @@ serve(async (req) => {
 
   try {
     const apiKey = Deno.env.get('IDEOGRAM_API_KEY');
-    console.log("Starting API call");
+    console.log("Starting API call with key present:", !!apiKey);
     
     if (!apiKey) {
       throw new Error('Ideogram API key not found in environment');
@@ -32,12 +32,19 @@ serve(async (req) => {
       })
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error Response:", errorText);
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
     const data = await response.json();
-    console.log("Response received:", data);
+    console.log("Response received:", JSON.stringify(data));
 
     // Extract the image URL from the Ideogram response
     const image_url = data.output?.[0]?.image_url;
     if (!image_url) {
+      console.error("No image URL in response data:", data);
       throw new Error('No image URL in Ideogram response');
     }
 
