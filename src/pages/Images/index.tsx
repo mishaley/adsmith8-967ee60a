@@ -3,15 +3,10 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getColumns } from "./columns";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 const Images = () => {
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -26,41 +21,6 @@ const Images = () => {
     value: message.message_id,
     label: message.message_name
   }));
-
-  const handleGenerateImage = async () => {
-    setIsLoading(true);
-    setGeneratedImage(null); // Clear previous image
-    
-    try {
-      console.log("Frontend: Starting image generation request");
-      const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt: "A cute puppy playing in a garden" }
-      });
-      
-      console.log("Frontend: Response received", { data, error });
-      
-      if (error) {
-        console.error("Frontend: Supabase function error:", error);
-        toast.error(`Error: ${error.message}`);
-        return;
-      }
-
-      if (!data?.image_url) {
-        console.error("Frontend: No image URL in response:", data);
-        toast.error('No image URL received from the API');
-        return;
-      }
-
-      console.log("Frontend: Setting image URL:", data.image_url);
-      setGeneratedImage(data.image_url);
-      toast.success('Image generated successfully!');
-    } catch (error) {
-      console.error('Frontend: Error generating image:', error);
-      toast.error('Failed to generate image. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const { data = [], refetch } = useQuery({
     queryKey: ["images"],
@@ -123,41 +83,12 @@ const Images = () => {
   return (
     <QuadrantLayout>
       {{
-        q4: (
-          <div className="space-y-8">
-            <SharedTable 
-              data={data} 
-              columns={getColumns(messageOptions)} 
-              tableName="e1images" 
-              idField="image_id" 
-            />
-            <div className="bg-[#F6F6F7] rounded-lg p-6 shadow-sm" style={{ height: '300px', width: '500px' }}>
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-[#403E43]">AI Image Generation</h2>
-                <Button 
-                  variant="default" 
-                  onClick={handleGenerateImage}
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Generating...' : 'Generate Image'}
-                </Button>
-              </div>
-              <div className="flex items-center justify-center h-[200px] bg-white rounded-md">
-                {isLoading ? (
-                  <div className="text-gray-500">Generating image...</div>
-                ) : generatedImage ? (
-                  <img 
-                    src={generatedImage} 
-                    alt="Generated image"
-                    className="max-h-full max-w-full object-contain rounded-md"
-                  />
-                ) : (
-                  <div className="text-gray-500">Click 'Generate Image' to create an image</div>
-                )}
-              </div>
-            </div>
-          </div>
-        ),
+        q4: <SharedTable 
+          data={data} 
+          columns={getColumns(messageOptions)} 
+          tableName="e1images" 
+          idField="image_id" 
+        />,
       }}
     </QuadrantLayout>
   );
