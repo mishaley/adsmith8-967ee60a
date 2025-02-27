@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -110,19 +109,11 @@ const Images = () => {
         return;
       }
 
-      // If we got images back, show them in the test section
       if (data?.images) {
-        const imageUrls = await Promise.all(data.images.map(async (image: any) => {
-          const { data: { publicUrl } } = supabase.storage
-            .from('adsmith_assets')
-            .getPublicUrl(image.image_storage);
-          return publicUrl;
-        }));
+        const imageUrls = data.images.map((img: any) => img.image_storage);
         setGeneratedImages(imageUrls);
+        toast.success('Images generated successfully');
       }
-
-      toast.success('Images generated successfully');
-      refetch();
     } catch (error) {
       console.error('Unexpected error:', error);
       toast.error('Failed to generate images: ' + (error as Error).message);
@@ -142,7 +133,6 @@ const Images = () => {
               onAdd={handleCreateImage}
             />
             
-            {/* Test section for generated images */}
             {generatedImages.length > 0 && (
               <div className="mt-8">
                 <h3 className="text-lg font-semibold mb-4">Recently Generated Images:</h3>
