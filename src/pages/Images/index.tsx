@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { getColumns } from "./columns";
+import { Button } from "@/components/ui/button";
 
 const Images = () => {
   const { data: messages = [] } = useQuery({
@@ -92,7 +93,10 @@ const Images = () => {
               idField="image_id" 
             />
             <div className="bg-[#F6F6F7] rounded-lg p-6 shadow-sm" style={{ height: '300px', width: '1000px' }}>
-              <h2 className="text-xl font-semibold text-[#403E43] mb-4">Ideogram test</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-[#403E43]">Ideogram test</h2>
+                <Button variant="default">Run</Button>
+              </div>
             </div>
           </div>
         ),
