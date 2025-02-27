@@ -3,15 +3,10 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getColumns } from "./columns";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 const Images = () => {
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -85,69 +80,15 @@ const Images = () => {
     };
   }, [refetch]);
 
-  const handleGenerateImage = async () => {
-    try {
-      setIsGenerating(true);
-      const { data, error } = await supabase.functions.invoke('generate-image');
-      
-      if (error) {
-        console.error('Error generating image:', error);
-        return;
-      }
-
-      if (data?.image_url) {
-        setGeneratedImageUrl(data.image_url);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   return (
     <QuadrantLayout>
       {{
-        q4: (
-          <div className="space-y-6">
-            <SharedTable 
-              data={data} 
-              columns={getColumns(messageOptions)} 
-              tableName="e1images" 
-              idField="image_id" 
-            />
-            
-            <div className="w-1/2 bg-white rounded-lg shadow p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">AI image generation test</h3>
-                <Button 
-                  onClick={handleGenerateImage}
-                  disabled={isGenerating}
-                >
-                  {isGenerating ? 'Generating...' : 'Run'}
-                </Button>
-              </div>
-              
-              <div className={cn(
-                "w-full h-[300px] border rounded-lg",
-                "flex items-center justify-center",
-                !generatedImageUrl && "bg-gray-50"
-              )}>
-                {generatedImageUrl ? (
-                  <img 
-                    src={generatedImageUrl} 
-                    alt="Generated" 
-                    className="max-w-full max-h-full object-contain"
-                  />
-                ) : (
-                  <p className="text-gray-500">
-                    {isGenerating ? 'Generating image...' : 'Generated image will appear here'}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        ),
+        q4: <SharedTable 
+          data={data} 
+          columns={getColumns(messageOptions)} 
+          tableName="e1images" 
+          idField="image_id" 
+        />,
       }}
     </QuadrantLayout>
   );
