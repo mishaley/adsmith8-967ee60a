@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Edge Function: Starting Ideogram API request");
+    console.log("Edge Function: Starting request handling");
     
     const apiKey = Deno.env.get('IDEOGRAM_API_KEY');
     console.log("Edge Function: API key present:", !!apiKey);
@@ -21,50 +21,53 @@ serve(async (req) => {
       throw new Error('API key is not configured');
     }
 
+    const requestBody = {
+      prompt: "Cute doggy",
+      image_resolution: "RESOLUTION_1024_1024",
+      style: "auto",
+      visibility: "private",
+      magic_prompt: true,
+      rendering: "quality",
+      num_images: 1
+    };
+
+    console.log("Edge Function: Request body:", requestBody);
+    console.log("Edge Function: About to make Ideogram API call...");
+
     const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: "Cute doggy",
-        image_resolution: "RESOLUTION_1024_1024",
-        style: "auto",
-        visibility: "private",
-        magic_prompt: true,
-        rendering: "quality",
-        num_images: 1
-      })
+      body: JSON.stringify(requestBody)
     });
 
-    console.log("Edge Function: Response status:", response.status);
+    console.log("Edge Function: Ideogram API response status:", response.status);
     
     const responseText = await response.text();
-    console.log("Edge Function: Raw response:", responseText);
+    console.log("Edge Function: Raw Ideogram API response:", responseText);
     
-    let data;
     try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      console.error("Edge Function: Failed to parse response as JSON:", e);
-      throw new Error('Invalid response from Ideogram API');
-    }
-    
-    console.log("Edge Function: Parsed response data:", data);
+      const data = JSON.parse(responseText);
+      console.log("Edge Function: Parsed response data:", data);
+      
+      if (!response.ok) {
+        throw new Error(`Ideogram API error (${response.status}): ${data.message || responseText}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(`Ideogram API error (${response.status}): ${data.message || responseText || 'Unknown error'}`);
-    }
+      if (!data.image_url) {
+        throw new Error('No image URL in Ideogram API response');
+      }
 
-    if (!data.image_url) {
-      throw new Error('No image URL in Ideogram API response');
+      return new Response(JSON.stringify({ image_url: data.image_url }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    } catch (parseError) {
+      console.error("Edge Function: JSON parse error:", parseError);
+      throw new Error(`Failed to parse Ideogram API response: ${responseText}`);
     }
-
-    return new Response(JSON.stringify({ image_url: data.image_url }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
   } catch (error) {
     console.error("Edge Function Error:", error.message);
     return new Response(JSON.stringify({ 
@@ -73,6 +76,6 @@ serve(async (req) => {
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
-    })
+    });
   }
-})
+});
