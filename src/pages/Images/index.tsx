@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -29,28 +30,12 @@ const Images = () => {
   const handleGenerateImage = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabase.IDEOGRAM_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: "Cute doggy",
-          image_resolution: "RESOLUTION_1024_1024",
-          style: "auto",
-          visibility: "private",
-          magic_prompt: true,
-          rendering: "quality",
-          num_images: 1
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate image');
+      const { data, error } = await supabase.functions.invoke('generate-image');
+      
+      if (error) {
+        throw error;
       }
 
-      const data = await response.json();
       if (data.image_url) {
         setGeneratedImage(data.image_url);
       }
