@@ -43,16 +43,39 @@ serve(async (req) => {
     if (body.test === true) {
       try {
         console.log('Testing API key...');
+        console.log('API Key first 4 chars:', apiKey.substring(0, 4));
+        
         const testResponse = await fetch('https://ideogram.ai/api/v1/me', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${apiKey}`
+            'Authorization': `Bearer ${apiKey}`,
+            'Accept': 'application/json'
           }
         });
 
-        const responseData = await testResponse.json();
-        console.log('API test response:', responseData);
+        console.log('Test response status:', testResponse.status);
+        console.log('Test response headers:', Object.fromEntries(testResponse.headers.entries()));
         
+        let responseData;
+        const responseText = await testResponse.text();
+        console.log('Raw response:', responseText.substring(0, 200));
+        
+        try {
+          responseData = JSON.parse(responseText);
+        } catch (e) {
+          console.error('Failed to parse response as JSON:', e);
+          return new Response(
+            JSON.stringify({ 
+              error: 'Invalid response from Ideogram API',
+              details: responseText.substring(0, 200)
+            }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 200
+            }
+          );
+        }
+
         if (!testResponse.ok) {
           console.error('API Key validation failed:', responseData);
           return new Response(
@@ -99,12 +122,30 @@ serve(async (req) => {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ prompt })
       });
 
-      const data = await response.json();
-      console.log('Ideogram API response:', JSON.stringify(data).substring(0, 200) + '...');
+      let data;
+      const responseText = await response.text();
+      console.log('Raw generation response:', responseText.substring(0, 200));
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse generation response as JSON:', e);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid response from Ideogram API',
+            details: responseText.substring(0, 200)
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      }
 
       if (!response.ok) {
         console.error('Image generation failed:', data);
