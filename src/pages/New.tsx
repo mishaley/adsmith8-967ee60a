@@ -27,6 +27,11 @@ const New = () => {
     },
   });
 
+  // Handle organization selection change
+  const handleOrgChange = (value: string) => {
+    setSelectedOrgId(value);
+  };
+
   return (
     <QuadrantLayout>
       {{
@@ -40,7 +45,7 @@ const New = () => {
                   </td>
                   <td className="border border-transparent p-4" style={{ width: "99%" }}>
                     <div className="relative inline-block w-auto">
-                      <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+                      <Select value={selectedOrgId} onValueChange={handleOrgChange}>
                         <SelectTrigger className="w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
@@ -54,7 +59,7 @@ const New = () => {
                             </SelectItem>
                           ))}
                           <SelectSeparator className="my-1" />
-                          <SelectItem value="" className="text-gray-500">
+                          <SelectItem value="clear-selection" className="text-gray-500">
                             Clear
                           </SelectItem>
                         </SelectContent>
