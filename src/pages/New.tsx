@@ -34,13 +34,13 @@ const New = () => {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 p-4 whitespace-nowrap">
+                  <td className="border border-transparent p-4 whitespace-nowrap">
                     <span className="font-medium">Organization</span>
                   </td>
-                  <td className="border border-gray-300 p-4">
+                  <td className="border border-transparent p-4">
                     <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
                       <SelectTrigger className="w-full bg-white">
-                        <SelectValue placeholder="Select an organization" />
+                        <SelectValue placeholder="" />
                       </SelectTrigger>
                       <SelectContent>
                         {organizations.map((org) => (
