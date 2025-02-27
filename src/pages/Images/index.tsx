@@ -1,13 +1,16 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getColumns } from "./columns";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Images = () => {
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -22,6 +25,42 @@ const Images = () => {
     value: message.message_id,
     label: message.message_name
   }));
+
+  const handleGenerateImage = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabase.IDEOGRAM_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: "Cute doggy",
+          image_resolution: "RESOLUTION_1024_1024",
+          style: "auto",
+          visibility: "private",
+          magic_prompt: true,
+          rendering: "quality",
+          num_images: 1
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate image');
+      }
+
+      const data = await response.json();
+      if (data.image_url) {
+        setGeneratedImage(data.image_url);
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Failed to generate image. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const { data = [], refetch } = useQuery({
     queryKey: ["images"],
@@ -95,7 +134,22 @@ const Images = () => {
             <div className="bg-[#F6F6F7] rounded-lg p-6 shadow-sm" style={{ height: '300px', width: '1000px' }}>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-[#403E43]">Ideogram test</h2>
-                <Button variant="default">Run</Button>
+                <Button 
+                  variant="default" 
+                  onClick={handleGenerateImage}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Generating...' : 'Run'}
+                </Button>
+              </div>
+              <div className="flex items-center justify-center h-[200px]">
+                {generatedImage && (
+                  <img 
+                    src={generatedImage} 
+                    alt="Generated image"
+                    className="max-h-full max-w-full object-contain rounded-md"
+                  />
+                )}
               </div>
             </div>
           </div>
