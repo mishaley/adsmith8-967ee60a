@@ -1,5 +1,8 @@
 
 project_id = "kyxotvtinlpackztktxe"
 
+[functions.generate-image]
+verify_jwt = false
+
 [functions.create-org-folders]
 verify_jwt = false
