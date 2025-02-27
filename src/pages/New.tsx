@@ -255,7 +255,7 @@ const New = () => {
                             </svg>
                           </button>
                           <div className="absolute z-50 hidden w-auto min-w-full rounded-md border border-gray-200 bg-white shadow-md mt-1">
-                            <div className="max-h-60 overflow-auto p-1">
+                            <div className="max-h-[300px] overflow-auto p-1">
                               {offerings.map((offering) => (
                                 <div
                                   key={offering.offering_id}
