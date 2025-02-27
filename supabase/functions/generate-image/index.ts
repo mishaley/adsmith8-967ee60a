@@ -12,6 +12,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Edge Function: Starting Ideogram API request");
+
     const response = await fetch('https://api.ideogram.ai/api/v1/generation', {
       method: 'POST',
       headers: {
@@ -29,13 +31,16 @@ serve(async (req) => {
       })
     });
 
+    console.log("Edge Function: Response status:", response.status);
     const data = await response.json();
+    console.log("Edge Function: Response data:", data);
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
   } catch (error) {
+    console.error("Edge Function Error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,

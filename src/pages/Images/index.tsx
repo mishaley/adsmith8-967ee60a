@@ -30,17 +30,24 @@ const Images = () => {
   const handleGenerateImage = async () => {
     setIsLoading(true);
     try {
+      console.log("Frontend: Starting image generation request");
       const { data, error } = await supabase.functions.invoke('generate-image');
+      
+      console.log("Frontend: Response received", { data, error });
       
       if (error) {
         throw error;
       }
 
-      if (data.image_url) {
+      if (data?.image_url) {
+        console.log("Frontend: Setting image URL:", data.image_url);
         setGeneratedImage(data.image_url);
+      } else {
+        console.log("Frontend: No image URL in response:", data);
+        toast.error('No image URL received from the API');
       }
     } catch (error) {
-      console.error('Error generating image:', error);
+      console.error('Frontend: Error generating image:', error);
       toast.error('Failed to generate image. Please try again.');
     } finally {
       setIsLoading(false);
