@@ -6,9 +6,13 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { TableNewRecordInput } from "./components/TableNewRecordInput";
 import { TableColumnProps, EditingCell } from "./types/column-types";
 import { TableRow } from "@/types/table";
-import { TableImageCell } from "./components/TableImageCell";
-import { TableSelectCell } from "./components/TableSelectCell";
-import { TableTextCell } from "./components/TableTextCell";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function TableColumn({
   column,
@@ -27,7 +31,6 @@ export function TableColumn({
   const { mutate } = useTableMutations(tableName, idField);
 
   const isCreatedColumn = column.field === 'created_at';
-  const isImageColumn = column.format === 'image';
 
   const handleSelect = (rowId: string, field: string, newValue: string) => {
     mutate({ 
@@ -46,7 +49,7 @@ export function TableColumn({
   };
 
   const getColumnWidth = () => {
-    if (isImageColumn) return '120px';
+    // For Age Min and Age Max columns, let them be as wide as their headers
     if (column.field === 'persona_agemin' || column.field === 'persona_agemax') {
       return 'min-content';
     }
@@ -58,10 +61,6 @@ export function TableColumn({
     const isEditing = editingCell.rowId === row.id && editingCell.field === column.field;
     const displayValue = column.displayField ? row[column.displayField] : row[column.field];
 
-    if (isImageColumn && row[column.field]) {
-      return <TableImageCell imagePath={row[column.field]} />;
-    }
-
     if (isEditing && column.inputMode === 'select' && column.options) {
       const currentFilter = filters[column.field]?.toLowerCase() || '';
       const filteredOptions = column.options.filter(option => {
@@ -70,27 +69,48 @@ export function TableColumn({
       });
 
       return (
-        <TableSelectCell
-          value={row[column.field]}
-          displayValue={displayValue}
-          options={filteredOptions}
-          onSelect={(value) => handleSelect(row.id, column.field, value)}
+        <Select
+          defaultValue={row[column.field]}
+          onValueChange={(value) => handleSelect(row.id, column.field, value)}
+          defaultOpen={true}
           onOpenChange={(open) => {
             if (!open) {
               setEditingCell({ rowId: null, field: null });
             }
           }}
-        />
+        >
+          <SelectTrigger className="w-full h-full border-none shadow-none focus:ring-0 px-0 bg-transparent text-base font-normal flex items-center">
+            <SelectValue className="text-left" placeholder={displayValue} />
+          </SelectTrigger>
+          <SelectContent 
+            className="bg-white border rounded-md shadow-md z-50 min-w-[200px]"
+            position="popper"
+            sideOffset={5}
+          >
+            {filteredOptions.map((option) => (
+              <SelectItem 
+                key={option.value} 
+                value={option.value}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-base"
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       );
     }
 
     if (isEditing && column.inputMode === 'text') {
       return (
-        <TableTextCell
-          value={row[column.field]}
-          onBlur={(value) => handleSelect(row.id, column.field, value)}
-          isCenter={isCreatedColumn}
-        />
+        <div className="w-full" onClick={(e) => e.stopPropagation()}>
+          <input
+            autoFocus
+            defaultValue={row[column.field]}
+            onBlur={(e) => handleSelect(row.id, column.field, e.target.value)}
+            className={`w-full bg-transparent outline-none focus:ring-0 text-base p-0 ${isCreatedColumn ? 'text-center' : 'text-left'}`}
+          />
+        </div>
       );
     }
 

@@ -11,15 +11,13 @@ interface SharedTableProps<T extends TableName> {
   columns: ColumnDef[];
   tableName: T;
   idField: string;
-  onAdd?: (record: any) => Promise<void>;
 }
 
 function SharedTable<T extends TableName>({
   data: initialData,
   columns,
   tableName,
-  idField,
-  onAdd
+  idField
 }: SharedTableProps<T>) {
   const [sort, setSort] = useState({
     field: "created_at",
@@ -65,8 +63,8 @@ function SharedTable<T extends TableName>({
         const bVal = b[field];
         
         if (field === 'created_at') {
-          const aDate = new Date(aVal || '').getTime();
-          const bDate = new Date(bVal || '').getTime();
+          const aDate = new Date(aVal).getTime();
+          const bDate = new Date(bVal).getTime();
           return direction === "asc" ? aDate - bDate : bDate - aDate;
         }
         
@@ -87,14 +85,8 @@ function SharedTable<T extends TableName>({
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    if (onAdd) {
-      onAdd(newRecord).then(() => {
-        setNewRecord({});
-      });
-    } else {
-      createMutation.mutate(newRecord);
-      setNewRecord({});
-    }
+    createMutation.mutate(newRecord);
+    setNewRecord({});
   };
 
   const handleInputChange = (field: string, value: any) => {

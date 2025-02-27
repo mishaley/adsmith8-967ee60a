@@ -8,7 +8,7 @@ export const getColumns = (messageOptions: { value: string; label: string; }[]):
     header: "Image",
     inputMode: "text",
     editable: false,
-    required: false,
+    required: true,
     format: "image",
     newRecordHidden: true
   },
@@ -71,7 +71,7 @@ export const getColumns = (messageOptions: { value: string; label: string; }[]):
     header: "Status",
     inputMode: "select",
     editable: false,
-    required: false,
+    required: true,
     options: statusOptions,
     newRecordHidden: true
   },

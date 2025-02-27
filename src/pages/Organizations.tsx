@@ -32,11 +32,10 @@ const Organizations = () => {
         .from("a1organizations")
         .select("id:organization_id, organization_name, created_at")
         .order('created_at', { ascending: false });
-        
       return (data || []).map(row => ({
         ...row,
-        // Ensure we're getting a valid date string
-        created_at: row.created_at ? new Date(row.created_at).toISOString() : null
+        // Ensure created_at is properly formatted as an ISO string
+        created_at: new Date(row.created_at).toISOString()
       }));
     },
   });
