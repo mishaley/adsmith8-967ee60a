@@ -40,10 +40,3 @@ type TableTypes = {
 
 export type TableData<T extends TableName> = TableTypes[T];
 
-export interface SharedTableProps<T extends TableName> {
-  data: TableRow[];
-  columns: ColumnDef[];
-  tableName: T;
-  idField: string;
-  onAdd?: (newRecord: any) => Promise<void>;
-}

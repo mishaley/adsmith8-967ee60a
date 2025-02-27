@@ -3,13 +3,10 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getColumns } from "./columns";
-import { toast } from "sonner";
 
 const Images = () => {
-  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -83,64 +80,15 @@ const Images = () => {
     };
   }, [refetch]);
 
-  const handleCreateImage = async (newRecord: any) => {
-    try {
-      toast.loading('Generating images...');
-      
-      const { data: imageData, error: functionError } = await supabase.functions.invoke('generate-images', {
-        body: {
-          image_resolution: newRecord.image_resolution,
-          image_inputprompt: newRecord.image_inputprompt
-        }
-      });
-
-      if (functionError || imageData?.error) {
-        console.error('Error generating images:', functionError || imageData?.error);
-        toast.error('Failed to generate images');
-        return;
-      }
-
-      if (imageData?.images) {
-        setGeneratedImages(imageData.images.map((img: any) => img.url));
-        toast.success('Images generated successfully');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Failed to generate images');
-    }
-  };
-
   return (
     <QuadrantLayout>
       {{
-        q4: (
-          <div className="space-y-8">
-            <SharedTable 
-              data={data} 
-              columns={getColumns(messageOptions)} 
-              tableName="e1images" 
-              idField="image_id"
-              onAdd={handleCreateImage}
-            />
-            
-            {generatedImages.length > 0 && (
-              <div className="mt-8 bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-4">Generated Images</h3>
-                <div className="grid grid-cols-3 gap-4">
-                  {generatedImages.map((url, index) => (
-                    <div key={index} className="relative aspect-square">
-                      <img 
-                        src={url} 
-                        alt={`Generated ${index + 1}`}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ),
+        q4: <SharedTable 
+          data={data} 
+          columns={getColumns(messageOptions)} 
+          tableName="e1images" 
+          idField="image_id" 
+        />,
       }}
     </QuadrantLayout>
   );
