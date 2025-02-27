@@ -126,7 +126,7 @@ const Images = () => {
               tableName="e1images" 
               idField="image_id" 
             />
-            <div className="bg-[#F6F6F7] rounded-lg p-6 shadow-sm" style={{ height: '300px', width: '1000px' }}>
+            <div className="bg-[#F6F6F7] rounded-lg p-6 shadow-sm" style={{ height: '300px', width: '500px' }}>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-[#403E43]">Ideogram test</h2>
                 <Button 
