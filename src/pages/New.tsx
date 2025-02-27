@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -269,7 +270,7 @@ const New = () => {
                                     onChange={() => {}}
                                     className="h-4 w-4"
                                   />
-                                  <span>{offering.offering_name}</span>
+                                  <span className="truncate">{offering.offering_name}</span>
                                 </div>
                               ))}
                               {offerings.length > 0 && (
