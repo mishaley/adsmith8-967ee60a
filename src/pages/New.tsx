@@ -16,6 +16,7 @@ const New = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
   const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
+  const [selectedMessageId, setSelectedMessageId] = useState<string>("");
 
   const { data: organizations = [] } = useQuery({
     queryKey: ["organizations"],
@@ -63,6 +64,23 @@ const New = () => {
     enabled: !!selectedOfferingId, // Only run query if an offering is selected
   });
 
+  // Query messages based on selected persona
+  const { data: messages = [] } = useQuery({
+    queryKey: ["messages", selectedPersonaId],
+    queryFn: async () => {
+      if (!selectedPersonaId) return [];
+      
+      const { data, error } = await supabase
+        .from("d1messages")
+        .select("message_id, message_name")
+        .eq("persona_id", selectedPersonaId);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!selectedPersonaId, // Only run query if a persona is selected
+  });
+
   // Reset offering selection when organization changes
   useEffect(() => {
     setSelectedOfferingId("");
@@ -72,6 +90,11 @@ const New = () => {
   useEffect(() => {
     setSelectedPersonaId("");
   }, [selectedOfferingId]);
+
+  // Reset message selection when persona changes
+  useEffect(() => {
+    setSelectedMessageId("");
+  }, [selectedPersonaId]);
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
@@ -97,6 +120,15 @@ const New = () => {
       setSelectedPersonaId("");
     } else {
       setSelectedPersonaId(value);
+    }
+  };
+
+  // Handle message selection change
+  const handleMessageChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedMessageId("");
+    } else {
+      setSelectedMessageId(value);
     }
   };
 
@@ -195,6 +227,42 @@ const New = () => {
                             </SelectItem>
                           ))}
                           {personas.length > 0 && (
+                            <>
+                              <SelectSeparator className="my-1" />
+                              <SelectItem value="clear-selection" className="text-gray-500">
+                                Clear
+                              </SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
+                    <span className="font-medium">Message</span>
+                  </td>
+                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
+                    <div className="relative inline-block w-auto">
+                      <Select 
+                        value={selectedMessageId} 
+                        onValueChange={handleMessageChange}
+                        disabled={!selectedPersonaId}
+                      >
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {messages.map((message) => (
+                            <SelectItem 
+                              key={message.message_id} 
+                              value={message.message_id}
+                            >
+                              {message.message_name}
+                            </SelectItem>
+                          ))}
+                          {messages.length > 0 && (
                             <>
                               <SelectSeparator className="my-1" />
                               <SelectItem value="clear-selection" className="text-gray-500">
