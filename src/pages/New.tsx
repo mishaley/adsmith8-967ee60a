@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const STORAGE_KEY = "selectedOrganizationId";
 const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
@@ -151,6 +152,9 @@ const New = () => {
   // Platform state
   const [selectedPlatform, setSelectedPlatform] = useState<CampaignPlatform | "">("");
   
+  // Daily budget state
+  const [dailyBudget, setDailyBudget] = useState<string>("");
+  
   // Multi-select state (arrays instead of single string values)
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
@@ -273,6 +277,11 @@ const New = () => {
     }
   };
 
+  // Handle daily budget change
+  const handleDailyBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDailyBudget(e.target.value);
+  };
+
   // Format options for the multi-select component
   const offeringOptions = offerings.map(offering => ({
     value: offering.offering_id,
@@ -352,8 +361,18 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                    Daily Budget
+                  </td>
+                  <td className="border border-white p-4">
+                    <Input
+                      type="text"
+                      value={dailyBudget}
+                      onChange={handleDailyBudgetChange}
+                      className="min-w-[180px] bg-white"
+                      placeholder=""
+                    />
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Offering
