@@ -1,6 +1,5 @@
 
 project_id = "kyxotvtinlpackztktxe"
 
-[[functions]]
-name = "test-ideogram-api"
+[functions.test-ideogram-api]
 verify_jwt = false
