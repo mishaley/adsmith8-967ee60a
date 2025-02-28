@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -173,7 +174,7 @@ const New = () => {
                     <div className="inline-block w-auto">
                       <Select value={selectedOrgId} onValueChange={handleOrgChange}>
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="Select organization" />
+                          <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {organizations.map((org) => (
@@ -241,7 +242,7 @@ const New = () => {
                         disabled={!selectedOfferingId}
                       >
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="Select persona" />
+                          <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {personas.map((persona) => (
@@ -277,7 +278,7 @@ const New = () => {
                         disabled={!selectedPersonaId}
                       >
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="Select message" />
+                          <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {messages.map((message) => (
