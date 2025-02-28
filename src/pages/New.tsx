@@ -176,7 +176,7 @@ const New = () => {
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit max-h-[400px]">
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {organizations.map((org) => (
                             <SelectItem 
                               key={org.organization_id}
@@ -208,7 +208,7 @@ const New = () => {
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit max-h-[400px]">
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {offerings.map((offering) => (
                             <SelectItem 
                               key={offering.offering_id}
@@ -244,7 +244,7 @@ const New = () => {
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit max-h-[400px]">
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {personas.map((persona) => (
                             <SelectItem 
                               key={persona.persona_id}
@@ -280,7 +280,7 @@ const New = () => {
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit max-h-[400px]">
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {messages.map((message) => (
                             <SelectItem 
                               key={message.message_id}
