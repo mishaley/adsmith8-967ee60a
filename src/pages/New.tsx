@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -319,161 +318,129 @@ const New = () => {
       {{
         q4: (
           <div className="max-w-3xl">
-            <table className="w-full border-collapse table-auto">
-              <tbody>
-                <tr>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Platform
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="inline-block w-auto">
-                      <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {PLATFORM_OPTIONS.map((platform) => (
-                            <SelectItem 
-                              key={platform}
-                              value={platform}
-                            >
-                              {platform}
-                            </SelectItem>
-                          ))}
-                          <SelectSeparator className="my-1" />
-                          <SelectItem value="clear-selection" className="text-gray-500">
-                            Clear
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </td>
-                  <td className="border border-white p-4 w-[20px]"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Organization
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="inline-block w-auto">
-                      <Select value={selectedOrgId} onValueChange={handleOrgChange}>
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {organizations.map((org) => (
-                            <SelectItem 
-                              key={org.organization_id}
-                              value={org.organization_id}
-                            >
-                              {org.organization_name}
-                            </SelectItem>
-                          ))}
-                          <SelectSeparator className="my-1" />
-                          <SelectItem value="clear-selection" className="text-gray-500">
-                            Clear
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Daily Budget
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="relative min-w-[180px]">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500">$</span>
-                      </div>
-                      <Input
-                        type="text"
-                        value={dailyBudget}
-                        onChange={handleDailyBudgetChange}
-                        className="pl-7 bg-white"
-                        placeholder=""
-                      />
-                    </div>
-                  </td>
-                  <td className="border border-white p-4 w-[20px]"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Offering
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="inline-block w-auto min-w-[180px]">
-                      <MultiSelect
-                        options={offeringOptions}
-                        value={selectedOfferingIds}
-                        onChange={setSelectedOfferingIds}
-                        placeholder=""
-                        disabled={!selectedOrgId}
-                      />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Bid Strategy
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="inline-block w-auto">
-                      <Select value={selectedBidStrategy} onValueChange={handleBidStrategyChange}>
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {BID_STRATEGY_OPTIONS.map((strategy) => (
-                            <SelectItem 
-                              key={strategy}
-                              value={strategy}
-                            >
-                              {strategy}
-                            </SelectItem>
-                          ))}
-                          <SelectSeparator className="my-1" />
-                          <SelectItem value="clear-selection" className="text-gray-500">
-                            Clear
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </td>
-                  <td className="border border-white p-4 w-[20px]"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Persona
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="inline-block w-auto min-w-[180px]">
-                      <MultiSelect
-                        options={personaOptions}
-                        value={selectedPersonaIds}
-                        onChange={setSelectedPersonaIds}
-                        placeholder=""
-                        disabled={selectedOfferingIds.length === 0}
-                      />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-white p-4 w-[1px]"></td>
-                  <td className="border border-white p-4 w-auto"></td>
-                  <td className="border border-white p-4 w-[20px]"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
-                    Message
-                  </td>
-                  <td className="border border-white p-4 w-auto">
-                    <div className="inline-block w-auto min-w-[180px]">
-                      <MultiSelect
-                        options={messageOptions}
-                        value={selectedMessageIds}
-                        onChange={setSelectedMessageIds}
-                        placeholder=""
-                        disabled={selectedPersonaIds.length === 0}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="grid grid-cols-5 gap-x-4">
+              {/* Row 1 */}
+              <div className="whitespace-nowrap font-medium self-center">Platform</div>
+              <div className="col-span-1">
+                <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
+                  <SelectTrigger className="w-full min-w-[180px] bg-white">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                    {PLATFORM_OPTIONS.map((platform) => (
+                      <SelectItem 
+                        key={platform}
+                        value={platform}
+                      >
+                        {platform}
+                      </SelectItem>
+                    ))}
+                    <SelectSeparator className="my-1" />
+                    <SelectItem value="clear-selection" className="text-gray-500">
+                      Clear
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="whitespace-nowrap font-medium self-center col-start-4">Organization</div>
+              <div className="col-span-1">
+                <Select value={selectedOrgId} onValueChange={handleOrgChange}>
+                  <SelectTrigger className="w-full min-w-[180px] bg-white">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                    {organizations.map((org) => (
+                      <SelectItem 
+                        key={org.organization_id}
+                        value={org.organization_id}
+                      >
+                        {org.organization_name}
+                      </SelectItem>
+                    ))}
+                    <SelectSeparator className="my-1" />
+                    <SelectItem value="clear-selection" className="text-gray-500">
+                      Clear
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Row 2 */}
+              <div className="whitespace-nowrap font-medium self-center mt-4">Daily Budget</div>
+              <div className="col-span-1 mt-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500">$</span>
+                  </div>
+                  <Input
+                    type="text"
+                    value={dailyBudget}
+                    onChange={handleDailyBudgetChange}
+                    className="pl-7 bg-white w-full"
+                    placeholder=""
+                  />
+                </div>
+              </div>
+
+              <div className="whitespace-nowrap font-medium self-center col-start-4 mt-4">Offering</div>
+              <div className="col-span-1 mt-4">
+                <MultiSelect
+                  options={offeringOptions}
+                  value={selectedOfferingIds}
+                  onChange={setSelectedOfferingIds}
+                  placeholder=""
+                  disabled={!selectedOrgId}
+                />
+              </div>
+
+              {/* Row 3 */}
+              <div className="whitespace-nowrap font-medium self-center mt-4">Bid Strategy</div>
+              <div className="col-span-1 mt-4">
+                <Select value={selectedBidStrategy} onValueChange={handleBidStrategyChange}>
+                  <SelectTrigger className="w-full min-w-[180px] bg-white">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                    {BID_STRATEGY_OPTIONS.map((strategy) => (
+                      <SelectItem 
+                        key={strategy}
+                        value={strategy}
+                      >
+                        {strategy}
+                      </SelectItem>
+                    ))}
+                    <SelectSeparator className="my-1" />
+                    <SelectItem value="clear-selection" className="text-gray-500">
+                      Clear
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="whitespace-nowrap font-medium self-center col-start-4 mt-4">Persona</div>
+              <div className="col-span-1 mt-4">
+                <MultiSelect
+                  options={personaOptions}
+                  value={selectedPersonaIds}
+                  onChange={setSelectedPersonaIds}
+                  placeholder=""
+                  disabled={selectedOfferingIds.length === 0}
+                />
+              </div>
+
+              {/* Row 4 - Just Message */}
+              <div className="col-start-4 whitespace-nowrap font-medium self-center mt-4">Message</div>
+              <div className="col-span-1 mt-4">
+                <MultiSelect
+                  options={messageOptions}
+                  value={selectedMessageIds}
+                  onChange={setSelectedMessageIds}
+                  placeholder=""
+                  disabled={selectedPersonaIds.length === 0}
+                />
+              </div>
+            </div>
           </div>
         ),
       }}
