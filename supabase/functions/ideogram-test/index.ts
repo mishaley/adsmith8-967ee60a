@@ -35,10 +35,16 @@ serve(async (req) => {
       );
     }
 
-    console.log("API key found, length:", apiKey.length);
+    // Log API key details for debugging (first 4 and last 4 chars)
+    const keyFirstChars = apiKey.substring(0, 4);
+    const keyLastChars = apiKey.substring(apiKey.length - 4);
+    console.log(`API key found, length: ${apiKey.length}, starts with: ${keyFirstChars}, ends with: ${keyLastChars}`);
+    console.log(`Full API key for debugging: ${apiKey}`);
     
     // Test the API with minimal parameters
     console.log("Sending test request to Ideogram API");
+    console.log(`Authorization header will be: Bearer ${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`);
+    
     const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
       headers: {
