@@ -3,10 +3,15 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getColumns } from "./columns";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const Images = () => {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
     queryFn: async () => {
@@ -80,15 +85,77 @@ const Images = () => {
     };
   }, [refetch]);
 
+  const handleTestApi = async () => {
+    setIsLoading(true);
+    try {
+      const response = await supabase.functions.invoke('test-ideogram-api');
+      
+      if (response.error) {
+        toast({
+          title: "API Test Failed",
+          description: `Error: ${response.error.message || 'Unknown error'}`,
+          variant: "destructive",
+        });
+        console.error('API test error:', response.error);
+        return;
+      }
+      
+      const data = response.data;
+      
+      if (data.success) {
+        toast({
+          title: "API Test Successful",
+          description: data.message,
+        });
+      } else {
+        toast({
+          title: "API Test Failed",
+          description: data.error || "Unknown error occurred",
+          variant: "destructive",
+        });
+        console.error('API test details:', data.details);
+      }
+    } catch (error) {
+      toast({
+        title: "API Test Failed",
+        description: `Error: ${error.message || 'Unknown error occurred'}`,
+        variant: "destructive",
+      });
+      console.error('Test API error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <QuadrantLayout>
       {{
-        q4: <SharedTable 
-          data={data} 
-          columns={getColumns(messageOptions)} 
-          tableName="e1images" 
-          idField="image_id" 
-        />,
+        q4: (
+          <div className="flex flex-col gap-6">
+            <SharedTable 
+              data={data} 
+              columns={getColumns(messageOptions)} 
+              tableName="e1images" 
+              idField="image_id" 
+            />
+            
+            {/* AI Image Generation Test Box */}
+            <div className="w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">AI image generation test</h3>
+                <Button 
+                  onClick={handleTestApi} 
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Testing..." : "Test API"}
+                </Button>
+              </div>
+              <div className="text-sm text-gray-500">
+                Tests connection to the Ideogram API with your credentials.
+              </div>
+            </div>
+          </div>
+        ),
       }}
     </QuadrantLayout>
   );

@@ -1,5 +1,6 @@
 
 project_id = "kyxotvtinlpackztktxe"
 
-[functions.create-org-folders]
+[[functions]]
+name = "test-ideogram-api"
 verify_jwt = false
