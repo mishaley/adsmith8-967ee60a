@@ -21,11 +21,21 @@ const New = () => {
     localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID
   );
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
-  const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
-  const [selectedMessageId, setSelectedMessageId] = useState<string>("");
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
+  const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
+  
+  // Dropdown open states
   const [isOfferingDropdownOpen, setIsOfferingDropdownOpen] = useState(false);
+  const [isPersonaDropdownOpen, setIsPersonaDropdownOpen] = useState(false);
+  const [isMessageDropdownOpen, setIsMessageDropdownOpen] = useState(false);
+  
+  // Refs for dropdowns and their buttons
   const offeringDropdownRef = useRef<HTMLDivElement>(null);
   const offeringButtonRef = useRef<HTMLButtonElement>(null);
+  const personaDropdownRef = useRef<HTMLDivElement>(null);
+  const personaButtonRef = useRef<HTMLButtonElement>(null);
+  const messageDropdownRef = useRef<HTMLDivElement>(null);
+  const messageButtonRef = useRef<HTMLButtonElement>(null);
 
   // Watch for changes to the organization in localStorage
   useEffect(() => {
@@ -46,6 +56,7 @@ const New = () => {
   // Handle clicks outside of the offerings dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Handle offering dropdown
       if (isOfferingDropdownOpen && 
           offeringDropdownRef.current && 
           offeringButtonRef.current && 
@@ -53,13 +64,31 @@ const New = () => {
           !offeringButtonRef.current.contains(event.target as Node)) {
         setIsOfferingDropdownOpen(false);
       }
+      
+      // Handle persona dropdown
+      if (isPersonaDropdownOpen && 
+          personaDropdownRef.current && 
+          personaButtonRef.current && 
+          !personaDropdownRef.current.contains(event.target as Node) &&
+          !personaButtonRef.current.contains(event.target as Node)) {
+        setIsPersonaDropdownOpen(false);
+      }
+      
+      // Handle message dropdown
+      if (isMessageDropdownOpen && 
+          messageDropdownRef.current && 
+          messageButtonRef.current && 
+          !messageDropdownRef.current.contains(event.target as Node) &&
+          !messageButtonRef.current.contains(event.target as Node)) {
+        setIsMessageDropdownOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOfferingDropdownOpen]);
+  }, [isOfferingDropdownOpen, isPersonaDropdownOpen, isMessageDropdownOpen]);
 
   const { data: organizations = [] } = useQuery({
     queryKey: ["organizations"],
@@ -114,22 +143,34 @@ const New = () => {
     enabled: selectedOfferingIds.length > 0, // Only run query if offerings are selected
   });
 
-  // Query messages based on selected persona
+  // Get persona names map for display
+  const personasMap = personas.reduce((acc, persona) => {
+    acc[persona.persona_id] = persona.persona_name;
+    return acc;
+  }, {} as Record<string, string>);
+
+  // Query messages based on selected personas - now using 'in' for multiple personas
   const { data: messages = [] } = useQuery({
-    queryKey: ["messages", selectedPersonaId],
+    queryKey: ["messages", selectedPersonaIds],
     queryFn: async () => {
-      if (!selectedPersonaId) return [];
+      if (!selectedPersonaIds.length) return [];
       
       const { data, error } = await supabase
         .from("d1messages")
-        .select("message_id, message_name")
-        .eq("persona_id", selectedPersonaId);
+        .select("message_id, message_name, persona_id")
+        .in("persona_id", selectedPersonaIds);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedPersonaId, // Only run query if a persona is selected
+    enabled: selectedPersonaIds.length > 0, // Only run query if personas are selected
   });
+
+  // Get message names map for display
+  const messagesMap = messages.reduce((acc, message) => {
+    acc[message.message_id] = message.message_name;
+    return acc;
+  }, {} as Record<string, string>);
 
   // Reset offerings selection when organization changes
   useEffect(() => {
@@ -138,13 +179,13 @@ const New = () => {
 
   // Reset persona selection when offerings change
   useEffect(() => {
-    setSelectedPersonaId("");
+    setSelectedPersonaIds([]);
   }, [selectedOfferingIds]);
 
-  // Reset message selection when persona changes
+  // Reset message selection when personas change
   useEffect(() => {
-    setSelectedMessageId("");
-  }, [selectedPersonaId]);
+    setSelectedMessageIds([]);
+  }, [selectedPersonaIds]);
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
@@ -176,33 +217,65 @@ const New = () => {
     }
   };
 
-  // Handle persona selection change
+  // Handle persona selection change - now adds/removes from array
   const handlePersonaChange = (value: string) => {
     if (value === "clear-selection") {
-      setSelectedPersonaId("");
+      setSelectedPersonaIds([]);
     } else {
-      setSelectedPersonaId(value);
+      // Check if the value is already selected
+      if (selectedPersonaIds.includes(value)) {
+        // If already selected, remove it
+        setSelectedPersonaIds(selectedPersonaIds.filter(id => id !== value));
+      } else {
+        // If not already selected, add it
+        setSelectedPersonaIds([...selectedPersonaIds, value]);
+      }
     }
   };
 
-  // Handle message selection change
+  // Handle message selection change - now adds/removes from array
   const handleMessageChange = (value: string) => {
     if (value === "clear-selection") {
-      setSelectedMessageId("");
+      setSelectedMessageIds([]);
     } else {
-      setSelectedMessageId(value);
+      // Check if the value is already selected
+      if (selectedMessageIds.includes(value)) {
+        // If already selected, remove it
+        setSelectedMessageIds(selectedMessageIds.filter(id => id !== value));
+      } else {
+        // If not already selected, add it
+        setSelectedMessageIds([...selectedMessageIds, value]);
+      }
     }
   };
 
-  // Toggle the offering dropdown
+  // Toggle dropdown functions
   const toggleOfferingDropdown = () => {
     setIsOfferingDropdownOpen(!isOfferingDropdownOpen);
   };
+  
+  const togglePersonaDropdown = () => {
+    setIsPersonaDropdownOpen(!isPersonaDropdownOpen);
+  };
+  
+  const toggleMessageDropdown = () => {
+    setIsMessageDropdownOpen(!isMessageDropdownOpen);
+  };
 
-  // Create display text for selected offerings
+  // Create display text for selected items
   const getSelectedOfferingsText = () => {
     if (selectedOfferingIds.length === 0) return "";
     return selectedOfferingIds.map(id => offeringsMap[id]).join(", ");
+  };
+  
+  const getSelectedPersonasText = () => {
+    if (selectedPersonaIds.length === 0) return "";
+    return selectedPersonaIds.map(id => personasMap[id]).join(", ");
+  };
+  
+  const getSelectedMessagesText = () => {
+    if (selectedMessageIds.length === 0) return "";
+    return selectedMessageIds.map(id => messagesMap[id]).join(", ");
   };
 
   return (
@@ -324,33 +397,75 @@ const New = () => {
                   </td>
                   <td className="border border-transparent p-4">
                     <div className="inline-block w-auto">
-                      <Select 
-                        value={selectedPersonaId} 
-                        onValueChange={handlePersonaChange}
-                        disabled={selectedOfferingIds.length === 0}
-                      >
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {personas.map((persona) => (
-                            <SelectItem 
-                              key={persona.persona_id} 
-                              value={persona.persona_id}
+                      {/* The multi-select persona dropdown */}
+                      <div className="flex flex-col space-y-1">
+                        <div className="relative w-auto min-w-[180px]">
+                          <button
+                            ref={personaButtonRef}
+                            type="button"
+                            className={`flex h-9 w-full items-center justify-between rounded px-3 py-2 text-sm ${
+                              selectedOfferingIds.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+                            } bg-white`}
+                            disabled={selectedOfferingIds.length === 0}
+                            onClick={togglePersonaDropdown}
+                          >
+                            <span className="truncate">
+                              {getSelectedPersonasText()}
+                            </span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4 opacity-50"
                             >
-                              {persona.persona_name}
-                            </SelectItem>
-                          ))}
-                          {personas.length > 0 && (
-                            <>
-                              <SelectSeparator className="my-1" />
-                              <SelectItem value="clear-selection" className="text-gray-500">
-                                Clear
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </button>
+                          <div 
+                            ref={personaDropdownRef}
+                            className={`absolute z-50 ${isPersonaDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
+                          >
+                            <div className="flex flex-col">
+                              <div className="max-h-[300px] overflow-auto p-1">
+                                {personas.map((persona) => (
+                                  <div
+                                    key={persona.persona_id}
+                                    className={`flex items-center space-x-2 rounded px-2 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                      selectedPersonaIds.includes(persona.persona_id) ? "bg-gray-100" : "bg-white"
+                                    }`}
+                                    onClick={() => handlePersonaChange(persona.persona_id)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedPersonaIds.includes(persona.persona_id)}
+                                      onChange={() => {}}
+                                      className="h-4 w-4"
+                                    />
+                                    <span className="whitespace-normal">{persona.persona_name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              {personas.length > 0 && (
+                                <>
+                                  <div className="my-1 h-px bg-gray-200" />
+                                  <div
+                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
+                                    onClick={() => handlePersonaChange("clear-selection")}
+                                  >
+                                    Clear
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -360,33 +475,75 @@ const New = () => {
                   </td>
                   <td className="border border-transparent p-4">
                     <div className="inline-block w-auto">
-                      <Select 
-                        value={selectedMessageId} 
-                        onValueChange={handleMessageChange}
-                        disabled={!selectedPersonaId}
-                      >
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {messages.map((message) => (
-                            <SelectItem 
-                              key={message.message_id} 
-                              value={message.message_id}
+                      {/* The multi-select message dropdown */}
+                      <div className="flex flex-col space-y-1">
+                        <div className="relative w-auto min-w-[180px]">
+                          <button
+                            ref={messageButtonRef}
+                            type="button"
+                            className={`flex h-9 w-full items-center justify-between rounded px-3 py-2 text-sm ${
+                              selectedPersonaIds.length === 0 ? "opacity-50 cursor-not-allowed" : ""
+                            } bg-white`}
+                            disabled={selectedPersonaIds.length === 0}
+                            onClick={toggleMessageDropdown}
+                          >
+                            <span className="truncate">
+                              {getSelectedMessagesText()}
+                            </span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4 opacity-50"
                             >
-                              {message.message_name}
-                            </SelectItem>
-                          ))}
-                          {messages.length > 0 && (
-                            <>
-                              <SelectSeparator className="my-1" />
-                              <SelectItem value="clear-selection" className="text-gray-500">
-                                Clear
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </button>
+                          <div 
+                            ref={messageDropdownRef}
+                            className={`absolute z-50 ${isMessageDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
+                          >
+                            <div className="flex flex-col">
+                              <div className="max-h-[300px] overflow-auto p-1">
+                                {messages.map((message) => (
+                                  <div
+                                    key={message.message_id}
+                                    className={`flex items-center space-x-2 rounded px-2 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                      selectedMessageIds.includes(message.message_id) ? "bg-gray-100" : "bg-white"
+                                    }`}
+                                    onClick={() => handleMessageChange(message.message_id)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedMessageIds.includes(message.message_id)}
+                                      onChange={() => {}}
+                                      className="h-4 w-4"
+                                    />
+                                    <span className="whitespace-normal">{message.message_name}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              {messages.length > 0 && (
+                                <>
+                                  <div className="my-1 h-px bg-gray-200" />
+                                  <div
+                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
+                                    onClick={() => handleMessageChange("clear-selection")}
+                                  >
+                                    Clear
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </td>
                 </tr>
