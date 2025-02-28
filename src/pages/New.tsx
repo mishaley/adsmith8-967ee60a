@@ -349,8 +349,10 @@ const New = () => {
                     </div>
                   </td>
                   <td className="border border-white p-4"></td>
-                  {/* Three new columns between current third and fourth column */}
-                  <td className="border border-white p-4"></td>
+                  {/* Fourth column with Locations label */}
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                    Locations
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
@@ -399,8 +401,10 @@ const New = () => {
                     </div>
                   </td>
                   <td className="border border-white p-4"></td>
-                  {/* Three new columns */}
-                  <td className="border border-white p-4"></td>
+                  {/* Fourth column with Language label */}
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                    Language
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
