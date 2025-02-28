@@ -63,7 +63,7 @@ export const OrganizationSelector = () => {
           <SelectValue placeholder="Select organization" />
         </SelectTrigger>
         <SelectContent 
-          className="bg-[#2A2A2A] border-none min-w-[170px]"
+          className="bg-white border-none min-w-[170px]"
           align="start"
           side="bottom"
           alignOffset={0}
