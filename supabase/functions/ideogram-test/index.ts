@@ -100,28 +100,12 @@ serve(async (req) => {
     if (response.ok) {
       console.log('Successfully connected to Ideogram API');
       
-      // Extract image URL if available
-      let imageData = null;
+      // Check if image URLs are available in the response
+      let imageUrl = null;
       if (data && data.image_urls && data.image_urls.length > 0) {
         // Get the first image URL
-        const imageUrl = data.image_urls[0];
+        imageUrl = data.image_urls[0];
         console.log('Image URL found:', imageUrl);
-        
-        try {
-          // Fetch the image data
-          const imageResponse = await fetch(imageUrl);
-          if (imageResponse.ok) {
-            const arrayBuffer = await imageResponse.arrayBuffer();
-            const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
-            imageData = `data:${contentType};base64,${base64}`;
-            console.log('Successfully converted image to base64');
-          } else {
-            console.error('Failed to fetch image from URL:', imageResponse.status);
-          }
-        } catch (imageError) {
-          console.error('Error fetching image:', imageError);
-        }
       } else {
         console.log('No image URLs found in the response');
       }
@@ -130,7 +114,7 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true, 
           message: 'Successfully connected to Ideogram API',
-          image: imageData
+          imageUrl: imageUrl
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

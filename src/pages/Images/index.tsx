@@ -12,7 +12,7 @@ import { Play, Loader } from "lucide-react";
 const Images = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
@@ -89,7 +89,7 @@ const Images = () => {
 
   const handleRunImageGeneration = async () => {
     setIsLoading(true);
-    setGeneratedImage(null);
+    setGeneratedImageUrl(null);
     
     try {
       const response = await supabase.functions.invoke('ideogram-test');
@@ -107,8 +107,8 @@ const Images = () => {
       const data = response.data;
       
       if (data.success) {
-        if (data.image) {
-          setGeneratedImage(data.image);
+        if (data.imageUrl) {
+          setGeneratedImageUrl(data.imageUrl);
           toast({
             title: "Image Generated Successfully",
             description: "The test image has been generated.",
@@ -116,7 +116,7 @@ const Images = () => {
         } else {
           toast({
             title: "API Connection Successful",
-            description: "API connected but no image was returned. Check the logs for details.",
+            description: "API connected but no image URL was returned. Check the logs for details.",
           });
         }
       } else {
@@ -169,10 +169,10 @@ const Images = () => {
               </div>
               
               {/* Image display area */}
-              {generatedImage && (
+              {generatedImageUrl && (
                 <div className="mt-4 border rounded-md overflow-hidden">
                   <img 
-                    src={generatedImage} 
+                    src={generatedImageUrl} 
                     alt="Generated test image" 
                     className="w-full h-auto object-contain"
                   />
