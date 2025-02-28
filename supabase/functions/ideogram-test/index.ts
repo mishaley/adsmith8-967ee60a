@@ -35,40 +35,61 @@ serve(async (req) => {
       );
     }
 
-    // Log API key details for debugging (first 4 and last 4 chars)
+    // Log API key details for debugging
     const keyFirstChars = apiKey.substring(0, 4);
     const keyLastChars = apiKey.substring(apiKey.length - 4);
     console.log(`API key found, length: ${apiKey.length}, starts with: ${keyFirstChars}, ends with: ${keyLastChars}`);
-    console.log(`Full API key for debugging: ${apiKey}`);
     
-    // Test the API with minimal parameters
-    console.log("Sending test request to Ideogram API");
-    console.log(`Authorization header will be: Bearer ${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`);
+    // Create headers explicitly with the correct Authorization format
+    const apiHeaders = new Headers({
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
+    });
+    
+    // Log the complete headers for debugging
+    console.log("Request headers being sent:");
+    apiHeaders.forEach((value, key) => {
+      // Only show partial API key in logs
+      if (key.toLowerCase() === 'authorization') {
+        console.log(`${key}: Bearer ${keyFirstChars}...${keyLastChars}`);
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    });
+    
+    console.log("Sending request to Ideogram API...");
     
     const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
+      headers: apiHeaders,
       body: JSON.stringify({
         prompt: 'test connection only',
-        // Including minimal required params but not actually generating an image
         aspect_ratio: "1:1", 
         cfg_scale: 7.5
       }),
     });
 
     console.log('Ideogram API response status:', response.status);
+    console.log('Ideogram API response headers:');
+    response.headers.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
     
     // Parse the response
     let data;
     try {
-      data = await response.json();
-      console.log('Ideogram API response data:', JSON.stringify(data).substring(0, 200) + '...');
+      const responseText = await response.text();
+      console.log('Raw response text:', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Error parsing JSON response:', parseError);
+        data = { error: 'Unable to parse response as JSON', rawResponse: responseText };
+      }
     } catch (e) {
-      console.error('Error parsing response:', e);
-      data = { error: 'Unable to parse response' };
+      console.error('Error reading response:', e);
+      data = { error: 'Unable to read response' };
     }
     
     if (response.ok) {
