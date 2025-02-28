@@ -40,9 +40,9 @@ serve(async (req) => {
     const keyLastChars = apiKey.substring(apiKey.length - 4);
     console.log(`API key found, length: ${apiKey.length}, starts with: ${keyFirstChars}, ends with: ${keyLastChars}`);
     
-    // Create headers explicitly with the correct Authorization format
+    // Create headers using Ideogram's recommended format: 'Api-Key' instead of 'Authorization: Bearer'
     const apiHeaders = new Headers({
-      'Authorization': `Bearer ${apiKey}`,
+      'Api-Key': apiKey,
       'Content-Type': 'application/json'
     });
     
@@ -50,8 +50,8 @@ serve(async (req) => {
     console.log("Request headers being sent:");
     apiHeaders.forEach((value, key) => {
       // Only show partial API key in logs
-      if (key.toLowerCase() === 'authorization') {
-        console.log(`${key}: Bearer ${keyFirstChars}...${keyLastChars}`);
+      if (key.toLowerCase() === 'api-key') {
+        console.log(`${key}: ${keyFirstChars}...${keyLastChars}`);
       } else {
         console.log(`${key}: ${value}`);
       }
@@ -59,13 +59,17 @@ serve(async (req) => {
     
     console.log("Sending request to Ideogram API...");
     
+    // Using the format from Ideogram's documentation
     const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
       headers: apiHeaders,
       body: JSON.stringify({
-        prompt: 'test connection only',
-        aspect_ratio: "1:1", 
-        cfg_scale: 7.5
+        image_request: {
+          prompt: "test connection only",
+          aspect_ratio: "ASPECT_1_1",
+          model: "V_2",
+          magic_prompt_option: "AUTO"
+        }
       }),
     });
 
