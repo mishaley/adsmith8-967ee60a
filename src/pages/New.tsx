@@ -281,10 +281,13 @@ const New = () => {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Organization
                   </td>
-                  <td className="border border-transparent p-4">
+                  <td className="border border-white p-4">
                     <div className="inline-block w-auto">
                       <Select value={selectedOrgId} onValueChange={handleOrgChange}>
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
@@ -309,10 +312,13 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Offering
                   </td>
-                  <td className="border border-transparent p-4">
+                  <td className="border border-white p-4">
                     <div className="inline-block w-auto min-w-[180px]">
                       <MultiSelect
                         options={offeringOptions}
@@ -325,10 +331,13 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Persona
                   </td>
-                  <td className="border border-transparent p-4">
+                  <td className="border border-white p-4">
                     <div className="inline-block w-auto min-w-[180px]">
                       <MultiSelect
                         options={personaOptions}
@@ -341,10 +350,13 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Message
                   </td>
-                  <td className="border border-transparent p-4">
+                  <td className="border border-white p-4">
                     <div className="inline-block w-auto min-w-[180px]">
                       <MultiSelect
                         options={messageOptions}
