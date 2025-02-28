@@ -22,6 +22,10 @@ const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
 const PLATFORM_OPTIONS = ["Google", "Meta"] as const;
 type CampaignPlatform = typeof PLATFORM_OPTIONS[number];
 
+// Campaign bid strategy options from Supabase enum
+const BID_STRATEGY_OPTIONS = ["Manual CPC", "Target CPA", "Maximize Conversions"] as const;
+type CampaignBidStrategy = typeof BID_STRATEGY_OPTIONS[number];
+
 // Multi-select component
 const MultiSelect = ({ 
   options, 
@@ -155,6 +159,9 @@ const New = () => {
   // Daily budget state
   const [dailyBudget, setDailyBudget] = useState<string>("");
   
+  // Bid strategy state
+  const [selectedBidStrategy, setSelectedBidStrategy] = useState<CampaignBidStrategy | "">("");
+  
   // Multi-select state (arrays instead of single string values)
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
@@ -282,6 +289,15 @@ const New = () => {
     setDailyBudget(e.target.value);
   };
 
+  // Handle bid strategy selection change
+  const handleBidStrategyChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedBidStrategy("");
+    } else {
+      setSelectedBidStrategy(value as CampaignBidStrategy);
+    }
+  };
+
   // Format options for the multi-select component
   const offeringOptions = offerings.map(offering => ({
     value: offering.offering_id,
@@ -395,8 +411,32 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                    Bid Strategy
+                  </td>
+                  <td className="border border-white p-4">
+                    <div className="inline-block w-auto">
+                      <Select value={selectedBidStrategy} onValueChange={handleBidStrategyChange}>
+                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {BID_STRATEGY_OPTIONS.map((strategy) => (
+                            <SelectItem 
+                              key={strategy}
+                              value={strategy}
+                            >
+                              {strategy}
+                            </SelectItem>
+                          ))}
+                          <SelectSeparator className="my-1" />
+                          <SelectItem value="clear-selection" className="text-gray-500">
+                            Clear
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Persona

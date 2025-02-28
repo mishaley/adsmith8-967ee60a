@@ -250,6 +250,10 @@ export type Database = {
     }
     Enums: {
       asset_status: "Generated" | "Approved" | "Rejected" | "Archived"
+      campaign_bidstrategy:
+        | "Highest Volume"
+        | "Cost Per Result"
+        | "Return On Ad Spend"
       campaign_platform: "Google" | "Meta"
       caption_type: "PrimaryText" | "Headline" | "Description" | "LongHeadline"
       image_format: "Graphic" | "POV"
