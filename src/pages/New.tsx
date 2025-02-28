@@ -17,6 +17,10 @@ import { ChevronDown } from "lucide-react";
 const STORAGE_KEY = "selectedOrganizationId";
 const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
 
+// Campaign platform options from Supabase enum
+const PLATFORM_OPTIONS = ["Google", "Meta"] as const;
+type CampaignPlatform = typeof PLATFORM_OPTIONS[number];
+
 // Multi-select component
 const MultiSelect = ({ 
   options, 
@@ -144,6 +148,9 @@ const New = () => {
     localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID
   );
   
+  // Platform state
+  const [selectedPlatform, setSelectedPlatform] = useState<CampaignPlatform | "">("");
+  
   // Multi-select state (arrays instead of single string values)
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
@@ -257,6 +264,15 @@ const New = () => {
     }
   };
 
+  // Handle platform selection change
+  const handlePlatformChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedPlatform("");
+    } else {
+      setSelectedPlatform(value as CampaignPlatform);
+    }
+  };
+
   // Format options for the multi-select component
   const offeringOptions = offerings.map(offering => ({
     value: offering.offering_id,
@@ -281,8 +297,32 @@ const New = () => {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                    Platform
+                  </td>
+                  <td className="border border-white p-4">
+                    <div className="inline-block w-auto">
+                      <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
+                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {PLATFORM_OPTIONS.map((platform) => (
+                            <SelectItem 
+                              key={platform}
+                              value={platform}
+                            >
+                              {platform}
+                            </SelectItem>
+                          ))}
+                          <SelectSeparator className="my-1" />
+                          <SelectItem value="clear-selection" className="text-gray-500">
+                            Clear
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Organization
