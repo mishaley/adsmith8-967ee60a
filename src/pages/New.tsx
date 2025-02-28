@@ -278,6 +278,11 @@ const New = () => {
     return selectedMessageIds.map(id => messagesMap[id]).join(", ");
   };
 
+  // Define a common dropdown container style for consistency
+  const dropdownContentClass = "bg-white border-gray-200 border rounded-md shadow-md";
+  const dropdownItemContainerClass = "flex flex-col bg-white";
+  const dropdownScrollContainerClass = "max-h-[300px] overflow-auto p-1 bg-white";
+
   return (
     <QuadrantLayout>
       {{
@@ -298,7 +303,7 @@ const New = () => {
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {organizations.map((org) => (
                             <SelectItem 
-                              key={org.organization_id} 
+                              key={org.organization_id}
                               value={org.organization_id}
                             >
                               {org.organization_name}
@@ -351,10 +356,10 @@ const New = () => {
                           </button>
                           <div 
                             ref={offeringDropdownRef}
-                            className={`absolute z-50 ${isOfferingDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
+                            className={`absolute z-50 ${isOfferingDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] ${dropdownContentClass} mt-1`}
                           >
-                            <div className="flex flex-col">
-                              <div className="max-h-[300px] overflow-auto p-1">
+                            <div className={dropdownItemContainerClass}>
+                              <div className={dropdownScrollContainerClass}>
                                 {offerings.map((offering) => (
                                   <div
                                     key={offering.offering_id}
@@ -377,7 +382,7 @@ const New = () => {
                                 <>
                                   <div className="my-1 h-px bg-gray-200" />
                                   <div
-                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
+                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100 bg-white"
                                     onClick={() => handleOfferingChange("clear-selection")}
                                   >
                                     Clear
@@ -429,10 +434,10 @@ const New = () => {
                           </button>
                           <div 
                             ref={personaDropdownRef}
-                            className={`absolute z-50 ${isPersonaDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
+                            className={`absolute z-50 ${isPersonaDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] ${dropdownContentClass} mt-1`}
                           >
-                            <div className="flex flex-col bg-white">
-                              <div className="max-h-[300px] overflow-auto p-1 bg-white">
+                            <div className={dropdownItemContainerClass}>
+                              <div className={dropdownScrollContainerClass}>
                                 {personas.map((persona) => (
                                   <div
                                     key={persona.persona_id}
@@ -455,7 +460,7 @@ const New = () => {
                                 <>
                                   <div className="my-1 h-px bg-gray-200" />
                                   <div
-                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
+                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100 bg-white"
                                     onClick={() => handlePersonaChange("clear-selection")}
                                   >
                                     Clear
@@ -507,10 +512,10 @@ const New = () => {
                           </button>
                           <div 
                             ref={messageDropdownRef}
-                            className={`absolute z-50 ${isMessageDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
+                            className={`absolute z-50 ${isMessageDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] ${dropdownContentClass} mt-1`}
                           >
-                            <div className="flex flex-col bg-white">
-                              <div className="max-h-[300px] overflow-auto p-1 bg-white">
+                            <div className={dropdownItemContainerClass}>
+                              <div className={dropdownScrollContainerClass}>
                                 {messages.map((message) => (
                                   <div
                                     key={message.message_id}
@@ -533,7 +538,7 @@ const New = () => {
                                 <>
                                   <div className="my-1 h-px bg-gray-200" />
                                   <div
-                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100"
+                                    className="rounded px-2 py-2 text-sm text-gray-500 cursor-pointer hover:bg-gray-100 bg-white"
                                     onClick={() => handleMessageChange("clear-selection")}
                                   >
                                     Clear
