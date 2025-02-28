@@ -162,6 +162,10 @@ const New = () => {
   // Bid strategy state
   const [selectedBidStrategy, setSelectedBidStrategy] = useState<CampaignBidStrategy | "">("");
   
+  // New state for Locations and Language
+  const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  
   // Multi-select state (arrays instead of single string values)
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
@@ -298,6 +302,24 @@ const New = () => {
     }
   };
 
+  // Handle location selection change
+  const handleLocationChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedLocation("");
+    } else {
+      setSelectedLocation(value);
+    }
+  };
+
+  // Handle language selection change
+  const handleLanguageChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedLanguage("");
+    } else {
+      setSelectedLanguage(value);
+    }
+  };
+
   // Format options for the multi-select component
   const offeringOptions = offerings.map(offering => ({
     value: offering.offering_id,
@@ -353,7 +375,22 @@ const New = () => {
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Locations
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4">
+                    <div className="inline-block min-w-[180px]">
+                      <Select value={selectedLocation} onValueChange={handleLocationChange}>
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {/* Empty for now, will be filled later */}
+                          <SelectSeparator className="my-1" />
+                          <SelectItem value="clear-selection" className="text-gray-500">
+                            Clear
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Organization
@@ -405,7 +442,22 @@ const New = () => {
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Language
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4">
+                    <div className="inline-block min-w-[180px]">
+                      <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
+                        <SelectTrigger className="w-full bg-white">
+                          <SelectValue placeholder="" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                          {/* Empty for now, will be filled later */}
+                          <SelectSeparator className="my-1" />
+                          <SelectItem value="clear-selection" className="text-gray-500">
+                            Clear
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </td>
                   <td className="border border-white p-4"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Offering
