@@ -7,10 +7,12 @@ import { useEffect, useState } from "react";
 import { getColumns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Play, Loader } from "lucide-react";
 
 const Images = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
@@ -85,14 +87,16 @@ const Images = () => {
     };
   }, [refetch]);
 
-  const handleTestApi = async () => {
+  const handleRunImageGeneration = async () => {
     setIsLoading(true);
+    setGeneratedImage(null);
+    
     try {
       const response = await supabase.functions.invoke('ideogram-test');
       
       if (response.error) {
         toast({
-          title: "API Test Failed",
+          title: "Image Generation Failed",
           description: `Error: ${response.error.message || 'Unknown error'}`,
           variant: "destructive",
         });
@@ -103,13 +107,21 @@ const Images = () => {
       const data = response.data;
       
       if (data.success) {
-        toast({
-          title: "API Test Successful",
-          description: data.message,
-        });
+        if (data.image) {
+          setGeneratedImage(data.image);
+          toast({
+            title: "Image Generated Successfully",
+            description: "The test image has been generated.",
+          });
+        } else {
+          toast({
+            title: "API Connection Successful",
+            description: "API connected but no image was returned. Check the logs for details.",
+          });
+        }
       } else {
         toast({
-          title: "API Test Failed",
+          title: "Image Generation Failed",
           description: data.error || "Unknown error occurred",
           variant: "destructive",
         });
@@ -117,11 +129,11 @@ const Images = () => {
       }
     } catch (error) {
       toast({
-        title: "API Test Failed",
+        title: "Image Generation Failed",
         description: `Error: ${error.message || 'Unknown error occurred'}`,
         variant: "destructive",
       });
-      console.error('Test API error:', error);
+      console.error('Generate image error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -144,15 +156,28 @@ const Images = () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">AI image generation test</h3>
                 <Button 
-                  onClick={handleTestApi} 
+                  onClick={handleRunImageGeneration} 
                   disabled={isLoading}
+                  className="gap-2"
                 >
-                  {isLoading ? "Testing..." : "Test API"}
+                  {isLoading ? <Loader className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                  {isLoading ? "Running..." : "Run"}
                 </Button>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 mb-4">
                 Tests connection to the Ideogram API with your credentials.
               </div>
+              
+              {/* Image display area */}
+              {generatedImage && (
+                <div className="mt-4 border rounded-md overflow-hidden">
+                  <img 
+                    src={generatedImage} 
+                    alt="Generated test image" 
+                    className="w-full h-auto object-contain"
+                  />
+                </div>
+              )}
             </div>
           </div>
         ),
