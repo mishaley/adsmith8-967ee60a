@@ -35,26 +35,19 @@ serve(async (req) => {
       );
     }
 
+    console.log("API key found, length:", apiKey.length);
+    
     // Test the API with minimal parameters
     console.log("Sending test request to Ideogram API");
-    const response = await fetch('https://api.ideogram.ai/generate', {
-      method: 'POST',
+    const response = await fetch('https://api.ideogram.ai/api/v1/health', {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        prompt: 'test connection only',
-        // Including minimal required params but not actually generating an image
-        aspect_ratio: "1:1", 
-        cfg_scale: 7.5
-      }),
+      }
     });
 
     console.log('Ideogram API response status:', response.status);
-    
-    // Parse the response
-    const data = await response.json();
     
     if (response.ok) {
       console.log('Successfully connected to Ideogram API');
@@ -68,16 +61,25 @@ serve(async (req) => {
         }
       );
     } else {
-      console.error('Error response from Ideogram API:', data);
+      // Try to parse response body
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { error: 'Unable to parse error response' };
+      }
+      
+      console.error('Error response from Ideogram API:', errorData);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: data.error || 'Error connecting to Ideogram API',
-          details: data
+          error: 'Error connecting to Ideogram API',
+          details: errorData,
+          status: response.status
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: response.status
+          status: 500
         }
       );
     }
