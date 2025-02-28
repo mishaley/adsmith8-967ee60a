@@ -254,25 +254,27 @@ const New = () => {
                               <path d="m6 9 6 6 6-6" />
                             </svg>
                           </button>
-                          <div className="absolute z-50 hidden w-auto min-w-full rounded-md border border-gray-200 bg-white shadow-md mt-1">
-                            <div className="max-h-[300px] overflow-auto p-1">
-                              {offerings.map((offering) => (
-                                <div
-                                  key={offering.offering_id}
-                                  className={`flex items-center space-x-2 rounded px-2 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
-                                    selectedOfferingIds.includes(offering.offering_id) ? "bg-gray-100" : "bg-white"
-                                  }`}
-                                  onClick={() => handleOfferingChange(offering.offering_id)}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    checked={selectedOfferingIds.includes(offering.offering_id)}
-                                    onChange={() => {}}
-                                    className="h-4 w-4"
-                                  />
-                                  <span>{offering.offering_name}</span>
-                                </div>
-                              ))}
+                          <div className="absolute z-50 hidden w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1">
+                            <div className="flex flex-col">
+                              <div className="max-h-[300px] overflow-auto p-1">
+                                {offerings.map((offering) => (
+                                  <div
+                                    key={offering.offering_id}
+                                    className={`flex items-center space-x-2 rounded px-2 py-2 text-sm cursor-pointer hover:bg-gray-100 ${
+                                      selectedOfferingIds.includes(offering.offering_id) ? "bg-gray-100" : "bg-white"
+                                    }`}
+                                    onClick={() => handleOfferingChange(offering.offering_id)}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedOfferingIds.includes(offering.offering_id)}
+                                      onChange={() => {}}
+                                      className="h-4 w-4"
+                                    />
+                                    <span className="whitespace-normal">{offering.offering_name}</span>
+                                  </div>
+                                ))}
+                              </div>
                               {offerings.length > 0 && (
                                 <>
                                   <div className="my-1 h-px bg-gray-200" />
