@@ -206,7 +206,7 @@ const New = () => {
                         disabled={!selectedOrgId}
                       >
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="Select offering" />
+                          <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                           {offerings.map((offering) => (
