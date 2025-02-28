@@ -69,7 +69,7 @@ const MultiSelect = ({
       
       {open && (
         <div className="absolute z-50 mt-1 w-full overflow-visible bg-white border border-gray-200 rounded-md shadow-lg">
-          <div className="p-1 max-h-60 overflow-y-auto">
+          <div className="p-1">
             {options.length === 0 ? (
               <div className="py-2 px-3 text-gray-400 italic">No options available</div>
             ) : (
