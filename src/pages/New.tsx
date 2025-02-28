@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,18 +10,124 @@ import {
   SelectValue,
   SelectSeparator,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ChevronDown } from "lucide-react";
 
 const STORAGE_KEY = "selectedOrganizationId";
 const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
 
+// Multi-select component
+const MultiSelect = ({ 
+  options, 
+  value, 
+  onChange, 
+  placeholder = "", 
+  disabled = false 
+}: { 
+  options: { value: string; label: string }[]; 
+  value: string[]; 
+  onChange: (value: string[]) => void; 
+  placeholder?: string;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+  
+  const handleValueChange = (itemValue: string) => {
+    const newValue = [...value];
+    const index = newValue.indexOf(itemValue);
+    
+    if (index === -1) {
+      newValue.push(itemValue);
+    } else {
+      newValue.splice(index, 1);
+    }
+    
+    onChange(newValue);
+  };
+  
+  const displayValue = () => {
+    if (value.length === 0) return placeholder;
+    if (value.length === 1) {
+      const selectedOption = options.find(option => option.value === value[0]);
+      return selectedOption ? selectedOption.label : placeholder;
+    }
+    return `${value.length} selected`;
+  };
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        disabled={disabled}
+        className={`flex h-9 w-full bg-white items-center justify-between px-3 text-sm border border-gray-300 rounded-md ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
+        <span className="truncate">{displayValue()}</span>
+        <ChevronDown className="h-4 w-4 opacity-50" />
+      </button>
+      
+      {open && (
+        <div className="absolute z-50 mt-1 w-full overflow-visible bg-white border border-gray-200 rounded-md shadow-lg">
+          <div className="p-1 max-h-60">
+            {options.length === 0 ? (
+              <div className="py-2 px-3 text-gray-400 italic">No options available</div>
+            ) : (
+              options.map(option => (
+                <div 
+                  key={option.value} 
+                  className="relative flex items-center px-2 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => handleValueChange(option.value)}
+                >
+                  <Checkbox 
+                    id={`option-${option.value}`}
+                    checked={value.includes(option.value)} 
+                    className="mr-2"
+                  />
+                  <label 
+                    htmlFor={`option-${option.value}`}
+                    className="flex-grow cursor-pointer"
+                  >
+                    {option.label}
+                  </label>
+                </div>
+              ))
+            )}
+            
+            {value.length > 0 && (
+              <>
+                <div className="mx-1 my-1 h-px bg-gray-200" />
+                <div 
+                  className="px-2 py-2 text-gray-500 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => onChange([])}
+                >
+                  Clear
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {open && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setOpen(false)} 
+        />
+      )}
+    </div>
+  );
+};
+
 const New = () => {
-  // Initialize with the stored organization ID from localStorage (same as OrganizationSelector)
+  // Initialize with the stored organization ID from localStorage
   const [selectedOrgId, setSelectedOrgId] = useState<string>(
     localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID
   );
-  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
-  const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
-  const [selectedMessageId, setSelectedMessageId] = useState<string>("");
+  
+  // Multi-select state (arrays instead of single string values)
+  const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
+  const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
 
   // Watch for changes to the organization in localStorage
   useEffect(() => {
@@ -69,54 +174,54 @@ const New = () => {
     enabled: !!selectedOrgId, // Only run query if an organization is selected
   });
 
-  // Query personas based on selected offering
+  // Query personas based on selected offerings
   const { data: personas = [] } = useQuery({
-    queryKey: ["personas", selectedOfferingId],
+    queryKey: ["personas", selectedOfferingIds],
     queryFn: async () => {
-      if (!selectedOfferingId) return [];
+      if (selectedOfferingIds.length === 0) return [];
       
       const { data, error } = await supabase
         .from("c1personas")
         .select("persona_id, persona_name")
-        .eq("offering_id", selectedOfferingId);
+        .in("offering_id", selectedOfferingIds);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedOfferingId, // Only run query if offering is selected
+    enabled: selectedOfferingIds.length > 0, // Only run query if offerings are selected
   });
 
-  // Query messages based on selected persona
+  // Query messages based on selected personas
   const { data: messages = [] } = useQuery({
-    queryKey: ["messages", selectedPersonaId],
+    queryKey: ["messages", selectedPersonaIds],
     queryFn: async () => {
-      if (!selectedPersonaId) return [];
+      if (selectedPersonaIds.length === 0) return [];
       
       const { data, error } = await supabase
         .from("d1messages")
         .select("message_id, message_name")
-        .eq("persona_id", selectedPersonaId);
+        .in("persona_id", selectedPersonaIds);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedPersonaId, // Only run query if persona is selected
+    enabled: selectedPersonaIds.length > 0, // Only run query if personas are selected
   });
 
   // Reset offerings selection when organization changes
   useEffect(() => {
-    setSelectedOfferingId("");
+    setSelectedOfferingIds([]);
   }, [selectedOrgId]);
 
   // Reset persona selection when offerings change
   useEffect(() => {
-    setSelectedPersonaId("");
-  }, [selectedOfferingId]);
+    setSelectedPersonaIds([]);
+  }, [selectedOfferingIds]);
 
   // Reset message selection when personas change
   useEffect(() => {
-    setSelectedMessageId("");
-  }, [selectedPersonaId]);
+    setSelectedMessageIds([]);
+  }, [selectedPersonaIds]);
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
@@ -132,32 +237,21 @@ const New = () => {
     }
   };
 
-  // Handle offering selection change
-  const handleOfferingChange = (value: string) => {
-    if (value === "clear-selection") {
-      setSelectedOfferingId("");
-    } else {
-      setSelectedOfferingId(value);
-    }
-  };
+  // Format options for the multi-select component
+  const offeringOptions = offerings.map(offering => ({
+    value: offering.offering_id,
+    label: offering.offering_name
+  }));
 
-  // Handle persona selection change
-  const handlePersonaChange = (value: string) => {
-    if (value === "clear-selection") {
-      setSelectedPersonaId("");
-    } else {
-      setSelectedPersonaId(value);
-    }
-  };
+  const personaOptions = personas.map(persona => ({
+    value: persona.persona_id,
+    label: persona.persona_name
+  }));
 
-  // Handle message selection change
-  const handleMessageChange = (value: string) => {
-    if (value === "clear-selection") {
-      setSelectedMessageId("");
-    } else {
-      setSelectedMessageId(value);
-    }
-  };
+  const messageOptions = messages.map(message => ({
+    value: message.message_id,
+    label: message.message_name
+  }));
 
   return (
     <QuadrantLayout>
@@ -199,34 +293,14 @@ const New = () => {
                     Offering
                   </td>
                   <td className="border border-transparent p-4">
-                    <div className="inline-block w-auto">
-                      <Select 
-                        value={selectedOfferingId} 
-                        onValueChange={handleOfferingChange}
+                    <div className="inline-block w-auto min-w-[180px]">
+                      <MultiSelect
+                        options={offeringOptions}
+                        value={selectedOfferingIds}
+                        onChange={setSelectedOfferingIds}
+                        placeholder="Select offerings"
                         disabled={!selectedOrgId}
-                      >
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {offerings.map((offering) => (
-                            <SelectItem 
-                              key={offering.offering_id}
-                              value={offering.offering_id}
-                            >
-                              {offering.offering_name}
-                            </SelectItem>
-                          ))}
-                          {offerings.length > 0 && (
-                            <>
-                              <SelectSeparator className="my-1" />
-                              <SelectItem value="clear-selection" className="text-gray-500">
-                                Clear
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      />
                     </div>
                   </td>
                 </tr>
@@ -235,34 +309,14 @@ const New = () => {
                     Persona
                   </td>
                   <td className="border border-transparent p-4">
-                    <div className="inline-block w-auto">
-                      <Select 
-                        value={selectedPersonaId} 
-                        onValueChange={handlePersonaChange}
-                        disabled={!selectedOfferingId}
-                      >
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {personas.map((persona) => (
-                            <SelectItem 
-                              key={persona.persona_id}
-                              value={persona.persona_id}
-                            >
-                              {persona.persona_name}
-                            </SelectItem>
-                          ))}
-                          {personas.length > 0 && (
-                            <>
-                              <SelectSeparator className="my-1" />
-                              <SelectItem value="clear-selection" className="text-gray-500">
-                                Clear
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                    <div className="inline-block w-auto min-w-[180px]">
+                      <MultiSelect
+                        options={personaOptions}
+                        value={selectedPersonaIds}
+                        onChange={setSelectedPersonaIds}
+                        placeholder="Select personas"
+                        disabled={selectedOfferingIds.length === 0}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -271,34 +325,14 @@ const New = () => {
                     Message
                   </td>
                   <td className="border border-transparent p-4">
-                    <div className="inline-block w-auto">
-                      <Select 
-                        value={selectedMessageId} 
-                        onValueChange={handleMessageChange}
-                        disabled={!selectedPersonaId}
-                      >
-                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
-                          <SelectValue placeholder="" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                          {messages.map((message) => (
-                            <SelectItem 
-                              key={message.message_id}
-                              value={message.message_id}
-                            >
-                              {message.message_name}
-                            </SelectItem>
-                          ))}
-                          {messages.length > 0 && (
-                            <>
-                              <SelectSeparator className="my-1" />
-                              <SelectItem value="clear-selection" className="text-gray-500">
-                                Clear
-                              </SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                    <div className="inline-block w-auto min-w-[180px]">
+                      <MultiSelect
+                        options={messageOptions}
+                        value={selectedMessageIds}
+                        onChange={setSelectedMessageIds}
+                        placeholder="Select messages"
+                        disabled={selectedPersonaIds.length === 0}
+                      />
                     </div>
                   </td>
                 </tr>
