@@ -88,6 +88,7 @@ serve(async (req) => {
       
       try {
         data = JSON.parse(responseText);
+        console.log('Parsed response data:', JSON.stringify(data).substring(0, 500) + '...');
       } catch (parseError) {
         console.error('Error parsing JSON response:', parseError);
         data = { error: 'Unable to parse response as JSON', rawResponse: responseText.substring(0, 200) };
@@ -100,21 +101,29 @@ serve(async (req) => {
     if (response.ok) {
       console.log('Successfully connected to Ideogram API');
       
-      // Check if image URLs are available in the response
+      // Handle both potential response formats
       let imageUrl = null;
+      
+      // Check if image URLs are available in the older response format
       if (data && data.image_urls && data.image_urls.length > 0) {
-        // Get the first image URL
         imageUrl = data.image_urls[0];
-        console.log('Image URL found:', imageUrl);
+        console.log('Image URL found (image_urls format):', imageUrl);
+      } 
+      // Check for the new response format where image URL is in data[0].url
+      else if (data && data.data && data.data.length > 0 && data.data[0].url) {
+        imageUrl = data.data[0].url;
+        console.log('Image URL found (data[0].url format):', imageUrl);
       } else {
         console.log('No image URLs found in the response');
       }
       
+      // Return the data with the image URL
       return new Response(
         JSON.stringify({ 
           success: true, 
           message: 'Successfully connected to Ideogram API',
-          imageUrl: imageUrl
+          imageUrl: imageUrl,
+          data: data // Include the full response data for debugging
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

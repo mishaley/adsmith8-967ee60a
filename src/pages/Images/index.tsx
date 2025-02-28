@@ -105,10 +105,20 @@ const Images = () => {
       }
       
       const data = response.data;
+      console.log('Ideogram API response:', data);
       
       if (data.success) {
+        // First check for direct imageUrl from our edge function
         if (data.imageUrl) {
           setGeneratedImageUrl(data.imageUrl);
+          toast({
+            title: "Image Generated Successfully",
+            description: "The test image has been generated.",
+          });
+        } 
+        // Then check for the new response format where image URL is in data[0].url
+        else if (data.data && data.data.length > 0 && data.data[0].url) {
+          setGeneratedImageUrl(data.data[0].url);
           toast({
             title: "Image Generated Successfully",
             description: "The test image has been generated.",
@@ -116,7 +126,7 @@ const Images = () => {
         } else {
           toast({
             title: "API Connection Successful",
-            description: "API connected but no image URL was returned. Check the logs for details.",
+            description: "API connected but no image URL was found. Check the logs for details.",
           });
         }
       } else {
