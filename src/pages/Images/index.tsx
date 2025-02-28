@@ -88,7 +88,7 @@ const Images = () => {
   const handleTestApi = async () => {
     setIsLoading(true);
     try {
-      const response = await supabase.functions.invoke('test-ideogram-api');
+      const response = await supabase.functions.invoke('ideogram-test');
       
       if (response.error) {
         toast({
