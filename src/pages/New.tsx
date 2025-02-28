@@ -2,7 +2,7 @@
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -23,6 +23,9 @@ const New = () => {
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaId, setSelectedPersonaId] = useState<string>("");
   const [selectedMessageId, setSelectedMessageId] = useState<string>("");
+  const [isOfferingDropdownOpen, setIsOfferingDropdownOpen] = useState(false);
+  const offeringDropdownRef = useRef<HTMLDivElement>(null);
+  const offeringButtonRef = useRef<HTMLButtonElement>(null);
 
   // Watch for changes to the organization in localStorage
   useEffect(() => {
@@ -39,6 +42,24 @@ const New = () => {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
+
+  // Handle clicks outside of the offerings dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isOfferingDropdownOpen && 
+          offeringDropdownRef.current && 
+          offeringButtonRef.current && 
+          !offeringDropdownRef.current.contains(event.target as Node) &&
+          !offeringButtonRef.current.contains(event.target as Node)) {
+        setIsOfferingDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOfferingDropdownOpen]);
 
   const { data: organizations = [] } = useQuery({
     queryKey: ["organizations"],
@@ -173,6 +194,11 @@ const New = () => {
     }
   };
 
+  // Toggle the offering dropdown
+  const toggleOfferingDropdown = () => {
+    setIsOfferingDropdownOpen(!isOfferingDropdownOpen);
+  };
+
   // Create display text for selected offerings
   const getSelectedOfferingsText = () => {
     if (selectedOfferingIds.length === 0) return "";
@@ -224,17 +250,13 @@ const New = () => {
                       <div className="flex flex-col space-y-1">
                         <div className="relative w-auto min-w-[180px]">
                           <button
+                            ref={offeringButtonRef}
                             type="button"
                             className={`flex h-9 w-full items-center justify-between rounded px-3 py-2 text-sm ${
                               !selectedOrgId ? "opacity-50 cursor-not-allowed" : ""
                             } bg-white`}
                             disabled={!selectedOrgId}
-                            onClick={(e) => {
-                              const dropdown = e.currentTarget.nextElementSibling;
-                              if (dropdown) {
-                                dropdown.classList.toggle("hidden");
-                              }
-                            }}
+                            onClick={toggleOfferingDropdown}
                           >
                             <span className="truncate">
                               {getSelectedOfferingsText()}
@@ -254,7 +276,10 @@ const New = () => {
                               <path d="m6 9 6 6 6-6" />
                             </svg>
                           </button>
-                          <div className="absolute z-50 hidden w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1">
+                          <div 
+                            ref={offeringDropdownRef}
+                            className={`absolute z-50 ${isOfferingDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
+                          >
                             <div className="flex flex-col">
                               <div className="max-h-[300px] overflow-auto p-1">
                                 {offerings.map((offering) => (
