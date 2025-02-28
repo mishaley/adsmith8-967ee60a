@@ -74,23 +74,27 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 overflow-visible shadow-md rounded-none bg-white",
+        "relative z-50 min-w-[8rem] shadow-md bg-white rounded-none border",
+        "overflow-visible",
         className
       )}
       position={position}
       {...props}
     >
-      <SelectScrollUpButton />
+      {/* Removed ScrollUpButton */}
       <SelectPrimitive.Viewport
         className={cn(
-          "p-1 bg-white",
-          position === "popper" &&
-            "max-h-[var(--radix-select-trigger-height)] min-h-[var(--radix-select-trigger-height)] w-full"
+          "p-1",
+          position === "popper" && 
+            "w-full"
         )}
+        style={{
+          maxHeight: 'unset'  // Remove max-height restriction
+        }}
       >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
+      {/* Removed ScrollDownButton */}
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))
@@ -116,6 +120,7 @@ const SelectItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex w-full cursor-default select-none items-center py-2 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "hover:bg-gray-100 data-[highlighted]:bg-gray-100",
       className
     )}
     {...props}
