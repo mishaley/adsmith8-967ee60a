@@ -319,13 +319,13 @@ const New = () => {
       {{
         q4: (
           <div className="max-w-3xl">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse table-auto">
               <tbody>
                 <tr>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Platform
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="inline-block w-auto">
                       <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
@@ -348,11 +348,11 @@ const New = () => {
                       </Select>
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 w-[20px]"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Organization
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="inline-block w-auto">
                       <Select value={selectedOrgId} onValueChange={handleOrgChange}>
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
@@ -380,7 +380,7 @@ const New = () => {
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Daily Budget
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="relative min-w-[180px]">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span className="text-gray-500">$</span>
@@ -394,11 +394,11 @@ const New = () => {
                       />
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 w-[20px]"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Offering
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="inline-block w-auto min-w-[180px]">
                       <MultiSelect
                         options={offeringOptions}
@@ -414,7 +414,7 @@ const New = () => {
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Bid Strategy
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="inline-block w-auto">
                       <Select value={selectedBidStrategy} onValueChange={handleBidStrategyChange}>
                         <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
@@ -437,11 +437,11 @@ const New = () => {
                       </Select>
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 w-[20px]"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Persona
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="inline-block w-auto min-w-[180px]">
                       <MultiSelect
                         options={personaOptions}
@@ -454,13 +454,13 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-white p-4 w-[1px]"></td>
+                  <td className="border border-white p-4 w-auto"></td>
+                  <td className="border border-white p-4 w-[20px]"></td>
                   <td className="border border-white p-4 whitespace-nowrap font-medium">
                     Message
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-white p-4 w-auto">
                     <div className="inline-block w-auto min-w-[180px]">
                       <MultiSelect
                         options={messageOptions}
