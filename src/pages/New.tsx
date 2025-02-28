@@ -77,12 +77,16 @@ const MultiSelect = ({
                 <div 
                   key={option.value} 
                   className="relative flex items-center px-2 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleValueChange(option.value)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleValueChange(option.value);
+                  }}
                 >
                   <Checkbox 
                     id={`option-${option.value}`}
                     checked={value.includes(option.value)} 
                     className="mr-2"
+                    // Remove onClick from checkbox since the entire row is now clickable
                   />
                   <label 
                     htmlFor={`option-${option.value}`}
