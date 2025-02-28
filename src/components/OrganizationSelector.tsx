@@ -37,21 +37,31 @@ export const OrganizationSelector = () => {
     localStorage.setItem(STORAGE_KEY, selectedOrgId);
   }, [selectedOrgId]);
 
+  // For debugging
+  useEffect(() => {
+    if (selectedOrg) {
+      console.log("Selected organization:", selectedOrg);
+      if (selectedOrg.organization_wordmark) {
+        console.log("Wordmark URL:", supabase.storage
+          .from("adsmith_assets")
+          .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl);
+      }
+    }
+  }, [selectedOrg]);
+
   return (
     <div className="relative h-full w-full group">
-      <div className="absolute inset-[18px]">
+      <div className="absolute inset-0 flex items-center justify-center">
         {selectedOrg?.organization_wordmark ? (
           <img
-            src={`${
-              supabase.storage
-                .from("adsmith_assets")
-                .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl
-            }`}
+            src={supabase.storage
+              .from("adsmith_assets")
+              .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl}
             alt={`${selectedOrg.organization_name} wordmark`}
-            className="max-h-full max-w-full w-auto h-auto object-contain absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+            className="max-h-full max-w-full w-auto h-auto object-contain p-4"
           />
         ) : (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center">
+          <div className="text-center">
             <h1 className="font-lora text-white text-2xl font-semibold">
               {selectedOrg?.organization_name}
             </h1>
@@ -60,7 +70,7 @@ export const OrganizationSelector = () => {
       </div>
       <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
         <SelectTrigger className="absolute bottom-0 left-0 w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <SelectValue placeholder="Select organization" />
+          <SelectValue placeholder="" />
         </SelectTrigger>
         <SelectContent 
           className="bg-white border-none min-w-[170px]"
