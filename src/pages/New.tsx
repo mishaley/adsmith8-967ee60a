@@ -431,8 +431,8 @@ const New = () => {
                             ref={personaDropdownRef}
                             className={`absolute z-50 ${isPersonaDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
                           >
-                            <div className="flex flex-col">
-                              <div className="max-h-[300px] overflow-auto p-1">
+                            <div className="flex flex-col bg-white">
+                              <div className="max-h-[300px] overflow-auto p-1 bg-white">
                                 {personas.map((persona) => (
                                   <div
                                     key={persona.persona_id}
@@ -509,8 +509,8 @@ const New = () => {
                             ref={messageDropdownRef}
                             className={`absolute z-50 ${isMessageDropdownOpen ? '' : 'hidden'} w-auto min-w-[250px] rounded-md border border-gray-200 bg-white shadow-md mt-1`}
                           >
-                            <div className="flex flex-col">
-                              <div className="max-h-[300px] overflow-auto p-1">
+                            <div className="flex flex-col bg-white">
+                              <div className="max-h-[300px] overflow-auto p-1 bg-white">
                                 {messages.map((message) => (
                                   <div
                                     key={message.message_id}
