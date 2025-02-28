@@ -187,13 +187,13 @@ const New = () => {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
-                    <span className="font-medium">Organization</span>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                    Organization
                   </td>
-                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
-                    <div className="relative inline-block w-auto">
+                  <td className="border border-transparent p-4">
+                    <div className="inline-block w-auto">
                       <Select value={selectedOrgId} onValueChange={handleOrgChange}>
-                        <SelectTrigger className="w-full bg-white">
+                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
@@ -215,14 +215,14 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
-                    <span className="font-medium">Offering</span>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                    Offering
                   </td>
-                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
-                    <div className="relative inline-block w-auto">
+                  <td className="border border-transparent p-4">
+                    <div className="inline-block w-auto">
                       {/* The multi-select offering dropdown */}
                       <div className="flex flex-col space-y-1">
-                        <div className="relative w-full">
+                        <div className="relative w-auto min-w-[180px]">
                           <button
                             type="button"
                             className={`flex h-9 w-full items-center justify-between rounded px-3 py-2 text-sm ${
@@ -294,17 +294,17 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
-                    <span className="font-medium">Persona</span>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                    Persona
                   </td>
-                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
-                    <div className="relative inline-block w-auto">
+                  <td className="border border-transparent p-4">
+                    <div className="inline-block w-auto">
                       <Select 
                         value={selectedPersonaId} 
                         onValueChange={handlePersonaChange}
                         disabled={selectedOfferingIds.length === 0}
                       >
-                        <SelectTrigger className="w-full bg-white">
+                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
@@ -330,17 +330,17 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-transparent p-4 whitespace-nowrap" style={{ width: "1%", minWidth: "fit-content" }}>
-                    <span className="font-medium">Message</span>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium" style={{ width: "1px" }}>
+                    Message
                   </td>
-                  <td className="border border-transparent p-4" style={{ width: "99%" }}>
-                    <div className="relative inline-block w-auto">
+                  <td className="border border-transparent p-4">
+                    <div className="inline-block w-auto">
                       <Select 
                         value={selectedMessageId} 
                         onValueChange={handleMessageChange}
                         disabled={!selectedPersonaId}
                       >
-                        <SelectTrigger className="w-full bg-white">
+                        <SelectTrigger className="w-auto min-w-[180px] max-w-full bg-white">
                           <SelectValue placeholder="" />
                         </SelectTrigger>
                         <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
