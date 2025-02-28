@@ -344,10 +344,10 @@ const New = () => {
             <table className="w-full border-collapse">
               <tbody>
                 <tr>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Platform
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="inline-block min-w-[180px]">
                       <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
                         <SelectTrigger className="w-full bg-white">
@@ -370,12 +370,12 @@ const New = () => {
                       </Select>
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-transparent p-4"></td>
                   {/* Fourth column with Locations label */}
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Locations
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="inline-block min-w-[180px]">
                       <Select value={selectedLocation} onValueChange={handleLocationChange}>
                         <SelectTrigger className="w-full bg-white">
@@ -391,11 +391,11 @@ const New = () => {
                       </Select>
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Organization
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="inline-block min-w-[180px]">
                       <Select value={selectedOrgId} onValueChange={handleOrgChange}>
                         <SelectTrigger className="w-full bg-white">
@@ -420,10 +420,10 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Daily Budget
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="relative min-w-[180px]">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <span className="text-gray-500">$</span>
@@ -437,12 +437,12 @@ const New = () => {
                       />
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-transparent p-4"></td>
                   {/* Fourth column with Language label */}
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Language
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="inline-block min-w-[180px]">
                       <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
                         <SelectTrigger className="w-full bg-white">
@@ -458,11 +458,11 @@ const New = () => {
                       </Select>
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Offering
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="min-w-[180px]">
                       <MultiSelect
                         options={offeringOptions}
@@ -475,10 +475,10 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Bid Strategy
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="inline-block min-w-[180px]">
                       <Select value={selectedBidStrategy} onValueChange={handleBidStrategyChange}>
                         <SelectTrigger className="w-full bg-white">
@@ -501,15 +501,15 @@ const New = () => {
                       </Select>
                     </div>
                   </td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-transparent p-4"></td>
                   {/* Three new columns */}
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Persona
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="min-w-[180px]">
                       <MultiSelect
                         options={personaOptions}
@@ -522,17 +522,17 @@ const New = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4"></td>
                   {/* Three new columns */}
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4"></td>
-                  <td className="border border-white p-4 whitespace-nowrap font-medium">
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4"></td>
+                  <td className="border border-transparent p-4 whitespace-nowrap font-medium">
                     Message
                   </td>
-                  <td className="border border-white p-4">
+                  <td className="border border-transparent p-4">
                     <div className="min-w-[180px]">
                       <MultiSelect
                         options={messageOptions}
