@@ -23,7 +23,7 @@ const PLATFORM_OPTIONS = ["Google", "Meta"] as const;
 type CampaignPlatform = typeof PLATFORM_OPTIONS[number];
 
 // Campaign bid strategy options from Supabase enum
-const BID_STRATEGY_OPTIONS = ["Manual CPC", "Target CPA", "Maximize Conversions"] as const;
+const BID_STRATEGY_OPTIONS = ["Highest Volume", "Cost Per Result", "Return On Ad Spend"] as const;
 type CampaignBidStrategy = typeof BID_STRATEGY_OPTIONS[number];
 
 // Multi-select component
