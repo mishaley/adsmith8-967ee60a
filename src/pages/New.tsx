@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,10 +47,10 @@ const MultiSelect = ({
   };
   
   const displayValue = () => {
-    if (value.length === 0) return placeholder;
+    if (value.length === 0) return "";
     if (value.length === 1) {
       const selectedOption = options.find(option => option.value === value[0]);
-      return selectedOption ? selectedOption.label : placeholder;
+      return selectedOption ? selectedOption.label : "";
     }
     return `${value.length} selected`;
   };
@@ -298,7 +299,7 @@ const New = () => {
                         options={offeringOptions}
                         value={selectedOfferingIds}
                         onChange={setSelectedOfferingIds}
-                        placeholder="Select offerings"
+                        placeholder=""
                         disabled={!selectedOrgId}
                       />
                     </div>
@@ -314,7 +315,7 @@ const New = () => {
                         options={personaOptions}
                         value={selectedPersonaIds}
                         onChange={setSelectedPersonaIds}
-                        placeholder="Select personas"
+                        placeholder=""
                         disabled={selectedOfferingIds.length === 0}
                       />
                     </div>
@@ -330,7 +331,7 @@ const New = () => {
                         options={messageOptions}
                         value={selectedMessageIds}
                         onChange={setSelectedMessageIds}
-                        placeholder="Select messages"
+                        placeholder=""
                         disabled={selectedPersonaIds.length === 0}
                       />
                     </div>
