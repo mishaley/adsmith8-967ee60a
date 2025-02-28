@@ -77,20 +77,27 @@ const MultiSelect = ({
                 <div 
                   key={option.value} 
                   className="relative flex items-center px-2 py-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleValueChange(option.value);
+                  onClick={() => handleValueChange(option.value)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleValueChange(option.value);
+                    }
                   }}
                 >
                   <Checkbox 
                     id={`option-${option.value}`}
                     checked={value.includes(option.value)} 
                     className="mr-2"
-                    // Remove onClick from checkbox since the entire row is now clickable
+                    onCheckedChange={() => {}}
+                    onClick={(e) => e.stopPropagation()} // Prevent checkbox from triggering its own click event
                   />
                   <label 
                     htmlFor={`option-${option.value}`}
                     className="flex-grow cursor-pointer"
+                    onClick={(e) => e.preventDefault()} // Prevent label click from triggering its own event
                   >
                     {option.label}
                   </label>
@@ -104,6 +111,14 @@ const MultiSelect = ({
                 <div 
                   className="px-2 py-2 text-gray-500 hover:bg-gray-100 cursor-pointer"
                   onClick={() => onChange([])}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onChange([]);
+                    }
+                  }}
                 >
                   Clear
                 </div>
