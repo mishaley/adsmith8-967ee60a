@@ -39,15 +39,31 @@ serve(async (req) => {
     
     // Test the API with minimal parameters
     console.log("Sending test request to Ideogram API");
-    const response = await fetch('https://api.ideogram.ai/api/v1/health', {
-      method: 'GET',
+    const response = await fetch('https://api.ideogram.ai/generate', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify({
+        prompt: 'test connection only',
+        // Including minimal required params but not actually generating an image
+        aspect_ratio: "1:1", 
+        cfg_scale: 7.5
+      }),
     });
 
     console.log('Ideogram API response status:', response.status);
+    
+    // Parse the response
+    let data;
+    try {
+      data = await response.json();
+      console.log('Ideogram API response data:', JSON.stringify(data).substring(0, 200) + '...');
+    } catch (e) {
+      console.error('Error parsing response:', e);
+      data = { error: 'Unable to parse response' };
+    }
     
     if (response.ok) {
       console.log('Successfully connected to Ideogram API');
@@ -61,20 +77,12 @@ serve(async (req) => {
         }
       );
     } else {
-      // Try to parse response body
-      let errorData;
-      try {
-        errorData = await response.json();
-      } catch (e) {
-        errorData = { error: 'Unable to parse error response' };
-      }
-      
-      console.error('Error response from Ideogram API:', errorData);
+      console.error('Error response from Ideogram API:', data);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Error connecting to Ideogram API',
-          details: errorData,
+          error: data.error || 'Error connecting to Ideogram API',
+          details: data,
           status: response.status
         }),
         { 
