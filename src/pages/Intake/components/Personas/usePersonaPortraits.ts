@@ -1,36 +1,15 @@
 
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader, Image } from "lucide-react";
-
-interface Persona {
-  title: string;
-  gender: string;
-  ageMin: number;
-  ageMax: number;
-  interests: string[];
-  portraitUrl?: string;
-}
-
-interface PersonasSectionProps {
-  personas: Persona[];
-  summary: string;
-  isGeneratingPersonas: boolean;
-  generatePersonas: () => void;
-  updatePersona?: (index: number, updatedPersona: Persona) => void;
-}
+import { Persona } from "./types";
 
 const SESSION_STORAGE_KEY = "personaPortraits";
 
-const PersonasSection: React.FC<PersonasSectionProps> = ({
-  personas,
-  summary,
-  isGeneratingPersonas,
-  generatePersonas,
-  updatePersona
-}) => {
+export const usePersonaPortraits = (
+  personas: Persona[],
+  updatePersona?: (index: number, updatedPersona: Persona) => void
+) => {
   const [generatingPortraitFor, setGeneratingPortraitFor] = useState<number | null>(null);
   const [generatingAllPortraits, setGeneratingAllPortraits] = useState<boolean>(false);
   const { toast } = useToast();
@@ -197,118 +176,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     }
   };
 
-  return (
-    <>
-      <tr className="border-b">
-        <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4 flex items-center">
-            <span>Personas</span>
-            <Button 
-              onClick={generatePersonas} 
-              disabled={isGeneratingPersonas}
-              className="ml-4"
-              size="sm"
-            >
-              {isGeneratingPersonas ? "Generating..." : "Generate"}
-            </Button>
-            <Button 
-              onClick={generateAllPortraits} 
-              disabled={generatingAllPortraits || generatingPortraitFor !== null || personas.length === 0}
-              className="ml-2"
-              size="sm"
-              variant="outline"
-            >
-              {generatingAllPortraits ? (
-                <>
-                  <Loader className="h-4 w-4 animate-spin mr-2" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Image className="h-4 w-4 mr-2" />
-                  Portraits
-                </>
-              )}
-            </Button>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td colSpan={2} className="p-0">
-          {/* Separate table for personas section */}
-          <div className="w-full">
-            <table className="w-full border-collapse">
-              <tbody>
-                {/* Persona descriptions row */}
-                <tr>
-                  {personas.length > 0 ? (
-                    personas.map((persona, index) => (
-                      <td key={index} className="py-3 px-3 border-r align-top" style={{ width: "20%" }}>
-                        <div className="flex flex-col">
-                          <div className="font-medium">{persona.title}</div>
-                          <div>{persona.gender}, age {persona.ageMin}-{persona.ageMax}</div>
-                          <div>{persona.interests.join(", ")}</div>
-                        </div>
-                      </td>
-                    ))
-                  ) : (
-                    Array.from({ length: 5 }).map((_, index) => (
-                      <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
-                    ))
-                  )}
-                </tr>
-                
-                {/* Portraits row */}
-                <tr>
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <td key={index} className="py-3 px-3 border-r" style={{ width: "20%" }}>
-                      <div className="flex flex-col items-center">
-                        {personas[index]?.portraitUrl ? (
-                          <img 
-                            src={personas[index].portraitUrl} 
-                            alt={`Portrait of ${personas[index]?.title || `Persona ${index + 1}`}`}
-                            className="w-full h-auto rounded-md"
-                          />
-                        ) : personas.length > 0 && index < personas.length ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => generatePortrait(personas[index], index)}
-                            disabled={generatingPortraitFor !== null || generatingAllPortraits}
-                            className="w-full mt-1"
-                          >
-                            {generatingPortraitFor === index ? (
-                              <>
-                                <Loader className="h-4 w-4 animate-spin mr-2" />
-                                Generating...
-                              </>
-                            ) : (
-                              "Generate Portrait"
-                            )}
-                          </Button>
-                        ) : (
-                          <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
-                            No persona data
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-                
-                {/* Empty row for spacing/alignment */}
-                <tr>
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </td>
-      </tr>
-    </>
-  );
+  return {
+    generatingPortraitFor,
+    generatingAllPortraits,
+    generatePortrait,
+    generateAllPortraits,
+    savePortraitsToSession
+  };
 };
-
-export default PersonasSection;

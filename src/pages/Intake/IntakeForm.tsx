@@ -1,21 +1,12 @@
-
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import IntakeHeader from "./components/IntakeHeader";
 import IntakeFormFields from "./components/IntakeFormFields";
-import PersonasSection from "./components/PersonasSection";
+import PersonasSection from "./components/Personas/PersonasSection";
 import { generatePersonaSummary, normalizeGender } from "./utils/personaUtils";
-
-interface Persona {
-  title: string;
-  gender: string;
-  ageMin: number;
-  ageMax: number;
-  interests: string[];
-  portraitUrl?: string;
-}
+import { Persona } from "./components/Personas/types";
 
 const IntakeForm = () => {
   const [brandName, setBrandName] = useState("");
