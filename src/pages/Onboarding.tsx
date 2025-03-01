@@ -2,11 +2,14 @@
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Mic, ArrowRight } from "lucide-react";
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
   const [offering, setOffering] = useState("");
+  const [sellingPoints, setSellingPoints] = useState("");
   
   return (
     <QuadrantLayout>
@@ -52,6 +55,24 @@ const Onboarding = () => {
                         onChange={(e) => setOffering(e.target.value)}
                         className="w-64"
                       />
+                    </td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
+                    <td className="py-4 w-full">
+                      <div className="relative">
+                        <Textarea
+                          value={sellingPoints}
+                          onChange={(e) => setSellingPoints(e.target.value)}
+                          className="min-h-[100px] w-64 pr-10"
+                        />
+                        <div className="absolute bottom-2 right-3 flex items-center gap-1 text-sm text-gray-500 cursor-pointer">
+                          <span className="flex items-center">
+                            Hold to talk <ArrowRight size={14} className="ml-1" />
+                          </span>
+                          <Mic size={18} className="text-blue-500" />
+                        </div>
+                      </div>
                     </td>
                   </tr>
                   <tr className="border-b">
