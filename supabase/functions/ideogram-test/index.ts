@@ -1,91 +1,70 @@
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 
+// Define CORS headers for browser requests
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+}
+
+// Set up the specific prompt for puppies
+const PUPPY_PROMPT = "Cutest puppy in the world";
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { 
-      headers: corsHeaders,
-      status: 204
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log("Testing connection to Ideogram API");
-    
+    // Get the API key from environment variables
     const apiKey = Deno.env.get('IDEOGRAM_API_KEY');
     
     if (!apiKey) {
-      console.error('IDEOGRAM_API_KEY is not set in environment variables');
+      console.error('IDEOGRAM_API_KEY is not set');
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'API key not configured. Please add IDEOGRAM_API_KEY to Edge Function secrets.' 
+          error: 'API key is not configured'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500 
+          status: 500
         }
       );
     }
 
-    // Log API key details for debugging
-    const keyFirstChars = apiKey.substring(0, 4);
-    const keyLastChars = apiKey.substring(apiKey.length - 4);
-    console.log(`API key found, length: ${apiKey.length}, starts with: ${keyFirstChars}, ends with: ${keyLastChars}`);
-    
-    // Create headers using Ideogram's recommended format: 'Api-Key' instead of 'Authorization: Bearer'
-    const apiHeaders = new Headers({
-      'Api-Key': apiKey,
-      'Content-Type': 'application/json'
-    });
-    
-    // Log the complete headers for debugging
-    console.log("Request headers being sent:");
-    apiHeaders.forEach((value, key) => {
-      // Only show partial API key in logs
-      if (key.toLowerCase() === 'api-key') {
-        console.log(`${key}: ${keyFirstChars}...${keyLastChars}`);
-      } else {
-        console.log(`${key}: ${value}`);
-      }
-    });
-    
-    console.log("Sending request to Ideogram API...");
-    
-    // Using the format from Ideogram's documentation
-    const response = await fetch('https://api.ideogram.ai/generate', {
+    // Define the API endpoint
+    const apiUrl = 'https://api.ideogram.ai/api/v1/images/generation';
+
+    // Set up the request payload with our fixed puppy prompt
+    const payload = {
+      prompt: PUPPY_PROMPT,
+      style_type: 'GENERAL',
+      resolution: '1024x1024',
+      num_images: 1,
+    };
+
+    console.log('Sending request to Ideogram API:', JSON.stringify(payload));
+
+    // Make the request to the Ideogram API
+    const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: apiHeaders,
-      body: JSON.stringify({
-        image_request: {
-          prompt: "test connection only, beautiful landscape photo",
-          aspect_ratio: "ASPECT_1_1",
-          model: "V_2",
-          magic_prompt_option: "AUTO"
-        }
-      }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Api-Key': apiKey,
+      },
+      body: JSON.stringify(payload),
     });
 
-    console.log('Ideogram API response status:', response.status);
-    console.log('Ideogram API response headers:');
-    response.headers.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
-    });
+    // Get the response text and try to parse it as JSON
+    const responseText = await response.text();
+    console.log('Raw API Response:', responseText.substring(0, 500) + '...');
     
-    // Parse the response
     let data;
-    try {
-      const responseText = await response.text();
-      console.log('Raw response text length:', responseText.length);
-      console.log('Raw response text preview:', responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''));
-      
+    
+    // Only try to parse if the response text isn't empty
+    if (responseText) {
       try {
         data = JSON.parse(responseText);
         console.log('Parsed response data:', JSON.stringify(data).substring(0, 500) + '...');
@@ -93,11 +72,12 @@ serve(async (req) => {
         console.error('Error parsing JSON response:', parseError);
         data = { error: 'Unable to parse response as JSON', rawResponse: responseText.substring(0, 200) };
       }
-    } catch (e) {
-      console.error('Error reading response:', e);
-      data = { error: 'Unable to read response' };
+    } else {
+      console.error('Empty response from API');
+      data = { error: 'Empty response from API' };
     }
     
+    // Check if the request was successful
     if (response.ok) {
       console.log('Successfully connected to Ideogram API');
       
@@ -123,6 +103,7 @@ serve(async (req) => {
           success: true, 
           message: 'Successfully connected to Ideogram API',
           imageUrl: imageUrl,
+          prompt: PUPPY_PROMPT,
           data: data // Include the full response data for debugging
         }),
         { 
@@ -130,26 +111,31 @@ serve(async (req) => {
         }
       );
     } else {
-      console.error('Error response from Ideogram API:', data);
+      // Handle API errors
+      console.error('API request failed with status:', response.status);
+      console.error('API error details:', data);
+      
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: data.error || 'Error connecting to Ideogram API',
-          details: data,
-          status: response.status
+          error: `API request failed with status ${response.status}`,
+          details: data
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500
+          status: response.status
         }
       );
     }
   } catch (error) {
-    console.error('Error in ideogram-test function:', error);
+    // Handle any unexpected errors
+    console.error('Unexpected error:', error);
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Unknown error occurred',
+        error: 'Unexpected error',
+        details: error.message
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -157,4 +143,4 @@ serve(async (req) => {
       }
     );
   }
-});
+})
