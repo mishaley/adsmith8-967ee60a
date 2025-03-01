@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic } from "lucide-react";
@@ -27,6 +28,7 @@ const RecordingField = ({
   const [originalTranscription, setOriginalTranscription] = useState("");
   const [transcriptionChanged, setTranscriptionChanged] = useState(false);
   const [currentHeight, setCurrentHeight] = useState<number | null>(null);
+  const [previousValue, setPreviousValue] = useState("");
   
   const { 
     isRecording, 
@@ -36,10 +38,13 @@ const RecordingField = ({
     stopRecording 
   } = useAudioRecording({
     onTranscriptionComplete: (text) => {
+      // Append new transcription to existing value instead of replacing it
+      const newValue = value.trim() ? `${value.trim()} ${text}` : text;
       setOriginalTranscription(text);
-      onChange(text);
+      onChange(newValue);
       setTempTranscript("");
       setTranscriptionChanged(false);
+      setPreviousValue(newValue);
     },
     onError: (error) => {
       toast({
@@ -54,8 +59,19 @@ const RecordingField = ({
   
   const { initializeSpeechRecognition, stopSpeechRecognition } = useSpeechRecognition({
     onTranscript: (interimTranscript) => {
+      // Store the value before starting recording
+      if (!tempTranscript && interimTranscript) {
+        setPreviousValue(value);
+      }
+      
       setTempTranscript(interimTranscript);
-      onChange(interimTranscript);
+      
+      // Append interim transcript to existing text instead of replacing it
+      const newValue = previousValue.trim() && interimTranscript.trim() 
+        ? `${previousValue.trim()} ${interimTranscript}`
+        : previousValue.trim() || interimTranscript;
+        
+      onChange(newValue);
     }
   });
   
@@ -131,6 +147,8 @@ const RecordingField = ({
   
   const handleStartRecording = async () => {
     try {
+      // Store the current value before recording starts
+      setPreviousValue(value);
       await startRecording();
       initializeSpeechRecognition();
     } catch (error) {
