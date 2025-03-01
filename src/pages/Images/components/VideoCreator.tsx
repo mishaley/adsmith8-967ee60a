@@ -49,7 +49,7 @@ const VideoCreator = () => {
         </div>
       </div>
       <div className="text-sm text-gray-500 mb-4">
-        Create a high-quality MP4 video slideshow from your selected images. Each image appears for 3 seconds with smooth transitions.
+        Create a simple MP4 slideshow from your selected images. Each image appears for 2 seconds with quick cuts between images.
       </div>
       
       {previewImages.length > 0 && (
@@ -94,7 +94,7 @@ const VideoCreator = () => {
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            The video is in MP4 format, optimized for compatibility with macOS Preview, QuickTime, and other major media players.
+            The video is in MP4 format with 2-second displays per image.
           </p>
         </div>
       )}

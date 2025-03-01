@@ -39,40 +39,30 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       
       // Load the first image to determine dimensions
       const firstImage = new Image();
-      await new Promise((resolve, reject) => {
-        firstImage.onload = resolve;
+      await new Promise<void>((resolve, reject) => {
+        firstImage.onload = () => resolve();
         firstImage.onerror = reject;
         firstImage.src = previewImages[0];
       });
       
-      // Set standard dimensions that work well with H.264
-      // Use 640x480 as a base, but maintain aspect ratio and make sure dimensions are even
-      let width = 640;
-      let height = 480;
+      // Set standard dimensions that work well with macOS Preview
+      // Using 1280x720 (720p) which is a standard video resolution
+      let width = 1280;
+      let height = 720;
       
-      // Calculate aspect ratio for proper scaling
-      const aspectRatio = firstImage.width / firstImage.height;
-      if (aspectRatio > 1) {
-        // Landscape
-        height = Math.floor(width / aspectRatio);
-      } else {
-        // Portrait or square
-        width = Math.floor(height * aspectRatio);
-      }
-      
-      // Ensure dimensions are even numbers (required for some codecs)
-      width = Math.floor(width / 2) * 2;
-      height = Math.floor(height / 2) * 2;
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
       
       console.log(`Video dimensions: ${width}x${height}`);
       
       // Use higher bitrate for better quality
-      const bitRate = 8000000; // 8 Mbps - high quality
+      const bitRate = 10000000; // 10 Mbps - high quality
       
       // Set up MediaRecorder with MP4-compatible parameters
       const stream = canvas.captureStream(30); // 30fps for smooth playback
       
-      // Try to create MediaRecorder with H.264 codec for maximum compatibility
+      // Try to create MediaRecorder with H.264 codec
       let mediaRecorder;
       try {
         mediaRecorder = new MediaRecorder(stream, {
@@ -98,15 +88,11 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       
       await new Promise<void>((resolve) => {
         mediaRecorder.onstop = async () => {
-          // Create a WebM blob first (this is browser's native format)
-          const webmBlob = new Blob(chunks, { type: mediaRecorder.mimeType });
-          
-          // Convert to MP4 (this is a browser-friendly approximation)
-          // In a real implementation, you would use a true transcoding library like ffmpeg.wasm
+          // Create a MP4 blob
           const mp4Blob = new Blob(chunks, { type: 'video/mp4' });
           mp4BlobRef.current = mp4Blob;
           
-          // Create URL with MP4 MIME type
+          // Create URL
           const url = URL.createObjectURL(mp4Blob);
           setMp4Url(url);
           
@@ -123,8 +109,8 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         
         mediaRecorder.start();
         
-        // Process the images
-        processImages(ctx, canvas, mediaRecorder, previewImages, width, height).catch(error => {
+        // Process the images with simple hard cuts
+        createSimpleSlideshow(ctx, canvas, mediaRecorder, previewImages, width, height).catch(error => {
           console.error("Error processing images:", error);
           mediaRecorder.stop();
         });
@@ -154,8 +140,8 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
   };
 };
 
-// Extracted image processing function
-const processImages = async (
+// Simple slideshow with hard cuts between images
+const createSimpleSlideshow = async (
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   mediaRecorder: MediaRecorder,
@@ -163,22 +149,32 @@ const processImages = async (
   width: number,
   height: number
 ) => {
-  // Longer frame duration for better quality and to create a larger file
-  const frameDuration = 3000; // 3 seconds per image
+  const frameDuration = 2000; // 2 seconds per image
   
-  for (let i = 0; i < previewImages.length; i++) {
+  // Fill with black first to ensure correct initialization
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, width, height);
+  
+  // Load all images first to prevent loading delays during recording
+  const images = await Promise.all(previewImages.map(async (src) => {
     const img = new Image();
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
       img.onerror = reject;
-      img.src = previewImages[i];
+      img.src = src;
     });
+    return img;
+  }));
+  
+  // Now display each image
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i];
     
-    // Clear canvas and draw with black background
+    // Clear canvas with black background
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, width, height);
     
-    // Calculate position to center image
+    // Calculate position to center image maintaining aspect ratio
     const imgWidth = img.width;
     const imgHeight = img.height;
     const scale = Math.min(width / imgWidth, height / imgHeight);
@@ -188,50 +184,12 @@ const processImages = async (
     // Draw image with proper scaling
     ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
     
-    if (i < previewImages.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, frameDuration));
-      
-      const nextImg = new Image();
-      await new Promise((resolve, reject) => {
-        nextImg.onload = resolve;
-        nextImg.onerror = reject;
-        nextImg.src = previewImages[i + 1];
-      });
-      
-      // Add more transition frames for smoother effect and larger file
-      const transitionFrames = 30; // More frames = smoother transition
-      const transitionDuration = 1000; // 1 second transition
-      
-      for (let j = 0; j < transitionFrames; j++) {
-        const alpha = j / transitionFrames;
-        
-        // Clear canvas and fill with black
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, width, height);
-        
-        // Draw current image
-        ctx.globalAlpha = 1 - alpha;
-        ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
-        
-        // Calculate next image position
-        const nextImgWidth = nextImg.width;
-        const nextImgHeight = nextImg.height;
-        const nextScale = Math.min(width / nextImgWidth, height / nextImgHeight);
-        const nextX = (width - nextImgWidth * nextScale) / 2;
-        const nextY = (height - nextImgHeight * nextScale) / 2;
-        
-        // Draw next image
-        ctx.globalAlpha = alpha;
-        ctx.drawImage(nextImg, nextX, nextY, nextImgWidth * nextScale, nextImgHeight * nextScale);
-        ctx.globalAlpha = 1;
-        
-        await new Promise(resolve => 
-          setTimeout(resolve, transitionDuration / transitionFrames)
-        );
-      }
-    } else {
-      // Hold last frame longer
-      await new Promise(resolve => setTimeout(resolve, frameDuration * 1.5));
+    // Wait for duration
+    await new Promise(resolve => setTimeout(resolve, frameDuration));
+    
+    // Hold the last frame longer
+    if (i === images.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 500)); // Extra half second for last frame
     }
   }
   
