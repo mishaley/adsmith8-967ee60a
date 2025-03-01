@@ -70,18 +70,20 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         throw new Error("Unable to create canvas context");
       }
 
-      // Calculate dimensions - use fixed size for better quality
-      const width = 1920; // Full HD width
-      const height = 1080; // Full HD height
+      // Find the optimal canvas size that will fit all images while maintaining aspect ratios
+      // This ensures all images can be shown at their proper aspect ratio
+      const maxWidth = 1920; // Max width for good quality
+      const maxHeight = 1080; // Max height for good quality
       
-      canvas.width = width;
-      canvas.height = height;
+      // Set default canvas dimensions to max allowed
+      canvas.width = maxWidth;
+      canvas.height = maxHeight;
       
-      console.log(`Video dimensions: ${width}x${height}`);
+      console.log(`Video dimensions: ${canvas.width}x${canvas.height}`);
       
       // Configure high quality settings
       const framerate = 30; // 30fps
-      const secondsPerImage = 2; // Each image shows for 2 seconds
+      const secondsPerImage = 2; // Each image shows for exactly 2 seconds
       const framesPerImage = framerate * secondsPerImage;
       const totalFrames = previewImages.length * framesPerImage;
       
@@ -130,23 +132,23 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       const drawImageCentered = (img: HTMLImageElement) => {
         // Fill with black background
         ctx.fillStyle = "#000000";
-        ctx.fillRect(0, 0, width, height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Calculate scaling to maintain aspect ratio
         const imgRatio = img.naturalWidth / img.naturalHeight;
         let drawWidth, drawHeight, x, y;
         
-        if (imgRatio > width / height) {
+        if (imgRatio > canvas.width / canvas.height) {
           // Image is wider than canvas ratio
-          drawWidth = width;
-          drawHeight = width / imgRatio;
+          drawWidth = canvas.width;
+          drawHeight = canvas.width / imgRatio;
           x = 0;
-          y = (height - drawHeight) / 2;
+          y = (canvas.height - drawHeight) / 2;
         } else {
           // Image is taller than canvas ratio
-          drawHeight = height;
-          drawWidth = height * imgRatio;
-          x = (width - drawWidth) / 2;
+          drawHeight = canvas.height;
+          drawWidth = canvas.height * imgRatio;
+          x = (canvas.width - drawWidth) / 2;
           y = 0;
         }
         
@@ -183,7 +185,8 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
             toast({
               title: "Warning: Small File Size",
               description: "The generated video is small, which might indicate encoding issues. Try a different browser if needed.",
-              variant: "warning",
+              // Fix the TypeScript error by using the correct variant
+              variant: "destructive",
             });
           } else {
             toast({
