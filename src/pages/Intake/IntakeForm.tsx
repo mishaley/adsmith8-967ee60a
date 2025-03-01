@@ -10,6 +10,7 @@ const IntakeForm = () => {
   const [industry, setIndustry] = useState("");
   const [offering, setOffering] = useState("");
   const [sellingPoints, setSellingPoints] = useState("");
+  const [problemsSolved, setProblemsSolved] = useState("");
 
   return (
     <QuadrantLayout>
@@ -45,6 +46,13 @@ const IntakeForm = () => {
                     helperText="Main reasons why customers buy this offering"
                     value={sellingPoints}
                     onChange={setSellingPoints}
+                    placeholder="Try to speak for at least 30 seconds"
+                  />
+                  <RecordingField
+                    label="Problems Solved"
+                    helperText="How does this offering help your customers?"
+                    value={problemsSolved}
+                    onChange={setProblemsSolved}
                     placeholder="Try to speak for at least 30 seconds"
                   />
                   <tr className="border-b">
