@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Use type assertion to get the correct constructor type
+// Use type assertion to access the SpeechRecognition API
 const SpeechRecognitionAPI = (
   window.SpeechRecognition || 
   (window as any).webkitSpeechRecognition
-) as typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
+);
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
@@ -25,7 +25,7 @@ const Onboarding = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   
   useEffect(() => {
