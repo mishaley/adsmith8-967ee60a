@@ -1,3 +1,4 @@
+
 import { setupCanvas, loadImages, drawImageCentered } from "./useCanvasUtils";
 import { createMediaRecorder, getMimeType } from "./useMediaRecorder";
 
@@ -16,7 +17,7 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     // Configure high quality settings
     const framerate = 30; // 30fps
     const secondsPerImage = 2; // Each image shows for exactly 2 seconds
-    const framesPerImage = framerate * secondsPerImage;
+    const totalDurationMs = previewImages.length * secondsPerImage * 1000; // Total duration in ms
     
     // Set up MediaRecorder with high bitrate
     const stream = canvas.captureStream(framerate);
@@ -33,42 +34,44 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     });
     
     return new Promise<Blob | null>((resolve) => {
-      let currentImageIndex = 0;
-      
       mediaRecorder.onstop = () => {
         console.log("MediaRecorder stopped, finalizing video");
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
         resolve(videoBlob);
       };
       
-      // Start recording with smaller chunk size for more consistent processing
-      mediaRecorder.start(500); 
+      // Start recording
+      mediaRecorder.start(500); // Smaller chunk size for more consistent processing
       console.log("MediaRecorder started");
       
       // Draw the first image immediately
       drawImageCentered(ctx, canvas, loadedImages[0]);
       console.log(`Rendering image 1/${loadedImages.length}`);
       
-      // Create a simple timekeeper using setInterval for reliable timing
-      let imageCounter = 0;
-      const intervalId = setInterval(() => {
-        imageCounter++;
-        
-        if (imageCounter >= loadedImages.length) {
-          // We've shown all images, stop recording
-          clearInterval(intervalId);
-          console.log("All images rendered, stopping MediaRecorder");
+      // Use precisely timed timeouts for each image transition
+      let completedImageCount = 1; // First image already rendered
+      
+      // Function to schedule all image changes at exact times
+      const scheduleImageDisplays = () => {
+        for (let i = 1; i < loadedImages.length; i++) {
+          const exactTimeMs = i * secondsPerImage * 1000;
+          
           setTimeout(() => {
-            mediaRecorder.stop();
-          }, 500); // Small delay to ensure the last frame is captured
-          return;
+            drawImageCentered(ctx, canvas, loadedImages[i]);
+            completedImageCount++;
+            console.log(`Rendering image ${i + 1}/${loadedImages.length}`);
+          }, exactTimeMs);
         }
         
-        // Move to the next image
-        currentImageIndex = imageCounter;
-        console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length}`);
-        drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
-      }, secondsPerImage * 1000); // Convert seconds to milliseconds
+        // Schedule the stop of recording at the exact end time
+        setTimeout(() => {
+          console.log(`All images rendered, stopping MediaRecorder after exact duration of ${totalDurationMs}ms`);
+          mediaRecorder.stop();
+        }, totalDurationMs + 500); // Add a small buffer to ensure the last frame is captured fully
+      };
+      
+      // Start scheduling all the precise image displays
+      scheduleImageDisplays();
     });
   } catch (error) {
     console.error('Error in processImagesIntoVideo:', error);

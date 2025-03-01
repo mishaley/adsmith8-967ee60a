@@ -47,9 +47,10 @@ const VideoCreator = () => {
   // Calculate expected video duration
   const calculateDuration = () => {
     if (previewImages.length === 0) return "0:00";
-    const seconds = previewImages.length * 2; // 2 seconds per image
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    // Precise calculation - exactly 2 seconds per image
+    const exactSeconds = previewImages.length * 2;
+    const minutes = Math.floor(exactSeconds / 60);
+    const remainingSeconds = exactSeconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
