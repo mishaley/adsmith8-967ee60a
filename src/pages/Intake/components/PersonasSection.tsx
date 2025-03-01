@@ -59,27 +59,43 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
         </td>
       </tr>
       <tr className="border-b">
-        {personas.length > 0 ? (
-          personas.map((persona, index) => (
-            <td key={index} className="py-3 px-3 border-r align-top w-1/5 flex-1">
-              <div className="flex flex-col h-full">
-                <div className="font-medium">{persona.title}</div>
-                <div>{persona.gender}</div>
-                <div>{persona.ageMin}-{persona.ageMax}</div>
-                <div>{persona.interests.join(", ")}</div>
-              </div>
-            </td>
-          ))
-        ) : (
-          Array.from({ length: 5 }).map((_, index) => (
-            <td key={index} className="py-4 px-2 border-r flex-1 w-1/5"></td>
-          ))
-        )}
+        <td className="p-0">
+          <table className="w-full border-collapse">
+            <tbody>
+              <tr>
+                {personas.length > 0 ? (
+                  personas.map((persona, index) => (
+                    <td key={index} className="py-3 px-3 border-r align-top w-1/5" style={{ width: "20%" }}>
+                      <div className="flex flex-col h-full">
+                        <div className="font-medium">{persona.title}</div>
+                        <div>{persona.gender}</div>
+                        <div>{persona.ageMin}-{persona.ageMax}</div>
+                        <div>{persona.interests.join(", ")}</div>
+                      </div>
+                    </td>
+                  ))
+                ) : (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
+                  ))
+                )}
+              </tr>
+            </tbody>
+          </table>
+        </td>
       </tr>
       <tr className="border-b">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <td key={index} className="py-4 px-2 border-r flex-1 w-1/5"></td>
-        ))}
+        <td className="p-0">
+          <table className="w-full border-collapse">
+            <tbody>
+              <tr>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </td>
       </tr>
     </>
   );
