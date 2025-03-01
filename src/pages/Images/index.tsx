@@ -13,7 +13,6 @@ const Images = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const [promptUsed, setPromptUsed] = useState<string | null>(null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
@@ -91,7 +90,6 @@ const Images = () => {
   const handleRunImageGeneration = async () => {
     setIsLoading(true);
     setGeneratedImageUrl(null);
-    setPromptUsed(null);
     
     try {
       const response = await supabase.functions.invoke('ideogram-test');
@@ -110,17 +108,12 @@ const Images = () => {
       console.log('Ideogram API response:', data);
       
       if (data.success) {
-        // Set the prompt used
-        if (data.prompt) {
-          setPromptUsed(data.prompt);
-        }
-        
         // First check for direct imageUrl from our edge function
         if (data.imageUrl) {
           setGeneratedImageUrl(data.imageUrl);
           toast({
             title: "Image Generated Successfully",
-            description: "The puppy image has been generated.",
+            description: "The test image has been generated.",
           });
         } 
         // Then check for the new response format where image URL is in data[0].url
@@ -128,7 +121,7 @@ const Images = () => {
           setGeneratedImageUrl(data.data[0].url);
           toast({
             title: "Image Generated Successfully",
-            description: "The puppy image has been generated.",
+            description: "The test image has been generated.",
           });
         } else {
           toast({
@@ -183,11 +176,6 @@ const Images = () => {
               </div>
               <div className="text-sm text-gray-500 mb-4">
                 Tests connection to the Ideogram API with your credentials.
-                {promptUsed && (
-                  <div className="mt-2 p-2 bg-gray-50 rounded">
-                    <span className="font-medium">Prompt:</span> {promptUsed}
-                  </div>
-                )}
               </div>
               
               {/* Image display area */}
@@ -195,7 +183,7 @@ const Images = () => {
                 <div className="mt-4 border rounded-md overflow-hidden">
                   <img 
                     src={generatedImageUrl} 
-                    alt="Generated puppy image" 
+                    alt="Generated test image" 
                     className="w-full h-auto object-contain"
                   />
                 </div>
