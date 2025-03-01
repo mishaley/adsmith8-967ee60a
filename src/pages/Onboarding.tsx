@@ -8,8 +8,8 @@ const Onboarding = () => {
       {{
         q4: (
           <div className="w-full">
-            <h1 className="text-2xl font-bold mb-4">Welcome to Adsmith! Your marketing ROI is our only focus.</h1>
-            <p className="mb-4">
+            <p className="text-lg mb-4">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
+            <p className="text-lg mb-4">
               Let's get a demo campaign set up. It'll only take a few minutes.
             </p>
           </div>
