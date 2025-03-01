@@ -132,6 +132,14 @@ const Onboarding = () => {
             if (interimTranscript) {
               setTempTranscript(interimTranscript);
               setSellingPoints(interimTranscript);
+              
+              setTimeout(() => {
+                const textarea = textareaRef.current;
+                if (textarea) {
+                  textarea.style.height = "auto";
+                  textarea.style.height = `${textarea.scrollHeight}px`;
+                }
+              }, 0);
             }
           };
           
