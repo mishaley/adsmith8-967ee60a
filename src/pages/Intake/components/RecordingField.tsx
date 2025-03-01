@@ -1,12 +1,12 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
-import { supabase } from "@/integrations/supabase/client";
+import { useTextareaResize } from "../hooks/useTextareaResize";
+import { useTranscriptionCorrection } from "../hooks/useTranscriptionCorrection";
+import { useToast } from "@/components/ui/use-toast";
+import RecordingButton from "./RecordingButton";
 
 interface RecordingFieldProps {
   label: string;
@@ -25,10 +25,16 @@ const RecordingField = ({
 }: RecordingFieldProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
-  const [originalTranscription, setOriginalTranscription] = useState("");
-  const [transcriptionChanged, setTranscriptionChanged] = useState(false);
-  const [currentHeight, setCurrentHeight] = useState<number | null>(null);
-  const [previousValue, setPreviousValue] = useState("");
+  const [tempTranscript, setTempTranscript] = useState("");
+  
+  const { 
+    setTranscription, 
+    saveOriginalValue, 
+    getOriginalValue, 
+    handleBlur 
+  } = useTranscriptionCorrection({ value });
+  
+  const { currentHeight } = useTextareaResize(textareaRef, value, tempTranscript);
   
   const { 
     isRecording, 
@@ -40,11 +46,10 @@ const RecordingField = ({
     onTranscriptionComplete: (text) => {
       // Append new transcription to existing value instead of replacing it
       const newValue = value.trim() ? `${value.trim()} ${text}` : text;
-      setOriginalTranscription(text);
+      setTranscription(text);
       onChange(newValue);
       setTempTranscript("");
-      setTranscriptionChanged(false);
-      setPreviousValue(newValue);
+      saveOriginalValue(newValue);
     },
     onError: (error) => {
       toast({
@@ -54,19 +59,18 @@ const RecordingField = ({
       });
     }
   });
-
-  const [tempTranscript, setTempTranscript] = useState("");
   
   const { initializeSpeechRecognition, stopSpeechRecognition } = useSpeechRecognition({
     onTranscript: (interimTranscript) => {
       // Store the value before starting recording
       if (!tempTranscript && interimTranscript) {
-        setPreviousValue(value);
+        saveOriginalValue(value);
       }
       
       setTempTranscript(interimTranscript);
       
       // Append interim transcript to existing text instead of replacing it
+      const previousValue = getOriginalValue();
       const newValue = previousValue.trim() && interimTranscript.trim() 
         ? `${previousValue.trim()} ${interimTranscript}`
         : previousValue.trim() || interimTranscript;
@@ -75,80 +79,10 @@ const RecordingField = ({
     }
   });
   
-  // Update height only when the content grows
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      // Store the original height
-      const originalHeight = textarea.style.height;
-      
-      // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = "auto";
-      
-      // Get the new scrollHeight
-      const newHeight = textarea.scrollHeight;
-      
-      // Only update if the new height is greater than the current height
-      // This prevents the textarea from shrinking
-      if (currentHeight === null || newHeight > currentHeight) {
-        textarea.style.height = `${newHeight}px`;
-        setCurrentHeight(newHeight);
-      } else {
-        // Keep the larger height
-        textarea.style.height = `${currentHeight}px`;
-      }
-    }
-  }, [value, tempTranscript, currentHeight]);
-  
-  // Reset height when the field is cleared
-  useEffect(() => {
-    if (!value && !tempTranscript && currentHeight !== null) {
-      setCurrentHeight(null);
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
-    }
-  }, [value, tempTranscript]);
-  
-  // Track when user manually edits the transcription
-  useEffect(() => {
-    if (originalTranscription && value !== originalTranscription && !isRecording && !isTranscribing) {
-      setTranscriptionChanged(true);
-    }
-  }, [value, originalTranscription, isRecording, isTranscribing]);
-
-  // Save the correction when the user moves away from the field
-  const handleBlur = async () => {
-    if (transcriptionChanged && originalTranscription && value !== originalTranscription) {
-      try {
-        await supabase.functions.invoke('save-transcription-correction', {
-          body: { 
-            original: originalTranscription,
-            corrected: value
-          }
-        });
-        
-        setTranscriptionChanged(false);
-        toast({
-          title: "Correction saved",
-          description: "Thank you for helping us improve!",
-        });
-      } catch (error) {
-        console.error('Failed to save correction:', error);
-      }
-    }
-  };
-  
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
-  
   const handleStartRecording = async () => {
     try {
       // Store the current value before recording starts
-      setPreviousValue(value);
+      saveOriginalValue(value);
       await startRecording();
       initializeSpeechRecognition();
     } catch (error) {
@@ -174,24 +108,13 @@ const RecordingField = ({
       <td className="py-4 w-full">
         <div className="w-96 flex flex-col">
           <div className="relative w-full">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className={`text-sm text-gray-500 cursor-pointer w-full border border-input rounded-t-md rounded-b-none ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'}`}
-              onMouseDown={handleStartRecording}
-              onMouseUp={handleStopRecording}
-              onMouseLeave={isRecording ? handleStopRecording : undefined}
-              onTouchStart={handleStartRecording}
-              onTouchEnd={handleStopRecording}
-              disabled={isTranscribing}
-            >
-              <Mic size={18} className={`${isRecording ? 'text-red-500' : isTranscribing ? 'text-yellow-500' : 'text-blue-500'} mr-1`} />
-              {isRecording 
-                ? formatTime(timer)
-                : isTranscribing 
-                  ? 'Transcribing...' 
-                  : 'Hold and Talk'}
-            </Button>
+            <RecordingButton
+              isRecording={isRecording}
+              isTranscribing={isTranscribing}
+              timer={timer}
+              onStartRecording={handleStartRecording}
+              onStopRecording={handleStopRecording}
+            />
           </div>
           <div className="w-full">
             <Textarea
