@@ -20,13 +20,13 @@ const Onboarding = () => {
               <table className="w-full border-collapse">
                 <tbody>
                   <tr className="border-b">
-                    <td className="py-4 pr-4 text-lg w-[200px]">What's your brand name?</td>
+                    <td className="py-4 pr-4 text-lg whitespace-nowrap">What's your brand name?</td>
                     <td className="py-4">
                       <Input
                         type="text"
                         value={brandName}
                         onChange={(e) => setBrandName(e.target.value)}
-                        className="w-full"
+                        className="max-w-xs"
                       />
                     </td>
                   </tr>
