@@ -14,6 +14,7 @@ interface Persona {
   ageMin: number;
   ageMax: number;
   interests: string[];
+  portraitUrl?: string;
 }
 
 const IntakeForm = () => {
@@ -80,6 +81,13 @@ const IntakeForm = () => {
     } finally {
       setIsGeneratingPersonas(false);
     }
+  };
+
+  // Function to update a portrait URL for a specific persona
+  const updatePersonaPortrait = (index: number, portraitUrl: string) => {
+    const updatedPersonas = [...personas];
+    updatedPersonas[index] = { ...updatedPersonas[index], portraitUrl };
+    setPersonas(updatedPersonas);
   };
   
   return (
