@@ -13,6 +13,7 @@ const Onboarding = () => {
   const [offering, setOffering] = useState("");
   const [sellingPoints, setSellingPoints] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState("");
   const recognition = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
   
@@ -20,7 +21,6 @@ const Onboarding = () => {
   const initSpeechRecognition = () => {
     if (!recognition.current) {
       if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        // @ts-ignore - TypeScript doesn't recognize webkitSpeechRecognition
         const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition.current = new SpeechRecognitionAPI();
         
@@ -28,24 +28,44 @@ const Onboarding = () => {
         recognition.current.interimResults = true;
         
         recognition.current.onresult = (event: SpeechRecognitionEvent) => {
-          let transcript = '';
+          let interimText = '';
+          let finalText = '';
+          
           for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalText += transcript + ' ';
+            } else {
+              interimText += transcript;
+            }
           }
           
-          if (event.results[event.resultIndex].isFinal) {
-            setSellingPoints(prev => prev + transcript + ' ');
+          if (finalText) {
+            setSellingPoints(prev => prev + finalText);
+            setInterimTranscript('');
           }
+          
+          setInterimTranscript(interimText);
         };
         
         recognition.current.onerror = (event) => {
           console.error('Speech recognition error', event.error);
           setIsListening(false);
+          setInterimTranscript('');
           toast({
             title: "Error",
             description: `Speech recognition error: ${event.error}`,
             variant: "destructive",
           });
+        };
+        
+        recognition.current.onend = () => {
+          // If there's any interim text left when recognition ends, add it to the main text
+          if (interimTranscript) {
+            setSellingPoints(prev => prev + interimTranscript + ' ');
+            setInterimTranscript('');
+          }
+          setIsListening(false);
         };
       } else {
         toast({
@@ -78,7 +98,7 @@ const Onboarding = () => {
   const stopListening = () => {
     if (recognition.current) {
       recognition.current.stop();
-      setIsListening(false);
+      // onend will handle updating the text and resetting isListening
     }
   };
   
@@ -133,7 +153,7 @@ const Onboarding = () => {
                     <td className="py-4 w-full">
                       <div className="w-64 flex flex-col items-center">
                         <Textarea
-                          value={sellingPoints}
+                          value={sellingPoints + (interimTranscript ? interimTranscript : '')}
                           onChange={(e) => setSellingPoints(e.target.value)}
                           className="min-h-[100px] w-full"
                         />
