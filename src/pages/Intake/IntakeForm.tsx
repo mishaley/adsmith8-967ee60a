@@ -121,9 +121,21 @@ const IntakeForm = () => {
                       <div className="w-full text-left pl-4"></div>
                     </td>
                   </tr>
+                  {/* Row with 5 columns */}
                   <tr className="border-b">
-                    <td className="py-4 pr-4 text-lg"></td>
-                    <td className="py-4"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg"></td>
+                  </tr>
+                  {/* Another row with 5 columns */}
+                  <tr className="border-b">
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg border-r"></td>
+                    <td className="py-4 px-2 text-lg"></td>
                   </tr>
                 </tbody>
               </table>
@@ -133,4 +145,3 @@ const IntakeForm = () => {
     </QuadrantLayout>;
 };
 export default IntakeForm;
-
