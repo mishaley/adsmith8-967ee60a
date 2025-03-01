@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -37,13 +36,11 @@ const Onboarding = () => {
   
   useEffect(() => {
     if (isRecording) {
-      // Start timer
       setTimer(0);
       timerIntervalRef.current = setInterval(() => {
         setTimer(prev => prev + 1);
       }, 1000);
     } else {
-      // Clear timer
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
         timerIntervalRef.current = null;
@@ -268,6 +265,7 @@ const Onboarding = () => {
                             className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md"
                             style={{ height: 'auto' }}
                             rows={1}
+                            placeholder="Try to speak for at least 30 seconds"
                           />
                         </div>
                       </div>
