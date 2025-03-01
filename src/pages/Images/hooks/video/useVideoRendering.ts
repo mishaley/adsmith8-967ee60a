@@ -15,7 +15,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
   const mp4BlobRef = useRef<Blob | null>(null);
 
   const createVideo = async () => {
-    if (previewImages.length === if (previewImages.length === 0) {
+    if (previewImages.length === 0) {
       toast({
         title: "No Images Selected",
         description: "Please select at least one image to create a video.",
