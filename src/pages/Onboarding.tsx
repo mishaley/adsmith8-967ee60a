@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -205,17 +204,7 @@ const Onboarding = () => {
                     <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
                     <td className="py-4 w-full">
                       <div className="w-96 flex flex-col">
-                        <div className="w-full">
-                          <Textarea
-                            ref={textareaRef}
-                            value={sellingPoints}
-                            onChange={(e) => setSellingPoints(e.target.value)}
-                            className="min-h-[36px] w-full overflow-hidden resize-none"
-                            style={{ height: 'auto' }}
-                            rows={1}
-                          />
-                        </div>
-                        <div className="relative w-full mt-0">
+                        <div className="relative w-full mb-2">
                           <Button 
                             variant="ghost" 
                             size="sm" 
@@ -234,6 +223,16 @@ const Onboarding = () => {
                                 ? 'Transcribing...' 
                                 : 'Hold'}
                           </Button>
+                        </div>
+                        <div className="w-full">
+                          <Textarea
+                            ref={textareaRef}
+                            value={sellingPoints}
+                            onChange={(e) => setSellingPoints(e.target.value)}
+                            className="min-h-[36px] w-full overflow-hidden resize-none"
+                            style={{ height: 'auto' }}
+                            rows={1}
+                          />
                         </div>
                       </div>
                     </td>
