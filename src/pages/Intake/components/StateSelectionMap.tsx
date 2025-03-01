@@ -199,7 +199,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       )}
       <div
         ref={mapContainer}
-        className="w-full h-64 rounded-md border"
+        className="w-1/2 h-64 rounded-md border"
         style={{ display: mapboxToken ? "block" : "none" }}
       />
       <div className="text-sm">
