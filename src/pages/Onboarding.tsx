@@ -20,7 +20,7 @@ const Onboarding = () => {
               <table className="w-full border-collapse">
                 <tbody>
                   <tr className="border-b">
-                    <td className="py-4 pr-4 text-lg">What's your brand name?</td>
+                    <td className="py-4 pr-4 text-lg w-auto">What's your brand name?</td>
                     <td className="py-4">
                       <Input
                         type="text"
