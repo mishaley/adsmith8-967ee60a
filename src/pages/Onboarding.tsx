@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -8,6 +7,27 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onerror: (event: any) => void;
+  onend: (event: any) => void;
+  onresult: (event: any) => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+const SpeechRecognitionAPI = (
+  window.SpeechRecognition || 
+  (window as any).webkitSpeechRecognition
+) as SpeechRecognitionConstructor;
+
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
@@ -15,64 +35,60 @@ const Onboarding = () => {
   const [sellingPoints, setSellingPoints] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [tempTranscript, setTempTranscript] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const { toast } = useToast();
   
-  // Auto-resize textarea when content changes
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
-      // Reset height to auto to get the correct scrollHeight
       textarea.style.height = "auto";
-      // Set the height to match the content
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
-  }, [sellingPoints]);
+  }, [sellingPoints, tempTranscript]);
   
   const startRecording = async () => {
     try {
-      // Reset audio chunks
       audioChunksRef.current = [];
       
-      // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // Create a new MediaRecorder instance
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       
-      // Event handler for when data becomes available
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
       };
       
-      // Event handler for when recording stops
       mediaRecorder.onstop = async () => {
         try {
           setIsTranscribing(true);
           
-          // Combine audio chunks into a single blob
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-          
-          // Convert blob to base64
           const base64Audio = await blobToBase64(audioBlob);
           
-          // Call Supabase Edge Function for transcription
           const { data, error } = await supabase.functions.invoke('voice-to-text', {
-            body: { audio: base64Audio.split(',')[1] } // Remove data URL prefix
+            body: { audio: base64Audio.split(',')[1] }
           });
           
           if (error) {
             throw new Error(error.message);
           }
           
-          // Add transcribed text to the selling points
           if (data?.text) {
-            setSellingPoints(prev => (prev ? prev + ' ' : '') + data.text);
+            const finalText = data.text;
+            setSellingPoints(prev => {
+              if (tempTranscript) {
+                return prev.replace(tempTranscript, finalText);
+              }
+              return (prev ? prev + ' ' : '') + finalText;
+            });
+            setTempTranscript("");
           }
         } catch (error) {
           console.error('Transcription error:', error);
@@ -86,9 +102,47 @@ const Onboarding = () => {
         }
       };
       
-      // Start recording
       mediaRecorder.start();
       setIsRecording(true);
+      
+      if (SpeechRecognitionAPI) {
+        try {
+          const recognition = new SpeechRecognitionAPI();
+          recognitionRef.current = recognition;
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US';
+          
+          recognition.onresult = (event) => {
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              if (event.results[i].isFinal) {
+                interimTranscript += event.results[i][0].transcript;
+              } else {
+                interimTranscript += event.results[i][0].transcript;
+              }
+            }
+            
+            if (interimTranscript) {
+              setTempTranscript(interimTranscript);
+              setSellingPoints(prev => {
+                if (tempTranscript) {
+                  return prev.replace(tempTranscript, interimTranscript);
+                } 
+                return (prev ? prev + ' ' : '') + interimTranscript;
+              });
+            }
+          };
+          
+          recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+          };
+          
+          recognition.start();
+        } catch (e) {
+          console.error('Speech recognition not supported:', e);
+        }
+      }
     } catch (error) {
       console.error('Failed to start recording:', error);
       toast({
@@ -100,16 +154,23 @@ const Onboarding = () => {
   };
   
   const stopRecording = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.error('Error stopping speech recognition:', e);
+      }
+      recognitionRef.current = null;
+    }
+    
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       
-      // Stop all audio tracks
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
   };
   
-  // Utility function to convert a Blob to base64
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
