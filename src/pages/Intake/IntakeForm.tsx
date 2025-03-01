@@ -4,6 +4,14 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import FormField from "./components/FormField";
 import RecordingField from "./components/RecordingField";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectSeparator,
+} from "@/components/ui/select";
 
 const IntakeForm = () => {
   const [brandName, setBrandName] = useState("");
@@ -12,6 +20,10 @@ const IntakeForm = () => {
   const [sellingPoints, setSellingPoints] = useState("");
   const [problemSolved, setProblemSolved] = useState(""); 
   const [uniqueOffering, setUniqueOffering] = useState("");
+  const [adPlatform, setAdPlatform] = useState("");
+  
+  // Platform options - same as in /new page
+  const PLATFORM_OPTIONS = ["Google", "Meta"];
   
   const handleSave = () => {
     console.log("Saving form data:", {
@@ -20,7 +32,8 @@ const IntakeForm = () => {
       offering,
       sellingPoints,
       problemSolved,
-      uniqueOffering
+      uniqueOffering,
+      adPlatform
     });
     // Here you would typically save the data to a database
   };
@@ -57,6 +70,40 @@ const IntakeForm = () => {
                   <RecordingField label="Key Selling Points" helperText="Main reasons why customers buy this offering" value={sellingPoints} onChange={setSellingPoints} placeholder="Speak for at least 30 seconds" />
                   <RecordingField label="Problem Solved" helperText="How does this offering help your customers?" value={problemSolved} onChange={setProblemSolved} placeholder="Speak for at least 30 seconds" />
                   <RecordingField label="Unique Advantages" helperText="How is this offering better than alternatives?" value={uniqueOffering} onChange={setUniqueOffering} placeholder="Speak for at least 30 seconds" />
+                  <tr className="border-b">
+                    <td className="py-4 pr-4 text-lg">
+                      <div>Ad Platform</div>
+                    </td>
+                    <td className="py-4">
+                      <div className="inline-block min-w-[180px]">
+                        <Select value={adPlatform} onValueChange={(value) => {
+                          if (value === "clear-selection") {
+                            setAdPlatform("");
+                          } else {
+                            setAdPlatform(value);
+                          }
+                        }}>
+                          <SelectTrigger className="w-full bg-white">
+                            <SelectValue placeholder="" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                            {PLATFORM_OPTIONS.map((platform) => (
+                              <SelectItem 
+                                key={platform}
+                                value={platform}
+                              >
+                                {platform}
+                              </SelectItem>
+                            ))}
+                            <SelectSeparator className="my-1" />
+                            <SelectItem value="clear-selection" className="text-gray-500">
+                              Clear
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </td>
+                  </tr>
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg"></td>
                     <td className="py-4"></td>
