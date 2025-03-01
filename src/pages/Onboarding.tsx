@@ -4,6 +4,7 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
@@ -64,13 +65,17 @@ const Onboarding = () => {
                         <Textarea
                           value={sellingPoints}
                           onChange={(e) => setSellingPoints(e.target.value)}
-                          className="min-h-[100px] w-64 pr-10"
+                          className="min-h-[100px] w-64 pb-12"
                         />
-                        <div className="absolute bottom-2 right-3 flex items-center gap-1 text-sm text-gray-500 cursor-pointer">
-                          <span className="flex items-center">
+                        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="bg-white/80 text-sm text-gray-500 cursor-pointer"
+                          >
+                            <Mic size={18} className="text-blue-500 mr-1" />
                             Hold to talk <ArrowRight size={14} className="ml-1" />
-                          </span>
-                          <Mic size={18} className="text-blue-500" />
+                          </Button>
                         </div>
                       </div>
                     </td>
