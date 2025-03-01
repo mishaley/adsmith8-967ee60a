@@ -40,6 +40,7 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       
       // Draw the first image immediately
       drawImageCentered(ctx, canvas, loadedImages[0]);
+      console.log(`Rendering image 1/${loadedImages.length}`);
       
       mediaRecorder.onstop = () => {
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
