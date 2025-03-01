@@ -19,10 +19,12 @@ const Onboarding = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [tempTranscript, setTempTranscript] = useState("");
+  const [timer, setTimer] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const recognitionRef = useRef<any>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -32,6 +34,35 @@ const Onboarding = () => {
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }, [sellingPoints, tempTranscript]);
+  
+  useEffect(() => {
+    if (isRecording) {
+      // Start timer
+      setTimer(0);
+      timerIntervalRef.current = setInterval(() => {
+        setTimer(prev => prev + 1);
+      }, 1000);
+    } else {
+      // Clear timer
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      setTimer(0);
+    }
+    
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [isRecording]);
+  
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
   
   const startRecording = async () => {
     try {
@@ -223,7 +254,7 @@ const Onboarding = () => {
                           >
                             <Mic size={18} className={`${isRecording ? 'text-red-500' : isTranscribing ? 'text-yellow-500' : 'text-blue-500'} mr-1`} />
                             {isRecording 
-                              ? 'Recording...' 
+                              ? formatTime(timer)
                               : isTranscribing 
                                 ? 'Transcribing...' 
                                 : 'Hold and Talk'}
