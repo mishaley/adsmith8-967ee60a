@@ -6,15 +6,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
   const [offering, setOffering] = useState("");
   const [sellingPoints, setSellingPoints] = useState("");
-  const [isListening, setIsListening] = useState(false);
-  const [interimTranscript, setInterimTranscript] = useState("");
-  const recognition = useRef<SpeechRecognition | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   
@@ -27,92 +29,94 @@ const Onboarding = () => {
       // Set the height to match the content
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
-  }, [sellingPoints, interimTranscript]);
+  }, [sellingPoints]);
   
-  // Initialize speech recognition
-  const initSpeechRecognition = () => {
-    if (!recognition.current) {
-      if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        // Need to use type assertion to satisfy TypeScript
-        const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        recognition.current = new SpeechRecognitionAPI();
-        
-        recognition.current.continuous = true;
-        recognition.current.interimResults = true;
-        
-        recognition.current.onresult = (event: SpeechRecognitionEvent) => {
-          let interimText = '';
-          let finalText = '';
+  const startRecording = async () => {
+    try {
+      // Reset audio chunks
+      audioChunksRef.current = [];
+      
+      // Request microphone access
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Create a new MediaRecorder instance
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      
+      // Event handler for when data becomes available
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      // Event handler for when recording stops
+      mediaRecorder.onstop = async () => {
+        try {
+          setIsTranscribing(true);
           
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalText += transcript + ' ';
-            } else {
-              interimText += transcript;
-            }
+          // Combine audio chunks into a single blob
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          
+          // Convert blob to base64
+          const base64Audio = await blobToBase64(audioBlob);
+          
+          // Call Supabase Edge Function for transcription
+          const { data, error } = await supabase.functions.invoke('voice-to-text', {
+            body: { audio: base64Audio.split(',')[1] } // Remove data URL prefix
+          });
+          
+          if (error) {
+            throw new Error(error.message);
           }
           
-          if (finalText) {
-            setSellingPoints(prev => prev + finalText);
-            setInterimTranscript('');
+          // Add transcribed text to the selling points
+          if (data?.text) {
+            setSellingPoints(prev => (prev ? prev + ' ' : '') + data.text);
           }
-          
-          setInterimTranscript(interimText);
-        };
-        
-        recognition.current.onerror = (event) => {
-          console.error('Speech recognition error', event.error);
-          setIsListening(false);
-          setInterimTranscript('');
+        } catch (error) {
+          console.error('Transcription error:', error);
           toast({
             title: "Error",
-            description: `Speech recognition error: ${event.error}`,
+            description: `Failed to transcribe audio: ${error instanceof Error ? error.message : 'Unknown error'}`,
             variant: "destructive",
           });
-        };
-        
-        recognition.current.onend = () => {
-          // If there's any interim text left when recognition ends, add it to the main text
-          if (interimTranscript) {
-            setSellingPoints(prev => prev + interimTranscript + ' ');
-            setInterimTranscript('');
-          }
-          setIsListening(false);
-        };
-      } else {
-        toast({
-          title: "Speech Recognition Not Supported",
-          description: "Your browser doesn't support speech recognition.",
-          variant: "destructive",
-        });
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const startListening = () => {
-    if (!initSpeechRecognition()) return;
-    
-    try {
-      recognition.current?.start();
-      setIsListening(true);
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+      
+      // Start recording
+      mediaRecorder.start();
+      setIsRecording(true);
     } catch (error) {
-      console.error('Failed to start speech recognition:', error);
+      console.error('Failed to start recording:', error);
       toast({
         title: "Error",
-        description: "Failed to start speech recognition. Please try again.",
+        description: `Failed to access microphone: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }
   };
-
-  const stopListening = () => {
-    if (recognition.current) {
-      recognition.current.stop();
-      // onend will handle updating the text and resetting isListening
+  
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      
+      // Stop all audio tracks
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
     }
+  };
+  
+  // Utility function to convert a Blob to base64
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   };
   
   return (
@@ -168,7 +172,7 @@ const Onboarding = () => {
                         <div className="w-full">
                           <Textarea
                             ref={textareaRef}
-                            value={sellingPoints + (interimTranscript ? interimTranscript : '')}
+                            value={sellingPoints}
                             onChange={(e) => setSellingPoints(e.target.value)}
                             className="min-h-[36px] w-full overflow-hidden resize-none"
                             style={{ height: 'auto' }}
@@ -179,15 +183,20 @@ const Onboarding = () => {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className={`text-sm text-gray-500 cursor-pointer w-full border border-input ${isListening ? 'bg-blue-50' : 'bg-white/80'}`}
-                            onMouseDown={startListening}
-                            onMouseUp={stopListening}
-                            onMouseLeave={isListening ? stopListening : undefined}
-                            onTouchStart={startListening}
-                            onTouchEnd={stopListening}
+                            className={`text-sm text-gray-500 cursor-pointer w-full border border-input ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'}`}
+                            onMouseDown={startRecording}
+                            onMouseUp={stopRecording}
+                            onMouseLeave={isRecording ? stopRecording : undefined}
+                            onTouchStart={startRecording}
+                            onTouchEnd={stopRecording}
+                            disabled={isTranscribing}
                           >
-                            <Mic size={18} className={`${isListening ? 'text-red-500' : 'text-blue-500'} mr-1`} />
-                            {isListening ? 'Listening...' : 'Hold to talk'}
+                            <Mic size={18} className={`${isRecording ? 'text-red-500' : isTranscribing ? 'text-yellow-500' : 'text-blue-500'} mr-1`} />
+                            {isRecording 
+                              ? 'Recording...' 
+                              : isTranscribing 
+                                ? 'Transcribing...' 
+                                : 'Hold to talk'}
                           </Button>
                         </div>
                       </div>
