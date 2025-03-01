@@ -14,9 +14,15 @@ export const useAudioRecording = ({
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [volume, setVolume] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const volumeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isRecording) {
@@ -30,11 +36,15 @@ export const useAudioRecording = ({
         timerIntervalRef.current = null;
       }
       setTimer(0);
+      setVolume(0);
     }
     
     return () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
+      }
+      if (volumeIntervalRef.current) {
+        clearInterval(volumeIntervalRef.current);
       }
     };
   }, [isRecording]);
@@ -48,11 +58,40 @@ export const useAudioRecording = ({
     });
   };
 
+  const updateVolume = () => {
+    if (!analyserRef.current || !dataArrayRef.current) return;
+    
+    analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+    const average = dataArrayRef.current.reduce((sum, value) => sum + value, 0) / dataArrayRef.current.length;
+    // Normalize to a value between 0 and 1
+    const normalizedVolume = Math.min(1, average / 128);
+    setVolume(normalizedVolume);
+  };
+
   const startRecording = async () => {
     try {
       audioChunksRef.current = [];
       
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Set up audio context and analyser for volume detection
+      const audioContext = new AudioContext();
+      audioContextRef.current = audioContext;
+      
+      const analyser = audioContext.createAnalyser();
+      analyserRef.current = analyser;
+      analyser.fftSize = 256;
+      
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      dataArrayRef.current = dataArray;
+      
+      const source = audioContext.createMediaStreamSource(stream);
+      audioSourceRef.current = source;
+      source.connect(analyser);
+      
+      // Start volume monitoring
+      volumeIntervalRef.current = setInterval(updateVolume, 100);
       
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -104,6 +143,20 @@ export const useAudioRecording = ({
       setIsRecording(false);
       
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      
+      // Clean up audio context
+      if (volumeIntervalRef.current) {
+        clearInterval(volumeIntervalRef.current);
+        volumeIntervalRef.current = null;
+      }
+      
+      if (audioSourceRef.current) {
+        audioSourceRef.current.disconnect();
+      }
+      
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+      }
     }
   };
 
@@ -111,6 +164,7 @@ export const useAudioRecording = ({
     isRecording,
     isTranscribing,
     timer,
+    volume,
     startRecording,
     stopRecording
   };

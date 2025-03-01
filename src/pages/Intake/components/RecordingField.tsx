@@ -40,6 +40,7 @@ const RecordingField = ({
     isRecording, 
     isTranscribing, 
     timer, 
+    volume,
     startRecording, 
     stopRecording 
   } = useAudioRecording({
@@ -112,6 +113,7 @@ const RecordingField = ({
               isRecording={isRecording}
               isTranscribing={isTranscribing}
               timer={timer}
+              volume={volume}
               onStartRecording={handleStartRecording}
               onStopRecording={handleStopRecording}
             />
