@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -174,9 +175,9 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
   }, [value]);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       {!mapboxToken && (
-        <div className="mb-2">
+        <div className="mb-2 w-full">
           <input
             type="text"
             placeholder="Enter your Mapbox public token"
