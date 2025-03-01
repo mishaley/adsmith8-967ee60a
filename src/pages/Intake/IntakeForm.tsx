@@ -12,7 +12,6 @@ const IntakeForm = () => {
   const [sellingPoints, setSellingPoints] = useState("");
   const [problemsSolved, setProblemsSolved] = useState("");
   const [uniqueOffering, setUniqueOffering] = useState("");
-  const [geoBoundaries, setGeoBoundaries] = useState("");
 
   return (
     <QuadrantLayout>
@@ -62,13 +61,6 @@ const IntakeForm = () => {
                     helperText="How is this offering better than alternatives?"
                     value={uniqueOffering}
                     onChange={setUniqueOffering}
-                    placeholder="Speak for at least 30 seconds"
-                  />
-                  <RecordingField
-                    label="Geo Boundaries"
-                    helperText="How is this offering better than alternatives?"
-                    value={geoBoundaries}
-                    onChange={setGeoBoundaries}
                     placeholder="Speak for at least 30 seconds"
                   />
                   <tr className="border-b">
