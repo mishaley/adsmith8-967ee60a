@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,13 +15,26 @@ const Onboarding = () => {
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
   const recognition = useRef<SpeechRecognition | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+  
+  // Auto-resize textarea when content changes
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = "auto";
+      // Set the height to match the content
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [sellingPoints, interimTranscript]);
   
   // Initialize speech recognition
   const initSpeechRecognition = () => {
     if (!recognition.current) {
       if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        // Need to use type assertion to satisfy TypeScript
+        const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         recognition.current = new SpeechRecognitionAPI();
         
         recognition.current.continuous = true;
@@ -153,9 +166,11 @@ const Onboarding = () => {
                     <td className="py-4 w-full">
                       <div className="w-64 flex flex-col items-center">
                         <Textarea
+                          ref={textareaRef}
                           value={sellingPoints + (interimTranscript ? interimTranscript : '')}
                           onChange={(e) => setSellingPoints(e.target.value)}
-                          className="min-h-[100px] w-full"
+                          className="min-h-[100px] w-full overflow-hidden resize-none"
+                          style={{ height: 'auto' }}
                         />
                         <Button 
                           variant="ghost" 
