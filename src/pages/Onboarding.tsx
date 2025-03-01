@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -171,7 +170,6 @@ const Onboarding = () => {
                           onChange={(e) => setSellingPoints(e.target.value)}
                           className="min-h-[36px] w-full overflow-hidden resize-none"
                           style={{ height: 'auto' }}
-                          placeholder="Start typing or use voice input..."
                           rows={1}
                         />
                         <Button 
