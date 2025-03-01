@@ -9,13 +9,14 @@ export const useVideoCreation = () => {
   const [mp4Url, setMp4Url] = useState<string | null>(null);
   const [mp4Blob, setMp4Blob] = useState<Blob | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   
   const {
     previewImages,
+    fileInputRef,
     handleImageSelect,
-    triggerFileInput
+    triggerFileInput,
+    setPreviewImages
   } = useImageSelection();
   
   const { processVideo } = useVideoProcessing({ previewImages });

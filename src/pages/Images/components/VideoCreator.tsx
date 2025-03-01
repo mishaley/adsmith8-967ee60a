@@ -18,8 +18,9 @@ const VideoCreator = () => {
     triggerFileInput
   } = useVideoCreation();
   
-  const [creationProgress, setCreationProgress] = useState("");
+  // These useState and useEffect hooks need to be in a consistent order
   const [actualDuration, setActualDuration] = useState<number | null>(null);
+  const [creationProgress, setCreationProgress] = useState("");
   
   // Show progress messages while creating video
   useEffect(() => {
