@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -202,11 +203,11 @@ const Onboarding = () => {
                     <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
                     <td className="py-4 w-full">
                       <div className="w-96 flex flex-col">
-                        <div className="relative w-full mb-2">
+                        <div className="relative w-full">
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className={`text-sm text-gray-500 cursor-pointer w-full border border-input ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'}`}
+                            className={`text-sm text-gray-500 cursor-pointer w-full border border-input rounded-t-md rounded-b-none ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'}`}
                             onMouseDown={startRecording}
                             onMouseUp={stopRecording}
                             onMouseLeave={isRecording ? stopRecording : undefined}
@@ -227,7 +228,7 @@ const Onboarding = () => {
                             ref={textareaRef}
                             value={sellingPoints}
                             onChange={(e) => setSellingPoints(e.target.value)}
-                            className="min-h-[36px] w-full overflow-hidden resize-none"
+                            className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md"
                             style={{ height: 'auto' }}
                             rows={1}
                           />
