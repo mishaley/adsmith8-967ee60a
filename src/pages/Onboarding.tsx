@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -163,28 +164,32 @@ const Onboarding = () => {
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
                     <td className="py-4 w-full">
-                      <div className="w-96 flex flex-col items-center">
-                        <Textarea
-                          ref={textareaRef}
-                          value={sellingPoints + (interimTranscript ? interimTranscript : '')}
-                          onChange={(e) => setSellingPoints(e.target.value)}
-                          className="min-h-[36px] w-full overflow-hidden resize-none"
-                          style={{ height: 'auto' }}
-                          rows={1}
-                        />
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className={`text-sm text-gray-500 cursor-pointer w-full mt-0 border border-input ${isListening ? 'bg-blue-50' : 'bg-white/80'}`}
-                          onMouseDown={startListening}
-                          onMouseUp={stopListening}
-                          onMouseLeave={stopListening}
-                          onTouchStart={startListening}
-                          onTouchEnd={stopListening}
-                        >
-                          <Mic size={18} className={`${isListening ? 'text-red-500' : 'text-blue-500'} mr-1`} />
-                          {isListening ? 'Listening...' : 'Hold to talk'}
-                        </Button>
+                      <div className="w-96 flex flex-col">
+                        <div className="w-full">
+                          <Textarea
+                            ref={textareaRef}
+                            value={sellingPoints + (interimTranscript ? interimTranscript : '')}
+                            onChange={(e) => setSellingPoints(e.target.value)}
+                            className="min-h-[36px] w-full overflow-hidden resize-none"
+                            style={{ height: 'auto' }}
+                            rows={1}
+                          />
+                        </div>
+                        <div className="relative w-full mt-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className={`text-sm text-gray-500 cursor-pointer w-full border border-input ${isListening ? 'bg-blue-50' : 'bg-white/80'}`}
+                            onMouseDown={startListening}
+                            onMouseUp={stopListening}
+                            onMouseLeave={isListening ? stopListening : undefined}
+                            onTouchStart={startListening}
+                            onTouchEnd={stopListening}
+                          >
+                            <Mic size={18} className={`${isListening ? 'text-red-500' : 'text-blue-500'} mr-1`} />
+                            {isListening ? 'Listening...' : 'Hold to talk'}
+                          </Button>
+                        </div>
                       </div>
                     </td>
                   </tr>
