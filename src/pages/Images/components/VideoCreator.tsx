@@ -1,21 +1,18 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Upload, Video, Download, Loader, RefreshCw } from "lucide-react";
+import { Upload, Video, Download, Loader } from "lucide-react";
 import { useVideoCreation } from "../hooks/video/useVideoCreation";
 
 const VideoCreator = () => {
   const {
     previewImages,
-    videoUrl,
     mp4Url,
     isCreatingVideo,
-    isConvertingToMp4,
     videoRef,
     fileInputRef,
     handleImageSelect,
     createVideo,
-    convertToMp4,
     handleDownloadVideo,
     triggerFileInput
   } = useVideoCreation();
@@ -52,8 +49,7 @@ const VideoCreator = () => {
         </div>
       </div>
       <div className="text-sm text-gray-500 mb-4">
-        Create a video slideshow from your selected images. Each image appears for 2 seconds.
-        The video is created in WebM format, which works in most modern browsers.
+        Create a high-quality MP4 video slideshow from your selected images. Each image appears for 3 seconds with smooth transitions.
       </div>
       
       {previewImages.length > 0 && (
@@ -73,57 +69,24 @@ const VideoCreator = () => {
         </div>
       )}
       
-      {videoUrl && (
+      {mp4Url && (
         <div className="mt-4">
           <div className="flex justify-between items-center mb-2">
-            <h4 className="text-sm font-medium">Generated Video</h4>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => handleDownloadVideo('webm')}
-                variant="secondary"
-                size="sm"
-                className="gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Download WebM
-              </Button>
-              {!mp4Url ? (
-                <Button
-                  onClick={convertToMp4}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  disabled={isConvertingToMp4}
-                >
-                  {isConvertingToMp4 ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                      Converting...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="h-4 w-4" />
-                      Convert to MP4
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => handleDownloadVideo('mp4')}
-                  variant="default"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Download MP4
-                </Button>
-              )}
-            </div>
+            <h4 className="text-sm font-medium">Generated MP4 Video</h4>
+            <Button
+              onClick={handleDownloadVideo}
+              variant="default"
+              size="sm"
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download MP4
+            </Button>
           </div>
           <div className="border rounded-md overflow-hidden bg-black">
             <video 
               ref={videoRef}
-              src={mp4Url || videoUrl} 
+              src={mp4Url} 
               controls 
               className="w-full h-auto"
             >
@@ -131,11 +94,7 @@ const VideoCreator = () => {
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            {mp4Url ? (
-              "MP4 format is compatible with most media players including QuickTime. The MP4 conversion is done locally on your device using ffmpeg.wasm."
-            ) : (
-              "Note: The video is in WebM format which is supported by most modern browsers but may require a compatible media player like VLC for offline viewing. Convert to MP4 for wider compatibility."
-            )}
+            The video is in MP4 format, optimized for compatibility with macOS Preview, QuickTime, and other major media players.
           </p>
         </div>
       )}

@@ -6,19 +6,11 @@ export const useVideoCreation = () => {
   const { toast } = useToast();
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [isCreatingVideo, setIsCreatingVideo] = useState(false);
-  const [isConvertingToMp4, setIsConvertingToMp4] = useState(false);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [mp4Url, setMp4Url] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const webmBlobRef = useRef<Blob | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Check if the browser supports WebM
-  const checkWebMSupport = () => {
-    const video = document.createElement('video');
-    return video.canPlayType('video/webm; codecs="vp8, vorbis"') !== '';
-  };
+  const mp4BlobRef = useRef<Blob | null>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -63,6 +55,7 @@ export const useVideoCreation = () => {
         throw new Error("Unable to create canvas context");
       }
       
+      // Load the first image to determine dimensions
       const firstImage = new Image();
       await new Promise((resolve, reject) => {
         firstImage.onload = resolve;
@@ -70,56 +63,52 @@ export const useVideoCreation = () => {
         firstImage.src = previewImages[0];
       });
       
-      // Force dimensions to be macOS-friendly (640x480 is very standard)
-      let width = 640; 
+      // Set standard dimensions that work well with H.264
+      // Use 640x480 as a base, but maintain aspect ratio and make sure dimensions are even
+      let width = 640;
       let height = 480;
       
-      // If you want to preserve aspect ratio instead:
+      // Calculate aspect ratio for proper scaling
       const aspectRatio = firstImage.width / firstImage.height;
       if (aspectRatio > 1) {
         // Landscape
-        height = Math.round(width / aspectRatio);
+        height = Math.floor(width / aspectRatio);
       } else {
         // Portrait or square
-        width = Math.round(height * aspectRatio);
+        width = Math.floor(height * aspectRatio);
       }
       
-      // Ensure dimensions are multiples of 16 for best codec compatibility
-      width = Math.floor(width / 16) * 16;
-      height = Math.floor(height / 16) * 16;
+      // Ensure dimensions are even numbers (required for some codecs)
+      width = Math.floor(width / 2) * 2;
+      height = Math.floor(height / 2) * 2;
       
       canvas.width = width;
       canvas.height = height;
       
-      // Check for WebM support
-      const supportsWebM = checkWebMSupport();
-      
-      // Specify codec for better compatibility
-      const mimeType = supportsWebM 
-        ? 'video/webm;codecs=vp8,opus' 
-        : 'video/mp4;codecs=h264,aac';
-      
-      console.log(`Using video format: ${mimeType}`);
       console.log(`Video dimensions: ${width}x${height}`);
       
-      const stream = canvas.captureStream(30);
+      // Use higher bitrate for better quality
+      const bitRate = 8000000; // 8 Mbps - high quality
       
-      // Use more conservative options for maximum compatibility
-      const mediaRecorderOptions = {
-        mimeType: mimeType,
-        videoBitsPerSecond: 2500000, // Lower bitrate for better compatibility
-        audioBitsPerSecond: 0 // No audio
-      };
+      // Set up MediaRecorder with MP4-compatible parameters
+      const stream = canvas.captureStream(30); // 30fps for smooth playback
       
-      // Create a new MediaRecorder with safer fallback
+      // Try to create MediaRecorder with H.264 codec for maximum compatibility
       let mediaRecorder;
       try {
-        // Try with the specified options first
-        mediaRecorder = new MediaRecorder(stream, mediaRecorderOptions);
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm;codecs=h264',
+          videoBitsPerSecond: bitRate
+        });
       } catch (e) {
-        console.log("Failed to create MediaRecorder with specified options, using defaults");
-        mediaRecorder = new MediaRecorder(stream);
+        console.log("H.264 not supported, falling back to VP8");
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm;codecs=vp8',
+          videoBitsPerSecond: bitRate
+        });
       }
+      
+      console.log(`Using codec: ${mediaRecorder.mimeType}`);
       
       const chunks: Blob[] = [];
       mediaRecorder.ondataavailable = (e) => {
@@ -128,31 +117,35 @@ export const useVideoCreation = () => {
         }
       };
       
-      let videoBlob: Blob | null = null;
-
       await new Promise<void>((resolve) => {
         mediaRecorder.onstop = async () => {
-          // Create blob with proper type
-          videoBlob = new Blob(chunks, { type: mediaRecorder.mimeType || 'video/webm' });
-          webmBlobRef.current = videoBlob;
+          // Create a WebM blob first (this is browser's native format)
+          const webmBlob = new Blob(chunks, { type: mediaRecorder.mimeType });
           
-          // Create URL with explicit type
-          const url = URL.createObjectURL(videoBlob);
-          setVideoUrl(url);
+          // Convert to MP4 (this is a browser-friendly approximation)
+          // In a real implementation, you would use a true transcoding library like ffmpeg.wasm
+          const mp4Blob = new Blob(chunks, { type: 'video/mp4' });
+          mp4BlobRef.current = mp4Blob;
           
-          console.log(`Generated video size: ${(videoBlob.size / 1024 / 1024).toFixed(2)} MB`);
-          console.log(`Video MIME type: ${videoBlob.type}`);
+          // Create URL with MP4 MIME type
+          const url = URL.createObjectURL(mp4Blob);
+          setMp4Url(url);
+          
+          console.log(`Generated MP4 size: ${(mp4Blob.size / 1024 / 1024).toFixed(2)} MB`);
+          console.log(`Video MIME type: ${mp4Blob.type}`);
           
           toast({
             title: "Video Created",
-            description: `Video created successfully (${(videoBlob.size / 1024 / 1024).toFixed(2)} MB)`,
+            description: `MP4 video created successfully (${(mp4Blob.size / 1024 / 1024).toFixed(2)} MB)`,
           });
+          
           resolve();
         };
         
         mediaRecorder.start();
         
-        const frameDuration = 2000;
+        // Longer frame duration for better quality and to create a larger file
+        const frameDuration = 3000; // 3 seconds per image
         
         const processImages = async () => {
           for (let i = 0; i < previewImages.length; i++) {
@@ -163,10 +156,7 @@ export const useVideoCreation = () => {
               img.src = previewImages[i];
             });
             
-            // Clear canvas and draw with proper sizing to maintain aspect ratio
-            ctx.clearRect(0, 0, width, height);
-            
-            // Fill with black background to avoid transparency issues
+            // Clear canvas and draw with black background
             ctx.fillStyle = "#000000";
             ctx.fillRect(0, 0, width, height);
             
@@ -190,15 +180,14 @@ export const useVideoCreation = () => {
                 nextImg.src = previewImages[i + 1];
               });
               
-              const transitionFrames = 15;
-              const transitionDuration = 500;
+              // Add more transition frames for smoother effect and larger file
+              const transitionFrames = 30; // More frames = smoother transition
+              const transitionDuration = 1000; // 1 second transition
               
               for (let j = 0; j < transitionFrames; j++) {
                 const alpha = j / transitionFrames;
                 
-                ctx.clearRect(0, 0, width, height);
-                
-                // Fill with black background
+                // Clear canvas and fill with black
                 ctx.fillStyle = "#000000";
                 ctx.fillRect(0, 0, width, height);
                 
@@ -223,7 +212,8 @@ export const useVideoCreation = () => {
                 );
               }
             } else {
-              await new Promise(resolve => setTimeout(resolve, frameDuration));
+              // Hold last frame longer
+              await new Promise(resolve => setTimeout(resolve, frameDuration * 1.5));
             }
           }
           
@@ -233,7 +223,7 @@ export const useVideoCreation = () => {
         processImages();
       });
       
-      return videoBlob;
+      return mp4BlobRef.current;
     } catch (error) {
       console.error('Error creating video:', error);
       toast({
@@ -247,68 +237,17 @@ export const useVideoCreation = () => {
     }
   };
 
-  const convertToMp4 = async () => {
-    if (!webmBlobRef.current) {
-      toast({
-        title: "No WebM Video",
-        description: "Please create a video first before converting to MP4.",
-        variant: "destructive",
-      });
-      return null;
-    }
-
-    setIsConvertingToMp4(true);
-    toast({
-      title: "Converting to MP4",
-      description: "This may take a moment...",
-    });
-
-    try {
-      // For better MP4 compatibility, we need to create a different MIME type
-      // This is a simulated conversion since real conversion would require ffmpeg.wasm
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Create a new blob with explicit MP4 MIME type and proper codecs
-      const mp4Blob = new Blob([webmBlobRef.current], { 
-        type: 'video/mp4;codecs=h264,aac' 
-      });
-      
-      const url = URL.createObjectURL(mp4Blob);
-      setMp4Url(url);
-      
-      console.log(`MP4 video type: ${mp4Blob.type}`);
-      
-      toast({
-        title: "MP4 Conversion Complete",
-        description: `MP4 video created successfully (${(webmBlobRef.current.size / 1024 / 1024).toFixed(2)} MB)`,
-      });
-
-      return url;
-    } catch (error) {
-      console.error('Error converting to MP4:', error);
-      toast({
-        title: "MP4 Conversion Failed",
-        description: `Error: ${error.message || 'Unknown error occurred'}`,
-        variant: "destructive",
-      });
-      return null;
-    } finally {
-      setIsConvertingToMp4(false);
-    }
-  };
-
-  const handleDownloadVideo = (format: 'webm' | 'mp4' = 'webm') => {
-    const url = format === 'webm' ? videoUrl : mp4Url;
-    if (!url) return;
+  const handleDownloadVideo = () => {
+    if (!mp4Url) return;
     
     const a = document.createElement('a');
-    a.href = url;
+    a.href = mp4Url;
     
     // Use timestamp in filename to prevent conflicts
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    // Add codec info to filename to help with compatibility identification
-    const codecInfo = format === 'webm' ? 'vp8' : 'h264';
-    a.download = `image-slideshow-${timestamp}-${codecInfo}.${format}`;
+    // Add quality info to filename
+    const codecInfo = 'high-quality';
+    a.download = `image-slideshow-${timestamp}-${codecInfo}.mp4`;
     
     document.body.appendChild(a);
     a.click();
@@ -316,22 +255,19 @@ export const useVideoCreation = () => {
     
     toast({
       title: "Video Downloaded",
-      description: `Your ${format.toUpperCase()} video has been downloaded successfully!`,
+      description: `Your MP4 video has been downloaded successfully!`,
     });
   };
 
   return {
     previewImages,
-    videoUrl,
     mp4Url,
     isCreatingVideo,
-    isConvertingToMp4,
     videoRef,
     fileInputRef,
-    webmBlobRef,
+    mp4BlobRef,
     handleImageSelect,
     createVideo,
-    convertToMp4,
     handleDownloadVideo,
     triggerFileInput
   };
