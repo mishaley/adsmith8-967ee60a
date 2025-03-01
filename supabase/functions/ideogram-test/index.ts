@@ -65,7 +65,7 @@ serve(async (req) => {
       headers: apiHeaders,
       body: JSON.stringify({
         image_request: {
-          prompt: "test connection only, beautiful landscape photo",
+          prompt: "Cutest puppy in the world",
           aspect_ratio: "ASPECT_1_1",
           model: "V_2",
           magic_prompt_option: "AUTO"
