@@ -37,27 +37,44 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         throw new Error("Unable to create canvas context");
       }
       
-      // Load the first image to determine dimensions
-      const firstImage = new Image();
-      await new Promise<void>((resolve, reject) => {
-        firstImage.onload = () => resolve();
-        firstImage.onerror = reject;
-        firstImage.src = previewImages[0];
-      });
+      // Load all images first to get their natural dimensions
+      const images = await Promise.all(previewImages.map(async (src) => {
+        const img = new Image();
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = reject;
+          img.src = src;
+        });
+        return img;
+      }));
       
-      // Set standard dimensions that work well with macOS Preview
-      // Using 1280x720 (720p) which is a standard video resolution
-      let width = 1280;
-      let height = 720;
+      if (images.length === 0) {
+        throw new Error("Failed to load images");
+      }
+      
+      // Calculate optimal dimensions that respect aspect ratio
+      // Get the average aspect ratio from all images
+      let totalRatio = 0;
+      images.forEach(img => {
+        totalRatio += img.naturalWidth / img.naturalHeight;
+      });
+      const avgAspectRatio = totalRatio / images.length;
+      
+      // Set dimensions that maintain aspect ratio with a fixed height
+      const height = 720; // Standard 720p height
+      const width = Math.round(height * avgAspectRatio);
+      
+      // Ensure width is even (required for some codecs)
+      const finalWidth = width % 2 === 0 ? width : width + 1;
       
       // Set canvas dimensions
-      canvas.width = width;
+      canvas.width = finalWidth;
       canvas.height = height;
       
-      console.log(`Video dimensions: ${width}x${height}`);
+      console.log(`Video dimensions: ${finalWidth}x${height}, Aspect ratio: ${avgAspectRatio.toFixed(2)}`);
       
       // Use higher bitrate for better quality
-      const bitRate = 10000000; // 10 Mbps - high quality
+      const bitRate = 8000000; // 8 Mbps - good quality
       
       // Set up MediaRecorder with MP4-compatible parameters
       const stream = canvas.captureStream(30); // 30fps for smooth playback
@@ -107,10 +124,12 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
           resolve();
         };
         
+        // Important: Start recording *before* drawing the first frame
+        // This ensures we don't miss the first frame
         mediaRecorder.start();
         
         // Process the images with simple hard cuts
-        createSimpleSlideshow(ctx, canvas, mediaRecorder, previewImages, width, height).catch(error => {
+        createSimpleSlideshow(ctx, canvas, mediaRecorder, images, finalWidth, height).catch(error => {
           console.error("Error processing images:", error);
           mediaRecorder.stop();
         });
@@ -145,26 +164,11 @@ const createSimpleSlideshow = async (
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   mediaRecorder: MediaRecorder,
-  previewImages: string[],
+  images: HTMLImageElement[],
   width: number,
   height: number
 ) => {
   const frameDuration = 2000; // 2 seconds per image
-  
-  // Fill with black first to ensure correct initialization
-  ctx.fillStyle = "#000000";
-  ctx.fillRect(0, 0, width, height);
-  
-  // Load all images first to prevent loading delays during recording
-  const images = await Promise.all(previewImages.map(async (src) => {
-    const img = new Image();
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = reject;
-      img.src = src;
-    });
-    return img;
-  }));
   
   // Now display each image
   for (let i = 0; i < images.length; i++) {
@@ -175,8 +179,8 @@ const createSimpleSlideshow = async (
     ctx.fillRect(0, 0, width, height);
     
     // Calculate position to center image maintaining aspect ratio
-    const imgWidth = img.width;
-    const imgHeight = img.height;
+    const imgWidth = img.naturalWidth;
+    const imgHeight = img.naturalHeight;
     const scale = Math.min(width / imgWidth, height / imgHeight);
     const x = (width - imgWidth * scale) / 2;
     const y = (height - imgHeight * scale) / 2;
@@ -184,12 +188,12 @@ const createSimpleSlideshow = async (
     // Draw image with proper scaling
     ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
     
-    // Wait for duration
-    await new Promise(resolve => setTimeout(resolve, frameDuration));
-    
-    // Hold the last frame longer
-    if (i === images.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Extra half second for last frame
+    // Wait for duration (except for the last image)
+    if (i < images.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, frameDuration));
+    } else {
+      // For the last image, wait a bit longer to ensure it's captured
+      await new Promise(resolve => setTimeout(resolve, frameDuration + 500));
     }
   }
   
