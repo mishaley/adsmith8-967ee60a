@@ -83,7 +83,7 @@ const Onboarding = () => {
       mediaRecorder.start();
       setIsRecording(true);
       
-      if (SpeechRecognitionAPI) {
+      if (typeof SpeechRecognitionAPI !== 'undefined') {
         try {
           const recognition = new SpeechRecognitionAPI();
           recognitionRef.current = recognition;
@@ -103,7 +103,6 @@ const Onboarding = () => {
             
             if (interimTranscript) {
               setTempTranscript(interimTranscript);
-              // Replace the content completely instead of appending
               setSellingPoints(interimTranscript);
             }
           };
