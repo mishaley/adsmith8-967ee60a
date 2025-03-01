@@ -1,3 +1,4 @@
+
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -184,6 +185,7 @@ const Images = () => {
     setIsCreatingVideo(true);
     
     try {
+      // Create a temporary canvas to get image dimensions
       if (!canvasRef.current) {
         canvasRef.current = document.createElement('canvas');
       }
@@ -194,21 +196,30 @@ const Images = () => {
         throw new Error("Unable to create canvas context");
       }
       
-      const img = new Image();
-      await new Promise((resolve) => {
-        img.onload = resolve;
-        img.src = previewImages[0];
+      // Load the first image to set dimensions
+      const firstImage = new Image();
+      await new Promise((resolve, reject) => {
+        firstImage.onload = resolve;
+        firstImage.onerror = reject;
+        firstImage.src = previewImages[0];
       });
       
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Set canvas dimensions to match the image
+      const width = firstImage.width;
+      const height = firstImage.height;
+      canvas.width = width;
+      canvas.height = height;
       
-      const stream = canvas.captureStream(30);
-      const mediaRecorder = new MediaRecorder(stream, { 
-        mimeType: 'video/webm;codecs=h264'
+      // Configure higher quality stream
+      const stream = canvas.captureStream(30); // 30fps for smoother transitions
+      
+      // Use higher bitrate and quality settings
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm;codecs=vp9', // VP9 codec for better quality/compression balance
+        videoBitsPerSecond: 5000000 // 5 Mbps bitrate for higher quality
       });
       
-      const chunks: Blob[] = [];
+      const chunks = [];
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           chunks.push(e.data);
@@ -216,35 +227,86 @@ const Images = () => {
       };
       
       mediaRecorder.onstop = async () => {
-        const webmBlob = new Blob(chunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(webmBlob);
+        // Create a more substantial video file
+        const videoBlob = new Blob(chunks, { type: 'video/mp4' });
+        const url = URL.createObjectURL(videoBlob);
         setVideoUrl(url);
         setIsCreatingVideo(false);
         
+        console.log(`Generated video size: ${(videoBlob.size / 1024 / 1024).toFixed(2)} MB`);
+        
         toast({
           title: "Video Created",
-          description: "Your video has been created successfully!",
+          description: `Video created successfully (${(videoBlob.size / 1024 / 1024).toFixed(2)} MB)`,
         });
       };
       
       mediaRecorder.start();
       
-      const frameDuration = 2000;
+      // Increase the frame duration for better quality per frame
+      const frameDuration = 2000; // 2 seconds per image
       
+      // Process each image
       for (let i = 0; i < previewImages.length; i++) {
-        const imgElement = new Image();
-        
-        await new Promise((resolve) => {
-          imgElement.onload = resolve;
-          imgElement.src = previewImages[i];
+        // Load the image
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = previewImages[i];
         });
         
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
+        // Clear canvas and draw the current image
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
         
-        await new Promise(resolve => setTimeout(resolve, frameDuration));
+        // For smoother transitions, add a small fade effect
+        if (i < previewImages.length - 1) {
+          // Wait for the frame duration
+          await new Promise(resolve => setTimeout(resolve, frameDuration));
+          
+          // Load the next image
+          const nextImg = new Image();
+          await new Promise((resolve, reject) => {
+            nextImg.onload = resolve;
+            nextImg.onerror = reject;
+            nextImg.src = previewImages[i + 1];
+          });
+          
+          // Create a cross-fade transition (optional)
+          // This is a simple fade transition - can be enhanced further
+          const transitionFrames = 15; // Number of transition frames
+          const transitionDuration = 500; // 500ms transition
+          
+          for (let j = 0; j < transitionFrames; j++) {
+            const alpha = j / transitionFrames;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Draw current image
+            ctx.globalAlpha = 1 - alpha;
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Draw next image with increasing opacity
+            ctx.globalAlpha = alpha;
+            ctx.drawImage(nextImg, 0, 0, width, height);
+            
+            // Reset alpha
+            ctx.globalAlpha = 1;
+            
+            // Wait a small amount for the transition frame
+            await new Promise(resolve => 
+              setTimeout(resolve, transitionDuration / transitionFrames)
+            );
+          }
+        } else {
+          // For the last image, just display it for the full duration
+          await new Promise(resolve => setTimeout(resolve, frameDuration));
+        }
       }
       
+      // Stop recording after all images have been processed
       mediaRecorder.stop();
       
     } catch (error) {
