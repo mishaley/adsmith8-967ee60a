@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -270,7 +271,7 @@ const Onboarding = () => {
                             ref={textareaRef}
                             value={sellingPoints}
                             onChange={(e) => setSellingPoints(e.target.value)}
-                            className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md text-center placeholder:text-center placeholder:italic"
+                            className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md text-left placeholder:text-center placeholder:italic"
                             style={{ height: 'auto' }}
                             rows={1}
                             placeholder="Try to speak for at least 30 seconds"
