@@ -7,26 +7,10 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-  onerror: (event: any) => void;
-  onend: (event: any) => void;
-  onresult: (event: any) => void;
-}
-
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognition;
-}
-
 const SpeechRecognitionAPI = (
   window.SpeechRecognition || 
   (window as any).webkitSpeechRecognition
-) as SpeechRecognitionConstructor;
+) as new () => SpeechRecognition;
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
