@@ -26,9 +26,9 @@ const VideoCreator = () => {
       const messages = [
         "Loading images...",
         "Setting up canvas...",
-        "Processing frame 1...",
+        "Generating frames...",
         "Processing frames...",
-        "Finalizing video...",
+        "Encoding video...",
         "Almost there..."
       ];
       
@@ -150,7 +150,7 @@ const VideoCreator = () => {
               onLoadedMetadata={(e) => {
                 const duration = e.currentTarget.duration;
                 setActualDuration(duration);
-                console.log(`Video duration: ${duration} seconds`);
+                console.log(`Video duration: ${duration.toFixed(4)} seconds`);
               }}
             >
               Your browser does not support the video tag.
