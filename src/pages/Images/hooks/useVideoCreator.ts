@@ -1,16 +1,21 @@
-
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 export const useVideoCreator = () => {
   const { toast } = useToast();
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [mp4Url, setMp4Url] = useState<string | null>(null);
   const [isCreatingVideo, setIsCreatingVideo] = useState(false);
+  const [isConvertingToMp4, setIsConvertingToMp4] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const webmBlobRef = useRef<Blob | null>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -42,7 +47,6 @@ export const useVideoCreator = () => {
     setIsCreatingVideo(true);
     
     try {
-      // Create a temporary canvas to get image dimensions
       if (!canvasRef.current) {
         canvasRef.current = document.createElement('canvas');
       }
@@ -53,7 +57,6 @@ export const useVideoCreator = () => {
         throw new Error("Unable to create canvas context");
       }
       
-      // Load the first image to set dimensions
       const firstImage = new Image();
       await new Promise((resolve, reject) => {
         firstImage.onload = resolve;
@@ -61,26 +64,20 @@ export const useVideoCreator = () => {
         firstImage.src = previewImages[0];
       });
       
-      // Set canvas dimensions to match the image
       const width = firstImage.width;
       const height = firstImage.height;
       canvas.width = width;
       canvas.height = height;
       
-      // Use a more universally compatible codec and container
-      // WebM with VP8 is more widely supported than VP9
       const mimeType = 'video/webm';
       
-      // Configure stream with good compatibility
-      const stream = canvas.captureStream(30); // 30fps for smoother transitions
-      
-      // Use MediaRecorder with more compatible settings
+      const stream = canvas.captureStream(30);
       const mediaRecorder = new MediaRecorder(stream, {
         mimeType: mimeType,
-        videoBitsPerSecond: 8000000 // 8 Mbps for better quality but still compatible
+        videoBitsPerSecond: 8000000
       });
       
-      const chunks = [];
+      const chunks: Blob[] = [];
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
           chunks.push(e.data);
@@ -88,11 +85,12 @@ export const useVideoCreator = () => {
       };
       
       mediaRecorder.onstop = async () => {
-        // Create video file with standard WebM container
         const videoBlob = new Blob(chunks, { type: mimeType });
+        webmBlobRef.current = videoBlob;
         const url = URL.createObjectURL(videoBlob);
         setVideoUrl(url);
         setIsCreatingVideo(false);
+        setMp4Url(null);
         
         console.log(`Generated video size: ${(videoBlob.size / 1024 / 1024).toFixed(2)} MB`);
         
@@ -104,12 +102,9 @@ export const useVideoCreator = () => {
       
       mediaRecorder.start();
       
-      // Increase the frame duration for better quality per frame
-      const frameDuration = 2000; // 2 seconds per image
+      const frameDuration = 2000;
       
-      // Process each image
       for (let i = 0; i < previewImages.length; i++) {
-        // Load the image
         const img = new Image();
         await new Promise((resolve, reject) => {
           img.onload = resolve;
@@ -117,16 +112,12 @@ export const useVideoCreator = () => {
           img.src = previewImages[i];
         });
         
-        // Clear canvas and draw the current image
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
         
-        // For smoother transitions, add a small fade effect
         if (i < previewImages.length - 1) {
-          // Wait for the frame duration
           await new Promise(resolve => setTimeout(resolve, frameDuration));
           
-          // Load the next image
           const nextImg = new Image();
           await new Promise((resolve, reject) => {
             nextImg.onload = resolve;
@@ -134,40 +125,28 @@ export const useVideoCreator = () => {
             nextImg.src = previewImages[i + 1];
           });
           
-          // Create a cross-fade transition (optional)
-          // This is a simple fade transition - can be enhanced further
-          const transitionFrames = 15; // Number of transition frames
-          const transitionDuration = 500; // 500ms transition
+          const transitionFrames = 15;
+          const transitionDuration = 500;
           
           for (let j = 0; j < transitionFrames; j++) {
             const alpha = j / transitionFrames;
             
-            // Clear canvas
             ctx.clearRect(0, 0, width, height);
-            
-            // Draw current image
             ctx.globalAlpha = 1 - alpha;
             ctx.drawImage(img, 0, 0, width, height);
-            
-            // Draw next image with increasing opacity
             ctx.globalAlpha = alpha;
             ctx.drawImage(nextImg, 0, 0, width, height);
-            
-            // Reset alpha
             ctx.globalAlpha = 1;
             
-            // Wait a small amount for the transition frame
             await new Promise(resolve => 
               setTimeout(resolve, transitionDuration / transitionFrames)
             );
           }
         } else {
-          // For the last image, just display it for the full duration
           await new Promise(resolve => setTimeout(resolve, frameDuration));
         }
       }
       
-      // Stop recording after all images have been processed
       mediaRecorder.stop();
       
     } catch (error) {
@@ -181,19 +160,92 @@ export const useVideoCreator = () => {
     }
   };
 
-  const handleDownloadVideo = () => {
-    if (!videoUrl) return;
+  const loadFFmpeg = async () => {
+    if (ffmpegRef.current) return ffmpegRef.current;
+
+    const ffmpeg = new FFmpeg();
+    ffmpegRef.current = ffmpeg;
+
+    try {
+      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd';
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+      });
+      return ffmpeg;
+    } catch (error) {
+      console.error('Error loading FFmpeg:', error);
+      throw new Error('Failed to load FFmpeg');
+    }
+  };
+
+  const convertToMp4 = async () => {
+    if (!webmBlobRef.current) {
+      toast({
+        title: "No WebM Video",
+        description: "Please create a video first before converting to MP4.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConvertingToMp4(true);
+    toast({
+      title: "Converting to MP4",
+      description: "This may take a moment...",
+    });
+
+    try {
+      const ffmpeg = await loadFFmpeg();
+      
+      await ffmpeg.writeFile('input.webm', await fetchFile(webmBlobRef.current));
+      
+      await ffmpeg.exec([
+        '-i', 'input.webm',
+        '-c:v', 'libx264',
+        '-preset', 'fast',
+        '-crf', '22',
+        '-pix_fmt', 'yuv420p',
+        'output.mp4'
+      ]);
+      
+      const data = await ffmpeg.readFile('output.mp4');
+      const mp4Blob = new Blob([data], { type: 'video/mp4' });
+      const url = URL.createObjectURL(mp4Blob);
+      setMp4Url(url);
+      
+      toast({
+        title: "MP4 Conversion Complete",
+        description: `MP4 video created successfully (${(mp4Blob.size / 1024 / 1024).toFixed(2)} MB)`,
+      });
+    } catch (error) {
+      console.error('Error converting to MP4:', error);
+      toast({
+        title: "MP4 Conversion Failed",
+        description: `Error: ${error.message || 'Unknown error occurred'}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsConvertingToMp4(false);
+    }
+  };
+
+  const handleDownloadVideo = (format: 'webm' | 'mp4' = 'webm') => {
+    const urlToDownload = format === 'webm' ? videoUrl : mp4Url;
+    const fileExtension = format === 'webm' ? 'webm' : 'mp4';
+    
+    if (!urlToDownload) return;
     
     const a = document.createElement('a');
-    a.href = videoUrl;
-    a.download = 'image-slideshow.webm'; // Changed to .webm to match the actual format
+    a.href = urlToDownload;
+    a.download = `image-slideshow.${fileExtension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     
     toast({
       title: "Video Downloaded",
-      description: "Your video has been downloaded successfully!",
+      description: `Your ${format.toUpperCase()} video has been downloaded successfully!`,
     });
   };
 
@@ -207,11 +259,14 @@ export const useVideoCreator = () => {
     selectedImages,
     previewImages,
     videoUrl,
+    mp4Url,
     isCreatingVideo,
+    isConvertingToMp4,
     videoRef,
     fileInputRef,
     handleImageSelect,
     createVideo,
+    convertToMp4,
     handleDownloadVideo,
     triggerFileInput
   };
