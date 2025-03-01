@@ -83,10 +83,10 @@ const IntakeForm = () => {
     }
   };
 
-  // Function to update a portrait URL for a specific persona
-  const updatePersonaPortrait = (index: number, portraitUrl: string) => {
+  // Function to update a specific persona in the personas array
+  const updatePersona = (index: number, updatedPersona: Persona) => {
     const updatedPersonas = [...personas];
-    updatedPersonas[index] = { ...updatedPersonas[index], portraitUrl };
+    updatedPersonas[index] = updatedPersona;
     setPersonas(updatedPersonas);
   };
   
@@ -123,6 +123,7 @@ const IntakeForm = () => {
                     summary={summary}
                     isGeneratingPersonas={isGeneratingPersonas}
                     generatePersonas={generatePersonas}
+                    updatePersona={updatePersona}
                   />
                 </tbody>
               </table>
