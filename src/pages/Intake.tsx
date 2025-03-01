@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 const SpeechRecognitionAPI = (window as any).SpeechRecognition || 
                              (window as any).webkitSpeechRecognition;
 
-const Onboarding = () => {
+const Intake = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
   const [offering, setOffering] = useState("");
@@ -294,4 +293,4 @@ const Onboarding = () => {
   );
 };
 
-export default Onboarding;
+export default Intake;
