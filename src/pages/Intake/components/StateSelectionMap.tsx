@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -20,6 +19,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
     localStorage.getItem(MAPBOX_TOKEN_KEY) || ""
   );
   const [tokenLoading, setTokenLoading] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
   const [selectedStates, setSelectedStates] = useState<string[]>(
     value ? value.split(", ") : []
   );
@@ -28,13 +28,23 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
   // Try to fetch the Mapbox token from Supabase secrets on component mount
   useEffect(() => {
     const fetchMapboxToken = async () => {
+      // If we already have a token in localStorage, use it immediately
+      // but still try to fetch from Supabase in background
+      const savedToken = localStorage.getItem(MAPBOX_TOKEN_KEY);
+      if (savedToken && !mapboxToken) {
+        setMapboxToken(savedToken);
+      }
+
       setTokenLoading(true);
+      
       try {
         const { data, error } = await supabase.functions.invoke("get-mapbox-token");
+        
         if (error) {
           console.error("Error fetching Mapbox token:", error);
-          // Fallback to localStorage if there's an error
-          const savedToken = localStorage.getItem(MAPBOX_TOKEN_KEY);
+          setTokenError("Failed to fetch token from server. Using local token if available.");
+          
+          // We'll continue using the localStorage token if we have one
           if (savedToken) {
             setMapboxToken(savedToken);
           }
@@ -42,18 +52,28 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
           setMapboxToken(data.mapboxToken);
           // Still save to localStorage as a fallback
           localStorage.setItem(MAPBOX_TOKEN_KEY, data.mapboxToken);
+          setTokenError(null);
+        } else {
+          setTokenError("No token received from server");
+          // Fall back to localStorage
+          if (savedToken) {
+            setMapboxToken(savedToken);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch Mapbox token:", err);
+        setTokenError("Error connecting to token service");
+        
+        // Fall back to localStorage
+        if (savedToken) {
+          setMapboxToken(savedToken);
+        }
       } finally {
         setTokenLoading(false);
       }
     };
 
-    // Only try to fetch if we don't already have a token
-    if (!mapboxToken) {
-      fetchMapboxToken();
-    }
+    fetchMapboxToken();
   }, []);
 
   // For demo purposes, allow users to input their Mapbox token
@@ -93,140 +113,157 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       map.current = null;
     }
 
-    mapboxgl.accessToken = mapboxToken;
+    console.log("Initializing map with token:", mapboxToken ? "Token exists" : "No token");
+    
+    try {
+      mapboxgl.accessToken = mapboxToken;
 
-    // Create a new map instance
-    const newMap = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v11",
-      center: [-95.7129, 37.0902], // Center of US
-      zoom: 3,
-    });
-
-    map.current = newMap;
-
-    // Wait for map to load before adding sources and layers
-    newMap.on("load", () => {
-      setMapInitialized(true);
-      
-      // Add source for US states
-      newMap.addSource("states", {
-        type: "vector",
-        url: "mapbox://mapbox.us_census_states_2015",
+      // Create a new map instance
+      const newMap = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/light-v11",
+        center: [-95.7129, 37.0902], // Center of US
+        zoom: 3,
       });
 
-      // Add layer for state fills
-      newMap.addLayer({
-        id: "states-fills",
-        type: "fill",
-        source: "states",
-        "source-layer": "states",
-        paint: {
-          "fill-color": [
-            "case",
-            ["in", ["get", "NAME"], ["literal", selectedStates]],
-            "#4f46e5", // Selected state color
-            "#ededed", // Default state color
-          ],
-          "fill-opacity": 0.5,
-        },
-      });
+      map.current = newMap;
 
-      // Add layer for state boundaries
-      newMap.addLayer({
-        id: "states-borders",
-        type: "line",
-        source: "states",
-        "source-layer": "states",
-        paint: {
-          "line-color": "#627BC1",
-          "line-width": 1,
-        },
-      });
+      // Wait for map to load before adding sources and layers
+      newMap.on("load", () => {
+        setMapInitialized(true);
+        console.log("Map loaded successfully");
+        
+        // Add source for US states
+        newMap.addSource("states", {
+          type: "vector",
+          url: "mapbox://mapbox.us_census_states_2015",
+        });
 
-      // Add hover effect
-      newMap.addLayer({
-        id: "states-fills-hover",
-        type: "fill",
-        source: "states",
-        "source-layer": "states",
-        paint: {
-          "fill-color": "#627BC1",
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            0.7,
-            0,
-          ],
-        },
-      });
+        // Add layer for state fills
+        newMap.addLayer({
+          id: "states-fills",
+          type: "fill",
+          source: "states",
+          "source-layer": "states",
+          paint: {
+            "fill-color": [
+              "case",
+              ["in", ["get", "NAME"], ["literal", selectedStates]],
+              "#4f46e5", // Selected state color
+              "#ededed", // Default state color
+            ],
+            "fill-opacity": 0.5,
+          },
+        });
 
-      let hoveredStateId: string | null = null;
+        // Add layer for state boundaries
+        newMap.addLayer({
+          id: "states-borders",
+          type: "line",
+          source: "states",
+          "source-layer": "states",
+          paint: {
+            "line-color": "#627BC1",
+            "line-width": 1,
+          },
+        });
 
-      // Handle mouse move over states
-      newMap.on("mousemove", "states-fills", (e) => {
-        if (e.features && e.features.length > 0) {
+        // Add hover effect
+        newMap.addLayer({
+          id: "states-fills-hover",
+          type: "fill",
+          source: "states",
+          "source-layer": "states",
+          paint: {
+            "fill-color": "#627BC1",
+            "fill-opacity": [
+              "case",
+              ["boolean", ["feature-state", "hover"], false],
+              0.7,
+              0,
+            ],
+          },
+        });
+
+        let hoveredStateId: string | null = null;
+
+        // Handle mouse move over states
+        newMap.on("mousemove", "states-fills", (e) => {
+          if (e.features && e.features.length > 0) {
+            if (hoveredStateId) {
+              newMap.setFeatureState(
+                { source: "states", sourceLayer: "states", id: hoveredStateId },
+                { hover: false }
+              );
+            }
+            hoveredStateId = e.features[0].id as string;
+            newMap.setFeatureState(
+              { source: "states", sourceLayer: "states", id: hoveredStateId },
+              { hover: true }
+            );
+          }
+        });
+
+        // Handle click on states
+        newMap.on("click", "states-fills", (e) => {
+          if (e.features && e.features.length > 0) {
+            const stateName = e.features[0].properties?.NAME;
+            if (stateName) {
+              let newSelectedStates: string[];
+              
+              if (selectedStates.includes(stateName)) {
+                // If already selected, remove it
+                newSelectedStates = selectedStates.filter((state) => state !== stateName);
+              } else {
+                // Otherwise, add it
+                newSelectedStates = [...selectedStates, stateName];
+              }
+              
+              setSelectedStates(newSelectedStates);
+              onChange(newSelectedStates.join(", "));
+              
+              // Update the map fill layer
+              newMap.setPaintProperty("states-fills", "fill-color", [
+                "case",
+                ["in", ["get", "NAME"], ["literal", newSelectedStates]],
+                "#4f46e5", // Selected state color
+                "#ededed", // Default state color
+              ]);
+            }
+          }
+        });
+
+        // Reset hover state when mouse leaves
+        newMap.on("mouseleave", "states-fills", () => {
           if (hoveredStateId) {
             newMap.setFeatureState(
               { source: "states", sourceLayer: "states", id: hoveredStateId },
               { hover: false }
             );
           }
-          hoveredStateId = e.features[0].id as string;
-          newMap.setFeatureState(
-            { source: "states", sourceLayer: "states", id: hoveredStateId },
-            { hover: true }
-          );
-        }
-      });
+          hoveredStateId = null;
+        });
 
-      // Handle click on states
-      newMap.on("click", "states-fills", (e) => {
-        if (e.features && e.features.length > 0) {
-          const stateName = e.features[0].properties?.NAME;
-          if (stateName) {
-            let newSelectedStates: string[];
-            
-            if (selectedStates.includes(stateName)) {
-              // If already selected, remove it
-              newSelectedStates = selectedStates.filter((state) => state !== stateName);
-            } else {
-              // Otherwise, add it
-              newSelectedStates = [...selectedStates, stateName];
-            }
-            
-            setSelectedStates(newSelectedStates);
-            onChange(newSelectedStates.join(", "));
-            
-            // Update the map fill layer
-            newMap.setPaintProperty("states-fills", "fill-color", [
-              "case",
-              ["in", ["get", "NAME"], ["literal", newSelectedStates]],
-              "#4f46e5", // Selected state color
-              "#ededed", // Default state color
-            ]);
+        // Handle map load errors
+        newMap.on("error", (e) => {
+          console.error("Map error:", e);
+          // Don't set the error state for tile loading errors, which are normal
+          if (!e.error.message.includes("loading tiles")) {
+            setTokenError(`Map error: ${e.error.message}`);
           }
-        }
+        });
       });
 
-      // Reset hover state when mouse leaves
-      newMap.on("mouseleave", "states-fills", () => {
-        if (hoveredStateId) {
-          newMap.setFeatureState(
-            { source: "states", sourceLayer: "states", id: hoveredStateId },
-            { hover: false }
-          );
+      // Force map to resize after initialization
+      setTimeout(() => {
+        if (map.current) {
+          map.current.resize();
         }
-        hoveredStateId = null;
-      });
-    });
-
-    // Force map to resize after initialization
-    setTimeout(() => {
-      if (map.current) {
-        map.current.resize();
-      }
-    }, 100);
+      }, 100);
+    } catch (err) {
+      console.error("Error initializing map:", err);
+      setTokenError(`Failed to initialize map: ${err instanceof Error ? err.message : String(err)}`);
+    }
 
     return () => {
       if (map.current) {
@@ -234,7 +271,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
         map.current = null;
       }
     };
-  }, [mapboxToken]);
+  }, [mapboxToken, selectedStates]);
 
   // Update map when selectedStates changes from outside
   useEffect(() => {
@@ -276,8 +313,29 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
 
   return (
     <div className="space-y-2 w-full">
-      {tokenLoading ? (
+      {tokenLoading && !mapboxToken ? (
         <div className="text-sm">Loading Mapbox token...</div>
+      ) : tokenError && !mapboxToken ? (
+        <div className="mb-2 w-full">
+          <div className="text-sm text-red-500 mb-2">{tokenError}</div>
+          <input
+            type="text"
+            placeholder="Enter your Mapbox public token"
+            onChange={handleTokenChange}
+            className="w-full p-2 border rounded text-sm"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Get a token from{" "}
+            <a
+              href="https://account.mapbox.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline"
+            >
+              mapbox.com
+            </a>
+          </p>
+        </div>
       ) : !mapboxToken ? (
         <div className="mb-2 w-full">
           <input
@@ -299,11 +357,19 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
           </p>
         </div>
       ) : null}
+      
+      {tokenError && mapboxToken && (
+        <div className="text-sm text-orange-500 mb-2">
+          {tokenError} (using saved token)
+        </div>
+      )}
+      
       <div
         ref={mapContainer}
         className="w-1/2 h-64 rounded-md border"
         style={{ display: mapboxToken ? "block" : "none" }}
       />
+      
       <div className="text-sm">
         <div className="font-medium mb-1">Selected states:</div>
         <div className="text-gray-600">
