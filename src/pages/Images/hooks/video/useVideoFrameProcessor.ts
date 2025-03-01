@@ -37,6 +37,7 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     return new Promise<Blob | null>((resolve) => {
       let frameCount = 0;
       let currentImageIndex = 0;
+      let startTime: number;
       
       mediaRecorder.onstop = () => {
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
@@ -51,35 +52,46 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       drawImageCentered(ctx, canvas, loadedImages[0]);
       console.log(`Rendering image 1/${loadedImages.length}`);
       
-      // Animation loop to render frames
-      const renderFrame = () => {
-        if (frameCount >= totalFrames) {
-          console.log(`Rendering complete. Total frames: ${frameCount}`);
-          mediaRecorder.stop();
-          return;
+      // Animation loop to render frames with precise timing
+      const renderFrame = (timestamp: number) => {
+        // Initialize start time on first frame
+        if (frameCount === 0) {
+          startTime = timestamp;
         }
         
-        // Calculate which image to show based on current frame
-        const imageIndex = Math.min(
-          Math.floor(frameCount / framesPerImage),
+        // Calculate elapsed time in seconds
+        const elapsedSeconds = (timestamp - startTime) / 1000;
+        
+        // Calculate which image should be showing based on elapsed time
+        const targetImageIndex = Math.min(
+          Math.floor(elapsedSeconds / secondsPerImage),
           loadedImages.length - 1
         );
         
         // Only redraw when changing images
-        if (imageIndex !== currentImageIndex) {
-          currentImageIndex = imageIndex;
-          console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length}`);
+        if (targetImageIndex !== currentImageIndex) {
+          currentImageIndex = targetImageIndex;
+          console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length} at ${elapsedSeconds.toFixed(2)}s`);
           drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
         }
         
-        frameCount++;
+        // Calculate expected frame number based on elapsed time
+        frameCount = Math.floor(elapsedSeconds * framerate);
         
-        // Use setTimeout instead of requestAnimationFrame to ensure exact timing
-        setTimeout(renderFrame, 1000 / framerate);
+        // Check if we've reached the end
+        if (currentImageIndex >= loadedImages.length - 1 && 
+            elapsedSeconds >= (loadedImages.length * secondsPerImage)) {
+          console.log(`Rendering complete. Total duration: ${elapsedSeconds.toFixed(2)}s`);
+          mediaRecorder.stop();
+          return;
+        }
+        
+        // Request next frame
+        requestAnimationFrame(renderFrame);
       };
       
-      // Start rendering
-      renderFrame();
+      // Start rendering with requestAnimationFrame for better timing
+      requestAnimationFrame(renderFrame);
     });
   } catch (error) {
     console.error('Error in processImagesIntoVideo:', error);
