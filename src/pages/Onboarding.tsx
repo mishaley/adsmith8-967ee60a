@@ -164,13 +164,15 @@ const Onboarding = () => {
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
                     <td className="py-4 w-full">
-                      <div className="w-64 flex flex-col items-center">
+                      <div className="w-96 flex flex-col items-center">
                         <Textarea
                           ref={textareaRef}
                           value={sellingPoints + (interimTranscript ? interimTranscript : '')}
                           onChange={(e) => setSellingPoints(e.target.value)}
-                          className="min-h-[100px] w-full overflow-hidden resize-none"
+                          className="min-h-[36px] w-full overflow-hidden resize-none"
                           style={{ height: 'auto' }}
+                          placeholder="Start typing or use voice input..."
+                          rows={1}
                         />
                         <Button 
                           variant="ghost" 
