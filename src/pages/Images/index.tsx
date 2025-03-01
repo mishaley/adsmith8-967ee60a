@@ -1,4 +1,3 @@
-
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SharedTable from "@/components/SharedTable";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +19,7 @@ const Images = () => {
   const [isCreatingVideo, setIsCreatingVideo] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const { data: messages = [] } = useQuery({
     queryKey: ["messages"],
@@ -115,7 +115,6 @@ const Images = () => {
       console.log('Ideogram API response:', data);
       
       if (data.success) {
-        // First check for direct imageUrl from our edge function
         if (data.imageUrl) {
           setGeneratedImageUrl(data.imageUrl);
           toast({
@@ -123,7 +122,6 @@ const Images = () => {
             description: "The test image has been generated.",
           });
         } 
-        // Then check for the new response format where image URL is in data[0].url
         else if (data.data && data.data.length > 0 && data.data[0].url) {
           setGeneratedImageUrl(data.data[0].url);
           toast({
@@ -161,11 +159,9 @@ const Images = () => {
       const filesArray = Array.from(e.target.files);
       setSelectedImages(filesArray);
       
-      // Create preview URLs
       const previews = filesArray.map(file => URL.createObjectURL(file));
       setPreviewImages(previews);
       
-      // Reset video if images changed
       setVideoUrl(null);
       
       toast({
@@ -188,15 +184,16 @@ const Images = () => {
     setIsCreatingVideo(true);
     
     try {
-      // Create a canvas with the size of the first image
-      const canvas = document.createElement('canvas');
+      if (!canvasRef.current) {
+        canvasRef.current = document.createElement('canvas');
+      }
+      const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       
       if (!ctx) {
         throw new Error("Unable to create canvas context");
       }
       
-      // Set canvas dimensions to first image dimensions
       const img = new Image();
       await new Promise((resolve) => {
         img.onload = resolve;
@@ -206,9 +203,10 @@ const Images = () => {
       canvas.width = img.width;
       canvas.height = img.height;
       
-      // Create MediaRecorder
-      const stream = canvas.captureStream(30); // 30 FPS
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const stream = canvas.captureStream(30);
+      const mediaRecorder = new MediaRecorder(stream, { 
+        mimeType: 'video/webm;codecs=h264'
+      });
       
       const chunks: Blob[] = [];
       mediaRecorder.ondataavailable = (e) => {
@@ -217,9 +215,9 @@ const Images = () => {
         }
       };
       
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
+      mediaRecorder.onstop = async () => {
+        const webmBlob = new Blob(chunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(webmBlob);
         setVideoUrl(url);
         setIsCreatingVideo(false);
         
@@ -229,30 +227,24 @@ const Images = () => {
         });
       };
       
-      // Start recording
       mediaRecorder.start();
       
-      // Draw each image for 2 seconds
-      const frameDuration = 2000; // 2 seconds
+      const frameDuration = 2000;
       
       for (let i = 0; i < previewImages.length; i++) {
         const imgElement = new Image();
         
-        // Wait for image to load
         await new Promise((resolve) => {
           imgElement.onload = resolve;
           imgElement.src = previewImages[i];
         });
         
-        // Clear canvas and draw the image
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
         
-        // Wait for 2 seconds
         await new Promise(resolve => setTimeout(resolve, frameDuration));
       }
       
-      // Stop recording
       mediaRecorder.stop();
       
     } catch (error) {
@@ -271,7 +263,7 @@ const Images = () => {
     
     const a = document.createElement('a');
     a.href = videoUrl;
-    a.download = 'image-slideshow.webm';
+    a.download = 'image-slideshow.mp4';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -300,7 +292,6 @@ const Images = () => {
               idField="image_id" 
             />
             
-            {/* AI Image Generation Test Box */}
             <div className="w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">AI image generation test</h3>
@@ -317,7 +308,6 @@ const Images = () => {
                 Tests connection to the Ideogram API with your credentials.
               </div>
               
-              {/* Image display area */}
               {generatedImageUrl && (
                 <div className="mt-4 border rounded-md overflow-hidden">
                   <img 
@@ -329,7 +319,6 @@ const Images = () => {
               )}
             </div>
             
-            {/* Image to Video Converter Box */}
             <div className="w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">Image to video converter</h3>
@@ -364,7 +353,6 @@ const Images = () => {
                 Create a video slideshow from your selected images. Each image appears for 2 seconds.
               </div>
               
-              {/* Preview images section */}
               {previewImages.length > 0 && (
                 <div className="mt-4 mb-4">
                   <h4 className="text-sm font-medium mb-2">Selected Images ({previewImages.length})</h4>
@@ -382,7 +370,6 @@ const Images = () => {
                 </div>
               )}
               
-              {/* Video player section */}
               {videoUrl && (
                 <div className="mt-4">
                   <div className="flex justify-between items-center mb-2">
