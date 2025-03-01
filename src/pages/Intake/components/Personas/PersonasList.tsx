@@ -15,7 +15,7 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas }) => {
           {personas[index] ? (
             <div className="flex flex-col">
               <div className="font-medium">{personas[index].title}</div>
-              <div>{personas[index].gender}, {personas[index].race || "Unknown race"}, age {personas[index].ageMin}-{personas[index].ageMax}</div>
+              <div>{personas[index].gender}, age {personas[index].ageMin}-{personas[index].ageMax}</div>
               <div>{personas[index].interests.join(", ")}</div>
             </div>
           ) : (
