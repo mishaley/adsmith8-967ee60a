@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Upload, Video, Download, Loader, RefreshCw } from "lucide-react";
-import { useVideoCreator } from "../hooks/video/useVideoCreation";
+import { useVideoCreation } from "../hooks/video/useVideoCreation";
 
 const VideoCreator = () => {
   const {
@@ -18,7 +18,7 @@ const VideoCreator = () => {
     convertToMp4,
     handleDownloadVideo,
     triggerFileInput
-  } = useVideoCreator();
+  } = useVideoCreation();
 
   return (
     <div className="w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
