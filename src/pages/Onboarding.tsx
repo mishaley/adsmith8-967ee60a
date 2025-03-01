@@ -200,7 +200,10 @@ const Onboarding = () => {
                     </td>
                   </tr>
                   <tr className="border-b">
-                    <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
+                    <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
+                      <div>Key Selling Points</div>
+                      <div className="text-sm text-gray-500 mt-1">Main reasons why customers buy this offering</div>
+                    </td>
                     <td className="py-4 w-full">
                       <div className="w-96 flex flex-col">
                         <div className="relative w-full">
