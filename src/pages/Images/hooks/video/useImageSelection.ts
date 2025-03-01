@@ -11,13 +11,23 @@ export const useImageSelection = () => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
       
-      const previews = filesArray.map(file => URL.createObjectURL(file));
-      setPreviewImages(previews);
-      
-      toast({
-        title: "Images Selected",
-        description: `${filesArray.length} images have been selected.`,
-      });
+      if (filesArray.length > 0) {
+        // Clean up any previous URLs to prevent memory leaks
+        previewImages.forEach(url => {
+          if (url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+          }
+        });
+        
+        // Create new object URLs
+        const previews = filesArray.map(file => URL.createObjectURL(file));
+        setPreviewImages(previews);
+        
+        toast({
+          title: "Images Selected",
+          description: `${filesArray.length} images have been selected.`,
+        });
+      }
     }
   };
 

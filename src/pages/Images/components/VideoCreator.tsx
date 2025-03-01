@@ -1,9 +1,9 @@
 
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Video, Download, Loader } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Upload, Video, Download, Loader, Clock } from "lucide-react";
 import { useVideoCreation } from "../hooks/video/useVideoCreation";
-import { useState, useEffect } from "react";
 
 const VideoCreator = () => {
   const {
@@ -21,14 +21,15 @@ const VideoCreator = () => {
   const [creationProgress, setCreationProgress] = useState("");
   const [actualDuration, setActualDuration] = useState<number | null>(null);
   
+  // Show progress messages while creating video
   useEffect(() => {
     if (isCreatingVideo) {
       const messages = [
         "Loading images...",
-        "Setting up canvas...",
-        "Generating frames...",
-        "Processing frames...",
-        "Encoding video...",
+        "Processing image 1...",
+        "Creating video segments...",
+        "Combining segments...",
+        "Finalizing video...",
         "Almost there..."
       ];
       
@@ -36,7 +37,7 @@ const VideoCreator = () => {
       const progressInterval = setInterval(() => {
         setCreationProgress(messages[index % messages.length]);
         index++;
-      }, 2000);
+      }, 1500);
       
       return () => {
         clearInterval(progressInterval);
@@ -45,6 +46,7 @@ const VideoCreator = () => {
     }
   }, [isCreatingVideo]);
 
+  // Calculate expected duration based on number of images
   const calculateDuration = () => {
     if (previewImages.length === 0) return "0:00";
     const exactSeconds = previewImages.length * 2;
@@ -88,6 +90,7 @@ const VideoCreator = () => {
           </Button>
         </div>
       </div>
+      
       <div className="text-sm text-gray-500 mb-4">
         Create an MP4 slideshow from your selected images. Each image appears for exactly 2 seconds.
         {previewImages.length > 0 && (
@@ -109,7 +112,13 @@ const VideoCreator = () => {
       
       {previewImages.length > 0 && (
         <div className="mt-4 mb-4">
-          <h4 className="text-sm font-medium mb-2">Selected Images ({previewImages.length})</h4>
+          <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
+            <span>Selected Images ({previewImages.length})</span>
+            <span className="text-xs text-gray-500 flex items-center">
+              <Clock className="h-3 w-3 inline ml-1" /> 
+              Each shown for 2 seconds
+            </span>
+          </h4>
           <div className="flex flex-wrap gap-2">
             {previewImages.map((src, index) => (
               <div key={index} className="h-16 w-16 relative">
@@ -156,17 +165,20 @@ const VideoCreator = () => {
               Your browser does not support the video tag.
             </video>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            The video is in high-quality MP4 format with {previewImages.length} images, each displayed for precisely 2 seconds.
+          <div className="text-xs text-gray-500 mt-2 space-y-1">
+            <p>
+              Video contains {previewImages.length} images, each displayed for precisely 2 seconds.
+            </p>
             {actualDuration && (
-              <span className="ml-1 font-medium">
+              <p className="font-medium">
                 Actual duration: {Math.floor(actualDuration / 60)}:{Math.floor(actualDuration % 60).toString().padStart(2, '0')} 
                 ({actualDuration.toFixed(2)} seconds)
-              </span>
+              </p>
             )}
-            <br />
-            Expected duration: {calculateDuration()} (exactly {expectedDurationSeconds} seconds).
-          </p>
+            <p>
+              Expected duration: {calculateDuration()} (exactly {expectedDurationSeconds} seconds).
+            </p>
+          </div>
         </div>
       )}
     </div>

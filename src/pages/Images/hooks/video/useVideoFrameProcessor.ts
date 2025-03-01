@@ -1,9 +1,8 @@
 
-import { setupCanvas, loadImages, drawImageCentered } from "./useCanvasUtils";
-import { createMediaRecorder, getMimeType } from "./useMediaRecorder";
+import { useToast } from "@/hooks/use-toast";
 
 /**
- * Core video frame processing logic using a synchronous, frame-by-frame approach
+ * Core video processing logic using direct HTML5 Video API
  */
 export const processImagesIntoVideo = async (previewImages: string[], toast: any): Promise<Blob | null> => {
   try {
@@ -11,53 +10,97 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       throw new Error("No images provided");
     }
     
-    // Load all images first to get dimensions and ensure they're loaded
-    const loadedImages = await loadImages(previewImages);
+    console.log(`Starting to process ${previewImages.length} images for video creation`);
+    
+    // Load all images first to ensure they're available
+    const loadedImages = await Promise.all(
+      previewImages.map(src => {
+        return new Promise<HTMLImageElement>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+          img.src = src;
+        });
+      })
+    );
+    
     console.log(`Successfully loaded ${loadedImages.length} images`);
     
-    // Create canvas with dimensions based on the loaded images
-    const { canvas, ctx } = setupCanvas(loadedImages);
+    // Create and configure video element for recording
+    const videoElement = document.createElement('video');
+    videoElement.autoplay = true;
+    videoElement.muted = true;
+    videoElement.playsInline = true;
+    videoElement.width = 1280;
+    videoElement.height = 720;
     
-    // Configure high quality settings
-    const framerate = 30; // 30fps
-    const secondsPerImage = 2; // Each image shows for exactly 2 seconds
-    const framesPerImage = framerate * secondsPerImage;
-    const totalFrames = previewImages.length * framesPerImage;
-    const totalDuration = previewImages.length * secondsPerImage;
+    // Create media source for the video
+    const mediaSource = new MediaSource();
+    videoElement.src = URL.createObjectURL(mediaSource);
     
-    console.log(`Creating video with ${previewImages.length} images, ${framesPerImage} frames per image, ${totalFrames} total frames`);
-    console.log(`Expected duration: ${totalDuration} seconds (${totalDuration.toFixed(2)}s)`);
+    // Create a MediaRecorder to capture the video
+    const videoStream = (videoElement as any).captureStream();
+    const mediaRecorder = new MediaRecorder(videoStream, {
+      mimeType: 'video/webm;codecs=vp9',
+      videoBitsPerSecond: 5000000 // 5Mbps
+    });
     
-    // Generate all frames synchronously first, then encode the video
-    const frames: ImageData[] = [];
-    
-    // Generate every single frame in advance
-    for (let i = 0; i < totalFrames; i++) {
-      const imageIndex = Math.floor(i / framesPerImage);
-      
-      // Safety check to avoid index out of bounds
-      if (imageIndex >= loadedImages.length) {
-        console.error(`Invalid image index: ${imageIndex} (max: ${loadedImages.length - 1})`);
-        continue;
+    const chunks: Blob[] = [];
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
       }
-      
-      // Draw the current image to the canvas
-      drawImageCentered(ctx, canvas, loadedImages[imageIndex]);
-      
-      // Store the frame
-      const frameData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      frames.push(frameData);
-      
-      // Log progress for specific frames
-      if (i === 0 || i % framesPerImage === 0 || i === totalFrames - 1) {
-        console.log(`Generated frame ${i + 1}/${totalFrames} - Image ${imageIndex + 1}/${loadedImages.length}`);
-      }
-    }
+    };
     
-    console.log(`All ${frames.length} frames generated successfully`);
-    
-    // Now encode all frames into a video
-    return await encodeFramesToVideo(frames, canvas, framerate, toast);
+    return new Promise<Blob | null>((resolve) => {
+      mediaSource.addEventListener('sourceopen', async () => {
+        // Create source buffer for video
+        const sourceBuffer = mediaSource.addSourceBuffer('video/webm;codecs=vp9');
+        
+        // Each image appears for exactly 2 seconds
+        const secondsPerImage = 2;
+        
+        // Create WebM segments for each image
+        let segments: Blob[] = [];
+        
+        // Process each image
+        for (let i = 0; i < loadedImages.length; i++) {
+          console.log(`Processing image ${i + 1}/${loadedImages.length}`);
+          
+          // Create a video segment for this image
+          const imageSegment = await createImageSegment(loadedImages[i], secondsPerImage);
+          segments.push(imageSegment);
+        }
+        
+        // Combine all segments into one WebM file
+        const videoBlob = new Blob(segments, { type: 'video/webm' });
+        
+        // Start recording
+        mediaRecorder.start();
+        
+        // Play the WebM file
+        const objectURL = URL.createObjectURL(videoBlob);
+        videoElement.src = objectURL;
+        videoElement.play();
+        
+        // Record for the exact duration
+        const totalDuration = loadedImages.length * secondsPerImage;
+        setTimeout(() => {
+          mediaRecorder.stop();
+          
+          // Clean up
+          URL.revokeObjectURL(objectURL);
+          videoElement.remove();
+          
+          // Combine recorded chunks
+          const finalBlob = new Blob(chunks, { type: 'video/mp4' });
+          
+          console.log(`Video processing complete. Final video size: ${(finalBlob.size / (1024 * 1024)).toFixed(2)} MB`);
+          resolve(finalBlob);
+        }, totalDuration * 1000 + 500); // Add a small buffer
+      });
+    });
   } catch (error) {
     console.error('Error in processImagesIntoVideo:', error);
     if (toast) {
@@ -67,121 +110,73 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
         variant: "destructive",
       });
     }
-    throw error;
+    return null;
   }
 };
 
 /**
- * Encode pre-generated frames into a video at a fixed framerate
+ * Create a video segment for a single image
  */
-const encodeFramesToVideo = async (
-  frames: ImageData[], 
-  canvas: HTMLCanvasElement, 
-  framerate: number, 
-  toast: any
-): Promise<Blob | null> => {
-  return new Promise<Blob | null>((resolve) => {
+const createImageSegment = async (image: HTMLImageElement, durationSeconds: number): Promise<Blob> => {
+  return new Promise<Blob>(async (resolve) => {
+    // Create a canvas for the image
+    const canvas = document.createElement('canvas');
+    canvas.width = 1280; 
+    canvas.height = 720;
     const ctx = canvas.getContext('2d')!;
-    const stream = canvas.captureStream(0); // We'll manually add frames
-    const videoTrack = (stream as any).getVideoTracks()[0];
-    const frameWriter = (videoTrack as any).writable;
     
-    // Set up MediaRecorder with high bitrate
-    const chunks: Blob[] = [];
+    // Draw the image centered on the canvas
+    const imgRatio = image.width / image.height;
+    const canvasRatio = canvas.width / canvas.height;
     
-    const mediaRecorder = createMediaRecorder({
-      stream,
-      onDataAvailable: (e) => {
-        if (e.data && e.data.size > 0) {
-          chunks.push(e.data);
-          console.log(`Received data chunk of size ${e.data.size} bytes`);
-        }
-      }
+    let drawWidth, drawHeight, x, y;
+    
+    if (imgRatio > canvasRatio) {
+      // Image is wider than canvas ratio
+      drawWidth = canvas.width;
+      drawHeight = canvas.width / imgRatio;
+      x = 0;
+      y = (canvas.height - drawHeight) / 2;
+    } else {
+      // Image is taller than canvas ratio
+      drawHeight = canvas.height;
+      drawWidth = canvas.height * imgRatio;
+      x = (canvas.width - drawWidth) / 2;
+      y = 0;
+    }
+    
+    // Clear canvas with black background
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw the image
+    ctx.drawImage(image, x, y, drawWidth, drawHeight);
+    
+    // Create a MediaRecorder for this segment
+    const stream = canvas.captureStream();
+    const recorder = new MediaRecorder(stream, {
+      mimeType: 'video/webm;codecs=vp9',
+      videoBitsPerSecond: 5000000 // 5Mbps
     });
     
-    mediaRecorder.onstop = () => {
-      console.log("MediaRecorder stopped, finalizing video");
-      const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast, frames.length / framerate);
-      resolve(videoBlob);
+    const chunks: Blob[] = [];
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
+      }
+    };
+    
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      resolve(blob);
     };
     
     // Start recording
-    mediaRecorder.start(500); // Create chunks every 500ms
-    console.log("MediaRecorder started");
+    recorder.start();
     
-    // Draw each frame at the exact framerate interval
-    let frameIndex = 0;
-    
-    const processFrames = () => {
-      if (frameIndex < frames.length) {
-        ctx.putImageData(frames[frameIndex], 0, 0);
-        
-        // Log every 30 frames (every second) for debugging
-        if (frameIndex % 30 === 0 || frameIndex === frames.length - 1) {
-          const imageIndex = Math.floor(frameIndex / (framerate * 2));
-          console.log(`Rendering frame ${frameIndex + 1}/${frames.length} - Image ${imageIndex + 1}/${frames.length / (framerate * 2)}`);
-        }
-        
-        // Force the stream to capture this frame
-        (videoTrack as any).requestFrame();
-        
-        frameIndex++;
-        
-        // Process next frame on next animation frame to maintain exact timing
-        requestAnimationFrame(processFrames);
-      } else {
-        // End processing after a small delay to ensure the last frame is captured
-        setTimeout(() => {
-          mediaRecorder.stop();
-          console.log(`Video rendering complete. Total frames processed: ${frameIndex}`);
-        }, 200);
-      }
-    };
-    
-    // Start frame processing
-    processFrames();
+    // Stop after exact duration
+    setTimeout(() => {
+      recorder.stop();
+    }, durationSeconds * 1000);
   });
-};
-
-/**
- * Finalizes the video blob from recorded chunks
- */
-const finalizeVideoBlob = (
-  chunks: Blob[], 
-  mediaRecorder: MediaRecorder, 
-  toast: any,
-  expectedDurationSeconds: number
-): Blob | null => {
-  if (chunks.length === 0) {
-    console.error("No video data was recorded");
-    toast({
-      title: "Video Creation Failed",
-      description: "No video data was recorded. Please try again with a different browser.",
-      variant: "destructive",
-    });
-    return null;
-  }
-  
-  // Create the final blob with the proper MIME type
-  const finalMimeType = getMimeType(mediaRecorder);
-  const videoBlob = new Blob(chunks, { type: finalMimeType });
-  
-  const fileSizeMB = (videoBlob.size / (1024 * 1024)).toFixed(2);
-  console.log(`Final video size: ${fileSizeMB} MB`);
-  console.log(`Expected duration: ${expectedDurationSeconds.toFixed(2)} seconds`);
-  
-  if (videoBlob.size < 100000) { // Less than 100KB
-    toast({
-      title: "Warning: Small File Size",
-      description: "The generated video is very small, which might indicate encoding issues. Try a different browser if needed.",
-      variant: "destructive",
-    });
-  } else {
-    toast({
-      title: "Video Created Successfully",
-      description: `Video created (${fileSizeMB} MB) with expected duration of ${expectedDurationSeconds.toFixed(1)} seconds`,
-    });
-  }
-  
-  return videoBlob;
 };
