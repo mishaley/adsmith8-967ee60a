@@ -37,7 +37,7 @@ const IntakeForm = () => {
                   />
                   <FormField
                     label="Name one of your offerings"
-                    helperText="(we can add more later)"
+                    helperText="We can add more later"
                     value={offering}
                     onChange={(e) => setOffering(e.target.value)}
                   />
