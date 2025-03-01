@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Upload, Video, Download, Loader } from "lucide-react";
@@ -20,7 +19,6 @@ const VideoCreator = () => {
   
   const [creationProgress, setCreationProgress] = useState("");
   
-  // Update progress message while creating video
   useEffect(() => {
     if (isCreatingVideo) {
       const messages = [
@@ -44,17 +42,14 @@ const VideoCreator = () => {
     }
   }, [isCreatingVideo]);
 
-  // Calculate expected video duration
   const calculateDuration = () => {
     if (previewImages.length === 0) return "0:00";
-    // Precise calculation - exactly 2 seconds per image
     const exactSeconds = previewImages.length * 2;
     const minutes = Math.floor(exactSeconds / 60);
     const remainingSeconds = exactSeconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  // Get dimensions of the first preview image to show estimated aspect ratio
   const getAspectRatioInfo = () => {
     if (previewImages.length === 0) return null;
     const img = new Image();
@@ -161,8 +156,8 @@ const VideoCreator = () => {
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            The video is in high-quality MP4 format with {previewImages.length} images, each displayed for 2 seconds.
-            Expected duration: {calculateDuration()}.
+            The video is in high-quality MP4 format with {previewImages.length} images, each displayed for exactly 2 seconds.
+            Expected duration: {calculateDuration()} (precisely {previewImages.length * 2} seconds).
           </p>
         </div>
       )}

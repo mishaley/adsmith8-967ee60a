@@ -48,30 +48,43 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       drawImageCentered(ctx, canvas, loadedImages[0]);
       console.log(`Rendering image 1/${loadedImages.length}`);
       
-      // Use precisely timed timeouts for each image transition
-      let completedImageCount = 1; // First image already rendered
+      // Use requestAnimationFrame for precise timing control
+      let currentFrame = 0;
+      const totalFrames = loadedImages.length * secondsPerImage * framerate;
       
-      // Function to schedule all image changes at exact times
-      const scheduleImageDisplays = () => {
-        for (let i = 1; i < loadedImages.length; i++) {
-          const exactTimeMs = i * secondsPerImage * 1000;
-          
-          setTimeout(() => {
-            drawImageCentered(ctx, canvas, loadedImages[i]);
-            completedImageCount++;
-            console.log(`Rendering image ${i + 1}/${loadedImages.length}`);
-          }, exactTimeMs);
+      const animate = (timestamp: number) => {
+        // Calculate which image should be shown based on frame count
+        const imageIndex = Math.min(
+          Math.floor(currentFrame / (secondsPerImage * framerate)),
+          loadedImages.length - 1
+        );
+        
+        // Draw the current image
+        drawImageCentered(ctx, canvas, loadedImages[imageIndex]);
+        
+        // Log when changing to a new image
+        if (currentFrame % (secondsPerImage * framerate) === 0 && imageIndex > 0) {
+          console.log(`Rendering image ${imageIndex + 1}/${loadedImages.length}`);
         }
         
-        // Schedule the stop of recording at the exact end time
-        setTimeout(() => {
-          console.log(`All images rendered, stopping MediaRecorder after exact duration of ${totalDurationMs}ms`);
-          mediaRecorder.stop();
-        }, totalDurationMs + 500); // Add a small buffer to ensure the last frame is captured fully
+        currentFrame++;
+        
+        // Continue animation until we've shown all frames
+        if (currentFrame < totalFrames) {
+          requestAnimationFrame(animate);
+        } else {
+          // We've completed all frames, stop recording after a short delay to ensure last frame is captured
+          console.log(`All ${totalFrames} frames rendered (${loadedImages.length} images at ${framerate}fps for ${secondsPerImage}s each)`);
+          console.log(`Stopping MediaRecorder after exact duration of ${totalDurationMs}ms`);
+          
+          setTimeout(() => {
+            mediaRecorder.stop();
+          }, 500); // Small delay to ensure the last frame is captured fully
+        }
       };
       
-      // Start scheduling all the precise image displays
-      scheduleImageDisplays();
+      // Start the animation loop
+      requestAnimationFrame(animate);
     });
   } catch (error) {
     console.error('Error in processImagesIntoVideo:', error);
