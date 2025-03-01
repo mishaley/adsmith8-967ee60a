@@ -36,11 +36,6 @@ const QuadrantLayout = ({ children, className }: QuadrantLayoutProps) => {
         </div>
         {/* Q4 - Canvas */}
         <div className="flex-1 bg-[#d3e4fd] text-[#2A2A2A] pl-[18px] pt-[18px] pb-[18px] overflow-y-auto">
-          {/* Welcome Message */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Welcome to Adsmith! Your marketing ROI is our only focus.</h2>
-            <p className="text-base">Let's get a demo campaign set up. It'll only take a few minutes.</p>
-          </div>
           {children?.q4}
         </div>
       </div>
