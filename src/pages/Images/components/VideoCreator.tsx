@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Upload, Video, Download, Loader, RefreshCw } from "lucide-react";
-import { useVideoCreator } from "../hooks/useVideoCreator";
+import { useVideoCreator } from "../hooks/video/useVideoCreation";
 
 const VideoCreator = () => {
   const {
