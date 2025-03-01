@@ -61,25 +61,20 @@ const Onboarding = () => {
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
                     <td className="py-4 w-full">
-                      <div className="w-64 relative">
-                        <div className="relative">
-                          <Textarea
-                            value={sellingPoints}
-                            onChange={(e) => setSellingPoints(e.target.value)}
-                            className="min-h-[100px] w-full pr-3 pl-3 pt-3"
-                            style={{ paddingBottom: "40px" }}
-                          />
-                          <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center h-10 bg-transparent">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="bg-white/80 text-sm text-gray-500 cursor-pointer w-full mx-2 mb-1"
-                            >
-                              <Mic size={18} className="text-blue-500 mr-1" />
-                              Hold to talk
-                            </Button>
-                          </div>
-                        </div>
+                      <div className="w-64 flex flex-col items-center">
+                        <Textarea
+                          value={sellingPoints}
+                          onChange={(e) => setSellingPoints(e.target.value)}
+                          className="min-h-[100px] w-full"
+                        />
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="bg-white/80 text-sm text-gray-500 cursor-pointer w-full mt-0 border border-input"
+                        >
+                          <Mic size={18} className="text-blue-500 mr-1" />
+                          Hold to talk
+                        </Button>
                       </div>
                     </td>
                   </tr>
