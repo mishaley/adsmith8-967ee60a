@@ -108,17 +108,17 @@ const IntakeForm = () => {
                   {/* Three rows with merged cells */}
                   <tr className="border-b">
                     <td colSpan={2} className="py-4 text-lg">
-                      <div className="w-full text-center">Merged row 1</div>
+                      <div className="w-full text-left pl-4"></div>
                     </td>
                   </tr>
                   <tr className="border-b">
                     <td colSpan={2} className="py-4 text-lg">
-                      <div className="w-full text-center">Merged row 2</div>
+                      <div className="w-full text-left pl-4">Personas</div>
                     </td>
                   </tr>
                   <tr className="border-b">
                     <td colSpan={2} className="py-4 text-lg">
-                      <div className="w-full text-center">Merged row 3</div>
+                      <div className="w-full text-left pl-4"></div>
                     </td>
                   </tr>
                   <tr className="border-b">
@@ -133,3 +133,4 @@ const IntakeForm = () => {
     </QuadrantLayout>;
 };
 export default IntakeForm;
+
