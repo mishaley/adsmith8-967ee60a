@@ -13,18 +13,21 @@ export type Database = {
         Row: {
           created_at: string
           organization_id: string
+          organization_industry: string | null
           organization_name: string
           organization_wordmark: string | null
         }
         Insert: {
           created_at?: string
           organization_id?: string
+          organization_industry?: string | null
           organization_name: string
           organization_wordmark?: string | null
         }
         Update: {
           created_at?: string
           organization_id?: string
+          organization_industry?: string | null
           organization_name?: string
           organization_wordmark?: string | null
         }

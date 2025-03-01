@@ -105,6 +105,22 @@ const IntakeForm = () => {
                       </div>
                     </td>
                   </tr>
+                  {/* Three rows with merged cells */}
+                  <tr className="border-b">
+                    <td colSpan={2} className="py-4 text-lg">
+                      <div className="w-full text-center">Merged row 1</div>
+                    </td>
+                  </tr>
+                  <tr className="border-b">
+                    <td colSpan={2} className="py-4 text-lg">
+                      <div className="w-full text-center">Merged row 2</div>
+                    </td>
+                  </tr>
+                  <tr className="border-b">
+                    <td colSpan={2} className="py-4 text-lg">
+                      <div className="w-full text-center">Merged row 3</div>
+                    </td>
+                  </tr>
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg"></td>
                     <td className="py-4"></td>
