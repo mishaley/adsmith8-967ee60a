@@ -67,13 +67,17 @@ export const useVideoCreator = () => {
       canvas.width = width;
       canvas.height = height;
       
-      // Configure higher quality stream
+      // Use a more universally compatible codec and container
+      // WebM with VP8 is more widely supported than VP9
+      const mimeType = 'video/webm';
+      
+      // Configure stream with good compatibility
       const stream = canvas.captureStream(30); // 30fps for smoother transitions
       
-      // Use higher bitrate and quality settings
+      // Use MediaRecorder with more compatible settings
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9', // VP9 codec for better quality/compression balance
-        videoBitsPerSecond: 5000000 // 5 Mbps bitrate for higher quality
+        mimeType: mimeType,
+        videoBitsPerSecond: 8000000 // 8 Mbps for better quality but still compatible
       });
       
       const chunks = [];
@@ -84,8 +88,8 @@ export const useVideoCreator = () => {
       };
       
       mediaRecorder.onstop = async () => {
-        // Create a more substantial video file
-        const videoBlob = new Blob(chunks, { type: 'video/mp4' });
+        // Create video file with standard WebM container
+        const videoBlob = new Blob(chunks, { type: mimeType });
         const url = URL.createObjectURL(videoBlob);
         setVideoUrl(url);
         setIsCreatingVideo(false);
@@ -182,7 +186,7 @@ export const useVideoCreator = () => {
     
     const a = document.createElement('a');
     a.href = videoUrl;
-    a.download = 'image-slideshow.mp4';
+    a.download = 'image-slideshow.webm'; // Changed to .webm to match the actual format
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

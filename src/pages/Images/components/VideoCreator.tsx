@@ -50,6 +50,7 @@ const VideoCreator = () => {
       </div>
       <div className="text-sm text-gray-500 mb-4">
         Create a video slideshow from your selected images. Each image appears for 2 seconds.
+        The video is created in WebM format, which works in most modern browsers.
       </div>
       
       {previewImages.length > 0 && (
@@ -80,7 +81,7 @@ const VideoCreator = () => {
               className="gap-2"
             >
               <Download className="h-4 w-4" />
-              Download
+              Download WebM
             </Button>
           </div>
           <div className="border rounded-md overflow-hidden bg-black">
@@ -93,6 +94,10 @@ const VideoCreator = () => {
               Your browser does not support the video tag.
             </video>
           </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Note: The video is in WebM format which is supported by most modern browsers but may 
+            require a compatible media player like VLC for offline viewing.
+          </p>
         </div>
       )}
     </div>
