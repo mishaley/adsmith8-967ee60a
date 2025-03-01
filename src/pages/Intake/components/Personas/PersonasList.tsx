@@ -7,23 +7,22 @@ interface PersonasListProps {
 }
 
 const PersonasList: React.FC<PersonasListProps> = ({ personas }) => {
+  // Always render 5 columns, populated with personas data when available
   return (
     <tr>
-      {personas.length > 0 ? (
-        personas.map((persona, index) => (
-          <td key={index} className="py-3 px-3 border-r align-top" style={{ width: "20%" }}>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <td key={index} className="py-3 px-3 border-r align-top" style={{ width: "20%" }}>
+          {personas[index] ? (
             <div className="flex flex-col">
-              <div className="font-medium">{persona.title}</div>
-              <div>{persona.gender}, {persona.race || "Unknown race"}, age {persona.ageMin}-{persona.ageMax}</div>
-              <div>{persona.interests.join(", ")}</div>
+              <div className="font-medium">{personas[index].title}</div>
+              <div>{personas[index].gender}, {personas[index].race || "Unknown race"}, age {personas[index].ageMin}-{personas[index].ageMax}</div>
+              <div>{personas[index].interests.join(", ")}</div>
             </div>
-          </td>
-        ))
-      ) : (
-        Array.from({ length: 5 }).map((_, index) => (
-          <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
-        ))
-      )}
+          ) : (
+            <div className="text-gray-400">No persona data</div>
+          )}
+        </td>
+      ))}
     </tr>
   );
 };

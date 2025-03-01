@@ -29,6 +29,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     generateAllPortraits
   } = usePersonaPortraits(personas, updatePersona);
 
+  console.log("PersonasSection rendering with personas:", personas); // Add for debugging
+
   return (
     <>
       <tr className="border-b">

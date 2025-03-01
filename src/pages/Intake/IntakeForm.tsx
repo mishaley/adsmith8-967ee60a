@@ -58,6 +58,7 @@ const IntakeForm = () => {
           gender: normalizeGender(persona.gender)
         }));
         
+        console.log("Generated personas:", normalizedPersonas); // Add for debugging
         setPersonas(normalizedPersonas);
         
         // Generate a summary with normalized personas
@@ -65,6 +66,9 @@ const IntakeForm = () => {
         setSummary(newSummary);
         
         toast.success("Personas generated successfully");
+      } else {
+        console.error("No personas data received:", data);
+        toast.error("No personas data received");
       }
     } catch (err) {
       console.error("Error:", err);
@@ -74,7 +78,6 @@ const IntakeForm = () => {
     }
   };
 
-  // Function to update a specific persona in the personas array
   const updatePersona = (index: number, updatedPersona: Persona) => {
     const updatedPersonas = [...personas];
     updatedPersonas[index] = updatedPersona;
