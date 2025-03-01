@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -242,7 +243,7 @@ const Onboarding = () => {
                               ? 'Recording...' 
                               : isTranscribing 
                                 ? 'Transcribing...' 
-                                : 'Hold'}
+                                : 'Hold to talk'}
                           </Button>
                         </div>
                       </div>
