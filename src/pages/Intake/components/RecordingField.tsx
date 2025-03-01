@@ -52,7 +52,7 @@ const RecordingField = ({
 
   const [tempTranscript, setTempTranscript] = useState("");
   
-  const { initializeSpeechRecognition } = useSpeechRecognition({
+  const { initializeSpeechRecognition, stopSpeechRecognition } = useSpeechRecognition({
     onTranscript: (interimTranscript) => {
       setTempTranscript(interimTranscript);
       onChange(interimTranscript);
@@ -115,6 +115,11 @@ const RecordingField = ({
     }
   };
   
+  const handleStopRecording = () => {
+    stopRecording();
+    stopSpeechRecognition();
+  };
+  
   return (
     <tr className="border-b">
       <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
@@ -129,10 +134,10 @@ const RecordingField = ({
               size="sm" 
               className={`text-sm text-gray-500 cursor-pointer w-full border border-input rounded-t-md rounded-b-none ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'}`}
               onMouseDown={handleStartRecording}
-              onMouseUp={stopRecording}
-              onMouseLeave={isRecording ? stopRecording : undefined}
+              onMouseUp={handleStopRecording}
+              onMouseLeave={isRecording ? handleStopRecording : undefined}
               onTouchStart={handleStartRecording}
-              onTouchEnd={stopRecording}
+              onTouchEnd={handleStopRecording}
               disabled={isTranscribing}
             >
               <Mic size={18} className={`${isRecording ? 'text-red-500' : isTranscribing ? 'text-yellow-500' : 'text-blue-500'} mr-1`} />
