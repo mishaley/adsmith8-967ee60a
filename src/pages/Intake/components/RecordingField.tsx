@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RecordingFieldProps {
   label: string;
@@ -24,6 +25,8 @@ const RecordingField = ({
 }: RecordingFieldProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+  const [originalTranscription, setOriginalTranscription] = useState("");
+  const [transcriptionChanged, setTranscriptionChanged] = useState(false);
   
   const { 
     isRecording, 
@@ -33,8 +36,10 @@ const RecordingField = ({
     stopRecording 
   } = useAudioRecording({
     onTranscriptionComplete: (text) => {
+      setOriginalTranscription(text);
       onChange(text);
       setTempTranscript("");
+      setTranscriptionChanged(false);
     },
     onError: (error) => {
       toast({
@@ -61,6 +66,35 @@ const RecordingField = ({
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }, [value, tempTranscript]);
+  
+  // Track when user manually edits the transcription
+  useEffect(() => {
+    if (originalTranscription && value !== originalTranscription && !isRecording && !isTranscribing) {
+      setTranscriptionChanged(true);
+    }
+  }, [value, originalTranscription, isRecording, isTranscribing]);
+
+  // Save the correction when the user moves away from the field
+  const handleBlur = async () => {
+    if (transcriptionChanged && originalTranscription && value !== originalTranscription) {
+      try {
+        await supabase.functions.invoke('save-transcription-correction', {
+          body: { 
+            original: originalTranscription,
+            corrected: value
+          }
+        });
+        
+        setTranscriptionChanged(false);
+        toast({
+          title: "Correction saved",
+          description: "Thank you for helping us improve!",
+        });
+      } catch (error) {
+        console.error('Failed to save correction:', error);
+      }
+    }
+  };
   
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -114,6 +148,7 @@ const RecordingField = ({
               ref={textareaRef}
               value={value}
               onChange={(e) => onChange(e.target.value)}
+              onBlur={handleBlur}
               className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md text-left placeholder:text-center placeholder:italic"
               style={{ height: 'auto' }}
               rows={1}
