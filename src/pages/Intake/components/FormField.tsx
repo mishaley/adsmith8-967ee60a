@@ -1,25 +1,37 @@
+
 import React from "react";
-import { Input } from "@/components/ui/input";
+
 interface FormFieldProps {
   label: string;
   helperText?: string;
+  helperTextClassName?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
-const FormField = ({
-  label,
-  helperText,
-  value,
-  onChange
+
+const FormField = ({ 
+  label, 
+  helperText, 
+  helperTextClassName = "text-sm text-gray-500 mt-1", 
+  value, 
+  onChange 
 }: FormFieldProps) => {
-  return <tr className="border-b">
-      <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
+  return (
+    <tr className="border-b">
+      <td className="py-4 pr-4 text-lg">
         <div>{label}</div>
-        {helperText}
+        {helperText && <div className={helperTextClassName}>{helperText}</div>}
       </td>
-      <td className="py-4 w-full">
-        <Input type="text" value={value} onChange={onChange} className="w-64" />
+      <td className="py-4">
+        <input
+          type="text"
+          value={value}
+          onChange={onChange}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+        />
       </td>
-    </tr>;
+    </tr>
+  );
 };
+
 export default FormField;
