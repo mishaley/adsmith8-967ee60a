@@ -14,6 +14,12 @@ export const useVideoCreation = () => {
   const webmBlobRef = useRef<Blob | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Check if the browser supports WebM
+  const checkWebMSupport = () => {
+    const video = document.createElement('video');
+    return video.canPlayType('video/webm; codecs="vp8, vorbis"') !== '';
+  };
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
@@ -64,18 +70,39 @@ export const useVideoCreation = () => {
         firstImage.src = previewImages[0];
       });
       
-      const width = firstImage.width;
-      const height = firstImage.height;
+      // Constrain dimensions to more compatible values (multiples of 16)
+      let width = firstImage.width;
+      let height = firstImage.height;
+      
+      // Make dimensions even (required by some codecs)
+      width = Math.floor(width / 2) * 2;
+      height = Math.floor(height / 2) * 2;
+      
       canvas.width = width;
       canvas.height = height;
       
-      const mimeType = 'video/webm';
+      // Check for WebM support
+      const supportsWebM = checkWebMSupport();
+      
+      // Use a fallback MIME type if WebM isn't supported
+      const mimeType = supportsWebM ? 'video/webm' : 'video/mp4';
+      
+      console.log(`Using video format: ${mimeType}`);
+      console.log(`Video dimensions: ${width}x${height}`);
       
       const stream = canvas.captureStream(30);
-      const mediaRecorder = new MediaRecorder(stream, {
+      
+      // More compatible MediaRecorder options
+      const mediaRecorderOptions = {
         mimeType: mimeType,
-        videoBitsPerSecond: 8000000
-      });
+        videoBitsPerSecond: 5000000 // Lower bitrate for better compatibility
+      };
+      
+      // Only use options if the browser supports them
+      const mediaRecorder = new MediaRecorder(
+        stream, 
+        MediaRecorder.isTypeSupported(mimeType) ? mediaRecorderOptions : undefined
+      );
       
       const chunks: Blob[] = [];
       mediaRecorder.ondataavailable = (e) => {
@@ -88,12 +115,16 @@ export const useVideoCreation = () => {
 
       await new Promise<void>((resolve) => {
         mediaRecorder.onstop = async () => {
+          // Create blob with proper type
           videoBlob = new Blob(chunks, { type: mimeType });
           webmBlobRef.current = videoBlob;
+          
+          // Create URL with explicit type
           const url = URL.createObjectURL(videoBlob);
           setVideoUrl(url);
           
           console.log(`Generated video size: ${(videoBlob.size / 1024 / 1024).toFixed(2)} MB`);
+          console.log(`Video MIME type: ${videoBlob.type}`);
           
           toast({
             title: "Video Created",
@@ -190,9 +221,12 @@ export const useVideoCreation = () => {
       // Mock MP4 conversion for now
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Just reuse the webm file for now
-      const url = URL.createObjectURL(webmBlobRef.current);
+      // Create a new blob with explicit MP4 MIME type
+      const mp4Blob = new Blob([webmBlobRef.current], { type: 'video/mp4' });
+      const url = URL.createObjectURL(mp4Blob);
       setMp4Url(url);
+      
+      console.log(`MP4 video type: ${mp4Blob.type}`);
       
       toast({
         title: "MP4 Conversion Complete",
@@ -219,7 +253,11 @@ export const useVideoCreation = () => {
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = `image-slideshow.${format}`;
+    
+    // Use timestamp in filename to prevent conflicts
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    a.download = `image-slideshow-${timestamp}.${format}`;
+    
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
