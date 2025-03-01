@@ -15,37 +15,47 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
   const [selectedStates, setSelectedStates] = useState<string[]>(
     value ? value.split(", ") : []
   );
+  const [mapInitialized, setMapInitialized] = useState(false);
 
   // For demo purposes, allow users to input their Mapbox token
   const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMapboxToken(e.target.value);
   };
 
+  // Initialize the map when the token is provided
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) return;
 
+    // Clear any existing map instance
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+    }
+
     mapboxgl.accessToken = mapboxToken;
 
-    if (map.current) return;
-
-    map.current = new mapboxgl.Map({
+    // Create a new map instance
+    const newMap = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/light-v11",
       center: [-95.7129, 37.0902], // Center of US
       zoom: 3,
     });
 
-    map.current.on("load", () => {
-      if (!map.current) return;
+    map.current = newMap;
 
+    // Wait for map to load before adding sources and layers
+    newMap.on("load", () => {
+      setMapInitialized(true);
+      
       // Add source for US states
-      map.current.addSource("states", {
+      newMap.addSource("states", {
         type: "vector",
         url: "mapbox://mapbox.us_census_states_2015",
       });
 
       // Add layer for state fills
-      map.current.addLayer({
+      newMap.addLayer({
         id: "states-fills",
         type: "fill",
         source: "states",
@@ -62,7 +72,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       });
 
       // Add layer for state boundaries
-      map.current.addLayer({
+      newMap.addLayer({
         id: "states-borders",
         type: "line",
         source: "states",
@@ -74,7 +84,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       });
 
       // Add hover effect
-      map.current.addLayer({
+      newMap.addLayer({
         id: "states-fills-hover",
         type: "fill",
         source: "states",
@@ -93,16 +103,16 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       let hoveredStateId: string | null = null;
 
       // Handle mouse move over states
-      map.current.on("mousemove", "states-fills", (e) => {
+      newMap.on("mousemove", "states-fills", (e) => {
         if (e.features && e.features.length > 0) {
           if (hoveredStateId) {
-            map.current?.setFeatureState(
+            newMap.setFeatureState(
               { source: "states", sourceLayer: "states", id: hoveredStateId },
               { hover: false }
             );
           }
           hoveredStateId = e.features[0].id as string;
-          map.current?.setFeatureState(
+          newMap.setFeatureState(
             { source: "states", sourceLayer: "states", id: hoveredStateId },
             { hover: true }
           );
@@ -110,7 +120,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       });
 
       // Handle click on states
-      map.current.on("click", "states-fills", (e) => {
+      newMap.on("click", "states-fills", (e) => {
         if (e.features && e.features.length > 0) {
           const stateName = e.features[0].properties?.NAME;
           if (stateName) {
@@ -128,7 +138,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
             onChange(newSelectedStates.join(", "));
             
             // Update the map fill layer
-            map.current?.setPaintProperty("states-fills", "fill-color", [
+            newMap.setPaintProperty("states-fills", "fill-color", [
               "case",
               ["in", ["get", "NAME"], ["literal", newSelectedStates]],
               "#4f46e5", // Selected state color
@@ -139,9 +149,9 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       });
 
       // Reset hover state when mouse leaves
-      map.current.on("mouseleave", "states-fills", () => {
+      newMap.on("mouseleave", "states-fills", () => {
         if (hoveredStateId) {
-          map.current?.setFeatureState(
+          newMap.setFeatureState(
             { source: "states", sourceLayer: "states", id: hoveredStateId },
             { hover: false }
           );
@@ -150,14 +160,24 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       });
     });
 
+    // Force map to resize after initialization
+    setTimeout(() => {
+      if (map.current) {
+        map.current.resize();
+      }
+    }, 100);
+
     return () => {
-      map.current?.remove();
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
     };
   }, [mapboxToken]);
 
   // Update map when selectedStates changes from outside
   useEffect(() => {
-    if (!map.current || !map.current.isStyleLoaded()) return;
+    if (!map.current || !mapInitialized) return;
 
     const currentStates = selectedStates;
     const newStates = value ? value.split(", ") : [];
@@ -172,7 +192,26 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
         "#ededed", // Default state color
       ]);
     }
-  }, [value]);
+  }, [value, mapInitialized]);
+
+  // Force a resize when the container dimensions change
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (map.current) {
+        map.current.resize();
+      }
+    });
+
+    if (mapContainer.current) {
+      resizeObserver.observe(mapContainer.current);
+    }
+
+    return () => {
+      if (mapContainer.current) {
+        resizeObserver.unobserve(mapContainer.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-2 w-full">
