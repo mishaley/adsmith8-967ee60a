@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
+  const [offering, setOffering] = useState("");
   
   return (
     <QuadrantLayout>
@@ -38,6 +39,17 @@ const Onboarding = () => {
                         type="text"
                         value={industry}
                         onChange={(e) => setIndustry(e.target.value)}
+                        className="w-64"
+                      />
+                    </td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Name one of your offerings (we can add more later)</td>
+                    <td className="py-4 w-full">
+                      <Input
+                        type="text"
+                        value={offering}
+                        onChange={(e) => setOffering(e.target.value)}
                         className="w-64"
                       />
                     </td>
