@@ -1,16 +1,86 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
   const [offering, setOffering] = useState("");
   const [sellingPoints, setSellingPoints] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const recognition = useRef<SpeechRecognition | null>(null);
+  const { toast } = useToast();
+  
+  // Initialize speech recognition
+  const initSpeechRecognition = () => {
+    if (!recognition.current) {
+      if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        // @ts-ignore - TypeScript doesn't recognize webkitSpeechRecognition
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition.current = new SpeechRecognitionAPI();
+        
+        recognition.current.continuous = true;
+        recognition.current.interimResults = true;
+        
+        recognition.current.onresult = (event: SpeechRecognitionEvent) => {
+          let transcript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+          }
+          
+          if (event.results[event.resultIndex].isFinal) {
+            setSellingPoints(prev => prev + transcript + ' ');
+          }
+        };
+        
+        recognition.current.onerror = (event) => {
+          console.error('Speech recognition error', event.error);
+          setIsListening(false);
+          toast({
+            title: "Error",
+            description: `Speech recognition error: ${event.error}`,
+            variant: "destructive",
+          });
+        };
+      } else {
+        toast({
+          title: "Speech Recognition Not Supported",
+          description: "Your browser doesn't support speech recognition.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const startListening = () => {
+    if (!initSpeechRecognition()) return;
+    
+    try {
+      recognition.current?.start();
+      setIsListening(true);
+    } catch (error) {
+      console.error('Failed to start speech recognition:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start speech recognition. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition.current) {
+      recognition.current.stop();
+      setIsListening(false);
+    }
+  };
   
   return (
     <QuadrantLayout>
@@ -70,10 +140,15 @@ const Onboarding = () => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="bg-white/80 text-sm text-gray-500 cursor-pointer w-full mt-0 border border-input"
+                          className={`text-sm text-gray-500 cursor-pointer w-full mt-0 border border-input ${isListening ? 'bg-blue-50' : 'bg-white/80'}`}
+                          onMouseDown={startListening}
+                          onMouseUp={stopListening}
+                          onMouseLeave={stopListening}
+                          onTouchStart={startListening}
+                          onTouchEnd={stopListening}
                         >
-                          <Mic size={18} className="text-blue-500 mr-1" />
-                          Hold to talk
+                          <Mic size={18} className={`${isListening ? 'text-red-500' : 'text-blue-500'} mr-1`} />
+                          {isListening ? 'Listening...' : 'Hold to talk'}
                         </Button>
                       </div>
                     </td>
