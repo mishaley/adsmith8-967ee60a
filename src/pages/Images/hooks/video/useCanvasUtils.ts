@@ -64,7 +64,8 @@ export const setupCanvas = (): {canvas: HTMLCanvasElement, ctx: CanvasRenderingC
     throw new Error("Unable to create canvas context");
   }
   
-  // Set default canvas dimensions to max allowed
+  // Set canvas dimensions with a 16:9 aspect ratio by default
+  // This will be adjusted when actually drawing images to match their aspect ratio
   const maxWidth = 1920; // Max width for good quality
   const maxHeight = 1080; // Max height for good quality
   

@@ -38,12 +38,16 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       let frameCount = 0;
       let currentImageIndex = 0;
       
+      // Draw the first image immediately
+      drawImageCentered(ctx, canvas, loadedImages[0]);
+      
       mediaRecorder.onstop = () => {
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
         resolve(videoBlob);
       };
       
-      mediaRecorder.start(1000); // Collect data in 1-second chunks
+      // Start recording with smaller chunk size for more consistent processing
+      mediaRecorder.start(500); 
       console.log("MediaRecorder started");
       
       // Animation loop to render frames
@@ -68,7 +72,9 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
         }
         
         frameCount++;
-        requestAnimationFrame(renderFrame);
+        
+        // Use setTimeout instead of requestAnimationFrame to ensure exact timing
+        setTimeout(renderFrame, 1000 / framerate);
       };
       
       // Start rendering
@@ -100,10 +106,10 @@ const finalizeVideoBlob = (chunks: Blob[], mediaRecorder: MediaRecorder, toast: 
   
   console.log(`Final video size: ${(videoBlob.size / (1024 * 1024)).toFixed(2)} MB`);
   
-  if (videoBlob.size < 1000000) { // Less than 1MB
+  if (videoBlob.size < 100000) { // Less than 100KB
     toast({
       title: "Warning: Small File Size",
-      description: "The generated video is small, which might indicate encoding issues. Try a different browser if needed.",
+      description: "The generated video is very small, which might indicate encoding issues. Try a different browser if needed.",
       variant: "destructive",
     });
   } else {

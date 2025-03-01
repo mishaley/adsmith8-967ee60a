@@ -34,8 +34,10 @@ export const createMediaRecorder = ({ stream, onDataAvailable }: RecorderOptions
   
   if (!mediaRecorder) {
     // Fallback to browser default
-    mediaRecorder = new MediaRecorder(stream);
-    console.log('Using browser default MediaRecorder options');
+    mediaRecorder = new MediaRecorder(stream, { 
+      videoBitsPerSecond: 8000000 // Try to set a high bitrate even with default encoder
+    });
+    console.log('Using browser default MediaRecorder options with 8Mbps bitrate');
   }
   
   mediaRecorder.ondataavailable = onDataAvailable;
