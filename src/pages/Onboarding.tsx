@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -7,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+// Use type assertion to get the correct constructor type
 const SpeechRecognitionAPI = (
   window.SpeechRecognition || 
   (window as any).webkitSpeechRecognition
-) as new () => SpeechRecognition;
+) as typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
