@@ -17,9 +17,18 @@ const VideoCreator = () => {
     triggerFileInput
   } = useVideoCreation();
 
+  // Calculate expected video duration
+  const calculateDuration = () => {
+    if (previewImages.length === 0) return "0:00";
+    const seconds = previewImages.length * 2; // 2 seconds per image
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <div className="w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
-      <div className="flex justify-between items-center mb-4">
+    <div className="w-full md:w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
         <h3 className="text-lg font-medium">Image to video converter</h3>
         <div className="flex gap-2">
           <Button 
@@ -49,7 +58,12 @@ const VideoCreator = () => {
         </div>
       </div>
       <div className="text-sm text-gray-500 mb-4">
-        Create a simple MP4 slideshow from your selected images. Each image appears for 2 seconds with quick cuts between images.
+        Create an MP4 slideshow from your selected images. Each image appears for 2 seconds.
+        {previewImages.length > 0 && (
+          <span className="ml-1 font-medium">
+            Expected duration: {calculateDuration()}
+          </span>
+        )}
       </div>
       
       {previewImages.length > 0 && (
@@ -63,6 +77,9 @@ const VideoCreator = () => {
                   alt={`Selected image ${index + 1}`}
                   className="h-full w-full object-cover rounded-md border border-gray-200"
                 />
+                <div className="absolute top-0 right-0 bg-black bg-opacity-60 text-white rounded-bl-md px-1 text-xs">
+                  {index + 1}
+                </div>
               </div>
             ))}
           </div>
@@ -89,12 +106,16 @@ const VideoCreator = () => {
               src={mp4Url} 
               controls 
               className="w-full h-auto"
+              onLoadedMetadata={(e) => {
+                console.log(`Video duration: ${e.currentTarget.duration} seconds`);
+              }}
             >
               Your browser does not support the video tag.
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            The video is in MP4 format with 2-second displays per image.
+            The video is in MP4 format with {previewImages.length} images, each displayed for 2 seconds.
+            Expected duration: {calculateDuration()}.
           </p>
         </div>
       )}
