@@ -19,13 +19,15 @@ interface PersonasSectionProps {
   summary: string;
   isGeneratingPersonas: boolean;
   generatePersonas: () => void;
+  updatePersona?: (index: number, updatedPersona: Persona) => void;
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
   personas,
   summary,
   isGeneratingPersonas,
-  generatePersonas
+  generatePersonas,
+  updatePersona
 }) => {
   const [generatingPortraitFor, setGeneratingPortraitFor] = useState<number | null>(null);
   const { toast } = useToast();
@@ -59,20 +61,18 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       }
       
       if (imageUrl) {
-        // Create a new personas array with the updated portrait URL
-        const updatedPersonas = [...personas];
-        updatedPersonas[index] = { ...updatedPersonas[index], portraitUrl: imageUrl };
+        // Create a new persona with the updated portrait URL
+        const updatedPersona = { ...persona, portraitUrl: imageUrl };
         
-        // Update the personas in the parent component
-        // Since we can't directly modify the props, we'll need a callback to update the parent state
-        // For now, we'll just show a success toast
+        // Update the persona in the parent component if callback is provided
+        if (updatePersona) {
+          updatePersona(index, updatedPersona);
+        }
+        
         toast({
           title: "Portrait Generated",
           description: `Portrait for ${persona.title} has been generated.`,
         });
-        
-        // This would ideally update the persona in the parent component
-        // updatePersonaPortrait(index, imageUrl);
       } else {
         toast({
           title: "Portrait Generation Failed",
@@ -84,7 +84,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       console.error('Error in portrait generation:', error);
       toast({
         title: "Portrait Generation Failed",
-        description: `Error: ${error.message || 'Unknown error occurred'}`,
+        description: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
         variant: "destructive",
       });
     } finally {
