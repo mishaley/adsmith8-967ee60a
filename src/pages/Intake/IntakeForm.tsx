@@ -4,6 +4,18 @@ import QuadrantLayout from "@/components/QuadrantLayout";
 import FormField from "./components/FormField";
 import RecordingField from "./components/RecordingField";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectSeparator,
+} from "@/components/ui/select";
+
+// Campaign platform options from Supabase enum
+const PLATFORM_OPTIONS = ["Google", "Meta"] as const;
+type CampaignPlatform = typeof PLATFORM_OPTIONS[number];
 
 const IntakeForm = () => {
   const [brandName, setBrandName] = useState("");
@@ -12,6 +24,7 @@ const IntakeForm = () => {
   const [sellingPoints, setSellingPoints] = useState("");
   const [problemSolved, setProblemSolved] = useState(""); 
   const [uniqueOffering, setUniqueOffering] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState<CampaignPlatform | "">("");
   
   const handleSave = () => {
     console.log("Saving form data:", {
@@ -20,9 +33,19 @@ const IntakeForm = () => {
       offering,
       sellingPoints,
       problemSolved,
-      uniqueOffering
+      uniqueOffering,
+      adPlatform: selectedPlatform
     });
     // Here you would typically save the data to a database
+  };
+  
+  // Handle platform selection change
+  const handlePlatformChange = (value: string) => {
+    if (value === "clear-selection") {
+      setSelectedPlatform("");
+    } else {
+      setSelectedPlatform(value as CampaignPlatform);
+    }
   };
   
   return <QuadrantLayout>
@@ -49,6 +72,36 @@ const IntakeForm = () => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                         />
                         <Button onClick={handleSave}>Save</Button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="py-4 pr-4 text-lg">
+                      <div>Ad Platform</div>
+                    </td>
+                    <td className="py-4">
+                      <div className="flex items-center">
+                        <div className="w-full">
+                          <Select value={selectedPlatform} onValueChange={handlePlatformChange}>
+                            <SelectTrigger className="w-full bg-white">
+                              <SelectValue placeholder="" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                              {PLATFORM_OPTIONS.map((platform) => (
+                                <SelectItem 
+                                  key={platform}
+                                  value={platform}
+                                >
+                                  {platform}
+                                </SelectItem>
+                              ))}
+                              <SelectSeparator className="my-1" />
+                              <SelectItem value="clear-selection" className="text-gray-500">
+                                Clear
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </td>
                   </tr>
