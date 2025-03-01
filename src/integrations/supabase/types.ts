@@ -39,6 +39,7 @@ export type Database = {
           offering_objective: Database["public"]["Enums"]["offering_objective"]
           offering_problemsolved: string | null
           offering_specialcategory: Database["public"]["Enums"]["offering_specialcategory"]
+          offering_uniqueadvantages: string | null
           organization_id: string
         }
         Insert: {
@@ -49,6 +50,7 @@ export type Database = {
           offering_objective: Database["public"]["Enums"]["offering_objective"]
           offering_problemsolved?: string | null
           offering_specialcategory?: Database["public"]["Enums"]["offering_specialcategory"]
+          offering_uniqueadvantages?: string | null
           organization_id: string
         }
         Update: {
@@ -59,6 +61,7 @@ export type Database = {
           offering_objective?: Database["public"]["Enums"]["offering_objective"]
           offering_problemsolved?: string | null
           offering_specialcategory?: Database["public"]["Enums"]["offering_specialcategory"]
+          offering_uniqueadvantages?: string | null
           organization_id?: string
         }
         Relationships: [
