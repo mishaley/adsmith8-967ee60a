@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -33,39 +34,57 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       const savedToken = localStorage.getItem(MAPBOX_TOKEN_KEY);
       if (savedToken && !mapboxToken) {
         setMapboxToken(savedToken);
+        console.log("Using saved Mapbox token from localStorage");
       }
 
       setTokenLoading(true);
+      console.log("Attempting to fetch Mapbox token from Supabase Edge Function...");
       
       try {
-        const { data, error } = await supabase.functions.invoke("get-mapbox-token");
+        // Add a timeout to prevent hanging indefinitely
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Token fetch timeout")), 8000);
+        });
+        
+        const fetchPromise = supabase.functions.invoke("get-mapbox-token");
+        const result = await Promise.race([fetchPromise, timeoutPromise]);
+        
+        const { data, error } = result as Awaited<ReturnType<typeof supabase.functions.invoke>>;
         
         if (error) {
           console.error("Error fetching Mapbox token:", error);
-          setTokenError("Failed to fetch token from server. Using local token if available.");
+          setTokenError(`Failed to fetch token: ${error.message}`);
           
           // We'll continue using the localStorage token if we have one
           if (savedToken) {
+            console.log("Falling back to localStorage token");
             setMapboxToken(savedToken);
           }
         } else if (data?.mapboxToken) {
+          console.log("Successfully retrieved Mapbox token from Edge Function");
           setMapboxToken(data.mapboxToken);
           // Still save to localStorage as a fallback
           localStorage.setItem(MAPBOX_TOKEN_KEY, data.mapboxToken);
           setTokenError(null);
         } else {
+          console.error("No token received from server:", data);
           setTokenError("No token received from server");
           // Fall back to localStorage
           if (savedToken) {
+            console.log("Falling back to localStorage token");
             setMapboxToken(savedToken);
+          } else {
+            // If we don't have a token in localStorage, show a form to enter one
+            console.log("No token available, showing input form");
           }
         }
       } catch (err) {
         console.error("Failed to fetch Mapbox token:", err);
-        setTokenError("Error connecting to token service");
+        setTokenError(`Error connecting to token service: ${err instanceof Error ? err.message : String(err)}`);
         
         // Fall back to localStorage
         if (savedToken) {
+          console.log("Falling back to localStorage token");
           setMapboxToken(savedToken);
         }
       } finally {
@@ -84,9 +103,11 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
     // Save the token to localStorage as a fallback
     if (newToken) {
       localStorage.setItem(MAPBOX_TOKEN_KEY, newToken);
+      console.log("Saved new token to localStorage");
       
       // Also try to save to Supabase secrets
       try {
+        console.log("Attempting to save token to Supabase secrets...");
         const { error } = await supabase.functions.invoke("save-mapbox-token", {
           body: { mapboxToken: newToken },
         });
@@ -95,17 +116,25 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
           console.error("Error saving Mapbox token to secrets:", error);
           toast.error("Failed to save token to secure storage.");
         } else {
+          console.log("Token saved to Supabase secrets successfully");
           toast.success("Token saved securely!");
         }
       } catch (err) {
         console.error("Failed to save Mapbox token to secrets:", err);
+        toast.error(`Failed to save token: ${err instanceof Error ? err.message : String(err)}`);
       }
     }
   };
 
   // Initialize the map when the token is provided
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current || !mapboxToken) {
+      console.log("Map container or token not available yet", {
+        containerExists: !!mapContainer.current,
+        tokenExists: !!mapboxToken
+      });
+      return;
+    }
 
     // Clear any existing map instance
     if (map.current) {
@@ -127,6 +156,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
       });
 
       map.current = newMap;
+      console.log("Map instance created");
 
       // Wait for map to load before adding sources and layers
       newMap.on("load", () => {
@@ -271,7 +301,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
         map.current = null;
       }
     };
-  }, [mapboxToken, selectedStates]);
+  }, [mapboxToken]);
 
   // Update map when selectedStates changes from outside
   useEffect(() => {
@@ -314,7 +344,9 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
   return (
     <div className="space-y-2 w-full">
       {tokenLoading && !mapboxToken ? (
-        <div className="text-sm">Loading Mapbox token...</div>
+        <div className="text-sm">Loading Mapbox token... 
+          <span className="inline-block ml-2 animate-spin">↻</span>
+        </div>
       ) : tokenError && !mapboxToken ? (
         <div className="mb-2 w-full">
           <div className="text-sm text-red-500 mb-2">{tokenError}</div>

@@ -19,12 +19,21 @@ export const handler = async (req: Request): Promise<Response> => {
     // Get the Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    
+    console.log("Supabase URL available:", !!supabaseUrl);
+    console.log("Supabase key available:", !!supabaseKey);
 
     // Get the Mapbox token from the environment
-    const mapboxToken = Deno.env.get('MAPBOX_TOKEN') || ''
+    const mapboxToken = Deno.env.get('MAPBASE_TOKEN') || Deno.env.get('MAPBOX_TOKEN') || '';
     
     console.log(`Retrieved token: ${mapboxToken ? 'Token exists' : 'No token found'}`);
+    
+    if (!mapboxToken) {
+      console.warn("No Mapbox token found in environment variables. Checking for both MAPBASE_TOKEN and MAPBOX_TOKEN.");
+      
+      // List all available environment variables (ONLY for debugging, remove in production)
+      console.log("Available environment variables:", Object.keys(Deno.env.toObject()));
+    }
     
     return new Response(
       JSON.stringify({ mapboxToken }),
