@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import FormField from "./components/FormField";
@@ -172,7 +171,6 @@ const IntakeForm = () => {
                       </div>
                     </td>
                   </tr>
-                  {/* Three rows with merged cells */}
                   <tr className="border-b">
                     <td colSpan={2} className="py-4 text-lg">
                       <div className="w-full text-left pl-4"></div>
@@ -197,7 +195,6 @@ const IntakeForm = () => {
                       <div className="w-full text-left pl-4"></div>
                     </td>
                   </tr>
-                  {/* Row with 5 columns - Summary row */}
                   <tr className="border-b">
                     <td colSpan={5} className="py-4 px-2 text-base">
                       {summary ? (
@@ -207,12 +204,10 @@ const IntakeForm = () => {
                       )}
                     </td>
                   </tr>
-                  {/* Personas row with 5 columns */}
                   <tr className="border-b">
                     {personas.length > 0 ? (
-                      // Display all 5 personas horizontally
                       personas.map((persona, index) => (
-                        <td key={index} className="py-3 px-3 border-r align-top">
+                        <td key={index} className="py-3 px-3 border-r align-top w-1/5">
                           <div className="flex flex-col h-full">
                             <div className="font-medium">{persona.title}</div>
                             <div>{persona.gender}</div>
@@ -222,16 +217,14 @@ const IntakeForm = () => {
                         </td>
                       ))
                     ) : (
-                      // Empty cells when no personas
                       Array.from({ length: 5 }).map((_, index) => (
-                        <td key={index} className="py-4 px-2 border-r min-h-[100px]"></td>
+                        <td key={index} className="py-4 px-2 border-r min-h-[100px] w-1/5"></td>
                       ))
                     )}
                   </tr>
-                  {/* Additional empty row with 5 columns */}
                   <tr className="border-b">
                     {Array.from({ length: 5 }).map((_, index) => (
-                      <td key={index} className="py-4 px-2 border-r min-h-[100px]"></td>
+                      <td key={index} className="py-4 px-2 border-r min-h-[100px] w-1/5"></td>
                     ))}
                   </tr>
                 </tbody>
