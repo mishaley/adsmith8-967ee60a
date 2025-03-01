@@ -150,7 +150,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         toast({
           title: "Warning: Small File Size",
           description: "The generated video is very small, which might indicate encoding issues. Try a different browser if the video doesn't play correctly.",
-          variant: "warning",
+          variant: "destructive", // Changed from "warning" to "destructive"
         });
       }
       
