@@ -11,6 +11,7 @@ const IntakeForm = () => {
   const [offering, setOffering] = useState("");
   const [sellingPoints, setSellingPoints] = useState("");
   const [problemsSolved, setProblemsSolved] = useState("");
+  const [uniqueOffering, setUniqueOffering] = useState("");
 
   return (
     <QuadrantLayout>
@@ -53,6 +54,13 @@ const IntakeForm = () => {
                     helperText="How does this offering help your customers?"
                     value={problemsSolved}
                     onChange={setProblemsSolved}
+                    placeholder="Speak for at least 30 seconds"
+                  />
+                  <RecordingField
+                    label="Unique Offering"
+                    helperText="How is this offering better than alternatives?"
+                    value={uniqueOffering}
+                    onChange={setUniqueOffering}
                     placeholder="Speak for at least 30 seconds"
                   />
                   <tr className="border-b">
