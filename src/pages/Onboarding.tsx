@@ -61,21 +61,24 @@ const Onboarding = () => {
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Key Selling Points</td>
                     <td className="py-4 w-full">
-                      <div className="relative">
-                        <Textarea
-                          value={sellingPoints}
-                          onChange={(e) => setSellingPoints(e.target.value)}
-                          className="min-h-[100px] w-64 pb-12"
-                        />
-                        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="bg-white/80 text-sm text-gray-500 cursor-pointer"
-                          >
-                            <Mic size={18} className="text-blue-500 mr-1" />
-                            Hold to talk <ArrowRight size={14} className="ml-1" />
-                          </Button>
+                      <div className="w-64 relative">
+                        <div className="relative">
+                          <Textarea
+                            value={sellingPoints}
+                            onChange={(e) => setSellingPoints(e.target.value)}
+                            className="min-h-[100px] w-full pr-3 pl-3 pt-3"
+                            style={{ paddingBottom: "40px" }}
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center h-10 bg-transparent">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="bg-white/80 text-sm text-gray-500 cursor-pointer w-full mx-2 mb-1"
+                            >
+                              <Mic size={18} className="text-blue-500 mr-1" />
+                              Hold to talk <ArrowRight size={14} className="ml-1" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </td>
