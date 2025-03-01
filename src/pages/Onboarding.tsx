@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 // Access the SpeechRecognition API with proper type handling
+// Use window.SpeechRecognition directly with optional chaining
 const SpeechRecognitionAPI = window.SpeechRecognition || 
                              window.webkitSpeechRecognition;
 
