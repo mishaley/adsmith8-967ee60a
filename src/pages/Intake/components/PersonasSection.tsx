@@ -45,20 +45,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
         </td>
       </tr>
       <tr className="border-b">
-        <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4"></div>
-        </td>
-      </tr>
-      <tr className="border-b">
-        <td colSpan={5} className="py-4 px-2 text-base">
-          {summary ? (
-            <div className="bg-gray-50 p-3 rounded-md">{summary}</div>
-          ) : (
-            <div className="text-gray-400 italic">Click "Generate Personas" to create target audience profiles</div>
-          )}
-        </td>
-      </tr>
-      <tr className="border-b">
         <td className="p-0">
           <table className="w-full border-collapse">
             <tbody>
