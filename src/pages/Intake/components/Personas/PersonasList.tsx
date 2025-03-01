@@ -14,7 +14,7 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas }) => {
           <td key={index} className="py-3 px-3 border-r align-top" style={{ width: "20%" }}>
             <div className="flex flex-col">
               <div className="font-medium">{persona.title}</div>
-              <div>{persona.gender}, age {persona.ageMin}-{persona.ageMax}</div>
+              <div>{persona.gender}, {persona.race || "Unknown race"}, age {persona.ageMin}-{persona.ageMax}</div>
               <div>{persona.interests.join(", ")}</div>
             </div>
           </td>

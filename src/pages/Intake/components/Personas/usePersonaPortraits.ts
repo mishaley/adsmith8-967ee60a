@@ -6,6 +6,18 @@ import { Persona } from "./types";
 
 const SESSION_STORAGE_KEY = "personaPortraits";
 
+// Race distribution as specified
+const RACE_DISTRIBUTION = [
+  "White", "White", "White", "Latino", "Latino", 
+  "Black", "Black", "Asian", "Indian-American", "Biracial"
+];
+
+// Function to randomly select a race from the distribution
+const getRandomRace = (): string => {
+  const randomIndex = Math.floor(Math.random() * RACE_DISTRIBUTION.length);
+  return RACE_DISTRIBUTION[randomIndex];
+};
+
 export const usePersonaPortraits = (
   personas: Persona[],
   updatePersona?: (index: number, updatedPersona: Persona) => void
@@ -50,7 +62,17 @@ export const usePersonaPortraits = (
     
     setGeneratingPortraitFor(index);
     try {
-      const prompt = `Portrait style magazine quality photo of a ${persona.gender}, age ${persona.ageMin}-${persona.ageMax}, who is ${persona.title.toLowerCase()}. ${persona.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
+      // Assign a random race if not already present
+      const personaWithRace = { ...persona };
+      if (!personaWithRace.race) {
+        personaWithRace.race = getRandomRace();
+        // Update the persona with the race
+        if (updatePersona) {
+          updatePersona(index, personaWithRace);
+        }
+      }
+      
+      const prompt = `Portrait style magazine quality photo of a ${personaWithRace.race} ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax}, who is ${personaWithRace.title.toLowerCase()}. ${personaWithRace.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
       
       const { data, error } = await supabase.functions.invoke('ideogram-test', {
         body: { prompt }
@@ -75,7 +97,7 @@ export const usePersonaPortraits = (
       
       if (imageUrl) {
         // Create a new persona with the updated portrait URL
-        const updatedPersona = { ...persona, portraitUrl: imageUrl };
+        const updatedPersona = { ...personaWithRace, portraitUrl: imageUrl };
         
         // Update the persona in the parent component if callback is provided
         if (updatePersona) {
@@ -89,7 +111,7 @@ export const usePersonaPortraits = (
         
         toast({
           title: "Portrait Generated",
-          description: `Portrait for ${persona.title} has been generated.`,
+          description: `Portrait for ${personaWithRace.title} has been generated.`,
         });
       } else {
         toast({
@@ -131,7 +153,17 @@ export const usePersonaPortraits = (
           continue;
         }
         
-        const prompt = `Portrait style magazine quality photo of a ${persona.gender}, age ${persona.ageMin}-${persona.ageMax}, who is ${persona.title.toLowerCase()}. ${persona.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
+        // Assign a random race if not already present
+        const personaWithRace = { ...persona };
+        if (!personaWithRace.race) {
+          personaWithRace.race = getRandomRace();
+          // Update the persona with the race
+          if (updatePersona) {
+            updatePersona(i, personaWithRace);
+          }
+        }
+        
+        const prompt = `Portrait style magazine quality photo of a ${personaWithRace.race} ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax}, who is ${personaWithRace.title.toLowerCase()}. ${personaWithRace.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
         
         const { data, error } = await supabase.functions.invoke('ideogram-test', {
           body: { prompt }
@@ -150,7 +182,7 @@ export const usePersonaPortraits = (
         }
         
         if (imageUrl && updatePersona) {
-          const updatedPersona = { ...persona, portraitUrl: imageUrl };
+          const updatedPersona = { ...personaWithRace, portraitUrl: imageUrl };
           updatePersona(i, updatedPersona);
           
           // Get updated personas with the new portrait

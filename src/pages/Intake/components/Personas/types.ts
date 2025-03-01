@@ -6,4 +6,5 @@ export interface Persona {
   ageMax: number;
   interests: string[];
   portraitUrl?: string;
+  race?: string;
 }
