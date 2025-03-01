@@ -33,23 +33,36 @@ serve(async (req) => {
       );
     }
 
-    const requestData = await req.json();
-    const prompt = requestData.prompt || 'portrait of a person, magazine style, professional photograph';
+    let prompt = 'A serene tropical beach scene with palm trees and blue water';
+    
+    // If there's a body with a prompt, use that
+    if (req.method === 'POST') {
+      try {
+        const requestData = await req.json();
+        if (requestData.prompt) {
+          prompt = requestData.prompt;
+        }
+      } catch (err) {
+        // If JSON parsing fails, proceed with default prompt
+        console.log('Could not parse request body, using default prompt');
+      }
+    }
 
     console.log('Generating image with prompt:', prompt);
 
     const response = await fetch('https://api.ideogram.ai/api/generate', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Api-Key': apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt,
-        style: 'photograph',
-        width: 512,
-        height: 512,
-        steps: 30
+        image_request: {
+          prompt,
+          aspect_ratio: "ASPECT_1_1", // Square image by default
+          model: "V_2", // Using default model V_2
+          magic_prompt_option: "AUTO"
+        }
       }),
     });
 
@@ -57,11 +70,17 @@ serve(async (req) => {
     console.log('Ideogram API response status:', response.status);
     
     if (response.ok) {
+      // Extract the image URL from the API response
+      let imageUrl = null;
+      if (data && data.data && data.data.length > 0 && data.data[0].url) {
+        imageUrl = data.data[0].url;
+      }
+      
       return new Response(
         JSON.stringify({ 
           success: true, 
-          data: data.images || [],
-          imageUrl: data.images && data.images.length > 0 ? data.images[0].url : null
+          data: data.data || [],
+          imageUrl
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

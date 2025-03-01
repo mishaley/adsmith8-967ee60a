@@ -15,7 +15,12 @@ const ImageGenerationTest = () => {
     setGeneratedImageUrl(null);
     
     try {
-      const response = await supabase.functions.invoke('ideogram-test');
+      // Using a default prompt for the test
+      const prompt = "A beautiful landscape with mountains and a lake at sunset";
+      
+      const response = await supabase.functions.invoke('ideogram-test', {
+        body: { prompt }
+      });
       
       if (response.error) {
         toast({
