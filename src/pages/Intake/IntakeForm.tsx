@@ -1,9 +1,9 @@
 
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
-import { Input } from "@/components/ui/input";
 import FormField from "./components/FormField";
 import RecordingField from "./components/RecordingField";
+import StateSelectionMap from "./components/StateSelectionMap";
 
 const IntakeForm = () => {
   const [brandName, setBrandName] = useState("");
@@ -64,12 +64,20 @@ const IntakeForm = () => {
                     onChange={setUniqueOffering}
                     placeholder="Speak for at least 30 seconds"
                   />
-                  <FormField
-                    label="Geo Boundaries"
-                    helperText="Interactive map that allows for selection down to the state level"
-                    value={geoBoundaries}
-                    onChange={(e) => setGeoBoundaries(e.target.value)}
-                  />
+                  <tr className="border-b">
+                    <td className="py-4 pr-4 text-lg align-top">
+                      <div className="font-medium">Geo Boundaries</div>
+                      <div className="text-sm text-gray-500">
+                        Interactive map that allows for selection down to the state level
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <StateSelectionMap
+                        value={geoBoundaries}
+                        onChange={setGeoBoundaries}
+                      />
+                    </td>
+                  </tr>
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg"></td>
                     <td className="py-4"></td>
