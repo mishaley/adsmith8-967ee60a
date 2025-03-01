@@ -72,7 +72,12 @@ export const usePersonaPortraits = (
         }
       }
       
-      const prompt = `Portrait style magazine quality photo of a ${personaWithRace.race} ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax}, who is ${personaWithRace.title.toLowerCase()}. ${personaWithRace.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
+      // Enhanced prompt that incorporates interests in a more exaggerated, interesting way
+      const interestsDescription = personaWithRace.interests.length > 0 
+        ? `Their personality visibly reflects their passions: ${personaWithRace.interests.join(", ")}. They are seen wearing or holding items related to these interests, with subtle visual cues in the background.` 
+        : "";
+        
+      const prompt = `Portrait style magazine quality photo of a ${personaWithRace.race} ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax}, who is ${personaWithRace.title.toLowerCase()}. ${interestsDescription} High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
       
       const { data, error } = await supabase.functions.invoke('ideogram-test', {
         body: { prompt }
@@ -163,7 +168,12 @@ export const usePersonaPortraits = (
           }
         }
         
-        const prompt = `Portrait style magazine quality photo of a ${personaWithRace.race} ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax}, who is ${personaWithRace.title.toLowerCase()}. ${personaWithRace.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
+        // Enhanced prompt that incorporates interests in a more exaggerated, interesting way
+        const interestsDescription = personaWithRace.interests.length > 0 
+          ? `Their personality visibly reflects their passions: ${personaWithRace.interests.join(", ")}. They are seen wearing or holding items related to these interests, with subtle visual cues in the background.` 
+          : "";
+          
+        const prompt = `Portrait style magazine quality photo of a ${personaWithRace.race} ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax}, who is ${personaWithRace.title.toLowerCase()}. ${interestsDescription} High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
         
         const { data, error } = await supabase.functions.invoke('ideogram-test', {
           body: { prompt }
