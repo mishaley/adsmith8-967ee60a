@@ -61,7 +61,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       <tr className="border-b">
         {personas.length > 0 ? (
           personas.map((persona, index) => (
-            <td key={index} className="py-3 px-3 border-r align-top w-1/5">
+            <td key={index} className="py-3 px-3 border-r align-top w-1/5 flex-1">
               <div className="flex flex-col h-full">
                 <div className="font-medium">{persona.title}</div>
                 <div>{persona.gender}</div>
@@ -72,13 +72,13 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           ))
         ) : (
           Array.from({ length: 5 }).map((_, index) => (
-            <td key={index} className="py-4 px-2 border-r min-h-[100px] w-1/5"></td>
+            <td key={index} className="py-4 px-2 border-r flex-1 w-1/5"></td>
           ))
         )}
       </tr>
       <tr className="border-b">
         {Array.from({ length: 5 }).map((_, index) => (
-          <td key={index} className="py-4 px-2 border-r min-h-[100px] w-1/5"></td>
+          <td key={index} className="py-4 px-2 border-r flex-1 w-1/5"></td>
         ))}
       </tr>
     </>
