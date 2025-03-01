@@ -19,14 +19,16 @@ const VideoCreator = () => {
   } = useVideoCreation();
   
   const [creationProgress, setCreationProgress] = useState("");
+  const [actualDuration, setActualDuration] = useState<number | null>(null);
   
   useEffect(() => {
     if (isCreatingVideo) {
       const messages = [
         "Loading images...",
         "Setting up canvas...",
-        "Recording frames...",
-        "Processing video...",
+        "Processing frame 1...",
+        "Processing frames...",
+        "Finalizing video...",
         "Almost there..."
       ];
       
@@ -51,12 +53,8 @@ const VideoCreator = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const getAspectRatioInfo = () => {
-    if (previewImages.length === 0) return null;
-    const img = new Image();
-    img.src = previewImages[0];
-    return `with the original aspect ratio of your images`;
-  };
+  // Calculate expected duration in seconds
+  const expectedDurationSeconds = previewImages.length * 2;
 
   return (
     <div className="w-full md:w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
@@ -94,7 +92,7 @@ const VideoCreator = () => {
         Create an MP4 slideshow from your selected images. Each image appears for exactly 2 seconds.
         {previewImages.length > 0 && (
           <span className="ml-1 font-medium">
-            Expected duration: {calculateDuration()} (precisely {previewImages.length * 2} seconds)
+            Expected duration: {calculateDuration()} (precisely {expectedDurationSeconds} seconds)
           </span>
         )}
       </div>
@@ -105,7 +103,7 @@ const VideoCreator = () => {
             <Loader className="h-4 w-4 animate-spin" />
             <span>{creationProgress}</span>
           </div>
-          <p className="text-xs mt-1">Please wait while your video is being created. This may take a moment.</p>
+          <p className="text-xs mt-1">Please wait while your video is being created. Each image will be displayed for exactly 2 seconds.</p>
         </div>
       )}
       
@@ -150,7 +148,9 @@ const VideoCreator = () => {
               controls 
               className="w-full h-auto"
               onLoadedMetadata={(e) => {
-                console.log(`Video duration: ${e.currentTarget.duration} seconds`);
+                const duration = e.currentTarget.duration;
+                setActualDuration(duration);
+                console.log(`Video duration: ${duration} seconds`);
               }}
             >
               Your browser does not support the video tag.
@@ -158,7 +158,14 @@ const VideoCreator = () => {
           </div>
           <p className="text-xs text-gray-500 mt-2">
             The video is in high-quality MP4 format with {previewImages.length} images, each displayed for precisely 2 seconds.
-            Total duration: {calculateDuration()} (exactly {previewImages.length * 2} seconds).
+            {actualDuration && (
+              <span className="ml-1 font-medium">
+                Actual duration: {Math.floor(actualDuration / 60)}:{Math.floor(actualDuration % 60).toString().padStart(2, '0')} 
+                ({actualDuration.toFixed(2)} seconds)
+              </span>
+            )}
+            <br />
+            Expected duration: {calculateDuration()} (exactly {expectedDurationSeconds} seconds).
           </p>
         </div>
       )}

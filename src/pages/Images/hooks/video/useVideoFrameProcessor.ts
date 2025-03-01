@@ -17,7 +17,8 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     // Configure high quality settings
     const framerate = 30; // 30fps
     const secondsPerImage = 2; // Each image shows for exactly 2 seconds
-    const totalDurationMs = previewImages.length * secondsPerImage * 1000; // Total duration in ms
+    const framesPerImage = framerate * secondsPerImage;
+    const totalFrames = previewImages.length * framesPerImage;
     
     // Set up MediaRecorder with high bitrate
     const stream = canvas.captureStream(framerate);
@@ -34,7 +35,6 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     });
     
     return new Promise<Blob | null>((resolve) => {
-      // Function to be called when video recording is complete
       mediaRecorder.onstop = () => {
         console.log("MediaRecorder stopped, finalizing video");
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
@@ -42,74 +42,56 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       };
       
       // Start recording
-      mediaRecorder.start(500); // Create chunks every 500ms for more consistent processing
+      mediaRecorder.start(500); // Create chunks every 500ms
       console.log("MediaRecorder started");
       
-      // Create an array of exact timestamps when each image should change
-      const imageTimes = Array.from({ length: loadedImages.length }, (_, i) => i * secondsPerImage * 1000);
+      // Pre-calculate all frame data - which image should be shown on which frame
+      const frameData = [];
+      for (let i = 0; i < totalFrames; i++) {
+        const imageIndex = Math.floor(i / framesPerImage);
+        frameData.push({
+          frameNumber: i,
+          imageIndex: Math.min(imageIndex, loadedImages.length - 1),
+          isLastFrameForImage: (i + 1) % framesPerImage === 0 || i === totalFrames - 1
+        });
+      }
       
-      // Draw the first image immediately
+      // Draw initial frame
       drawImageCentered(ctx, canvas, loadedImages[0]);
       console.log(`Rendering image 1/${loadedImages.length}`);
       
-      // Use a single RAF-based timing loop that runs for the entire duration
-      let startTime: number;
+      let currentFrame = 0;
       let currentImageIndex = 0;
-      let animationFrameId: number;
       
-      const renderLoop = (timestamp: number) => {
-        // Initialize start time on first frame
-        if (!startTime) startTime = timestamp;
-        
-        // Calculate elapsed time since animation started
-        const elapsedTime = timestamp - startTime;
-        
-        // Determine which image should be showing based on elapsed time
-        const targetImageIndex = Math.min(
-          Math.floor(elapsedTime / (secondsPerImage * 1000)),
-          loadedImages.length - 1
-        );
-        
-        // Only redraw if the image needs to change
-        if (targetImageIndex !== currentImageIndex) {
-          currentImageIndex = targetImageIndex;
-          drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
-          console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length} at ${elapsedTime.toFixed(0)}ms`);
-        }
-        
-        // Continue animation until we've reached the total duration
-        if (elapsedTime < totalDurationMs) {
-          animationFrameId = requestAnimationFrame(renderLoop);
-        } else {
-          // We've reached the exact end time
-          console.log(`Animation complete at ${elapsedTime.toFixed(0)}ms (target: ${totalDurationMs}ms)`);
-          
-          // Ensure the last frame is showing
-          if (currentImageIndex < loadedImages.length - 1) {
-            currentImageIndex = loadedImages.length - 1;
-            drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
-            console.log(`Rendering final image ${loadedImages.length}/${loadedImages.length}`);
-          }
-          
-          // Stop the recording after a small delay to ensure the last frame is captured
+      // Use fixed interval timing for precise frame control
+      const frameInterval = 1000 / framerate;
+      
+      const processNextFrame = () => {
+        if (currentFrame >= totalFrames) {
+          // End of video - add a small padding to ensure the last frame is captured
           setTimeout(() => {
-            console.log(`Stopping MediaRecorder after ${totalDurationMs + 200}ms`);
             mediaRecorder.stop();
+            console.log(`Video processing complete. Total frames: ${totalFrames}`);
           }, 200);
+          return;
         }
+        
+        const frameInfo = frameData[currentFrame];
+        
+        // Only redraw if we're changing images
+        if (frameInfo.imageIndex !== currentImageIndex) {
+          currentImageIndex = frameInfo.imageIndex;
+          drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
+          console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length} at frame ${currentFrame}`);
+        }
+        
+        // Schedule next frame with consistent timing
+        currentFrame++;
+        setTimeout(processNextFrame, frameInterval);
       };
       
-      // Start the animation loop
-      animationFrameId = requestAnimationFrame(renderLoop);
-      
-      // Set a hard timeout as a failsafe to ensure recording stops
-      setTimeout(() => {
-        if (mediaRecorder.state === 'recording') {
-          console.log(`Failsafe: Stopping MediaRecorder after ${totalDurationMs + 1000}ms`);
-          cancelAnimationFrame(animationFrameId);
-          mediaRecorder.stop();
-        }
-      }, totalDurationMs + 1000);
+      // Start the frame processing
+      processNextFrame();
     });
   } catch (error) {
     console.error('Error in processImagesIntoVideo:', error);
