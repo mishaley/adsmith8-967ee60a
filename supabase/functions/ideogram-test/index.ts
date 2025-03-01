@@ -50,7 +50,8 @@ serve(async (req) => {
 
     console.log('Generating image with prompt:', prompt);
 
-    const response = await fetch('https://api.ideogram.ai/api/generate', {
+    // Fixed URL to the correct endpoint
+    const response = await fetch('https://api.ideogram.ai/generate', {
       method: 'POST',
       headers: {
         'Api-Key': apiKey,
