@@ -207,36 +207,33 @@ const IntakeForm = () => {
                       )}
                     </td>
                   </tr>
-                  {/* Row with 5 columns - Headers */}
-                  <tr className="border-b bg-gray-100">
-                    <td className="py-3 px-2 text-sm font-semibold border-r">Persona</td>
-                    <td className="py-3 px-2 text-sm font-semibold border-r">Gender</td>
-                    <td className="py-3 px-2 text-sm font-semibold border-r">Age Range</td>
-                    <td className="py-3 px-2 text-sm font-semibold border-r" colSpan={2}>Interests</td>
-                  </tr>
-                  {/* Persona rows - dynamically generated */}
-                  {personas.length > 0 ? (
-                    personas.map((persona, index) => (
-                      <tr key={index} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-2 text-base border-r font-medium">{persona.title}</td>
-                        <td className="py-3 px-2 text-base border-r">{persona.gender}</td>
-                        <td className="py-3 px-2 text-base border-r">{persona.ageMin}-{persona.ageMax}</td>
-                        <td className="py-3 px-2 text-base" colSpan={2}>
-                          {persona.interests.join(", ")}
+                  {/* Personas row with 5 columns */}
+                  <tr className="border-b">
+                    {personas.length > 0 ? (
+                      // Display all 5 personas horizontally
+                      personas.map((persona, index) => (
+                        <td key={index} className="py-3 px-3 border-r align-top">
+                          <div className="flex flex-col h-full">
+                            <div className="font-medium">{persona.title}</div>
+                            <div>{persona.gender}</div>
+                            <div>{persona.ageMin}-{persona.ageMax}</div>
+                            <div>{persona.interests.join(", ")}</div>
+                          </div>
                         </td>
-                      </tr>
-                    ))
-                  ) : (
-                    // Empty persona rows
-                    Array.from({ length: 5 }).map((_, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="py-4 px-2 text-lg border-r"></td>
-                        <td className="py-4 px-2 text-lg border-r"></td>
-                        <td className="py-4 px-2 text-lg border-r"></td>
-                        <td className="py-4 px-2 text-lg border-r" colSpan={2}></td>
-                      </tr>
-                    ))
-                  )}
+                      ))
+                    ) : (
+                      // Empty cells when no personas
+                      Array.from({ length: 5 }).map((_, index) => (
+                        <td key={index} className="py-4 px-2 border-r min-h-[100px]"></td>
+                      ))
+                    )}
+                  </tr>
+                  {/* Additional empty row with 5 columns */}
+                  <tr className="border-b">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <td key={index} className="py-4 px-2 border-r min-h-[100px]"></td>
+                    ))}
+                  </tr>
                 </tbody>
               </table>
             </div>
