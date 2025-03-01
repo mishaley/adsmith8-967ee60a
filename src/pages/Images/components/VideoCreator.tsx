@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Upload, Video, Download, Loader } from "lucide-react";
@@ -90,10 +91,10 @@ const VideoCreator = () => {
         </div>
       </div>
       <div className="text-sm text-gray-500 mb-4">
-        Create an MP4 slideshow from your selected images. Each image appears for 2 seconds.
+        Create an MP4 slideshow from your selected images. Each image appears for exactly 2 seconds.
         {previewImages.length > 0 && (
           <span className="ml-1 font-medium">
-            Expected duration: {calculateDuration()}
+            Expected duration: {calculateDuration()} (precisely {previewImages.length * 2} seconds)
           </span>
         )}
       </div>
@@ -156,8 +157,8 @@ const VideoCreator = () => {
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            The video is in high-quality MP4 format with {previewImages.length} images, each displayed for exactly 2 seconds.
-            Expected duration: {calculateDuration()} (precisely {previewImages.length * 2} seconds).
+            The video is in high-quality MP4 format with {previewImages.length} images, each displayed for precisely 2 seconds.
+            Total duration: {calculateDuration()} (exactly {previewImages.length * 2} seconds).
           </p>
         </div>
       )}
