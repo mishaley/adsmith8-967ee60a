@@ -54,9 +54,44 @@ export const loadImages = async (imageSources: string[]): Promise<HTMLImageEleme
 };
 
 /**
- * Create and configure a canvas element
+ * Determine the optimal canvas dimensions based on loaded images
  */
-export const setupCanvas = (): {canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D} => {
+export const determineCanvasDimensions = (images: HTMLImageElement[]): { width: number, height: number } => {
+  if (images.length === 0) {
+    throw new Error("Cannot determine dimensions with no images");
+  }
+  
+  // Use first image's aspect ratio to determine video dimensions
+  const firstImage = images[0];
+  const aspectRatio = firstImage.naturalWidth / firstImage.naturalHeight;
+  
+  // Set a max resolution but maintain the aspect ratio of the input images
+  const maxPixels = 1920 * 1080; // Same total pixels as 1080p
+  
+  let width, height;
+  if (aspectRatio >= 1) {
+    // Landscape or square orientation
+    width = Math.min(1920, Math.sqrt(maxPixels * aspectRatio));
+    height = width / aspectRatio;
+  } else {
+    // Portrait orientation
+    height = Math.min(1920, Math.sqrt(maxPixels / aspectRatio));
+    width = height * aspectRatio;
+  }
+  
+  // Ensure dimensions are even (required by some codecs)
+  width = Math.floor(width / 2) * 2;
+  height = Math.floor(height / 2) * 2;
+  
+  console.log(`Determined canvas dimensions: ${width}x${height} with aspect ratio ${aspectRatio.toFixed(3)}`);
+  
+  return { width, height };
+};
+
+/**
+ * Create and configure a canvas element with dimensions based on input images
+ */
+export const setupCanvas = (images?: HTMLImageElement[]): {canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D} => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
@@ -64,12 +99,16 @@ export const setupCanvas = (): {canvas: HTMLCanvasElement, ctx: CanvasRenderingC
     throw new Error("Unable to create canvas context");
   }
   
-  // Set canvas dimensions - we'll use a 16:9 aspect ratio which is standard for video
-  const maxWidth = 1920; // Max width for good quality
-  const maxHeight = 1080; // Max height for good quality
-  
-  canvas.width = maxWidth;
-  canvas.height = maxHeight;
+  if (images && images.length > 0) {
+    // Set canvas dimensions based on input images
+    const { width, height } = determineCanvasDimensions(images);
+    canvas.width = width;
+    canvas.height = height;
+  } else {
+    // Fallback to 16:9 if no images are provided (should not happen)
+    canvas.width = 1920;
+    canvas.height = 1080;
+  }
   
   console.log(`Video dimensions: ${canvas.width}x${canvas.height}`);
   

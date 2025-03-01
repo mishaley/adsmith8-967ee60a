@@ -26,6 +26,14 @@ const VideoCreator = () => {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // Get dimensions of the first preview image to show estimated aspect ratio
+  const getAspectRatioInfo = () => {
+    if (previewImages.length === 0) return null;
+    const img = new Image();
+    img.src = previewImages[0];
+    return `with the original aspect ratio of your images`;
+  };
+
   return (
     <div className="w-full md:w-1/2 border border-gray-200 rounded-lg bg-white p-4 shadow-sm">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
@@ -114,7 +122,7 @@ const VideoCreator = () => {
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            The video is in high-quality 1080p MP4 format with {previewImages.length} images, each displayed for 2 seconds.
+            The video is in high-quality MP4 format with {previewImages.length} images, each displayed for 2 seconds.
             Expected duration: {calculateDuration()}.
           </p>
         </div>

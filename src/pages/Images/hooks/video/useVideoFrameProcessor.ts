@@ -11,8 +11,8 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     const loadedImages = await loadImages(previewImages);
     console.log(`Successfully loaded ${loadedImages.length} images`);
     
-    // Create canvas for rendering
-    const { canvas, ctx } = setupCanvas();
+    // Create canvas with dimensions based on the loaded images
+    const { canvas, ctx } = setupCanvas(loadedImages);
     
     // Configure high quality settings
     const framerate = 30; // 30fps
