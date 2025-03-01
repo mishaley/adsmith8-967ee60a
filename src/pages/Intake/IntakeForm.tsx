@@ -46,14 +46,14 @@ const IntakeForm = () => {
                     helperText="Main reasons why customers buy this offering"
                     value={sellingPoints}
                     onChange={setSellingPoints}
-                    placeholder="Try to speak for at least 30 seconds"
+                    placeholder="Speak for at least 30 seconds"
                   />
                   <RecordingField
                     label="Problems Solved"
                     helperText="How does this offering help your customers?"
                     value={problemsSolved}
                     onChange={setProblemsSolved}
-                    placeholder="Try to speak for at least 30 seconds"
+                    placeholder="Speak for at least 30 seconds"
                   />
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg"></td>
