@@ -51,8 +51,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                       <td key={index} className="py-3 px-3 border-r align-top" style={{ width: "20%" }}>
                         <div className="flex flex-col h-full">
                           <div className="font-medium">{persona.title}</div>
-                          <div>{persona.gender}</div>
-                          <div>{persona.ageMin}-{persona.ageMax}</div>
+                          <div>{persona.gender}, age {persona.ageMin}-{persona.ageMax}</div>
                           <div>{persona.interests.join(", ")}</div>
                         </div>
                       </td>
