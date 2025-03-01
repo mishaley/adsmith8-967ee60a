@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import IntakeHeader from "./components/IntakeHeader";
 import IntakeFormFields from "./components/IntakeFormFields";
 import PersonasSection from "./components/PersonasSection";
-import { generatePersonaSummary } from "./utils/personaUtils";
+import { generatePersonaSummary, normalizeGender } from "./utils/personaUtils";
 
 interface Persona {
   title: string;
@@ -60,10 +60,16 @@ const IntakeForm = () => {
       }
 
       if (data && data.personas) {
-        setPersonas(data.personas);
+        // Normalize gender values in the personas
+        const normalizedPersonas = data.personas.map((persona: Persona) => ({
+          ...persona,
+          gender: normalizeGender(persona.gender)
+        }));
         
-        // Generate a summary
-        const newSummary = generatePersonaSummary(offering, data.personas);
+        setPersonas(normalizedPersonas);
+        
+        // Generate a summary with normalized personas
+        const newSummary = generatePersonaSummary(offering, normalizedPersonas);
         setSummary(newSummary);
         
         toast.success("Personas generated successfully");

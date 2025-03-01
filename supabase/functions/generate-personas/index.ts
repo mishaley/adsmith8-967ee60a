@@ -25,7 +25,7 @@ serve(async (req) => {
     const prompt = `Generate 5 target customer personas for ${product}. 
     For each persona, provide:
     1. A catchy 3-word title
-    2. Gender (Men, Women, or Both)
+    2. Gender (IMPORTANT: Choose either Men or Women, do NOT use "Both")
     3. Age range (min-max)
     4. Three main interests
     

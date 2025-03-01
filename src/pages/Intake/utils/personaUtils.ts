@@ -30,3 +30,21 @@ export const generatePersonaSummary = (offering: string, personas: Persona[]) =>
   
   return `Target audience for ${offering || "ramen noodles"}: ${demographics}. Key interests include ${collectInterests(personas).join(", ")}.`;
 };
+
+export const normalizeGender = (gender: string): string => {
+  // Convert to lowercase for standardized comparison
+  const lowerGender = gender.toLowerCase();
+  
+  // Check if it contains "men" or "women" and return the appropriate value
+  if (lowerGender.includes("men") && !lowerGender.includes("women")) {
+    return "Men";
+  } else if (lowerGender.includes("women")) {
+    return "Women";
+  } else if (lowerGender.includes("both")) {
+    // Randomly choose between "Men" and "Women" if "Both" is specified
+    return Math.random() < 0.5 ? "Men" : "Women";
+  } else {
+    // Default to random gender if the input is unrecognized
+    return Math.random() < 0.5 ? "Men" : "Women";
+  }
+};
