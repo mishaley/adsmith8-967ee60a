@@ -12,6 +12,16 @@ import {
   SelectValue,
   SelectSeparator,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+interface Persona {
+  title: string;
+  gender: string;
+  ageMin: number;
+  ageMax: number;
+  interests: string[];
+}
 
 const IntakeForm = () => {
   const [brandName, setBrandName] = useState("");
@@ -21,6 +31,9 @@ const IntakeForm = () => {
   const [problemSolved, setProblemSolved] = useState(""); 
   const [uniqueOffering, setUniqueOffering] = useState("");
   const [adPlatform, setAdPlatform] = useState("");
+  const [personas, setPersonas] = useState<Persona[]>([]);
+  const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
+  const [summary, setSummary] = useState("");
   
   const PLATFORM_OPTIONS = ["Google", "Meta"];
   
@@ -35,6 +48,60 @@ const IntakeForm = () => {
       adPlatform
     });
     // Here you would typically save the data to a database
+  };
+
+  const generatePersonas = async () => {
+    if (!offering) {
+      toast.error("Please enter an offering first");
+      return;
+    }
+
+    setIsGeneratingPersonas(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-personas', {
+        body: { product: offering || "ramen noodles" }
+      });
+
+      if (error) {
+        console.error("Error generating personas:", error);
+        toast.error("Failed to generate personas");
+        return;
+      }
+
+      if (data && data.personas) {
+        setPersonas(data.personas);
+        
+        // Generate a summary
+        const demographics = data.personas.map((p: Persona) => 
+          `${p.gender} aged ${p.ageMin}-${p.ageMax}`
+        ).join(", ");
+        
+        setSummary(`Target audience for ${offering || "ramen noodles"}: ${demographics}. Key interests include ${collectInterests(data.personas).join(", ")}.`);
+        
+        toast.success("Personas generated successfully");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsGeneratingPersonas(false);
+    }
+  };
+
+  const collectInterests = (personaList: Persona[]) => {
+    // Get all interests and count occurrences
+    const interestCounts: Record<string, number> = {};
+    personaList.forEach(persona => {
+      persona.interests.forEach(interest => {
+        interestCounts[interest] = (interestCounts[interest] || 0) + 1;
+      });
+    });
+    
+    // Sort by count and return top 5
+    return Object.entries(interestCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(entry => entry[0]);
   };
   
   return <QuadrantLayout>
@@ -113,7 +180,16 @@ const IntakeForm = () => {
                   </tr>
                   <tr className="border-b">
                     <td colSpan={2} className="py-4 text-lg">
-                      <div className="w-full text-left pl-4">Personas</div>
+                      <div className="w-full text-left pl-4 flex items-center justify-between">
+                        <span>Personas</span>
+                        <Button 
+                          onClick={generatePersonas} 
+                          disabled={isGeneratingPersonas}
+                          className="mr-4"
+                        >
+                          {isGeneratingPersonas ? "Generating..." : "Generate Personas"}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                   <tr className="border-b">
@@ -121,22 +197,46 @@ const IntakeForm = () => {
                       <div className="w-full text-left pl-4"></div>
                     </td>
                   </tr>
-                  {/* Row with 5 columns */}
+                  {/* Row with 5 columns - Summary row */}
                   <tr className="border-b">
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg"></td>
+                    <td colSpan={5} className="py-4 px-2 text-base">
+                      {summary ? (
+                        <div className="bg-gray-50 p-3 rounded-md">{summary}</div>
+                      ) : (
+                        <div className="text-gray-400 italic">Click "Generate Personas" to create target audience profiles</div>
+                      )}
+                    </td>
                   </tr>
-                  {/* Another row with 5 columns */}
-                  <tr className="border-b">
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg border-r"></td>
-                    <td className="py-4 px-2 text-lg"></td>
+                  {/* Row with 5 columns - Headers */}
+                  <tr className="border-b bg-gray-100">
+                    <td className="py-3 px-2 text-sm font-semibold border-r">Persona</td>
+                    <td className="py-3 px-2 text-sm font-semibold border-r">Gender</td>
+                    <td className="py-3 px-2 text-sm font-semibold border-r">Age Range</td>
+                    <td className="py-3 px-2 text-sm font-semibold border-r" colSpan={2}>Interests</td>
                   </tr>
+                  {/* Persona rows - dynamically generated */}
+                  {personas.length > 0 ? (
+                    personas.map((persona, index) => (
+                      <tr key={index} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-2 text-base border-r font-medium">{persona.title}</td>
+                        <td className="py-3 px-2 text-base border-r">{persona.gender}</td>
+                        <td className="py-3 px-2 text-base border-r">{persona.ageMin}-{persona.ageMax}</td>
+                        <td className="py-3 px-2 text-base" colSpan={2}>
+                          {persona.interests.join(", ")}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    // Empty persona rows
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <tr key={index} className="border-b">
+                        <td className="py-4 px-2 text-lg border-r"></td>
+                        <td className="py-4 px-2 text-lg border-r"></td>
+                        <td className="py-4 px-2 text-lg border-r"></td>
+                        <td className="py-4 px-2 text-lg border-r" colSpan={2}></td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
