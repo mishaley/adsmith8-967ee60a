@@ -15,7 +15,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
   const mp4BlobRef = useRef<Blob | null>(null);
 
   const createVideo = async () => {
-    if (previewImages.length === 0) {
+    if (previewImages.length === if (previewImages.length === 0) {
       toast({
         title: "No Images Selected",
         description: "Please select at least one image to create a video.",
@@ -85,34 +85,23 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       // Set up MediaRecorder with optimal settings
       const stream = canvas.captureStream(framerate);
       
-      // Try different codecs in order of preference
+      // Force 'video/mp4' as the MIME type
+      const mimeType = 'video/mp4';
+      
       let mediaRecorder;
-      const mimeTypes = [
-        'video/mp4;codecs=h264',
-        'video/webm;codecs=h264',
-        'video/webm;codecs=vp9',
-        'video/webm;codecs=vp8'
-      ];
       
-      let usedMimeType = '';
-      for (const mimeType of mimeTypes) {
-        if (MediaRecorder.isTypeSupported(mimeType)) {
-          usedMimeType = mimeType;
-          break;
-        }
-      }
-      
-      if (!usedMimeType) {
-        usedMimeType = '';
-        mediaRecorder = new MediaRecorder(stream);
-      } else {
+      // Check if video/mp4 is supported
+      if (MediaRecorder.isTypeSupported(mimeType)) {
         mediaRecorder = new MediaRecorder(stream, {
-          mimeType: usedMimeType,
+          mimeType: mimeType,
           videoBitsPerSecond: bitrate
         });
+        console.log(`Using MIME type: ${mimeType}`);
+      } else {
+        // Fallback to browser default if video/mp4 is not supported
+        mediaRecorder = new MediaRecorder(stream);
+        console.log(`MIME type ${mimeType} not supported, using browser default`);
       }
-      
-      console.log(`Using MIME type: ${usedMimeType || 'browser default'}`);
       
       const videoChunks: Blob[] = [];
       
