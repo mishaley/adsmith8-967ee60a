@@ -13,6 +13,7 @@ const MainNav = () => {
   ];
 
   const bottomNavItems = [
+    { label: "ONBOARDING", path: "/onboarding" },
     { label: "ORGANIZATIONS", path: "/organizations" },
     { label: "OFFERINGS", path: "/offerings" },
     { label: "PERSONAS", path: "/personas" },

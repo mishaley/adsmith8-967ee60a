@@ -14,6 +14,7 @@ import Images from "./pages/Images";
 import Captions from "./pages/Captions";
 import Settings from "./pages/Settings";
 import New from "./pages/New";
+import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
@@ -67,6 +68,7 @@ const AppRoutes = () => {
         <Route path="/captions" element={<Captions />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/new" element={<New />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/" element={<Navigate to="/images" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
