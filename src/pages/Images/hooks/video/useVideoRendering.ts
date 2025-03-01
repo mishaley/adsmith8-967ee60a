@@ -40,6 +40,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       // Load all images first to get their natural dimensions
       const images = await Promise.all(previewImages.map(async (src) => {
         const img = new Image();
+        img.crossOrigin = "anonymous"; // Add this for cross-origin images
         await new Promise<void>((resolve, reject) => {
           img.onload = () => resolve();
           img.onerror = reject;
@@ -73,8 +74,8 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       
       console.log(`Video dimensions: ${finalWidth}x${height}, Aspect ratio: ${avgAspectRatio.toFixed(2)}`);
       
-      // Use higher bitrate for better quality
-      const bitRate = 8000000; // 8 Mbps - good quality
+      // Use much higher bitrate for better quality
+      const bitRate = 15000000; // 15 Mbps - much better quality
       
       // Set up MediaRecorder with MP4-compatible parameters
       const stream = canvas.captureStream(30); // 30fps for smooth playback
@@ -103,37 +104,55 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         }
       };
       
+      let videoBlob: Blob | null = null;
+      
       await new Promise<void>((resolve) => {
         mediaRecorder.onstop = async () => {
-          // Create a MP4 blob
-          const mp4Blob = new Blob(chunks, { type: 'video/mp4' });
-          mp4BlobRef.current = mp4Blob;
+          // Create a more robust video file
+          videoBlob = new Blob(chunks, { type: 'video/mp4' });
+          mp4BlobRef.current = videoBlob;
           
           // Create URL
-          const url = URL.createObjectURL(mp4Blob);
+          if (mp4Url) {
+            URL.revokeObjectURL(mp4Url); // Clean up old URL
+          }
+          const url = URL.createObjectURL(videoBlob);
           setMp4Url(url);
           
-          console.log(`Generated MP4 size: ${(mp4Blob.size / 1024 / 1024).toFixed(2)} MB`);
-          console.log(`Video MIME type: ${mp4Blob.type}`);
+          console.log(`Generated MP4 size: ${(videoBlob.size / 1024 / 1024).toFixed(2)} MB`);
+          console.log(`Video MIME type: ${videoBlob.type}`);
           
           toast({
             title: "Video Created",
-            description: `MP4 video created successfully (${(mp4Blob.size / 1024 / 1024).toFixed(2)} MB)`,
+            description: `MP4 video created successfully (${(videoBlob.size / 1024 / 1024).toFixed(2)} MB)`,
           });
           
           resolve();
         };
         
-        // Important: Start recording *before* drawing the first frame
-        // This ensures we don't miss the first frame
+        // First, draw initial frame before starting recording
+        // This ensures we don't get a black frame at the start
+        const firstImage = images[0];
+        drawImageCentered(ctx, firstImage, finalWidth, height);
+        
+        // Start recording after the first frame is drawn
         mediaRecorder.start();
         
-        // Process the images with simple hard cuts
-        createSimpleSlideshow(ctx, canvas, mediaRecorder, images, finalWidth, height).catch(error => {
+        // Process all images with hard cuts
+        createImageSlideshow(ctx, canvas, mediaRecorder, images, finalWidth, height).catch(error => {
           console.error("Error processing images:", error);
           mediaRecorder.stop();
         });
       });
+      
+      // If the file is suspiciously small, warn the user
+      if (videoBlob && videoBlob.size < 500000) { // Less than 500KB is suspicious
+        toast({
+          title: "Warning: Small File Size",
+          description: "The generated video is very small, which might indicate encoding issues. Try a different browser if the video doesn't play correctly.",
+          variant: "warning",
+        });
+      }
       
       return mp4BlobRef.current;
     } catch (error) {
@@ -148,7 +167,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
       setIsCreatingVideo(false);
     }
   };
-
+  
   return {
     isCreatingVideo,
     mp4Url,
@@ -159,8 +178,30 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
   };
 };
 
-// Simple slideshow with hard cuts between images
-const createSimpleSlideshow = async (
+// Helper function to draw an image centered on the canvas
+const drawImageCentered = (
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  canvasWidth: number,
+  canvasHeight: number
+) => {
+  // Clear canvas with black background
+  ctx.fillStyle = "#000000";
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  
+  // Calculate position to center image maintaining aspect ratio
+  const imgWidth = img.naturalWidth;
+  const imgHeight = img.naturalHeight;
+  const scale = Math.min(canvasWidth / imgWidth, canvasHeight / imgHeight);
+  const x = (canvasWidth - imgWidth * scale) / 2;
+  const y = (canvasHeight - imgHeight * scale) / 2;
+  
+  // Draw image with proper scaling
+  ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
+};
+
+// Slideshow with hard cuts between images
+const createImageSlideshow = async (
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
   mediaRecorder: MediaRecorder,
@@ -170,32 +211,20 @@ const createSimpleSlideshow = async (
 ) => {
   const frameDuration = 2000; // 2 seconds per image
   
-  // Now display each image
+  // Display each image for the duration
   for (let i = 0; i < images.length; i++) {
     const img = images[i];
     
-    // Clear canvas with black background
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, width, height);
+    // Draw the image centered on the canvas
+    drawImageCentered(ctx, img, width, height);
     
-    // Calculate position to center image maintaining aspect ratio
-    const imgWidth = img.naturalWidth;
-    const imgHeight = img.naturalHeight;
-    const scale = Math.min(width / imgWidth, height / imgHeight);
-    const x = (width - imgWidth * scale) / 2;
-    const y = (height - imgHeight * scale) / 2;
-    
-    // Draw image with proper scaling
-    ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
-    
-    // Wait for duration (except for the last image)
-    if (i < images.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, frameDuration));
-    } else {
-      // For the last image, wait a bit longer to ensure it's captured
-      await new Promise(resolve => setTimeout(resolve, frameDuration + 500));
-    }
+    // Wait for the specified duration
+    await new Promise(resolve => setTimeout(resolve, frameDuration));
   }
   
+  // Ensure we have some extra time at the end to capture the last frame
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Stop recording after all images have been processed
   mediaRecorder.stop();
 };
