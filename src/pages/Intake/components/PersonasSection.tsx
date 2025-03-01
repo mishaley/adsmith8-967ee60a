@@ -96,14 +96,15 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     <>
       <tr className="border-b">
         <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4 flex items-center justify-between">
+          <div className="w-full text-left pl-4 flex items-center">
             <span>Personas</span>
             <Button 
               onClick={generatePersonas} 
               disabled={isGeneratingPersonas}
-              className="mr-4"
+              className="ml-4"
+              size="sm"
             >
-              {isGeneratingPersonas ? "Generating..." : "Generate Personas"}
+              {isGeneratingPersonas ? "Generating..." : "Generate"}
             </Button>
           </div>
         </td>
