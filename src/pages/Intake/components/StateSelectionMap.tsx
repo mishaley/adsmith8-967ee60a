@@ -10,6 +10,11 @@ interface StateSelectionMapProps {
   onChange: (value: string) => void;
 }
 
+// Define the expected response type from the Edge Function
+interface MapboxTokenResponse {
+  mapboxToken: string;
+}
+
 // Fallback: localStorage key for storing the Mapbox token when not using Supabase
 const MAPBOX_TOKEN_KEY = "mapbox_access_token";
 
@@ -46,10 +51,14 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
           setTimeout(() => reject(new Error("Token fetch timeout")), 8000);
         });
         
-        const fetchPromise = supabase.functions.invoke("get-mapbox-token");
+        const fetchPromise = supabase.functions.invoke<MapboxTokenResponse>("get-mapbox-token");
         const result = await Promise.race([fetchPromise, timeoutPromise]);
         
-        const { data, error } = result as Awaited<ReturnType<typeof supabase.functions.invoke>>;
+        // Properly type the result
+        const { data, error } = result as { 
+          data: MapboxTokenResponse | null; 
+          error: Error | null 
+        };
         
         if (error) {
           console.error("Error fetching Mapbox token:", error);

@@ -34,24 +34,30 @@ export type Database = {
         Row: {
           created_at: string
           offering_id: string
+          offering_keysellingpoints: string | null
           offering_name: string
           offering_objective: Database["public"]["Enums"]["offering_objective"]
+          offering_problemsolved: string | null
           offering_specialcategory: Database["public"]["Enums"]["offering_specialcategory"]
           organization_id: string
         }
         Insert: {
           created_at?: string
           offering_id?: string
+          offering_keysellingpoints?: string | null
           offering_name: string
           offering_objective: Database["public"]["Enums"]["offering_objective"]
+          offering_problemsolved?: string | null
           offering_specialcategory?: Database["public"]["Enums"]["offering_specialcategory"]
           organization_id: string
         }
         Update: {
           created_at?: string
           offering_id?: string
+          offering_keysellingpoints?: string | null
           offering_name?: string
           offering_objective?: Database["public"]["Enums"]["offering_objective"]
+          offering_problemsolved?: string | null
           offering_specialcategory?: Database["public"]["Enums"]["offering_specialcategory"]
           organization_id?: string
         }
