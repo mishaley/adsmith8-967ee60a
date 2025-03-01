@@ -189,7 +189,10 @@ const Onboarding = () => {
                     </td>
                   </tr>
                   <tr className="border-b">
-                    <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">Name one of your offerings (we can add more later)</td>
+                    <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
+                      <div>Name one of your offerings</div>
+                      <div className="text-sm text-gray-500 mt-1">(we can add more later)</div>
+                    </td>
                     <td className="py-4 w-full">
                       <Input
                         type="text"
