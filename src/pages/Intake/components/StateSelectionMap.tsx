@@ -8,10 +8,15 @@ interface StateSelectionMapProps {
   onChange: (value: string) => void;
 }
 
+// localStorage key for storing the Mapbox token
+const MAPBOX_TOKEN_KEY = "mapbox_access_token";
+
 const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>("");
+  const [mapboxToken, setMapboxToken] = useState<string>(
+    localStorage.getItem(MAPBOX_TOKEN_KEY) || ""
+  );
   const [selectedStates, setSelectedStates] = useState<string[]>(
     value ? value.split(", ") : []
   );
@@ -19,7 +24,12 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
 
   // For demo purposes, allow users to input their Mapbox token
   const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMapboxToken(e.target.value);
+    const newToken = e.target.value;
+    setMapboxToken(newToken);
+    // Save the token to localStorage whenever it changes
+    if (newToken) {
+      localStorage.setItem(MAPBOX_TOKEN_KEY, newToken);
+    }
   };
 
   // Initialize the map when the token is provided
