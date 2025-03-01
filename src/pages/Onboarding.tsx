@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
@@ -8,11 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Use type assertion to access the SpeechRecognition API
-const SpeechRecognitionAPI = (
-  window.SpeechRecognition || 
-  (window as any).webkitSpeechRecognition
-);
+// Access the SpeechRecognition API with proper type handling
+const SpeechRecognitionAPI = window.SpeechRecognition || 
+                             window.webkitSpeechRecognition;
 
 const Onboarding = () => {
   const [brandName, setBrandName] = useState("");
