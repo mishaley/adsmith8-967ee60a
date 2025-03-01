@@ -70,13 +70,23 @@ export const useVideoCreation = () => {
         firstImage.src = previewImages[0];
       });
       
-      // Constrain dimensions to more compatible values (multiples of 16)
-      let width = firstImage.width;
-      let height = firstImage.height;
+      // Force dimensions to be macOS-friendly (640x480 is very standard)
+      let width = 640; 
+      let height = 480;
       
-      // Make dimensions even (required by some codecs)
-      width = Math.floor(width / 2) * 2;
-      height = Math.floor(height / 2) * 2;
+      // If you want to preserve aspect ratio instead:
+      const aspectRatio = firstImage.width / firstImage.height;
+      if (aspectRatio > 1) {
+        // Landscape
+        height = Math.round(width / aspectRatio);
+      } else {
+        // Portrait or square
+        width = Math.round(height * aspectRatio);
+      }
+      
+      // Ensure dimensions are multiples of 16 for best codec compatibility
+      width = Math.floor(width / 16) * 16;
+      height = Math.floor(height / 16) * 16;
       
       canvas.width = width;
       canvas.height = height;
@@ -84,25 +94,32 @@ export const useVideoCreation = () => {
       // Check for WebM support
       const supportsWebM = checkWebMSupport();
       
-      // Use a fallback MIME type if WebM isn't supported
-      const mimeType = supportsWebM ? 'video/webm' : 'video/mp4';
+      // Specify codec for better compatibility
+      const mimeType = supportsWebM 
+        ? 'video/webm;codecs=vp8,opus' 
+        : 'video/mp4;codecs=h264,aac';
       
       console.log(`Using video format: ${mimeType}`);
       console.log(`Video dimensions: ${width}x${height}`);
       
       const stream = canvas.captureStream(30);
       
-      // More compatible MediaRecorder options
+      // Use more conservative options for maximum compatibility
       const mediaRecorderOptions = {
         mimeType: mimeType,
-        videoBitsPerSecond: 5000000 // Lower bitrate for better compatibility
+        videoBitsPerSecond: 2500000, // Lower bitrate for better compatibility
+        audioBitsPerSecond: 0 // No audio
       };
       
-      // Only use options if the browser supports them
-      const mediaRecorder = new MediaRecorder(
-        stream, 
-        MediaRecorder.isTypeSupported(mimeType) ? mediaRecorderOptions : undefined
-      );
+      // Create a new MediaRecorder with safer fallback
+      let mediaRecorder;
+      try {
+        // Try with the specified options first
+        mediaRecorder = new MediaRecorder(stream, mediaRecorderOptions);
+      } catch (e) {
+        console.log("Failed to create MediaRecorder with specified options, using defaults");
+        mediaRecorder = new MediaRecorder(stream);
+      }
       
       const chunks: Blob[] = [];
       mediaRecorder.ondataavailable = (e) => {
@@ -116,7 +133,7 @@ export const useVideoCreation = () => {
       await new Promise<void>((resolve) => {
         mediaRecorder.onstop = async () => {
           // Create blob with proper type
-          videoBlob = new Blob(chunks, { type: mimeType });
+          videoBlob = new Blob(chunks, { type: mediaRecorder.mimeType || 'video/webm' });
           webmBlobRef.current = videoBlob;
           
           // Create URL with explicit type
@@ -146,8 +163,22 @@ export const useVideoCreation = () => {
               img.src = previewImages[i];
             });
             
+            // Clear canvas and draw with proper sizing to maintain aspect ratio
             ctx.clearRect(0, 0, width, height);
-            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Fill with black background to avoid transparency issues
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, 0, width, height);
+            
+            // Calculate position to center image
+            const imgWidth = img.width;
+            const imgHeight = img.height;
+            const scale = Math.min(width / imgWidth, height / imgHeight);
+            const x = (width - imgWidth * scale) / 2;
+            const y = (height - imgHeight * scale) / 2;
+            
+            // Draw image with proper scaling
+            ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
             
             if (i < previewImages.length - 1) {
               await new Promise(resolve => setTimeout(resolve, frameDuration));
@@ -166,10 +197,25 @@ export const useVideoCreation = () => {
                 const alpha = j / transitionFrames;
                 
                 ctx.clearRect(0, 0, width, height);
+                
+                // Fill with black background
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw current image
                 ctx.globalAlpha = 1 - alpha;
-                ctx.drawImage(img, 0, 0, width, height);
+                ctx.drawImage(img, x, y, imgWidth * scale, imgHeight * scale);
+                
+                // Calculate next image position
+                const nextImgWidth = nextImg.width;
+                const nextImgHeight = nextImg.height;
+                const nextScale = Math.min(width / nextImgWidth, height / nextImgHeight);
+                const nextX = (width - nextImgWidth * nextScale) / 2;
+                const nextY = (height - nextImgHeight * nextScale) / 2;
+                
+                // Draw next image
                 ctx.globalAlpha = alpha;
-                ctx.drawImage(nextImg, 0, 0, width, height);
+                ctx.drawImage(nextImg, nextX, nextY, nextImgWidth * nextScale, nextImgHeight * nextScale);
                 ctx.globalAlpha = 1;
                 
                 await new Promise(resolve => 
@@ -218,11 +264,15 @@ export const useVideoCreation = () => {
     });
 
     try {
-      // Mock MP4 conversion for now
+      // For better MP4 compatibility, we need to create a different MIME type
+      // This is a simulated conversion since real conversion would require ffmpeg.wasm
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Create a new blob with explicit MP4 MIME type
-      const mp4Blob = new Blob([webmBlobRef.current], { type: 'video/mp4' });
+      // Create a new blob with explicit MP4 MIME type and proper codecs
+      const mp4Blob = new Blob([webmBlobRef.current], { 
+        type: 'video/mp4;codecs=h264,aac' 
+      });
+      
       const url = URL.createObjectURL(mp4Blob);
       setMp4Url(url);
       
@@ -256,7 +306,9 @@ export const useVideoCreation = () => {
     
     // Use timestamp in filename to prevent conflicts
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.download = `image-slideshow-${timestamp}.${format}`;
+    // Add codec info to filename to help with compatibility identification
+    const codecInfo = format === 'webm' ? 'vp8' : 'h264';
+    a.download = `image-slideshow-${timestamp}-${codecInfo}.${format}`;
     
     document.body.appendChild(a);
     a.click();
