@@ -2,13 +2,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface StateSelectionMapProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-// localStorage key for storing the Mapbox token
+// Fallback: localStorage key for storing the Mapbox token when not using Supabase
 const MAPBOX_TOKEN_KEY = "mapbox_access_token";
 
 const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
@@ -17,18 +19,67 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
   const [mapboxToken, setMapboxToken] = useState<string>(
     localStorage.getItem(MAPBOX_TOKEN_KEY) || ""
   );
+  const [tokenLoading, setTokenLoading] = useState(false);
   const [selectedStates, setSelectedStates] = useState<string[]>(
     value ? value.split(", ") : []
   );
   const [mapInitialized, setMapInitialized] = useState(false);
 
+  // Try to fetch the Mapbox token from Supabase secrets on component mount
+  useEffect(() => {
+    const fetchMapboxToken = async () => {
+      setTokenLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("get-mapbox-token");
+        if (error) {
+          console.error("Error fetching Mapbox token:", error);
+          // Fallback to localStorage if there's an error
+          const savedToken = localStorage.getItem(MAPBOX_TOKEN_KEY);
+          if (savedToken) {
+            setMapboxToken(savedToken);
+          }
+        } else if (data?.mapboxToken) {
+          setMapboxToken(data.mapboxToken);
+          // Still save to localStorage as a fallback
+          localStorage.setItem(MAPBOX_TOKEN_KEY, data.mapboxToken);
+        }
+      } catch (err) {
+        console.error("Failed to fetch Mapbox token:", err);
+      } finally {
+        setTokenLoading(false);
+      }
+    };
+
+    // Only try to fetch if we don't already have a token
+    if (!mapboxToken) {
+      fetchMapboxToken();
+    }
+  }, []);
+
   // For demo purposes, allow users to input their Mapbox token
-  const handleTokenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTokenChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newToken = e.target.value;
     setMapboxToken(newToken);
-    // Save the token to localStorage whenever it changes
+    
+    // Save the token to localStorage as a fallback
     if (newToken) {
       localStorage.setItem(MAPBOX_TOKEN_KEY, newToken);
+      
+      // Also try to save to Supabase secrets
+      try {
+        const { error } = await supabase.functions.invoke("save-mapbox-token", {
+          body: { mapboxToken: newToken },
+        });
+        
+        if (error) {
+          console.error("Error saving Mapbox token to secrets:", error);
+          toast.error("Failed to save token to secure storage.");
+        } else {
+          toast.success("Token saved securely!");
+        }
+      } catch (err) {
+        console.error("Failed to save Mapbox token to secrets:", err);
+      }
     }
   };
 
@@ -225,7 +276,9 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
 
   return (
     <div className="space-y-2 w-full">
-      {!mapboxToken && (
+      {tokenLoading ? (
+        <div className="text-sm">Loading Mapbox token...</div>
+      ) : !mapboxToken ? (
         <div className="mb-2 w-full">
           <input
             type="text"
@@ -245,7 +298,7 @@ const StateSelectionMap = ({ value, onChange }: StateSelectionMapProps) => {
             </a>
           </p>
         </div>
-      )}
+      ) : null}
       <div
         ref={mapContainer}
         className="w-1/2 h-64 rounded-md border"

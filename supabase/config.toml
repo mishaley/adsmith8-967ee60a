@@ -32,3 +32,8 @@ enabled = true
 verify_jwt = false
 [functions.save-transcription-correction]
 verify_jwt = false
+[functions.get-mapbox-token]
+verify_jwt = false
+[functions.save-mapbox-token]
+verify_jwt = false
+
