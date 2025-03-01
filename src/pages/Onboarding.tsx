@@ -68,12 +68,7 @@ const Onboarding = () => {
           
           if (data?.text) {
             const finalText = data.text;
-            setSellingPoints(prev => {
-              if (tempTranscript) {
-                return prev.replace(tempTranscript, finalText);
-              }
-              return (prev ? prev + ' ' : '') + finalText;
-            });
+            setSellingPoints(finalText);
             setTempTranscript("");
           }
         } catch (error) {
@@ -111,12 +106,8 @@ const Onboarding = () => {
             
             if (interimTranscript) {
               setTempTranscript(interimTranscript);
-              setSellingPoints(prev => {
-                if (tempTranscript) {
-                  return prev.replace(tempTranscript, interimTranscript);
-                } 
-                return (prev ? prev + ' ' : '') + interimTranscript;
-              });
+              // Replace the content completely instead of appending
+              setSellingPoints(interimTranscript);
             }
           };
           
@@ -243,7 +234,7 @@ const Onboarding = () => {
                               ? 'Recording...' 
                               : isTranscribing 
                                 ? 'Transcribing...' 
-                                : 'Hold to talk'}
+                                : 'Hold'}
                           </Button>
                         </div>
                       </div>
