@@ -114,40 +114,15 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           <div className="w-full">
             <table className="w-full border-collapse">
               <tbody>
+                {/* Persona descriptions row */}
                 <tr>
                   {personas.length > 0 ? (
                     personas.map((persona, index) => (
                       <td key={index} className="py-3 px-3 border-r align-top" style={{ width: "20%" }}>
-                        <div className="flex flex-col h-full">
+                        <div className="flex flex-col">
                           <div className="font-medium">{persona.title}</div>
                           <div>{persona.gender}, age {persona.ageMin}-{persona.ageMax}</div>
                           <div>{persona.interests.join(", ")}</div>
-                          <div className="mt-3">
-                            {persona.portraitUrl ? (
-                              <img 
-                                src={persona.portraitUrl} 
-                                alt={`Portrait of ${persona.title}`}
-                                className="w-full h-auto rounded-md"
-                              />
-                            ) : (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => generatePortrait(persona, index)}
-                                disabled={generatingPortraitFor !== null}
-                                className="w-full mt-1"
-                              >
-                                {generatingPortraitFor === index ? (
-                                  <>
-                                    <Loader className="h-4 w-4 animate-spin mr-2" />
-                                    Generating...
-                                  </>
-                                ) : (
-                                  "Generate Portrait"
-                                )}
-                              </Button>
-                            )}
-                          </div>
                         </div>
                       </td>
                     ))
@@ -157,6 +132,48 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                     ))
                   )}
                 </tr>
+                
+                {/* Portraits row */}
+                <tr>
+                  {personas.length > 0 ? (
+                    personas.map((persona, index) => (
+                      <td key={index} className="py-3 px-3 border-r" style={{ width: "20%" }}>
+                        <div className="flex flex-col items-center">
+                          {persona.portraitUrl ? (
+                            <img 
+                              src={persona.portraitUrl} 
+                              alt={`Portrait of ${persona.title}`}
+                              className="w-full h-auto rounded-md"
+                            />
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => generatePortrait(persona, index)}
+                              disabled={generatingPortraitFor !== null}
+                              className="w-full mt-1"
+                            >
+                              {generatingPortraitFor === index ? (
+                                <>
+                                  <Loader className="h-4 w-4 animate-spin mr-2" />
+                                  Generating...
+                                </>
+                              ) : (
+                                "Generate Portrait"
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    ))
+                  ) : (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
+                    ))
+                  )}
+                </tr>
+                
+                {/* Empty row for spacing/alignment */}
                 <tr>
                   {Array.from({ length: 5 }).map((_, index) => (
                     <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
