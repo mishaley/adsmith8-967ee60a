@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader } from "lucide-react";
+import { Loader, Image } from "lucide-react";
 
 interface Persona {
   title: string;
@@ -30,10 +30,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   updatePersona
 }) => {
   const [generatingPortraitFor, setGeneratingPortraitFor] = useState<number | null>(null);
+  const [generatingAllPortraits, setGeneratingAllPortraits] = useState<boolean>(false);
   const { toast } = useToast();
 
   const generatePortrait = async (persona: Persona, index: number) => {
-    if (generatingPortraitFor !== null) return;
+    if (generatingPortraitFor !== null || generatingAllPortraits) return;
     
     setGeneratingPortraitFor(index);
     try {
@@ -92,6 +93,67 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     }
   };
 
+  const generateAllPortraits = async () => {
+    if (personas.length === 0 || generatingAllPortraits || generatingPortraitFor !== null) {
+      return;
+    }
+
+    setGeneratingAllPortraits(true);
+    toast({
+      title: "Generating All Portraits",
+      description: "Starting generation of portraits for all personas...",
+    });
+
+    try {
+      // Generate portraits for each persona sequentially
+      for (let i = 0; i < personas.length; i++) {
+        const persona = personas[i];
+        
+        // Skip if persona already has a portrait
+        if (persona.portraitUrl) {
+          continue;
+        }
+        
+        const prompt = `Portrait style magazine quality photo of a ${persona.gender}, age ${persona.ageMin}-${persona.ageMax}, who is ${persona.title.toLowerCase()}. ${persona.interests.join(", ")}. High-end fashion magazine photoshoot, professional lighting, clear facial features, headshot, pristine quality.`;
+        
+        const { data, error } = await supabase.functions.invoke('ideogram-test', {
+          body: { prompt }
+        });
+        
+        if (error) {
+          console.error(`Error generating portrait for persona ${i}:`, error);
+          continue; // Continue with the next persona even if one fails
+        }
+        
+        let imageUrl = null;
+        if (data.imageUrl) {
+          imageUrl = data.imageUrl;
+        } else if (data.data && data.data.length > 0 && data.data[0].url) {
+          imageUrl = data.data[0].url;
+        }
+        
+        if (imageUrl && updatePersona) {
+          const updatedPersona = { ...persona, portraitUrl: imageUrl };
+          updatePersona(i, updatedPersona);
+        }
+      }
+      
+      toast({
+        title: "All Portraits Generated",
+        description: "Finished generating portraits for all personas.",
+      });
+    } catch (error) {
+      console.error('Error in generating all portraits:', error);
+      toast({
+        title: "Portrait Generation Incomplete",
+        description: "Error occurred while generating all portraits.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingAllPortraits(false);
+    }
+  };
+
   return (
     <>
       <tr className="border-b">
@@ -105,6 +167,25 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
               size="sm"
             >
               {isGeneratingPersonas ? "Generating..." : "Generate"}
+            </Button>
+            <Button 
+              onClick={generateAllPortraits} 
+              disabled={generatingAllPortraits || generatingPortraitFor !== null || personas.length === 0}
+              className="ml-2"
+              size="sm"
+              variant="outline"
+            >
+              {generatingAllPortraits ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin mr-2" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Image className="h-4 w-4 mr-2" />
+                  Portraits
+                </>
+              )}
             </Button>
           </div>
         </td>
@@ -151,7 +232,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                               variant="outline"
                               size="sm"
                               onClick={() => generatePortrait(persona, index)}
-                              disabled={generatingPortraitFor !== null}
+                              disabled={generatingPortraitFor !== null || generatingAllPortraits}
                               className="w-full mt-1"
                             >
                               {generatingPortraitFor === index ? (
