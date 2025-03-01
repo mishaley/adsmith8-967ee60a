@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,8 @@ interface PersonasSectionProps {
   updatePersona?: (index: number, updatedPersona: Persona) => void;
 }
 
+const SESSION_STORAGE_KEY = "personaPortraits";
+
 const PersonasSection: React.FC<PersonasSectionProps> = ({
   personas,
   summary,
@@ -32,6 +34,37 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   const [generatingPortraitFor, setGeneratingPortraitFor] = useState<number | null>(null);
   const [generatingAllPortraits, setGeneratingAllPortraits] = useState<boolean>(false);
   const { toast } = useToast();
+
+  // Load portraits from session storage when personas change
+  useEffect(() => {
+    if (personas.length > 0) {
+      try {
+        const storedPortraits = sessionStorage.getItem(SESSION_STORAGE_KEY);
+        if (storedPortraits) {
+          const portraitsData = JSON.parse(storedPortraits);
+          
+          // Update personas with stored portrait URLs
+          personas.forEach((persona, index) => {
+            if (portraitsData[index] && updatePersona) {
+              updatePersona(index, { ...persona, portraitUrl: portraitsData[index] });
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error loading portraits from session storage:", error);
+      }
+    }
+  }, [personas.length]); // Only run when the number of personas changes
+
+  // Save portrait URLs to session storage whenever a portrait is generated
+  const savePortraitsToSession = (personaList: Persona[]) => {
+    try {
+      const portraitUrls = personaList.map(p => p.portraitUrl || "");
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(portraitUrls));
+    } catch (error) {
+      console.error("Error saving portraits to session storage:", error);
+    }
+  };
 
   const generatePortrait = async (persona: Persona, index: number) => {
     if (generatingPortraitFor !== null || generatingAllPortraits) return;
@@ -68,6 +101,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
         // Update the persona in the parent component if callback is provided
         if (updatePersona) {
           updatePersona(index, updatedPersona);
+          
+          // Save all portraits to session storage
+          const updatedPersonas = [...personas];
+          updatedPersonas[index] = updatedPersona;
+          savePortraitsToSession(updatedPersonas);
         }
         
         toast({
@@ -135,6 +173,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
         if (imageUrl && updatePersona) {
           const updatedPersona = { ...persona, portraitUrl: imageUrl };
           updatePersona(i, updatedPersona);
+          
+          // Get updated personas with the new portrait
+          const updatedPersonas = [...personas];
+          updatedPersonas[i] = updatedPersona;
+          savePortraitsToSession(updatedPersonas);
         }
       }
       
@@ -217,42 +260,40 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 
                 {/* Portraits row */}
                 <tr>
-                  {personas.length > 0 ? (
-                    personas.map((persona, index) => (
-                      <td key={index} className="py-3 px-3 border-r" style={{ width: "20%" }}>
-                        <div className="flex flex-col items-center">
-                          {persona.portraitUrl ? (
-                            <img 
-                              src={persona.portraitUrl} 
-                              alt={`Portrait of ${persona.title}`}
-                              className="w-full h-auto rounded-md"
-                            />
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => generatePortrait(persona, index)}
-                              disabled={generatingPortraitFor !== null || generatingAllPortraits}
-                              className="w-full mt-1"
-                            >
-                              {generatingPortraitFor === index ? (
-                                <>
-                                  <Loader className="h-4 w-4 animate-spin mr-2" />
-                                  Generating...
-                                </>
-                              ) : (
-                                "Generate Portrait"
-                              )}
-                            </Button>
-                          )}
-                        </div>
-                      </td>
-                    ))
-                  ) : (
-                    Array.from({ length: 5 }).map((_, index) => (
-                      <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
-                    ))
-                  )}
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <td key={index} className="py-3 px-3 border-r" style={{ width: "20%" }}>
+                      <div className="flex flex-col items-center">
+                        {personas[index]?.portraitUrl ? (
+                          <img 
+                            src={personas[index].portraitUrl} 
+                            alt={`Portrait of ${personas[index]?.title || `Persona ${index + 1}`}`}
+                            className="w-full h-auto rounded-md"
+                          />
+                        ) : personas.length > 0 && index < personas.length ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generatePortrait(personas[index], index)}
+                            disabled={generatingPortraitFor !== null || generatingAllPortraits}
+                            className="w-full mt-1"
+                          >
+                            {generatingPortraitFor === index ? (
+                              <>
+                                <Loader className="h-4 w-4 animate-spin mr-2" />
+                                Generating...
+                              </>
+                            ) : (
+                              "Generate Portrait"
+                            )}
+                          </Button>
+                        ) : (
+                          <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
+                            No persona data
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  ))}
                 </tr>
                 
                 {/* Empty row for spacing/alignment */}
