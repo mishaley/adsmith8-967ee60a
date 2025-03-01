@@ -38,10 +38,6 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       let frameCount = 0;
       let currentImageIndex = 0;
       
-      // Draw the first image immediately
-      drawImageCentered(ctx, canvas, loadedImages[0]);
-      console.log(`Rendering image 1/${loadedImages.length}`);
-      
       mediaRecorder.onstop = () => {
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
         resolve(videoBlob);
@@ -50,6 +46,10 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       // Start recording with smaller chunk size for more consistent processing
       mediaRecorder.start(500); 
       console.log("MediaRecorder started");
+      
+      // Draw the first image immediately (after MediaRecorder has started)
+      drawImageCentered(ctx, canvas, loadedImages[0]);
+      console.log(`Rendering image 1/${loadedImages.length}`);
       
       // Animation loop to render frames
       const renderFrame = () => {
