@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface VideoRenderingOptions {
@@ -14,6 +14,15 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const mp4BlobRef = useRef<Blob | null>(null);
 
+  // Clean up any previous blob URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (mp4Url) {
+        URL.revokeObjectURL(mp4Url);
+      }
+    };
+  }, [mp4Url]);
+
   const createVideo = async () => {
     if (previewImages.length === 0) {
       toast({
@@ -27,18 +36,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
     setIsCreatingVideo(true);
     
     try {
-      // Create canvas element if it doesn't exist
-      if (!canvasRef.current) {
-        canvasRef.current = document.createElement('canvas');
-      }
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      
-      if (!ctx) {
-        throw new Error("Unable to create canvas context");
-      }
-      
-      // Clear any previous URL
+      // Clean up previous URL if it exists
       if (mp4Url) {
         URL.revokeObjectURL(mp4Url);
         setMp4Url(null);
@@ -46,7 +44,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
 
       console.log(`Starting to process ${previewImages.length} images for video creation`);
       
-      // Preload all images to get dimensions and ensure they're ready
+      // Load all images first to get dimensions and ensure they're loaded
       const loadedImages = await Promise.all(
         previewImages.map(src => {
           return new Promise<HTMLImageElement>((resolve, reject) => {
@@ -61,59 +59,74 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
 
       console.log(`Successfully loaded ${loadedImages.length} images`);
       
-      // Calculate dimensions based on image aspect ratios
-      const avgAspectRatio = loadedImages.reduce(
-        (sum, img) => sum + (img.naturalWidth / img.naturalHeight), 
-        0
-      ) / loadedImages.length;
+      // Create canvas for rendering
+      if (!canvasRef.current) {
+        canvasRef.current = document.createElement('canvas');
+      }
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
       
-      // Use higher resolution for better quality
+      if (!ctx) {
+        throw new Error("Unable to create canvas context");
+      }
+
+      // Calculate dimensions - use fixed size for better quality
+      const width = 1920; // Full HD width
       const height = 1080; // Full HD height
-      let width = Math.round(height * avgAspectRatio);
-      // Ensure width is even (required for video encoding)
-      width = width % 2 === 0 ? width : width + 1;
       
       canvas.width = width;
       canvas.height = height;
       
-      console.log(`Video dimensions: ${width}x${height}, aspect ratio: ${avgAspectRatio.toFixed(2)}`);
+      console.log(`Video dimensions: ${width}x${height}`);
       
-      // Higher bitrate for better quality
-      const bitrate = 20000000; // 20 Mbps
-      const framerate = 30; // 30fps for smooth transitions
+      // Configure high quality settings
+      const framerate = 30; // 30fps
+      const secondsPerImage = 2; // Each image shows for 2 seconds
+      const framesPerImage = framerate * secondsPerImage;
+      const totalFrames = previewImages.length * framesPerImage;
       
-      // Set up MediaRecorder with optimal settings
+      // Set up MediaRecorder with high bitrate
       const stream = canvas.captureStream(framerate);
       
-      // Force 'video/mp4' as the MIME type
-      const mimeType = 'video/mp4';
+      // Try different MIME types in order of preference
+      const videoOptions = [
+        { mimeType: 'video/mp4; codecs=avc1.42E01E', bitrate: 8000000 },
+        { mimeType: 'video/webm; codecs=vp9', bitrate: 8000000 },
+        { mimeType: 'video/webm', bitrate: 8000000 }
+      ];
       
-      let mediaRecorder;
+      let mediaRecorder: MediaRecorder | null = null;
+      let selectedMimeType = '';
       
-      // Check if video/mp4 is supported
-      if (MediaRecorder.isTypeSupported(mimeType)) {
-        mediaRecorder = new MediaRecorder(stream, {
-          mimeType: mimeType,
-          videoBitsPerSecond: bitrate
-        });
-        console.log(`Using MIME type: ${mimeType}`);
-      } else {
-        // Fallback to browser default if video/mp4 is not supported
-        mediaRecorder = new MediaRecorder(stream);
-        console.log(`MIME type ${mimeType} not supported, using browser default`);
+      // Find the first supported MIME type
+      for (const option of videoOptions) {
+        if (MediaRecorder.isTypeSupported(option.mimeType)) {
+          mediaRecorder = new MediaRecorder(stream, {
+            mimeType: option.mimeType,
+            videoBitsPerSecond: option.bitrate
+          });
+          selectedMimeType = option.mimeType;
+          console.log(`Using MIME type: ${option.mimeType} with bitrate: ${option.bitrate / 1000000}Mbps`);
+          break;
+        }
       }
       
-      const videoChunks: Blob[] = [];
+      if (!mediaRecorder) {
+        // Fallback to browser default
+        mediaRecorder = new MediaRecorder(stream);
+        console.log('Using browser default MediaRecorder options');
+      }
       
-      // Collect video data chunks
+      const chunks: Blob[] = [];
+      
       mediaRecorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
-          videoChunks.push(e.data);
+          chunks.push(e.data);
           console.log(`Received data chunk of size ${e.data.size} bytes`);
         }
       };
       
-      // Function to draw an image centered on canvas
+      // Draw an image centered on canvas with black background
       const drawImageCentered = (img: HTMLImageElement) => {
         // Fill with black background
         ctx.fillStyle = "#000000";
@@ -123,7 +136,7 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         const imgRatio = img.naturalWidth / img.naturalHeight;
         let drawWidth, drawHeight, x, y;
         
-        if (imgRatio > avgAspectRatio) {
+        if (imgRatio > width / height) {
           // Image is wider than canvas ratio
           drawWidth = width;
           drawHeight = width / imgRatio;
@@ -140,86 +153,84 @@ export const useVideoRendering = ({ previewImages }: VideoRenderingOptions) => {
         ctx.drawImage(img, x, y, drawWidth, drawHeight);
       };
       
-      return new Promise<Blob | null>((videoResolve) => {
+      return new Promise<Blob | null>((resolve) => {
+        let frameCount = 0;
         let currentImageIndex = 0;
-        const frameDuration = 2000; // 2 seconds per image
-        const recordingPadding = 500; // Extra time to ensure last frame is captured
         
-        // Handle recording finished
         mediaRecorder.onstop = () => {
-          if (videoChunks.length === 0) {
+          if (chunks.length === 0) {
             console.error("No video data was recorded");
             toast({
               title: "Video Creation Failed",
-              description: "No video data was recorded. Please try again.",
+              description: "No video data was recorded. Please try again with a different browser.",
               variant: "destructive",
             });
-            videoResolve(null);
+            resolve(null);
             return;
           }
           
-          // Create final video blob with proper MIME type
-          const videoBlob = new Blob(videoChunks, { type: 'video/mp4' });
+          // Create the final blob with the proper MIME type
+          const finalMimeType = selectedMimeType.split(';')[0] || 'video/mp4';
+          const videoBlob = new Blob(chunks, { type: finalMimeType });
           mp4BlobRef.current = videoBlob;
           
           console.log(`Final video size: ${(videoBlob.size / (1024 * 1024)).toFixed(2)} MB`);
           
-          // Generate URL for playback
           const url = URL.createObjectURL(videoBlob);
           setMp4Url(url);
           
-          // Check if the video size is reasonable
-          if (videoBlob.size < 500000) { // Less than 500KB
+          if (videoBlob.size < 1000000) { // Less than 1MB
             toast({
               title: "Warning: Small File Size",
-              description: "The generated video is very small, which might indicate encoding issues. Try a different browser if the video doesn't play correctly.",
-              variant: "destructive",
+              description: "The generated video is small, which might indicate encoding issues. Try a different browser if needed.",
+              variant: "warning",
             });
           } else {
             toast({
               title: "Video Created Successfully",
-              description: `MP4 video created (${(videoBlob.size / (1024 * 1024)).toFixed(2)} MB)`,
+              description: `Video created (${(videoBlob.size / (1024 * 1024)).toFixed(2)} MB)`,
             });
           }
           
-          videoResolve(videoBlob);
+          resolve(videoBlob);
         };
         
-        // Start recording
-        mediaRecorder.start();
+        mediaRecorder.start(1000); // Collect data in 1-second chunks
         console.log("MediaRecorder started");
         
-        // Function to process each image in sequence
-        const processNextImage = () => {
-          if (currentImageIndex < loadedImages.length) {
-            const img = loadedImages[currentImageIndex];
-            console.log(`Processing image ${currentImageIndex + 1}/${loadedImages.length}`);
-            
-            // Draw current image
-            drawImageCentered(img);
-            
-            // Schedule next image
-            currentImageIndex++;
-            setTimeout(processNextImage, frameDuration);
-          } else {
-            // When all images are processed, ensure we capture the last frame
-            // by waiting a bit before stopping the recorder
-            console.log("All images processed, waiting for final frame capture");
-            setTimeout(() => {
-              console.log("Stopping MediaRecorder");
-              mediaRecorder.stop();
-            }, recordingPadding);
+        // Animation loop to render frames
+        const renderFrame = () => {
+          if (frameCount >= totalFrames) {
+            console.log(`Rendering complete. Total frames: ${frameCount}`);
+            mediaRecorder.stop();
+            return;
           }
+          
+          // Calculate which image to show based on current frame
+          const imageIndex = Math.min(
+            Math.floor(frameCount / framesPerImage),
+            loadedImages.length - 1
+          );
+          
+          // Only redraw when changing images
+          if (imageIndex !== currentImageIndex) {
+            currentImageIndex = imageIndex;
+            console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length}`);
+            drawImageCentered(loadedImages[currentImageIndex]);
+          }
+          
+          frameCount++;
+          requestAnimationFrame(renderFrame);
         };
         
-        // Start processing images after a short delay to ensure recorder is ready
-        setTimeout(processNextImage, 100);
+        // Start rendering
+        renderFrame();
       });
     } catch (error) {
       console.error('Error creating video:', error);
       toast({
         title: "Video Creation Failed",
-        description: `Error: ${error.message || 'Unknown error occurred'}`,
+        description: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
         variant: "destructive",
       });
       return null;

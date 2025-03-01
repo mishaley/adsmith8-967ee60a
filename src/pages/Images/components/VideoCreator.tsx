@@ -114,7 +114,7 @@ const VideoCreator = () => {
             </video>
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            The video is in MP4 format with {previewImages.length} images, each displayed for 2 seconds.
+            The video is in high-quality 1080p MP4 format with {previewImages.length} images, each displayed for 2 seconds.
             Expected duration: {calculateDuration()}.
           </p>
         </div>
