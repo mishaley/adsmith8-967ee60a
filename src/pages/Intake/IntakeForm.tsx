@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import FormField from "./components/FormField";
@@ -52,13 +53,16 @@ const IntakeForm = () => {
                       <div>What's your brand name?</div>
                     </td>
                     <td className="py-4">
-                      <div className="w-96">
-                        <input
-                          type="text"
-                          value={brandName}
-                          onChange={e => setBrandName(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        />
+                      <div className="flex items-center gap-3">
+                        <div className="w-96">
+                          <input
+                            type="text"
+                            value={brandName}
+                            onChange={e => setBrandName(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                          />
+                        </div>
+                        <Button onClick={handleSave}>Save</Button>
                       </div>
                     </td>
                   </tr>
