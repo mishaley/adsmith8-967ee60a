@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mic, ArrowRight } from "lucide-react";
+import { Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Onboarding = () => {
@@ -76,7 +76,7 @@ const Onboarding = () => {
                               className="bg-white/80 text-sm text-gray-500 cursor-pointer w-full mx-2 mb-1"
                             >
                               <Mic size={18} className="text-blue-500 mr-1" />
-                              Hold to talk <ArrowRight size={14} className="ml-1" />
+                              Hold to talk
                             </Button>
                           </div>
                         </div>
