@@ -12,6 +12,7 @@ const IntakeForm = () => {
   const [sellingPoints, setSellingPoints] = useState("");
   const [problemsSolved, setProblemsSolved] = useState("");
   const [uniqueOffering, setUniqueOffering] = useState("");
+  const [geoBoundaries, setGeoBoundaries] = useState("");
 
   return (
     <QuadrantLayout>
@@ -62,6 +63,12 @@ const IntakeForm = () => {
                     value={uniqueOffering}
                     onChange={setUniqueOffering}
                     placeholder="Speak for at least 30 seconds"
+                  />
+                  <FormField
+                    label="Geo Boundaries"
+                    helperText="Interactive map that allows for selection down to the state level"
+                    value={geoBoundaries}
+                    onChange={(e) => setGeoBoundaries(e.target.value)}
                   />
                   <tr className="border-b">
                     <td className="py-4 pr-4 text-lg"></td>
