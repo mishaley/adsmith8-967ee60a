@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Access the SpeechRecognition API with proper type handling
-// Use proper type assertion to avoid TypeScript errors
 const SpeechRecognitionAPI = (window as any).SpeechRecognition || 
                              (window as any).webkitSpeechRecognition;
 
@@ -221,7 +219,7 @@ const Onboarding = () => {
                               ? 'Recording...' 
                               : isTranscribing 
                                 ? 'Transcribing...' 
-                                : 'Hold'}
+                                : 'Hold and Talk'}
                           </Button>
                         </div>
                         <div className="w-full">
