@@ -1,4 +1,3 @@
-
 import { setupCanvas, loadImages, drawImageCentered } from "./useCanvasUtils";
 import { createMediaRecorder, getMimeType } from "./useMediaRecorder";
 
@@ -18,7 +17,6 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     const framerate = 30; // 30fps
     const secondsPerImage = 2; // Each image shows for exactly 2 seconds
     const framesPerImage = framerate * secondsPerImage;
-    const totalFrames = previewImages.length * framesPerImage;
     
     // Set up MediaRecorder with high bitrate
     const stream = canvas.captureStream(framerate);
@@ -35,11 +33,10 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
     });
     
     return new Promise<Blob | null>((resolve) => {
-      let frameCount = 0;
       let currentImageIndex = 0;
-      let startTime: number;
       
       mediaRecorder.onstop = () => {
+        console.log("MediaRecorder stopped, finalizing video");
         const videoBlob = finalizeVideoBlob(chunks, mediaRecorder, toast);
         resolve(videoBlob);
       };
@@ -48,50 +45,30 @@ export const processImagesIntoVideo = async (previewImages: string[], toast: any
       mediaRecorder.start(500); 
       console.log("MediaRecorder started");
       
-      // Draw the first image immediately (after MediaRecorder has started)
+      // Draw the first image immediately
       drawImageCentered(ctx, canvas, loadedImages[0]);
       console.log(`Rendering image 1/${loadedImages.length}`);
       
-      // Animation loop to render frames with precise timing
-      const renderFrame = (timestamp: number) => {
-        // Initialize start time on first frame
-        if (frameCount === 0) {
-          startTime = timestamp;
-        }
+      // Create a simple timekeeper using setInterval for reliable timing
+      let imageCounter = 0;
+      const intervalId = setInterval(() => {
+        imageCounter++;
         
-        // Calculate elapsed time in seconds
-        const elapsedSeconds = (timestamp - startTime) / 1000;
-        
-        // Calculate which image should be showing based on elapsed time
-        const targetImageIndex = Math.min(
-          Math.floor(elapsedSeconds / secondsPerImage),
-          loadedImages.length - 1
-        );
-        
-        // Only redraw when changing images
-        if (targetImageIndex !== currentImageIndex) {
-          currentImageIndex = targetImageIndex;
-          console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length} at ${elapsedSeconds.toFixed(2)}s`);
-          drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
-        }
-        
-        // Calculate expected frame number based on elapsed time
-        frameCount = Math.floor(elapsedSeconds * framerate);
-        
-        // Check if we've reached the end
-        if (currentImageIndex >= loadedImages.length - 1 && 
-            elapsedSeconds >= (loadedImages.length * secondsPerImage)) {
-          console.log(`Rendering complete. Total duration: ${elapsedSeconds.toFixed(2)}s`);
-          mediaRecorder.stop();
+        if (imageCounter >= loadedImages.length) {
+          // We've shown all images, stop recording
+          clearInterval(intervalId);
+          console.log("All images rendered, stopping MediaRecorder");
+          setTimeout(() => {
+            mediaRecorder.stop();
+          }, 500); // Small delay to ensure the last frame is captured
           return;
         }
         
-        // Request next frame
-        requestAnimationFrame(renderFrame);
-      };
-      
-      // Start rendering with requestAnimationFrame for better timing
-      requestAnimationFrame(renderFrame);
+        // Move to the next image
+        currentImageIndex = imageCounter;
+        console.log(`Rendering image ${currentImageIndex + 1}/${loadedImages.length}`);
+        drawImageCentered(ctx, canvas, loadedImages[currentImageIndex]);
+      }, secondsPerImage * 1000); // Convert seconds to milliseconds
     });
   } catch (error) {
     console.error('Error in processImagesIntoVideo:', error);

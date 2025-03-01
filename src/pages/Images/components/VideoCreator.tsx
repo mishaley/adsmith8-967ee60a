@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Upload, Video, Download, Loader } from "lucide-react";
 import { useVideoCreation } from "../hooks/video/useVideoCreation";
+import { useState, useEffect } from "react";
 
 const VideoCreator = () => {
   const {
@@ -16,6 +17,32 @@ const VideoCreator = () => {
     handleDownloadVideo,
     triggerFileInput
   } = useVideoCreation();
+  
+  const [creationProgress, setCreationProgress] = useState("");
+  
+  // Update progress message while creating video
+  useEffect(() => {
+    if (isCreatingVideo) {
+      const messages = [
+        "Loading images...",
+        "Setting up canvas...",
+        "Recording frames...",
+        "Processing video...",
+        "Almost there..."
+      ];
+      
+      let index = 0;
+      const progressInterval = setInterval(() => {
+        setCreationProgress(messages[index % messages.length]);
+        index++;
+      }, 2000);
+      
+      return () => {
+        clearInterval(progressInterval);
+        setCreationProgress("");
+      };
+    }
+  }, [isCreatingVideo]);
 
   // Calculate expected video duration
   const calculateDuration = () => {
@@ -43,6 +70,7 @@ const VideoCreator = () => {
             onClick={triggerFileInput} 
             variant="outline" 
             className="gap-2"
+            disabled={isCreatingVideo}
           >
             <Upload className="h-4 w-4" />
             Select Images
@@ -58,7 +86,7 @@ const VideoCreator = () => {
           <Button 
             onClick={createVideo} 
             disabled={isCreatingVideo || previewImages.length === 0}
-            className="gap-2"
+            className="gap-2 min-w-[130px]"
           >
             {isCreatingVideo ? <Loader className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
             {isCreatingVideo ? "Creating..." : "Create Video"}
@@ -73,6 +101,16 @@ const VideoCreator = () => {
           </span>
         )}
       </div>
+      
+      {isCreatingVideo && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md text-blue-600">
+          <div className="flex items-center gap-2">
+            <Loader className="h-4 w-4 animate-spin" />
+            <span>{creationProgress}</span>
+          </div>
+          <p className="text-xs mt-1">Please wait while your video is being created. This may take a moment.</p>
+        </div>
+      )}
       
       {previewImages.length > 0 && (
         <div className="mt-4 mb-4">
