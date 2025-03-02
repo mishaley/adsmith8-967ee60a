@@ -72,10 +72,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <div className="w-full">
               <table className="w-full border-collapse">
                 <tbody>
-                  <PersonasList 
-                    personas={personas} 
-                    isGeneratingPortraits={isGeneratingPortraits}
-                  />
+                  <PersonasList personas={personas} />
                   <PortraitRow 
                     personas={personas}
                     isGeneratingPortraits={isGeneratingPortraits}
