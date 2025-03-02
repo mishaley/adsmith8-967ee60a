@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -126,7 +125,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       </tr>
       <tr>
         <td colSpan={2} className="p-4">
-          <div className="flex flex-wrap gap-2 mb-4 items-start">
+          <div className="flex flex-wrap mb-4 items-start">
             <MessageTypeSelector 
               selectedMessageTypes={selectedMessageTypes}
               toggleMessageType={toggleMessageType}

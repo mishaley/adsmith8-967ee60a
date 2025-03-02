@@ -46,7 +46,7 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
         variant={selectedMessageTypes.includes("user-provided") ? "default" : "outline"} 
         size="sm" 
         onClick={() => toggleMessageType("user-provided")}
-        className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''} ${selectedMessageTypes.includes("user-provided") ? 'rounded-r-none border-r-0' : ''}`}
+        className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''} ${selectedMessageTypes.includes("user-provided") ? 'rounded-r-none border-r-0 z-10' : ''}`}
         disabled={!isLoaded}
       >
         User Provided
