@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../../../components/Personas/types";
 import { normalizeGender } from "../../../utils/personaUtils";
-import { getRandomRace, enhancePersonaTitle } from "../utils/personaGenerationUtils";
+import { getRandomRace } from "../utils/personaGenerationUtils";
 
 /**
  * Generate multiple personas through the Supabase function
@@ -50,12 +50,9 @@ const enhancePersonas = (personasData: Persona[]): Persona[] => {
       persona.race = randomRace;
     }
     
-    const enhancedTitle = enhancePersonaTitle(persona.title, persona.interests);
-    
     return {
       ...persona,
-      gender: normalizeGender(persona.gender),
-      title: enhancedTitle
+      gender: normalizeGender(persona.gender)
     };
   });
 };
