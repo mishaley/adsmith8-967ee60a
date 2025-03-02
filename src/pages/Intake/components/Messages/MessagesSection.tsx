@@ -32,7 +32,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   // Use the first persona ID or empty string if no personas
   const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
   
-  // Create a single message type string for the query (comma-separated)
+  // Fix for "Type instantiation is excessively deep and possibly infinite" error:
+  // Create a derived messageTypes value that doesn't change on every render
   const messageTypeString = selectedMessageTypes.join(',');
   
   const {

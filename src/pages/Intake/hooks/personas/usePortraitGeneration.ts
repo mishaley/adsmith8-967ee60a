@@ -27,6 +27,7 @@ export const usePortraitGeneration = () => {
         };
       }
       
+      // The portrait service now has built-in unlimited retries
       const { imageUrl, error } = await generatePersonaPortrait(personaToUse);
       
       // Remove this index from loading indices

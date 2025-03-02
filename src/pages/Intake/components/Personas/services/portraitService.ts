@@ -42,14 +42,10 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     if (error) {
       console.error('Error generating portrait:', error.message, error);
       
-      // Retry logic if we have retries left
-      if (retryCount > 0) {
-        console.log(`Retrying portrait generation. Attempts left: ${retryCount}`);
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait before retry
-        return generatePersonaPortrait(persona, retryCount - 1);
-      }
-      
-      return { imageUrl: null, error };
+      // Always retry on error, no limit on retries
+      console.log(`Retrying portrait generation. Waiting 3 seconds before retry.`);
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+      return generatePersonaPortrait(persona, retryCount);
     }
     
     console.log("Portrait generation response data:", data);
@@ -62,13 +58,12 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
       imageUrl = data.data[0].url;
     }
     
-    // If we got a response but no image URL, that's also an error
+    // If we got a response but no image URL, that's also an error - retry
     if (!imageUrl) {
       console.error('No image URL in response:', data);
-      return { 
-        imageUrl: null, 
-        error: new Error('No image URL in response') 
-      };
+      console.log(`No image URL in response. Retrying. Waiting 3 seconds before retry.`);
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+      return generatePersonaPortrait(persona, retryCount);
     }
     
     // Validate image URL by checking if it's a valid URL
@@ -78,16 +73,16 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
       return { imageUrl, error: null };
     } catch (urlError) {
       console.error('Invalid image URL:', imageUrl);
-      return { 
-        imageUrl: null, 
-        error: new Error('Invalid image URL received') 
-      };
+      console.log(`Invalid image URL. Retrying. Waiting 3 seconds before retry.`);
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+      return generatePersonaPortrait(persona, retryCount);
     }
   } catch (error) {
     console.error('Error in portrait generation:', error);
-    return { 
-      imageUrl: null, 
-      error: error instanceof Error ? error : new Error('Unknown error occurred') 
-    };
+    
+    // Retry on any error
+    console.log(`Exception in portrait generation. Retrying. Waiting 3 seconds before retry.`);
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+    return generatePersonaPortrait(persona, retryCount);
   }
 };

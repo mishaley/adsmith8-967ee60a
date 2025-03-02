@@ -59,16 +59,21 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                       className="w-full h-auto rounded-md"
                       onError={(e) => {
                         console.log(`Image failed to load for persona ${index + 1}:`, personas[index].portraitUrl);
-                        // Handle image loading errors
+                        // When image fails to load, we retry automatically
+                        if (onRetryPortrait) {
+                          console.log(`Auto-retrying portrait for persona ${index + 1} due to image load failure`);
+                          onRetryPortrait(index);
+                        }
+                        
+                        // Create a placeholder for failed images that will show until retry completes
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                         
-                        // Create a placeholder for failed images
                         const parentEl = target.parentElement;
                         if (parentEl) {
                           const placeholder = document.createElement('div');
                           placeholder.className = 'w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500';
-                          placeholder.innerText = 'Image failed to load';
+                          placeholder.innerText = 'Retrying...';
                           parentEl.appendChild(placeholder);
                         }
                       }}
@@ -101,12 +106,12 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                         <div className="flex flex-col items-center">
                           <AlertTriangle className="h-4 w-4 text-amber-500 mb-2" />
                           <div className="mb-2 text-center">
-                            {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation failed"}
+                            {isGeneratingPortraits ? "Waiting in queue..." : "Retry in progress..."}
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>The edge function may be unavailable or experiencing issues.</p>
+                        <p>Automatically retrying portrait generation...</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -119,7 +124,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                       className="mt-2 text-xs"
                     >
                       <RefreshCw className="h-3 w-3 mr-1" />
-                      Retry
+                      Retry Manually
                     </Button>
                   )}
                 </div>
