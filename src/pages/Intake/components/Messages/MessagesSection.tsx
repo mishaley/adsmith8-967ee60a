@@ -68,8 +68,11 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
                 </SelectTrigger>
                 <SelectContent>
                   {personas.map((persona, index) => (
-                    <SelectItem key={index} value={persona.id || index.toString()}>
-                      {persona.name}
+                    <SelectItem 
+                      key={index} 
+                      value={persona.id || index.toString()}
+                    >
+                      {persona.name || persona.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
