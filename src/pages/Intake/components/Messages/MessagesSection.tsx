@@ -14,15 +14,17 @@ interface MessagesSectionProps {
 
 const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
   const [selectedPersona, setSelectedPersona] = useState<string>("");
+  const [messageType, setMessageType] = useState<string>("pain-point");
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   
   const { data: messages = [], refetch } = useQuery({
-    queryKey: ["messages", selectedPersona],
+    queryKey: ["messages", selectedPersona, messageType],
     queryFn: async () => {
       const { data } = await supabase
         .from("d1messages")
         .select("*")
-        .eq("persona_id", selectedPersona || "none");
+        .eq("persona_id", selectedPersona || "none")
+        .eq("type", messageType);
       
       return data || [];
     },
@@ -56,6 +58,37 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       </tr>
       <tr>
         <td colSpan={2} className="p-4">
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Button 
+              variant={messageType === "pain-point" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setMessageType("pain-point")}
+            >
+              Pain Point
+            </Button>
+            <Button 
+              variant={messageType === "unique-offering" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setMessageType("unique-offering")}
+            >
+              Unique Offering
+            </Button>
+            <Button 
+              variant={messageType === "value-prop" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setMessageType("value-prop")}
+            >
+              Value Prop
+            </Button>
+            <Button 
+              variant={messageType === "user-provided" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setMessageType("user-provided")}
+            >
+              User Provided
+            </Button>
+          </div>
+          
           <div className="flex items-end gap-4 mb-4">
             <div className="w-64">
               <label className="block text-sm font-medium mb-1">Select Persona</label>
