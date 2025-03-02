@@ -126,7 +126,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       </tr>
       <tr>
         <td colSpan={2} className="p-4">
-          <div className="flex flex-wrap gap-2 mb-4 items-center">
+          <div className="flex flex-wrap gap-2 mb-4 items-start">
             <MessageTypeSelector 
               selectedMessageTypes={selectedMessageTypes}
               toggleMessageType={toggleMessageType}

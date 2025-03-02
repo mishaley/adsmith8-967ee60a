@@ -16,13 +16,13 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
   if (!isUserProvidedSelected) return null;
   
   return (
-    <div className="w-60 mr-4">
+    <div className="w-60 mr-4 flex items-start">
       <Input
         type="text"
         placeholder="Enter your custom message here..."
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full"
+        className="w-full h-9" // Match button height (h-9 from sm size buttons)
       />
     </div>
   );

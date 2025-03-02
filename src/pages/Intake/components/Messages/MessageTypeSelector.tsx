@@ -14,7 +14,7 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
   isLoaded
 }) => {
   return (
-    <div className="flex flex-wrap gap-2 mb-4 items-center">
+    <div className="flex flex-wrap gap-2 items-start">
       <Button 
         variant={selectedMessageTypes.includes("pain-point") ? "default" : "outline"} 
         size="sm" 
