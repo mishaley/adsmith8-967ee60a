@@ -26,11 +26,15 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index }) => {
         <div className="text-sm text-gray-500">
           {persona.gender}, {persona.ageMin}-{persona.ageMax}
         </div>
-        <div className="text-sm text-gray-500">
-          {persona.interests && persona.interests.length > 0 
-            ? persona.interests.join(", ") 
-            : "No interests"}
-        </div>
+        {persona.interests && persona.interests.length > 0 ? (
+          <div className="text-sm text-gray-500">
+            {persona.interests.map((interest, i) => (
+              <div key={i}>{interest}</div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-sm text-gray-500">No interests</div>
+        )}
       </div>
     </div>
   );
