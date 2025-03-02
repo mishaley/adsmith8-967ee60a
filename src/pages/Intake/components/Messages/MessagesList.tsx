@@ -1,14 +1,7 @@
 
 import React from "react";
 import { Loader } from "lucide-react";
-
-interface Message {
-  message_id: string;
-  message_name: string;
-  message_type: string;
-  message_url: string;
-  message_status: string;
-}
+import { Message } from "./hooks/useMessagesFetching";
 
 interface MessagesListProps {
   messages: Message[];

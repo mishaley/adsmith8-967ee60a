@@ -2,22 +2,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Define a simple message type that matches what we're using in the component
+// Define the Message type to match what's expected in MessagesList.tsx
 export interface Message {
-  id: string;
-  persona_id: string;
-  type: string;
-  content: string;
-  // Add other fields as needed
+  message_id: string;
+  message_name: string;
+  message_type: string;
+  message_url: string;
+  message_status: string;
+  persona_id?: string;
 }
-
-// Create a mapping function to convert database records to our simplified Message type
-const mapToMessage = (record: any): Message => ({
-  id: record.message_id,
-  persona_id: record.persona_id,
-  type: record.message_type,
-  content: record.message_url,
-});
 
 export const useMessagesFetching = (selectedPersonaId: string, selectedMessageTypes: string[]) => {
   const messageTypeString = selectedMessageTypes.join(',');
@@ -31,10 +24,10 @@ export const useMessagesFetching = (selectedPersonaId: string, selectedMessageTy
         .from("d1messages")
         .select("*")
         .eq("persona_id", selectedPersonaId || "none")
-        .in("type", selectedMessageTypes);
+        .in("message_type", selectedMessageTypes);
       
-      // Map the database records to our simplified Message type
-      return (data || []).map(mapToMessage);
+      // Return the data directly as it already matches our Message interface
+      return (data || []) as Message[];
     },
     enabled: !!selectedPersonaId && selectedMessageTypes.length > 0
   });

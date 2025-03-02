@@ -1,13 +1,7 @@
 
 import { useState } from "react";
 import { Persona } from "../../Personas/types";
-
-// Define the Message type to avoid deep nesting
-export interface Message {
-  id: string;
-  type: string;
-  content: string;
-}
+import { Message } from "./useMessagesFetching";
 
 // Use a simpler type for the generated messages record
 export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
