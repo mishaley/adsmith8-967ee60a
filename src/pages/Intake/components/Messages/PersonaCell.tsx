@@ -27,6 +27,11 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index }) => {
         <div className="text-sm text-gray-500">
           {persona.gender}, {persona.ageMin}-{persona.ageMax}
         </div>
+        <div className="text-sm text-gray-500">
+          {persona.interests && persona.interests.length > 0 
+            ? persona.interests.join(", ") 
+            : "No interests"}
+        </div>
       </div>
     </div>
   );
