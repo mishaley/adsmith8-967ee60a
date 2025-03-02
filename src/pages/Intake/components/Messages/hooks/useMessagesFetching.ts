@@ -2,6 +2,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Define a simple message type to avoid deep nesting
+interface Message {
+  id: string;
+  persona_id: string;
+  type: string;
+  content: string;
+  // Add other fields as needed
+}
+
 export const useMessagesFetching = (selectedPersonaId: string, selectedMessageTypes: string[]) => {
   const messageTypeString = selectedMessageTypes.join(',');
   
