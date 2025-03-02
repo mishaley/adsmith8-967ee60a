@@ -30,7 +30,7 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
       }, 180000); // 3 minutes timeout for initial generation
     });
     
-    // Make the API call with high priority flag
+    // Make the API call with high priority flag and increased urgency parameters
     console.log("Calling Supabase edge function: ideogram-test (first attempt)");
     const { data, error } = await Promise.race([
       supabase.functions.invoke('ideogram-test', {
@@ -38,7 +38,8 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
           prompt,
           highPriority: true,
           forceGeneration: true,
-          retryAttempt: 0
+          retryAttempt: 0,
+          parallelGeneration: true // Flag to indicate this is part of parallel generation
         }
       }),
       timeoutPromise
@@ -66,7 +67,8 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
             highPriority: true,
             forceGeneration: true,
             retryAttempt: 1,
-            emergencyGeneration: true
+            emergencyGeneration: true,
+            parallelGeneration: true
           }
         }),
         secondTimeoutPromise

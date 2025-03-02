@@ -68,7 +68,7 @@ export const usePortraitGeneration = () => {
     }
     
     setIsGeneratingPortraits(true);
-    console.log("Starting portrait generation for all personas:", personasList);
+    console.log("Starting parallel portrait generation for all personas:", personasList);
     toast.info("Generating portraits for all personas...");
     
     // Start with all indices as loading
@@ -78,71 +78,63 @@ export const usePortraitGeneration = () => {
     
     setLoadingPortraitIndices(initialLoadingIndices);
     
-    let errorCount = 0;
-    let successCount = 0;
-    
     try {
-      console.log(`Starting sequential portrait generation for ${personasList.length} personas`);
+      console.log(`Starting parallel portrait generation for ${personasList.length} personas`);
       
-      // Process portraits one at a time with proper delays
-      for (let i = 0; i < personasList.length; i++) {
-        const persona = personasList[i];
-        
+      // Generate all portraits in parallel
+      const portraitPromises = personasList.map(async (persona, index) => {
         // Skip if portrait already exists
         if (persona.portraitUrl) {
-          console.log(`Portrait for persona ${i + 1} already exists, skipping...`);
-          continue;
+          console.log(`Portrait for persona ${index + 1} already exists, skipping...`);
+          return { index, success: true, updatedPersona: persona };
         }
         
-        console.log(`Starting portrait generation for persona ${i + 1} of ${personasList.length}`);
-        const result = await generatePortraitForPersona(persona, i);
+        console.log(`Starting portrait generation for persona ${index + 1} of ${personasList.length}`);
+        const result = await generatePortraitForPersona(persona, index);
         
         if (result?.success && result.updatedPersona) {
-          successCount++;
-          
-          // Update persona in the parent state immediately
-          updatePersonaCallback(i, result.updatedPersona);
-          
-          // Save portraits to session after each successful generation
-          const updatedPersonasList = [...personasList];
-          updatedPersonasList[i] = result.updatedPersona;
-          savePortraitsToSession(updatedPersonasList.filter(Boolean));
-          
-          console.log(`Successfully generated portrait for persona ${i + 1}`);
+          console.log(`Successfully generated portrait for persona ${index + 1}`);
+          return { index, success: true, updatedPersona: result.updatedPersona };
         } else {
-          errorCount++;
-          console.error(`Failed to generate portrait for persona ${i + 1}`);
+          console.error(`Failed to generate portrait for persona ${index + 1}`);
           
           // Make a second attempt right away
-          console.log(`Making an immediate second attempt for persona ${i + 1}...`);
-          const secondAttempt = await generatePortraitForPersona(persona, i);
+          console.log(`Making an immediate second attempt for persona ${index + 1}...`);
+          const secondAttempt = await generatePortraitForPersona(persona, index);
           
           if (secondAttempt?.success && secondAttempt.updatedPersona) {
-            successCount++;
-            errorCount--; // Correct the error count since we succeeded on second try
-            
-            // Update persona in the parent state
-            updatePersonaCallback(i, secondAttempt.updatedPersona);
-            
-            // Save portraits to session
-            const updatedPersonasList = [...personasList];
-            updatedPersonasList[i] = secondAttempt.updatedPersona;
-            savePortraitsToSession(updatedPersonasList.filter(Boolean));
-            
-            console.log(`Second attempt succeeded for persona ${i + 1}`);
+            console.log(`Second attempt succeeded for persona ${index + 1}`);
+            return { index, success: true, updatedPersona: secondAttempt.updatedPersona };
           } else {
-            console.error(`Second attempt also failed for persona ${i + 1}`);
+            console.error(`Second attempt also failed for persona ${index + 1}`);
+            return { index, success: false, updatedPersona: null };
           }
         }
-        
-        // Add a short delay between personas to avoid API rate limiting
-        if (i < personasList.length - 1) {
-          console.log("Waiting 2 seconds before attempting next portrait...");
-          await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-      }
+      });
       
-      console.log(`Portrait generation complete. Success: ${successCount}, Errors: ${errorCount}`);
+      // Wait for all portrait generation attempts to complete
+      const results = await Promise.all(portraitPromises);
+      
+      // Process results and update the UI
+      const successCount = results.filter(r => r.success && r.updatedPersona).length;
+      const errorCount = results.filter(r => !r.success || !r.updatedPersona).length;
+      
+      // Update personas with their portraits
+      const updatedPersonasList = [...personasList];
+      results.forEach(result => {
+        if (result.success && result.updatedPersona) {
+          // Update persona in the parent state
+          updatePersonaCallback(result.index, result.updatedPersona);
+          
+          // Also update our local copy
+          updatedPersonasList[result.index] = result.updatedPersona;
+        }
+      });
+      
+      // Save all portraits to session storage
+      savePortraitsToSession(updatedPersonasList.filter(Boolean));
+      
+      console.log(`Parallel portrait generation complete. Success: ${successCount}, Errors: ${errorCount}`);
       
       if (errorCount === 0 && successCount > 0) {
         toast.success("All portraits have been generated");
