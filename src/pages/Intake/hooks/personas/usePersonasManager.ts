@@ -56,7 +56,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     }
   }, [personas, offering, selectedCountry, regenerateSinglePersona, retryPortraitBase, updatePersona]);
 
-  // Remove a persona
+  // Remove a persona and immediately generate a new one
   const removePersona = useCallback((index: number) => {
     if (!personas[index]) return;
     
@@ -69,7 +69,10 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     
     // Save updated personas to session
     savePortraitsToSession(updatedPersonas);
-  }, [personas, updatePersona]);
+    
+    // Immediately regenerate a new persona for this slot
+    regeneratePersona(index);
+  }, [personas, updatePersona, regeneratePersona]);
 
   // Wrapper for retryPortraitGeneration
   const retryPortraitGeneration = (index: number) => {
