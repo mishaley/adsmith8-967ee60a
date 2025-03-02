@@ -30,7 +30,7 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
     <td className="border p-2 align-top">
       <div>
         {personaId && generatedMessages[personaId]?.[messageType] ? (
-          <p>{generatedMessages[personaId][messageType].content}</p>
+          <p>{generatedMessages[personaId][messageType].message_name}</p>
         ) : (
           <p className="text-gray-400">No message generated</p>
         )}
