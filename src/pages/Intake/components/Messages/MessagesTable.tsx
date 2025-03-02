@@ -35,7 +35,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
         <colgroup>
           <col className="w-64" /> {/* Fixed width for persona column */}
           {selectedMessageTypes.map((type, index) => (
-            <col key={`col-${type}-${index}`} /> {/* Auto width for message columns */
+            <col key={`col-${type}-${index}`} /> /* Auto width for message columns */
           ))}
         </colgroup>
         <thead>
