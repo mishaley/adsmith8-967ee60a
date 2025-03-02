@@ -2,6 +2,7 @@
 import React from "react";
 import { Loader } from "lucide-react";
 import { Persona } from "../Personas/types";
+import PersonaCell from "./PersonaCell";
 
 interface Message {
   id: string;
@@ -45,25 +46,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
           {personas.map((persona, index) => (
             <tr key={persona.id || index} className="border-t">
               <td className="border p-2 align-top">
-                <div className="flex items-center">
-                  {persona.portraitUrl ? (
-                    <img 
-                      src={persona.portraitUrl} 
-                      alt={`Portrait of ${persona.title || `Persona ${index + 1}`}`}
-                      className="w-16 h-16 rounded-md object-cover mr-2"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2">
-                      <span className="text-xs text-gray-500">No image</span>
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-medium">{persona.title || `Persona ${index + 1}`}</div>
-                    <div className="text-sm text-gray-500">
-                      {persona.gender}, {persona.ageMin}-{persona.ageMax}
-                    </div>
-                  </div>
-                </div>
+                <PersonaCell persona={persona} index={index} />
               </td>
               {selectedMessageTypes.map(type => (
                 <td key={`${persona.id}-${type}`} className="border p-2 align-top">
