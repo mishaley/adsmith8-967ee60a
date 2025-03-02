@@ -75,98 +75,110 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
       
       map.current.on('load', () => {
         // Add country boundaries source and layer
-        map.current?.addSource('countries', {
-          type: 'vector',
-          url: 'mapbox://mapbox.country-boundaries-v1'
-        });
-        
-        map.current?.addLayer({
-          id: 'countries-fills',
-          type: 'fill',
-          source: 'countries',
-          'source-layer': 'country_boundaries',
-          paint: {
-            'fill-color': [
-              'case',
-              ['==', ['get', 'name_en'], selectedCountry],
-              '#154851', // Selected country color (matches app theme)
-              '#EAEAEA'  // Default color
-            ],
-            'fill-opacity': [
-              'case',
-              ['==', ['get', 'name_en'], selectedCountry],
-              0.8,
-              ['boolean', ['feature-state', 'hover'], false],
-              0.5,
-              0.2
-            ]
-          }
-        });
-        
-        map.current?.addLayer({
-          id: 'countries-borders',
-          type: 'line',
-          source: 'countries',
-          'source-layer': 'country_boundaries',
-          paint: {
-            'line-color': '#666666',
-            'line-width': 0.5
-          }
-        });
-        
-        // Handle hover states
-        map.current?.on('mousemove', 'countries-fills', (e) => {
-          if (e.features && e.features.length > 0) {
-            if (hoveredPolygonId !== null) {
-              map.current?.setFeatureState(
+        if (map.current) {
+          map.current.addSource('countries', {
+            type: 'vector',
+            url: 'mapbox://mapbox.country-boundaries-v1'
+          });
+          
+          map.current.addLayer({
+            id: 'countries-fills',
+            type: 'fill',
+            source: 'countries',
+            'source-layer': 'country_boundaries',
+            paint: {
+              'fill-color': [
+                'case',
+                ['==', ['get', 'name_en'], selectedCountry],
+                '#154851', // Selected country color (matches app theme)
+                '#EAEAEA'  // Default color
+              ],
+              'fill-opacity': [
+                'case',
+                ['==', ['get', 'name_en'], selectedCountry],
+                0.8,
+                ['boolean', ['feature-state', 'hover'], false],
+                0.5,
+                0.2
+              ]
+            }
+          });
+          
+          map.current.addLayer({
+            id: 'countries-borders',
+            type: 'line',
+            source: 'countries',
+            'source-layer': 'country_boundaries',
+            paint: {
+              'line-color': '#666666',
+              'line-width': 0.5
+            }
+          });
+          
+          // Handle hover states
+          map.current.on('mousemove', 'countries-fills', (e) => {
+            if (e.features && e.features.length > 0) {
+              if (hoveredPolygonId !== null && map.current) {
+                map.current.setFeatureState(
+                  { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredPolygonId },
+                  { hover: false }
+                );
+              }
+              
+              hoveredPolygonId = e.features[0].id;
+              
+              if (map.current) {
+                map.current.setFeatureState(
+                  { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredPolygonId },
+                  { hover: true }
+                );
+                
+                // Change cursor to pointer on hover - fixed to handle optional chaining
+                const canvas = map.current.getCanvas();
+                if (canvas) {
+                  canvas.style.cursor = 'pointer';
+                }
+              }
+            }
+          });
+          
+          // Handle mouse leave
+          map.current.on('mouseleave', 'countries-fills', () => {
+            if (hoveredPolygonId !== null && map.current) {
+              map.current.setFeatureState(
                 { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredPolygonId },
                 { hover: false }
               );
             }
+            hoveredPolygonId = null;
             
-            hoveredPolygonId = e.features[0].id;
-            
-            map.current?.setFeatureState(
-              { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredPolygonId },
-              { hover: true }
-            );
-            
-            // Change cursor to pointer on hover
-            map.current?.getCanvas().style.cursor = 'pointer';
-          }
-        });
-        
-        // Handle mouse leave
-        map.current?.on('mouseleave', 'countries-fills', () => {
-          if (hoveredPolygonId !== null) {
-            map.current?.setFeatureState(
-              { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredPolygonId },
-              { hover: false }
-            );
-          }
-          hoveredPolygonId = null;
-          
-          // Reset cursor
-          map.current?.getCanvas().style.cursor = '';
-        });
-        
-        // Handle country selection on click
-        map.current?.on('click', 'countries-fills', (e) => {
-          if (e.features && e.features.length > 0) {
-            const countryName = e.features[0].properties?.name_en;
-            if (countryName) {
-              setSelectedCountry(countryName);
-              
-              // Update the fill color based on selection
-              map.current?.setPaintProperty('countries-fills', 'fill-color', [
-                'case',
-                ['==', ['get', 'name_en'], countryName],
-                '#154851', // Selected country color
-                '#EAEAEA'  // Default color
-              ]);
+            // Reset cursor - fixed to handle optional chaining
+            if (map.current) {
+              const canvas = map.current.getCanvas();
+              if (canvas) {
+                canvas.style.cursor = '';
+              }
             }
-          }
-        });
+          });
+          
+          // Handle country selection on click
+          map.current.on('click', 'countries-fills', (e) => {
+            if (e.features && e.features.length > 0) {
+              const countryName = e.features[0].properties?.name_en;
+              if (countryName && map.current) {
+                setSelectedCountry(countryName);
+                
+                // Update the fill color based on selection
+                map.current.setPaintProperty('countries-fills', 'fill-color', [
+                  'case',
+                  ['==', ['get', 'name_en'], countryName],
+                  '#154851', // Selected country color
+                  '#EAEAEA'  // Default color
+                ]);
+              }
+            }
+          });
+        }
       });
     } catch (err) {
       console.error('Error initializing map:', err);
