@@ -28,14 +28,14 @@ serve(async (req) => {
     if (!openAIApiKey) {
       console.error('Missing OpenAI API key');
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
+        JSON.stringify({ error: 'Server configuration error', tagline: "Smart. Simple. Effective." }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     if (!messageType) {
       return new Response(
-        JSON.stringify({ error: 'Message type is required' }),
+        JSON.stringify({ error: 'Message type is required', tagline: "Worth Every Penny." }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -47,26 +47,26 @@ serve(async (req) => {
       description: 'A potential customer'
     };
 
+    console.log('Generating tagline for:', { messageType, persona: personaInfo });
+
     // Construct prompt based on message type
     let prompt = '';
     switch (messageType) {
       case 'pain-point':
-        prompt = `Generate a 3-4 word marketing tagline that addresses a pain point for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be catchy, memorable, and suitable for an advertisement. Focus on a problem they might have that our product could solve.`;
+        prompt = `Generate a short, catchy 3-4 word marketing tagline that addresses a pain point for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be memorable and suitable for an advertisement. Focus on a problem they might have that our product could solve.`;
         break;
       case 'unique-offering':
-        prompt = `Generate a 3-4 word marketing tagline that highlights a unique offering for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be catchy, memorable, and suitable for an advertisement. Focus on what makes our product or service special.`;
+        prompt = `Generate a short, catchy 3-4 word marketing tagline that highlights a unique offering for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be memorable and suitable for an advertisement. Focus on what makes our product or service special.`;
         break;
       case 'value-prop':
-        prompt = `Generate a 3-4 word marketing tagline that emphasizes the value proposition for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be catchy, memorable, and suitable for an advertisement. Focus on the benefit they'll get from our product.`;
+        prompt = `Generate a short, catchy 3-4 word marketing tagline that emphasizes the value proposition for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be memorable and suitable for an advertisement. Focus on the benefit they'll get from our product.`;
         break;
       case 'user-provided':
-        prompt = `Generate a 3-4 word marketing tagline for an advertisement targeted at ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be catchy, memorable, and suitable for an advertisement.`;
+        prompt = `Generate a short, catchy 3-4 word marketing tagline for an advertisement targeted at ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be memorable and suitable for an advertisement.`;
         break;
       default:
-        prompt = `Generate a 3-4 word marketing tagline related to ${messageType} for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be catchy, memorable, and suitable for an advertisement.`;
+        prompt = `Generate a short, catchy 3-4 word marketing tagline related to ${messageType} for ${personaInfo.name}, a ${personaInfo.age} year old ${personaInfo.gender}. ${personaInfo.description || ''}. The tagline should be memorable and suitable for an advertisement.`;
     }
-
-    console.log('Generating tagline for:', { messageType, persona: personaInfo });
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',

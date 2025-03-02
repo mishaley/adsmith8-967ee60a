@@ -24,6 +24,5 @@ enabled = true
 [realtime]
 enabled = true
 
-[[functions]]
-name = "generate-marketing-taglines"
+[functions.generate-marketing-taglines]
 verify_jwt = false

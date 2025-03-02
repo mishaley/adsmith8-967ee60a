@@ -31,10 +31,10 @@ async function generateTaglineWithAI(messageType: string, persona: Persona): Pro
       body: { 
         messageType,
         persona: {
-          name: persona.persona_name,
-          age: persona.persona_age || 'unknown',
-          gender: persona.persona_gender || 'unknown',
-          description: persona.persona_description || ''
+          name: persona.name || 'Unknown',
+          age: `${persona.ageMin}-${persona.ageMax}`,
+          gender: persona.gender,
+          description: `Interests: ${persona.interests.join(', ')}` 
         }
       }
     });
