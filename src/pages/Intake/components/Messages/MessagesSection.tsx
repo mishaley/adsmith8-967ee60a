@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
@@ -7,33 +6,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../Personas/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MessagesList from "./MessagesList";
-
 interface MessagesSectionProps {
   personas: Persona[];
 }
-
-const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
+const MessagesSection: React.FC<MessagesSectionProps> = ({
+  personas
+}) => {
   const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [messageType, setMessageType] = useState<string>("pain-point");
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
-  
-  const { data: messages = [], refetch } = useQuery({
+  const {
+    data: messages = [],
+    refetch
+  } = useQuery({
     queryKey: ["messages", selectedPersona, messageType],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("d1messages")
-        .select("*")
-        .eq("persona_id", selectedPersona || "none")
-        .eq("type", messageType);
-      
+      const {
+        data
+      } = await supabase.from("d1messages").select("*").eq("persona_id", selectedPersona || "none").eq("type", messageType);
       return data || [];
     },
     enabled: !!selectedPersona
   });
-
   const generateMessages = async () => {
     if (!selectedPersona) return;
-    
     setIsGeneratingMessages(true);
     try {
       // In a real implementation, you would call an API to generate messages
@@ -46,9 +42,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       setIsGeneratingMessages(false);
     }
   };
-
-  return (
-    <>
+  return <>
       <tr className="border-b">
         <td colSpan={2} className="py-4 text-lg">
           <div className="w-full text-left pl-4 flex items-center">
@@ -59,84 +53,40 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       <tr>
         <td colSpan={2} className="p-4">
           <div className="flex flex-wrap gap-2 mb-4">
-            <Button 
-              variant={messageType === "pain-point" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setMessageType("pain-point")}
-            >
+            <Button variant={messageType === "pain-point" ? "default" : "outline"} size="sm" onClick={() => setMessageType("pain-point")}>
               Pain Point
             </Button>
-            <Button 
-              variant={messageType === "unique-offering" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setMessageType("unique-offering")}
-            >
+            <Button variant={messageType === "unique-offering" ? "default" : "outline"} size="sm" onClick={() => setMessageType("unique-offering")}>
               Unique Offering
             </Button>
-            <Button 
-              variant={messageType === "value-prop" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setMessageType("value-prop")}
-            >
+            <Button variant={messageType === "value-prop" ? "default" : "outline"} size="sm" onClick={() => setMessageType("value-prop")}>
               Value Prop
             </Button>
-            <Button 
-              variant={messageType === "user-provided" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setMessageType("user-provided")}
-            >
+            <Button variant={messageType === "user-provided" ? "default" : "outline"} size="sm" onClick={() => setMessageType("user-provided")}>
               User Provided
             </Button>
           </div>
           
           <div className="flex items-end gap-4 mb-4">
             <div className="w-64">
-              <label className="block text-sm font-medium mb-1">Select Persona</label>
-              <Select
-                value={selectedPersona}
-                onValueChange={setSelectedPersona}
-              >
+              
+              <Select value={selectedPersona} onValueChange={setSelectedPersona}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a persona" />
                 </SelectTrigger>
                 <SelectContent>
-                  {personas.map((persona, index) => (
-                    <SelectItem 
-                      key={index} 
-                      value={persona.id || index.toString()}
-                    >
+                  {personas.map((persona, index) => <SelectItem key={index} value={persona.id || index.toString()}>
                       {persona.name || persona.title}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <Button 
-              onClick={generateMessages} 
-              disabled={isGeneratingMessages || !selectedPersona}
-              size="sm"
-            >
-              {isGeneratingMessages ? (
-                <>
-                  <Loader className="h-4 w-4 animate-spin mr-2" />
-                  Generating Messages...
-                </>
-              ) : (
-                "Generate Messages"
-              )}
-            </Button>
+            
           </div>
           
-          {selectedPersona && (
-            <MessagesList 
-              messages={messages} 
-              isLoading={isGeneratingMessages} 
-            />
-          )}
+          {selectedPersona && <MessagesList messages={messages} isLoading={isGeneratingMessages} />}
         </td>
       </tr>
-    </>
-  );
+    </>;
 };
-
 export default MessagesSection;
