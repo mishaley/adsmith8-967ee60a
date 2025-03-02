@@ -144,6 +144,21 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
             )}
           </div>
           
+          <div className="mb-4">
+            <Button 
+              onClick={generateMessages} 
+              disabled={isGeneratingMessages || selectedMessageTypes.length === 0 || !isLoaded}
+              className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isGeneratingMessages ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : "Generate"}
+            </Button>
+          </div>
+          
           {selectedPersonaId && <MessagesList messages={messages} isLoading={isGeneratingMessages || isLoading} />}
         </td>
       </tr>
