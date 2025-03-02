@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, AlertCircle } from "lucide-react";
 
 interface MapDisplayProps {
   loading: boolean;
@@ -30,8 +30,12 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   if (error) {
     return (
       <div className="h-[300px] flex flex-col items-center justify-center bg-gray-100 rounded text-red-500 p-4">
+        <AlertCircle className="h-8 w-8 mb-2" />
         <div className="font-semibold mb-2">Error loading map</div>
-        <div className="text-sm text-center">{error}</div>
+        <div className="text-sm text-center max-w-md">{error}</div>
+        <div className="text-xs text-gray-500 mt-4 text-center">
+          Please ensure the MAPBOX_TOKEN is correctly set in Supabase Edge Function Secrets
+        </div>
       </div>
     );
   }

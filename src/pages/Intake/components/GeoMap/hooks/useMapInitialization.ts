@@ -21,13 +21,21 @@ export const useMapInitialization = ({
 
   useEffect(() => {
     // Only initialize if we have all requirements and map isn't already initialized
-    if (!mapContainer.current || !mapboxToken || map.current) return;
+    if (!mapContainer.current || !mapboxToken || map.current) {
+      console.log("Map initialization skipped:", {
+        containerExists: !!mapContainer.current,
+        tokenExists: !!mapboxToken,
+        mapAlreadyInitialized: !!map.current
+      });
+      return;
+    }
     
-    console.log("Initializing map with token:", mapboxToken ? "Token exists" : "No token");
+    console.log("Initializing map with token:", mapboxToken.substring(0, 5) + "..." + mapboxToken.substring(mapboxToken.length - 5));
     
     try {
       mapboxgl.accessToken = mapboxToken;
       
+      console.log("Creating map instance");
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
@@ -155,7 +163,7 @@ export const useMapInitialization = ({
           console.log("Map fully initialized and configured");
         } catch (layerErr) {
           console.error("Error setting up map layers:", layerErr);
-          setMapError("Error setting up map layers");
+          setMapError(`Error setting up map layers: ${layerErr instanceof Error ? layerErr.message : String(layerErr)}`);
         }
       });
       
@@ -167,7 +175,7 @@ export const useMapInitialization = ({
       
     } catch (err) {
       console.error('Error initializing map:', err);
-      setMapError('Failed to initialize map');
+      setMapError(`Failed to initialize map: ${err instanceof Error ? err.message : String(err)}`);
     }
 
     // Cleanup on unmount
