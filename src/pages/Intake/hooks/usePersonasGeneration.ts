@@ -24,20 +24,16 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
     let errorCount = 0;
     
     try {
-      // Generate portraits for each persona sequentially
-      for (let i = 0; i < personasList.length; i++) {
-        if (errorCount >= 3) {
-          // Stop trying after 3 consecutive errors
-          toast.error("Too many errors while generating portraits. Please try again later.");
-          break;
-        }
-        
-        let persona = personasList[i];
-        
+      // Set all personas as loading initially
+      const indices = personasList.map((_, index) => index);
+      setLoadingPortraitIndices(indices);
+      
+      // Prepare all promises to run in parallel
+      const portraitPromises = personasList.map(async (persona, index) => {
         // Skip if portrait already exists
         if (persona.portraitUrl) {
-          console.log(`Portrait for persona ${i + 1} already exists, skipping...`);
-          continue;
+          console.log(`Portrait for persona ${index + 1} already exists, skipping...`);
+          return { index, imageUrl: persona.portraitUrl, error: null };
         }
         
         // Assign a random race if not already present
@@ -46,43 +42,72 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
             ...persona,
             race: getRandomRace()
           };
-          updatedPersonas[i] = persona;
+          updatedPersonas[index] = persona;
         }
         
         try {
           const { imageUrl, error } = await generatePersonaPortrait(persona);
+          return { index, imageUrl, error };
+        } catch (portraitError) {
+          console.error(`Exception generating portrait for persona ${index + 1}:`, portraitError);
+          return { 
+            index, 
+            imageUrl: null, 
+            error: portraitError instanceof Error ? portraitError : new Error(String(portraitError))
+          };
+        }
+      });
+      
+      // Process results as they come in using Promise.allSettled
+      const results = await Promise.allSettled(portraitPromises);
+      
+      results.forEach((result, i) => {
+        if (result.status === 'fulfilled') {
+          const { index, imageUrl, error } = result.value;
+          
+          // Remove this index from loading indices
+          setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
           
           if (imageUrl) {
-            errorCount = 0; // Reset error count on success
-            updatedPersonas[i] = {
-              ...persona,
+            updatedPersonas[index] = {
+              ...updatedPersonas[index],
               portraitUrl: imageUrl
             };
-            // Immediately update the personas state after each successful portrait generation
-            setPersonas([...updatedPersonas]);
-            // Save partial progress to session storage
-            savePortraitsToSession(updatedPersonas);
+            // Update personas state immediately when each portrait is ready
+            setPersonas(prevPersonas => {
+              const newPersonas = [...prevPersonas];
+              newPersonas[index] = {
+                ...newPersonas[index],
+                portraitUrl: imageUrl
+              };
+              return newPersonas;
+            });
           } else if (error) {
             errorCount++;
-            console.error(`Error generating portrait for persona ${i + 1}:`, error);
+            console.error(`Error generating portrait for persona ${index + 1}:`, error);
           }
-        } catch (portraitError) {
+        } else {
+          // This handles the case where the promise itself rejected
           errorCount++;
-          console.error(`Exception generating portrait for persona ${i + 1}:`, portraitError);
+          console.error(`Portrait generation for persona ${i + 1} failed:`, result.reason);
+          setLoadingPortraitIndices(prev => prev.filter(idx => idx !== i));
         }
-        
-        // Small delay between requests to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
+      });
+      
+      // Final update and save to session storage
+      savePortraitsToSession(updatedPersonas);
       
       if (errorCount === 0) {
         toast.success("All portraits have been generated");
       } else if (errorCount < personasList.length) {
         toast.warning(`Generated ${personasList.length - errorCount} out of ${personasList.length} portraits`);
+      } else {
+        toast.error("Failed to generate any portraits");
       }
     } catch (error) {
       console.error("Error in portrait generation process:", error);
       toast.error("Failed to complete portrait generation");
+      setLoadingPortraitIndices([]);
     } finally {
       setIsGeneratingPortraits(false);
     }

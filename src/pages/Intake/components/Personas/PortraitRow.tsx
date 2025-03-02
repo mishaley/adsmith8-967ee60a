@@ -72,8 +72,8 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
               </Popover>
             ) : personas.length > 0 && index < personas.length ? (
               loadingIndices.includes(index) ? (
-                <div className="w-full h-32 bg-gray-100 rounded-md flex flex-col items-center justify-center">
-                  <Loader className="h-4 w-4 animate-spin mb-2" />
+                <div className="w-full h-32 bg-gray-50 rounded-md flex flex-col items-center justify-center border border-gray-200">
+                  <Loader className="h-4 w-4 animate-spin mb-2 text-blue-500" />
                   <span className="text-sm text-gray-500">Generating portrait...</span>
                 </div>
               ) : (
