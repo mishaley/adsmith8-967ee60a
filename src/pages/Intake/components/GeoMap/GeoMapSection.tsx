@@ -16,7 +16,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const { loading, mapboxToken, error: tokenError } = useMapboxToken();
-  const { mapError } = useMapInitialization({
+  const { mapError, initialized } = useMapInitialization({
     mapboxToken,
     mapContainer,
     selectedCountry,
@@ -25,6 +25,14 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   
   // Combine errors from both hooks
   const error = tokenError || mapError;
+
+  // Debug logging
+  console.log("GeoMapSection state:", { 
+    loading, 
+    hasToken: !!mapboxToken, 
+    error, 
+    initialized 
+  });
 
   return (
     <>
