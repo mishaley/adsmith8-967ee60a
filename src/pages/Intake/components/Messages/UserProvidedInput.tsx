@@ -22,7 +22,7 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
         placeholder="Enter your custom message here..."
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full h-9 rounded-l-none" // Remove left rounded corners
+        className="w-full h-9 rounded-l-none border-l-0" // Remove left rounded corners and left border
       />
     </div>
   );
