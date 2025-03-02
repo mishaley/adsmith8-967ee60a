@@ -7,11 +7,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 interface PortraitRowProps {
   personas: Persona[];
   isGeneratingPortraits: boolean;
+  loadingIndices?: number[];
 }
 
 const PortraitRow: React.FC<PortraitRowProps> = ({ 
   personas, 
-  isGeneratingPortraits
+  isGeneratingPortraits,
+  loadingIndices = []
 }) => {
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
 
@@ -69,14 +71,14 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                 </PopoverContent>
               </Popover>
             ) : personas.length > 0 && index < personas.length ? (
-              isGeneratingPortraits ? (
+              loadingIndices.includes(index) ? (
                 <div className="w-full h-32 bg-gray-100 rounded-md flex flex-col items-center justify-center">
                   <Loader className="h-4 w-4 animate-spin mb-2" />
                   <span className="text-sm text-gray-500">Generating portrait...</span>
                 </div>
               ) : (
                 <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
-                  Portrait generation pending
+                  {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation pending"}
                 </div>
               )
             ) : (

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +24,8 @@ const IntakeForm = () => {
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [summary, setSummary] = useState("");
-  
+  const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
+
   const handleSave = () => {
     console.log("Saving form data:", {
       brandName,
@@ -224,6 +224,7 @@ const IntakeForm = () => {
                     isGeneratingPortraits={isGeneratingPortraits}
                     generatePersonas={generatePersonas}
                     updatePersona={updatePersona}
+                    loadingPortraitIndices={loadingPortraitIndices}
                   />
                 </tbody>
               </table>
