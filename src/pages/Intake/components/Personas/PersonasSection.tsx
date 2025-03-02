@@ -15,6 +15,7 @@ interface PersonasSectionProps {
   updatePersona?: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
+  regeneratePersona?: (index: number) => void;
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -25,7 +26,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   generatePersonas,
   updatePersona,
   loadingPortraitIndices = [],
-  retryPortraitGeneration
+  retryPortraitGeneration,
+  regeneratePersona
 }) => {
   console.log("PersonasSection rendering with personas:", personas);
   
@@ -74,7 +76,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <div className="w-full">
               <table className="w-full border-collapse">
                 <tbody>
-                  <PersonasList personas={personas} />
+                  <PersonasList 
+                    personas={personas} 
+                    onRegeneratePersona={regeneratePersona}
+                  />
                   <PortraitRow 
                     personas={personas}
                     isGeneratingPortraits={isGeneratingPortraits}

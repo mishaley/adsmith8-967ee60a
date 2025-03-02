@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,9 +15,8 @@ export const usePersonaGeneration = () => {
       return;
     }
 
-    // Reset states
     setIsGeneratingPersonas(true);
-    setPersonas([]); // Clear existing personas to show we're starting fresh
+    setPersonas([]);
     setSummary("");
     
     try {
@@ -45,33 +43,23 @@ export const usePersonaGeneration = () => {
         return;
       }
 
-      // Check for the correct personas data structure
       const personasData = data.personas || data.customer_personas;
       
       if (personasData && Array.isArray(personasData)) {
-        // Normalize gender values and enhance titles based on interests
         const enhancedPersonas = personasData.map((persona: Persona) => {
-          // Ensure persona has a race property
           if (!persona.race) {
             const randomRace = getRandomRace();
             persona.race = randomRace;
           }
           
-          // Create a more creative title based on interests if possible
           let enhancedTitle = persona.title;
           if (persona.interests && persona.interests.length > 0) {
-            // Try to incorporate an interest into the title if it's not already part of it
             const primaryInterest = persona.interests[0];
             
-            // Only modify if the title doesn't already mention the interest
             if (!enhancedTitle.toLowerCase().includes(primaryInterest.toLowerCase())) {
-              // Create more creative three-word titles that incorporate interests
-              // Examples: "Tech-Savvy Explorer", "Fitness Lifestyle Enthusiast", "Creative Writing Maven"
-              
               const interestWords = primaryInterest.split(' ');
-              const interestWord = interestWords[0]; // Use the first word of the interest
+              const interestWord = interestWords[0];
               
-              // Selection of creative adjectives and nouns based on interests
               const creativeAdjectives = [
                 "Passionate", "Dedicated", "Enthusiastic", "Devoted", "Avid",
                 "Expert", "Savvy", "Inspired", "Innovative", "Trendy"
@@ -81,11 +69,9 @@ export const usePersonaGeneration = () => {
                 "Connoisseur", "Guru", "Pioneer", "Advocate", "Specialist"
               ];
               
-              // Randomly select an adjective and noun
               const randomAdjective = creativeAdjectives[Math.floor(Math.random() * creativeAdjectives.length)];
               const randomNoun = creativeNouns[Math.floor(Math.random() * creativeNouns.length)];
               
-              // Create a three-word title incorporating the interest
               enhancedTitle = `${interestWord} ${randomAdjective} ${randomNoun}`;
             }
           }
@@ -100,13 +86,11 @@ export const usePersonaGeneration = () => {
         console.log("Generated personas with enhanced titles:", enhancedPersonas);
         setPersonas(enhancedPersonas);
         
-        // Generate a summary with enhanced personas
         const newSummary = generatePersonaSummary(offering, enhancedPersonas);
         setSummary(newSummary);
         
         toast.success("Personas generated successfully");
         
-        // Call the callback to notify parent
         onPersonasGenerated(enhancedPersonas);
       } else {
         console.error("Invalid personas data format received:", data);
@@ -120,6 +104,100 @@ export const usePersonaGeneration = () => {
     }
   };
 
+  const regenerateSinglePersona = async (index: number, offering: string, selectedCountry: string): Promise<Persona | null> => {
+    if (!offering) {
+      toast.error("Please enter an offering first");
+      return null;
+    }
+
+    try {
+      console.log(`Regenerating persona at index ${index} for product: ${offering}`);
+      
+      const { data, error } = await supabase.functions.invoke('generate-personas', {
+        body: { 
+          product: offering || "ramen noodles",
+          country: selectedCountry || undefined,
+          count: 1
+        }
+      });
+
+      console.log("Response from generate-personas for single regeneration:", data, error);
+
+      if (error) {
+        console.error("Error generating single persona:", error);
+        toast.error("Failed to regenerate persona: " + error.message);
+        return null;
+      }
+
+      if (!data) {
+        console.error("No data received from generate-personas");
+        toast.error("No data received from the server");
+        return null;
+      }
+
+      const personasData = data.personas || data.customer_personas;
+      
+      if (personasData && Array.isArray(personasData) && personasData.length > 0) {
+        let newPersona = personasData[0];
+        
+        if (!newPersona.race) {
+          const randomRace = getRandomRace();
+          newPersona.race = randomRace;
+        }
+        
+        let enhancedTitle = newPersona.title;
+        if (newPersona.interests && newPersona.interests.length > 0) {
+          const primaryInterest = newPersona.interests[0];
+          
+          if (!enhancedTitle.toLowerCase().includes(primaryInterest.toLowerCase())) {
+            const interestWords = primaryInterest.split(' ');
+            const interestWord = interestWords[0];
+            
+            const creativeAdjectives = [
+              "Passionate", "Dedicated", "Enthusiastic", "Devoted", "Avid",
+              "Expert", "Savvy", "Inspired", "Innovative", "Trendy"
+            ];
+            const creativeNouns = [
+              "Enthusiast", "Aficionado", "Devotee", "Maven", "Explorer",
+              "Connoisseur", "Guru", "Pioneer", "Advocate", "Specialist"
+            ];
+            
+            const randomAdjective = creativeAdjectives[Math.floor(Math.random() * creativeAdjectives.length)];
+            const randomNoun = creativeNouns[Math.floor(Math.random() * creativeNouns.length)];
+            
+            enhancedTitle = `${interestWord} ${randomAdjective} ${randomNoun}`;
+          }
+        }
+        
+        const enhancedPersona: Persona = {
+          ...newPersona,
+          gender: normalizeGender(newPersona.gender),
+          title: enhancedTitle
+        };
+        
+        console.log("Generated single persona with enhanced title:", enhancedPersona);
+        
+        setPersonas(prevPersonas => {
+          const newPersonas = [...prevPersonas];
+          newPersonas[index] = enhancedPersona;
+          return newPersonas;
+        });
+        
+        toast.success("Persona regenerated successfully");
+        
+        return enhancedPersona;
+      } else {
+        console.error("Invalid persona data format received:", data);
+        toast.error("Invalid data format received from server");
+        return null;
+      }
+    } catch (err) {
+      console.error("Error regenerating persona:", err);
+      toast.error("Something went wrong: " + (err instanceof Error ? err.message : String(err)));
+      return null;
+    }
+  };
+
   const updatePersona = (index: number, updatedPersona: Persona) => {
     setPersonas(prevPersonas => {
       const newPersonas = [...prevPersonas];
@@ -128,9 +206,7 @@ export const usePersonaGeneration = () => {
     });
   };
 
-  // Import the getRandomRace function inline to avoid circular dependencies
   const getRandomRace = (): string => {
-    // Race distribution as specified
     const RACE_DISTRIBUTION = [
       "White", "White", "White", "Latino", "Latino", 
       "Black", "Black", "Asian", "Indian-American", "Biracial"
@@ -145,6 +221,7 @@ export const usePersonaGeneration = () => {
     summary,
     isGeneratingPersonas,
     generatePersonas,
-    updatePersona
+    updatePersona,
+    regenerateSinglePersona
   };
 };

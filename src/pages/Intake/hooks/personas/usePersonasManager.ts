@@ -3,6 +3,7 @@ import { usePersonaGeneration } from "./usePersonaGeneration";
 import { usePortraitGeneration } from "./usePortraitGeneration";
 import { Persona } from "../../components/Personas/types";
 import { savePortraitsToSession } from "../../components/Personas/utils/portraitUtils";
+import { useCallback } from "react";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
   const {
@@ -10,7 +11,8 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     summary,
     isGeneratingPersonas,
     generatePersonas: generatePersonasBase,
-    updatePersona
+    updatePersona,
+    regenerateSinglePersona
   } = usePersonaGeneration();
 
   const {
@@ -36,6 +38,24 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     });
   };
 
+  // Regenerate a single persona and its portrait
+  const regeneratePersona = useCallback(async (index: number) => {
+    // First regenerate the persona
+    const newPersona = await regenerateSinglePersona(index, offering, selectedCountry);
+    
+    if (newPersona) {
+      // Then generate a portrait for it
+      retryPortraitBase(newPersona, index, (idx, updatedPersona) => {
+        updatePersona(idx, updatedPersona);
+        
+        // Save updated personas to session
+        const updatedPersonas = [...personas];
+        updatedPersonas[idx] = updatedPersona;
+        savePortraitsToSession(updatedPersonas);
+      });
+    }
+  }, [personas, offering, selectedCountry, regenerateSinglePersona, retryPortraitBase, updatePersona]);
+
   // Wrapper for retryPortraitGeneration
   const retryPortraitGeneration = (index: number) => {
     if (!personas[index]) return;
@@ -58,6 +78,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     loadingPortraitIndices,
     generatePersonas,
     updatePersona,
-    retryPortraitGeneration
+    retryPortraitGeneration,
+    regeneratePersona
   };
 };
