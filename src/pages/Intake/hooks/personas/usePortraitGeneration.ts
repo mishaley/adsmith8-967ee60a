@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Persona } from "../../components/Personas/types";
 import { generatePersonaPortrait } from "../../components/Personas/services/portraitService";
 import { getRandomRace, savePortraitsToSession } from "../../components/Personas/utils/portraitUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const usePortraitGeneration = () => {
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);

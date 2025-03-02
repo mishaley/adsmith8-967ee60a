@@ -18,6 +18,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
   const {
     isGeneratingPortraits,
     loadingPortraitIndices,
+    failedPortraitIndices,
     generatePortraitsForAllPersonas,
     retryPortraitGeneration: retryPortraitBase
   } = usePortraitGeneration();
@@ -57,6 +58,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     isGeneratingPersonas,
     isGeneratingPortraits,
     loadingPortraitIndices,
+    failedPortraitIndices,
     generatePersonas,
     updatePersona,
     retryPortraitGeneration,
