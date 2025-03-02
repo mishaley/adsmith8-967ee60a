@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import IntakeHeader from "./components/IntakeHeader";
 import IntakeFormFields from "./components/IntakeFormFields";
+import GeoMapSection from "./components/GeoMap/GeoMapSection";
 import PersonasSection from "./components/Personas/PersonasSection";
 import { generatePersonaSummary, normalizeGender } from "./utils/personaUtils";
 import { Persona } from "./components/Personas/types";
@@ -17,6 +18,7 @@ const IntakeForm = () => {
   const [problemSolved, setProblemSolved] = useState(""); 
   const [uniqueOffering, setUniqueOffering] = useState("");
   const [adPlatform, setAdPlatform] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
   const [summary, setSummary] = useState("");
@@ -29,7 +31,8 @@ const IntakeForm = () => {
       sellingPoints,
       problemSolved,
       uniqueOffering,
-      adPlatform
+      adPlatform,
+      selectedCountry
     });
     // Here you would typically save the data to a database
   };
@@ -45,7 +48,10 @@ const IntakeForm = () => {
       console.log("Calling generate-personas with product:", offering);
       
       const { data, error } = await supabase.functions.invoke('generate-personas', {
-        body: { product: offering || "ramen noodles" }
+        body: { 
+          product: offering || "ramen noodles",
+          country: selectedCountry || undefined
+        }
       });
 
       console.log("Response from generate-personas:", data, error);
@@ -121,6 +127,11 @@ const IntakeForm = () => {
                     adPlatform={adPlatform}
                     setAdPlatform={setAdPlatform}
                     handleSave={handleSave}
+                  />
+                  
+                  <GeoMapSection 
+                    selectedCountry={selectedCountry}
+                    setSelectedCountry={setSelectedCountry}
                   />
                   
                   <PersonasSection 

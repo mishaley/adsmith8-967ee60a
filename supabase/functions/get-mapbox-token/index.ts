@@ -1,4 +1,5 @@
 
+// Follow the Deno deploy docs here: https://deno.com/deploy/docs
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
 
 // Allowed CORS headers
@@ -16,23 +17,23 @@ export const handler = async (req: Request): Promise<Response> => {
   try {
     console.log("Edge function get-mapbox-token called");
     
-    // Get the Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || ''
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    
-    console.log("Supabase URL available:", !!supabaseUrl);
-    console.log("Supabase key available:", !!supabaseKey);
-
     // Get the Mapbox token from the environment
-    const mapboxToken = Deno.env.get('MAPBASE_TOKEN') || Deno.env.get('MAPBOX_TOKEN') || '';
+    const mapboxToken = Deno.env.get('MAPBASE_TOKEN') || '';
     
     console.log(`Retrieved token: ${mapboxToken ? 'Token exists' : 'No token found'}`);
     
     if (!mapboxToken) {
-      console.warn("No Mapbox token found in environment variables. Checking for both MAPBASE_TOKEN and MAPBOX_TOKEN.");
-      
-      // List all available environment variables (ONLY for debugging, remove in production)
-      console.log("Available environment variables:", Object.keys(Deno.env.toObject()));
+      console.warn("No Mapbox token found in environment variables");
+      return new Response(
+        JSON.stringify({ error: 'Mapbox token not configured' }),
+        { 
+          status: 404, 
+          headers: { 
+            'Content-Type': 'application/json', 
+            ...corsHeaders 
+          } 
+        }
+      )
     }
     
     return new Response(

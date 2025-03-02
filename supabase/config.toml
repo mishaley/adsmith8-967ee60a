@@ -36,4 +36,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.save-mapbox-token]
 verify_jwt = false
-
+[functions.generate-personas]
+verify_jwt = false
