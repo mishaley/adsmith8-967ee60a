@@ -15,18 +15,22 @@ interface MessagesSectionProps {
   personas: Persona[];
 }
 
+// Define the Message type separately to avoid deep nesting
 interface Message {
   id: string;
   type: string;
   content: string;
 }
 
+// Use a simpler type for the generated messages record
+type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
+
 const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>([]);
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [userProvidedMessage, setUserProvidedMessage] = useState("");
-  const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
+  const [generatedMessages, setGeneratedMessages] = useState<GeneratedMessagesRecord>({});
   const [isTableVisible, setIsTableVisible] = useState(false);
   
   const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";

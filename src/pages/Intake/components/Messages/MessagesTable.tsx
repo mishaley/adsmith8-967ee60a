@@ -4,19 +4,22 @@ import { Loader } from "lucide-react";
 import { Persona } from "../Personas/types";
 import PersonaCell from "./PersonaCell";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
+// Define the Message type to match the one in MessagesSection
 interface Message {
   id: string;
   type: string;
   content: string;
 }
 
+// Use consistent type definition for generatedMessages
+type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
+
 interface MessagesTableProps {
   isTableVisible: boolean;
   personas: Persona[];
   selectedMessageTypes: string[];
-  generatedMessages: Record<string, Record<string, Message>>;
+  generatedMessages: GeneratedMessagesRecord;
   isGeneratingMessages: boolean;
   getMessageTypeLabel: (type: string) => string;
   onGenerateColumnMessages: (messageType: string) => void;
