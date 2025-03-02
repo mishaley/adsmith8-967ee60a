@@ -18,7 +18,6 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
   const {
     isGeneratingPortraits,
     loadingPortraitIndices,
-    failedPortraitIndices, // This was missing from the return value below
     generatePortraitsForAllPersonas,
     retryPortraitGeneration: retryPortraitBase
   } = usePortraitGeneration();
@@ -58,7 +57,6 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     isGeneratingPersonas,
     isGeneratingPortraits,
     loadingPortraitIndices,
-    failedPortraitIndices, // Added this property to fix the first error
     generatePersonas,
     updatePersona,
     retryPortraitGeneration,

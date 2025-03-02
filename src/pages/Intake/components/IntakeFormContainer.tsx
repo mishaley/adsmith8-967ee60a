@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { countries, ICountry } from 'countries-list';
+import { Country, countries } from 'countries-list';
 import PersonasSection from "./Personas/PersonasSection";
 import { Persona } from "./Personas/types";
 
@@ -67,7 +67,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   retryPortraitGeneration,
   removePersona
 }) => {
-  const countryOptions = Object.entries(countries).map(([code, country]: [string, ICountry]) => ({
+  const countryOptions = Object.entries(countries).map(([code, country]: [string, Country]) => ({
     value: code,
     label: country.name,
   }));
