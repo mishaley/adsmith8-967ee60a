@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,28 +14,58 @@ interface MessagesSectionProps {
 const MessagesSection: React.FC<MessagesSectionProps> = ({
   personas
 }) => {
-  const [messageType, setMessageType] = useState<string>("pain-point");
+  // Change to array for multi-select
+  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>([]);
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   // Use the first persona ID or empty string if no personas
-  const selectedPersonaId = personas.length > 0 && personas[0].id ? personas[0].id : "";
+  const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
+  
+  // Create a single message type string for the query (comma-separated)
+  const messageTypeString = selectedMessageTypes.join(',');
   
   const {
     data: messages = [],
-    refetch
+    refetch,
+    isLoading
   } = useQuery({
-    queryKey: ["messages", selectedPersonaId, messageType],
+    queryKey: ["messages", selectedPersonaId, messageTypeString],
     queryFn: async () => {
-      const {
-        data
-      } = await supabase.from("d1messages").select("*").eq("persona_id", selectedPersonaId || "none").eq("type", messageType);
+      if (!selectedMessageTypes.length) return [];
+      
+      const { data } = await supabase
+        .from("d1messages")
+        .select("*")
+        .eq("persona_id", selectedPersonaId || "none")
+        .in("type", selectedMessageTypes);
+      
       return data || [];
     },
-    enabled: !!selectedPersonaId
+    enabled: !!selectedPersonaId && selectedMessageTypes.length > 0
   });
 
+  // Set isLoaded to true after initial render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleMessageType = (type: string) => {
+    setSelectedMessageTypes(prev => {
+      if (prev.includes(type)) {
+        return prev.filter(t => t !== type);
+      } else {
+        return [...prev, type];
+      }
+    });
+  };
+
   const generateMessages = async () => {
-    if (!selectedPersonaId) return;
+    if (!selectedPersonaId || !selectedMessageTypes.length) return;
     setIsGeneratingMessages(true);
     try {
       // In a real implementation, you would call an API to generate messages
@@ -60,21 +90,45 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
       <tr>
         <td colSpan={2} className="p-4">
           <div className="flex flex-wrap gap-2 mb-4">
-            <Button variant={messageType === "pain-point" ? "default" : "outline"} size="sm" onClick={() => setMessageType("pain-point")}>
+            <Button 
+              variant={selectedMessageTypes.includes("pain-point") ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => toggleMessageType("pain-point")}
+              className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!isLoaded}
+            >
               Pain Point
             </Button>
-            <Button variant={messageType === "unique-offering" ? "default" : "outline"} size="sm" onClick={() => setMessageType("unique-offering")}>
+            <Button 
+              variant={selectedMessageTypes.includes("unique-offering") ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => toggleMessageType("unique-offering")}
+              className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!isLoaded}
+            >
               Unique Offering
             </Button>
-            <Button variant={messageType === "value-prop" ? "default" : "outline"} size="sm" onClick={() => setMessageType("value-prop")}>
+            <Button 
+              variant={selectedMessageTypes.includes("value-prop") ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => toggleMessageType("value-prop")}
+              className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!isLoaded}
+            >
               Value Prop
             </Button>
-            <Button variant={messageType === "user-provided" ? "default" : "outline"} size="sm" onClick={() => setMessageType("user-provided")}>
+            <Button 
+              variant={selectedMessageTypes.includes("user-provided") ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => toggleMessageType("user-provided")}
+              className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={!isLoaded}
+            >
               User Provided
             </Button>
           </div>
           
-          {selectedPersonaId && <MessagesList messages={messages} isLoading={isGeneratingMessages} />}
+          {selectedPersonaId && <MessagesList messages={messages} isLoading={isGeneratingMessages || isLoading} />}
         </td>
       </tr>
     </>;
