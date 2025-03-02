@@ -23,7 +23,6 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index }) => {
         </div>
       )}
       <div>
-        <div className="font-medium">{persona.title || `Persona ${index + 1}`}</div>
         <div className="text-sm text-gray-500">
           {persona.gender}, {persona.ageMin}-{persona.ageMax}
         </div>
