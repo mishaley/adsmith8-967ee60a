@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,10 +27,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
   const [isTableVisible, setIsTableVisible] = useState(false);
   
-  // Use the first persona ID or empty string if no personas
   const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
   
-  // Create a derived messageTypes value that doesn't change on every render
   const messageTypeString = selectedMessageTypes.join(',');
   
   const {
@@ -54,7 +51,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
     enabled: !!selectedPersonaId && selectedMessageTypes.length > 0
   });
 
-  // Set isLoaded to true after initial render
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
@@ -78,8 +74,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
     
     setIsGeneratingMessages(true);
     try {
-      // In a real implementation, you would call an API to generate messages
-      // For now, let's create mock data for each persona and message type
       const mockMessages: Record<string, Record<string, Message>> = {};
       
       personas.forEach((persona, personaIndex) => {
@@ -88,7 +82,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
         mockMessages[persona.id] = {};
         
         selectedMessageTypes.forEach(type => {
-          // For user-provided type, use the message entered by the user
           if (type === "user-provided") {
             mockMessages[persona.id][type] = {
               id: `${persona.id}-${type}`,
@@ -96,7 +89,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
               content: userProvidedMessage || `Default message for ${persona.title || 'this persona'}`
             };
           } else {
-            // Generate mock content for other message types
             const messageContent = getMessageContentByType(type, persona, personaIndex);
             mockMessages[persona.id][type] = {
               id: `${persona.id}-${type}`,
@@ -107,7 +99,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
         });
       });
       
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       setGeneratedMessages(mockMessages);
@@ -140,18 +131,20 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
             isLoaded={isLoaded}
           />
           
-          <UserProvidedInput
-            userProvidedMessage={userProvidedMessage}
-            setUserProvidedMessage={setUserProvidedMessage}
-            isUserProvidedSelected={isUserProvidedSelected}
-          />
-          
-          <GenerateButton
-            isGeneratingMessages={isGeneratingMessages}
-            selectedMessageTypes={selectedMessageTypes}
-            isLoaded={isLoaded}
-            generateMessages={generateMessages}
-          />
+          <div className="flex items-center mb-4">
+            <UserProvidedInput
+              userProvidedMessage={userProvidedMessage}
+              setUserProvidedMessage={setUserProvidedMessage}
+              isUserProvidedSelected={isUserProvidedSelected}
+            />
+            
+            <GenerateButton
+              isGeneratingMessages={isGeneratingMessages}
+              selectedMessageTypes={selectedMessageTypes}
+              isLoaded={isLoaded}
+              generateMessages={generateMessages}
+            />
+          </div>
           
           <MessagesTable
             isTableVisible={isTableVisible}

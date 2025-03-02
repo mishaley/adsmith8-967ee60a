@@ -16,7 +16,7 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
   if (!isUserProvidedSelected) return null;
   
   return (
-    <div className="flex-grow max-w-md">
+    <div className="w-60 mr-4">
       <Input
         type="text"
         placeholder="Enter your custom message here..."
