@@ -21,7 +21,7 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
         type="text"
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px]" // Added negative margin to overlap border
+        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px]"
       />
     </div>
   );

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +9,7 @@ import UserProvidedInput from "./UserProvidedInput";
 import GenerateButton from "./GenerateButton";
 import MessagesTable from "./MessagesTable";
 import { getMessageContentByType, getMessageTypeLabel } from "./messageUtils";
+import { toast } from "sonner";
 
 interface MessagesSectionProps {
   personas: Persona[];
@@ -112,6 +114,60 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
     }
   };
 
+  const generateColumnMessages = async (messageType: string) => {
+    if (!personas.length) {
+      toast.error("No personas available to generate messages for");
+      return;
+    }
+
+    setIsGeneratingMessages(true);
+    
+    try {
+      const updatedMessages = { ...generatedMessages };
+      
+      // Process all personas for this message type
+      for (const persona of personas) {
+        if (!persona.id) continue;
+        
+        try {
+          const response = await supabase.functions.invoke("generate-taglines", {
+            body: { messageType, persona }
+          });
+          
+          if (response.error) {
+            throw new Error(response.error.message);
+          }
+          
+          const { tagline } = response.data as { tagline: string };
+          
+          // Ensure the persona has a messages object
+          if (!updatedMessages[persona.id]) {
+            updatedMessages[persona.id] = {};
+          }
+          
+          // Update the message for this persona and type
+          updatedMessages[persona.id][messageType] = {
+            id: `${persona.id}-${messageType}`,
+            type: messageType,
+            content: tagline
+          };
+        } catch (error) {
+          console.error(`Error generating tagline for persona ${persona.id}:`, error);
+          toast.error(`Failed to generate tagline for ${persona.title || 'a persona'}`);
+        }
+      }
+      
+      setGeneratedMessages(updatedMessages);
+      setIsTableVisible(true);
+      
+    } catch (error) {
+      console.error("Error in generateColumnMessages:", error);
+      toast.error("Failed to generate messages. Please try again.");
+    } finally {
+      setIsGeneratingMessages(false);
+    }
+  };
+
   const isUserProvidedSelected = selectedMessageTypes.includes("user-provided");
 
   return (
@@ -155,6 +211,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
             generatedMessages={generatedMessages}
             isGeneratingMessages={isGeneratingMessages}
             getMessageTypeLabel={getMessageTypeLabel}
+            onGenerateColumnMessages={generateColumnMessages}
           />
           
           {selectedPersonaId && !isTableVisible && (
