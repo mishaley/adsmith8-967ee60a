@@ -1,12 +1,9 @@
 
-import React, { useState, useRef } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import React from "react";
 import { useAudioRecording } from "../hooks/useAudioRecording";
-import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
-import { useTextareaResize } from "../hooks/useTextareaResize";
-import { useTranscriptionCorrection } from "../hooks/useTranscriptionCorrection";
-import { useToast } from "@/components/ui/use-toast";
 import RecordingButton from "./RecordingButton";
+import { useTextareaResize } from "../hooks/useTextareaResize";
+import { formatTime } from "../utils/timeUtils";
 
 interface RecordingFieldProps {
   label: string;
@@ -16,117 +13,64 @@ interface RecordingFieldProps {
   placeholder?: string;
 }
 
-const RecordingField = ({ 
-  label, 
-  helperText, 
-  value, 
+const RecordingField: React.FC<RecordingFieldProps> = ({
+  label,
+  helperText,
+  value,
   onChange,
-  placeholder 
-}: RecordingFieldProps) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
-  const [tempTranscript, setTempTranscript] = useState("");
-  
-  const { 
-    setTranscription, 
-    saveOriginalValue, 
-    getOriginalValue, 
-    handleBlur 
-  } = useTranscriptionCorrection({ value });
-  
-  const { currentHeight } = useTextareaResize(textareaRef, value, tempTranscript);
-  
-  const { 
-    isRecording, 
-    isTranscribing, 
-    timer, 
-    startRecording, 
-    stopRecording 
-  } = useAudioRecording({
-    onTranscriptionComplete: (text) => {
-      // Append new transcription to existing value instead of replacing it
-      const newValue = value.trim() ? `${value.trim()} ${text}` : text;
-      setTranscription(text);
-      onChange(newValue);
-      setTempTranscript("");
-      saveOriginalValue(newValue);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to transcribe audio: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
-    }
-  });
-  
-  const { initializeSpeechRecognition, stopSpeechRecognition } = useSpeechRecognition({
-    onTranscript: (interimTranscript) => {
-      // Store the value before starting recording
-      if (!tempTranscript && interimTranscript) {
-        saveOriginalValue(value);
-      }
-      
-      setTempTranscript(interimTranscript);
-      
-      // Append interim transcript to existing text instead of replacing it
-      const previousValue = getOriginalValue();
-      const newValue = previousValue.trim() && interimTranscript.trim() 
-        ? `${previousValue.trim()} ${interimTranscript}`
-        : previousValue.trim() || interimTranscript;
-        
-      onChange(newValue);
-    }
-  });
-  
-  const handleStartRecording = async () => {
-    try {
-      // Store the current value before recording starts
-      saveOriginalValue(value);
-      await startRecording();
-      initializeSpeechRecognition();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to access microphone: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
-    }
-  };
-  
-  const handleStopRecording = () => {
-    stopRecording();
-    stopSpeechRecognition();
-  };
-  
+  placeholder
+}) => {
+  const {
+    isRecording,
+    recordingTime,
+    toggleRecording,
+    recordingState,
+    transcription,
+    isTranscribing,
+    isCorrecting
+  } = useAudioRecording(onChange);
+
+  const textareaRef = useTextareaResize(value);
+
   return (
     <tr className="border-b">
-      <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
+      <td className="py-4 pr-4 text-lg align-top pl-4">
         <div>{label}</div>
         {helperText && <div className="text-sm text-gray-500 mt-1">{helperText}</div>}
       </td>
-      <td className="py-4 w-full">
-        <div className="w-96 flex flex-col">
-          <div className="relative w-full">
-            <RecordingButton
-              isRecording={isRecording}
-              isTranscribing={isTranscribing}
-              timer={timer}
-              onStartRecording={handleStartRecording}
-              onStopRecording={handleStopRecording}
-            />
-          </div>
-          <div className="w-full">
-            <Textarea
+      <td className="py-4">
+        <div className="w-full max-w-3xl">
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-2">
+              <RecordingButton
+                isRecording={isRecording}
+                onClick={toggleRecording}
+                recordingState={recordingState}
+              />
+              {isRecording && (
+                <div className="text-sm text-red-500">
+                  Recording: {formatTime(recordingTime)}
+                </div>
+              )}
+              {isTranscribing && (
+                <div className="text-sm text-blue-500">Transcribing...</div>
+              )}
+              {isCorrecting && (
+                <div className="text-sm text-blue-500">Improving transcription...</div>
+              )}
+            </div>
+            <textarea
               ref={textareaRef}
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              onBlur={handleBlur}
-              className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md text-left placeholder:text-center placeholder:italic"
-              style={{ height: 'auto' }}
-              rows={1}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px] bg-white"
               placeholder={placeholder}
             />
+            {transcription && !value && (
+              <div className="text-sm text-gray-500 mt-1">
+                Transcription: {transcription}
+              </div>
+            )}
           </div>
         </div>
       </td>
