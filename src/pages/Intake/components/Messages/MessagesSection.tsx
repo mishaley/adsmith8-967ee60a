@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../Personas/types";
 import MessagesList from "./MessagesList";
+import { Input } from "@/components/ui/input";
 
 interface MessagesSectionProps {
   personas: Persona[];
@@ -18,6 +19,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>([]);
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [userProvidedMessage, setUserProvidedMessage] = useState("");
   
   // Use the first persona ID or empty string if no personas
   const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
@@ -79,6 +81,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     }
   };
 
+  const isUserProvidedSelected = selectedMessageTypes.includes("user-provided");
+
   return <>
       <tr className="border-b">
         <td colSpan={2} className="py-4 text-lg">
@@ -89,7 +93,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
       </tr>
       <tr>
         <td colSpan={2} className="p-4">
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 items-center">
             <Button 
               variant={selectedMessageTypes.includes("pain-point") ? "default" : "outline"} 
               size="sm" 
@@ -126,6 +130,18 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
             >
               User Provided
             </Button>
+            
+            {isUserProvidedSelected && (
+              <div className="flex-grow max-w-md">
+                <Input
+                  type="text"
+                  placeholder="Enter your custom message here..."
+                  value={userProvidedMessage}
+                  onChange={(e) => setUserProvidedMessage(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
           
           {selectedPersonaId && <MessagesList messages={messages} isLoading={isGeneratingMessages || isLoading} />}
