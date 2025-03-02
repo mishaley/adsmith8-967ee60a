@@ -1,3 +1,4 @@
+
 import React from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
@@ -33,6 +34,7 @@ interface IntakeFormContainerProps {
   updatePersona: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
+  removePersona?: (index: number) => void;
 }
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   // Form fields
@@ -61,7 +63,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   generatePersonas,
   updatePersona,
   loadingPortraitIndices,
-  retryPortraitGeneration
+  retryPortraitGeneration,
+  removePersona
 }) => {
   return <div className="p-4 min-h-[calc(100vh-60px)] bg-#d3e4fd">
       <IntakeHeader />
@@ -74,7 +77,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
               
               <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
               
-              <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} />
+              <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} />
             </tbody>
           </table>
         </div>

@@ -15,7 +15,7 @@ interface PersonasSectionProps {
   updatePersona?: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
-  regeneratePersona?: (index: number) => void;
+  removePersona?: (index: number) => void;
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -27,7 +27,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   updatePersona,
   loadingPortraitIndices = [],
   retryPortraitGeneration,
-  regeneratePersona
+  removePersona
 }) => {
   console.log("PersonasSection rendering with personas:", personas);
   
@@ -65,7 +65,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       </tr>
       {isGeneratingPersonas && !hasPersonas ? (
         <tr>
-          <td colSpan={2} className="py-8 text-center">
+          <td colSpan={2} className="py-8 text-center bg-transparent">
             <Loader className="h-8 w-8 animate-spin mx-auto" />
             <div className="mt-4 text-gray-500">Generating personas...</div>
           </td>
@@ -78,7 +78,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 <tbody>
                   <PersonasList 
                     personas={personas} 
-                    onRegeneratePersona={regeneratePersona}
+                    onRemovePersona={removePersona}
                   />
                   <PortraitRow 
                     personas={personas}

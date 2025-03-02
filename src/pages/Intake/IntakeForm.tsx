@@ -3,7 +3,7 @@ import React from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import IntakeFormContainer from "./components/IntakeFormContainer";
 import { useIntakeForm } from "./hooks/useIntakeForm";
-import { usePersonasGeneration } from "./hooks/usePersonasGeneration";
+import { usePersonasManager } from "./hooks/personas/usePersonasManager";
 
 const IntakeForm = () => {
   const {
@@ -34,8 +34,9 @@ const IntakeForm = () => {
     loadingPortraitIndices,
     generatePersonas,
     updatePersona,
-    retryPortraitGeneration
-  } = usePersonasGeneration(offering, selectedCountry);
+    retryPortraitGeneration,
+    removePersona
+  } = usePersonasManager(offering, selectedCountry);
   
   return (
     <QuadrantLayout>
@@ -67,6 +68,7 @@ const IntakeForm = () => {
             updatePersona={updatePersona}
             loadingPortraitIndices={loadingPortraitIndices}
             retryPortraitGeneration={retryPortraitGeneration}
+            removePersona={removePersona}
           />
         )
       }}
