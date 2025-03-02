@@ -25,16 +25,19 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
       setTimeout(() => {
         resolve({ 
           data: null, 
-          error: new Error('Request timed out after 30 seconds') 
+          error: new Error('Request timed out after 45 seconds') 
         });
-      }, 30000); // Increased timeout to 30 seconds
+      }, 45000); // Increased timeout to 45 seconds for initial generation
     });
     
     // Race the actual request against the timeout
     console.log("Calling Supabase edge function: ideogram-test");
     const { data, error } = await Promise.race([
       supabase.functions.invoke('ideogram-test', {
-        body: { prompt }
+        body: { 
+          prompt,
+          highPriority: true // Mark this as high priority
+        }
       }),
       timeoutPromise
     ]);

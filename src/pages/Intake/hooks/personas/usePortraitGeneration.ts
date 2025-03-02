@@ -66,48 +66,42 @@ export const usePortraitGeneration = () => {
     try {
       console.log(`Starting portrait generation for ${personasList.length} personas`);
       
-      // Prepare all promises to run in parallel
-      const portraitPromises = personasList.map(async (persona, index) => {
+      // Generate portraits sequentially to avoid overloading the API
+      for (let i = 0; i < personasList.length; i++) {
+        const persona = personasList[i];
+        
         // Skip if portrait already exists
         if (persona.portraitUrl) {
-          console.log(`Portrait for persona ${index + 1} already exists, skipping...`);
-          return { index, imageUrl: persona.portraitUrl, error: null };
+          console.log(`Portrait for persona ${i + 1} already exists, skipping...`);
+          continue;
         }
         
-        // Individual portrait generation is now handled by generatePortraitForPersona
-        const result = await generatePortraitForPersona(persona, index);
+        console.log(`Starting portrait generation for persona ${i + 1} of ${personasList.length}`);
+        const result = await generatePortraitForPersona(persona, i);
+        
         if (result?.success && result.updatedPersona) {
           successCount++;
           // Update persona in the parent state immediately when available
-          updatePersonaCallback(index, result.updatedPersona);
+          updatePersonaCallback(i, result.updatedPersona);
+          
+          // Save portraits to session after each successful generation
+          const updatedPersonasList = [...personasList];
+          updatedPersonasList[i] = result.updatedPersona;
+          savePortraitsToSession(updatedPersonasList);
+          
+          console.log(`Successfully generated portrait for persona ${i + 1}`);
         } else {
           errorCount++;
+          console.error(`Failed to generate portrait for persona ${i + 1}`);
         }
         
-        return { 
-          index, 
-          imageUrl: result?.success ? result.updatedPersona?.portraitUrl : null, 
-          error: result?.error || null 
-        };
-      });
-      
-      // Process results as they come in using Promise.allSettled
-      const results = await Promise.allSettled(portraitPromises);
+        // Add a small delay between requests
+        if (i < personasList.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
       
       console.log(`Portrait generation complete. Success: ${successCount}, Errors: ${errorCount}`);
-      
-      results.forEach((result, i) => {
-        if (result.status === 'fulfilled') {
-          const { error } = result.value;
-          
-          if (error) {
-            console.error(`Error generating portrait for persona ${i + 1}:`, error);
-          }
-        } else {
-          // This handles the case where the promise itself rejected
-          console.error(`Portrait generation for persona ${i + 1} failed:`, result.reason);
-        }
-      });
       
       if (errorCount === 0) {
         toast.success("All portraits have been generated");
