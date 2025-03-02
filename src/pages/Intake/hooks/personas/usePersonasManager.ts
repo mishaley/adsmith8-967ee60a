@@ -46,8 +46,14 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
   // Wrapper for generatePersonas that also triggers portrait generation
   const generatePersonas = async () => {
     generatePersonasBase(offering, selectedCountry, (newPersonas) => {
-      // Start portrait generation after personas are generated
-      generatePortraitsForAll(generatePortraitsForAllPersonas);
+      console.log("Personas generated, now generating portraits automatically");
+      // Start portrait generation immediately after personas are generated
+      if (newPersonas && newPersonas.length > 0) {
+        // Use setTimeout to ensure the UI updates first
+        setTimeout(() => {
+          generatePortraitsForAll(generatePortraitsForAllPersonas);
+        }, 500);
+      }
     });
   };
 
