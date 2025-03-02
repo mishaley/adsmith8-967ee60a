@@ -4,7 +4,9 @@ import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
 import GeoMapSection from "./GeoMap/GeoMapSection";
 import PersonasSection from "./Personas/PersonasSection";
+import MessagesSection from "./Messages/MessagesSection";
 import { Persona } from "./Personas/types";
+
 interface IntakeFormContainerProps {
   // Form fields
   brandName: string;
@@ -78,6 +80,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
               <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
               
               <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} />
+
+              <MessagesSection personas={personas} />
             </tbody>
           </table>
         </div>
