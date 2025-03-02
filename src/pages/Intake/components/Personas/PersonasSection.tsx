@@ -28,6 +28,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   retryPortraitGeneration
 }) => {
   console.log("PersonasSection rendering with personas:", personas);
+  
+  const hasPersonas = personas && personas.length > 0;
 
   return (
     <>
@@ -59,14 +61,14 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           </div>
         </td>
       </tr>
-      {isGeneratingPersonas && personas.length === 0 ? (
+      {isGeneratingPersonas && !hasPersonas ? (
         <tr>
           <td colSpan={2} className="py-8 text-center">
             <Loader className="h-8 w-8 animate-spin mx-auto" />
             <div className="mt-4 text-gray-500">Generating personas...</div>
           </td>
         </tr>
-      ) : (
+      ) : hasPersonas ? (
         <tr>
           <td colSpan={2} className="p-0">
             <div className="w-full">
@@ -79,18 +81,12 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                     loadingIndices={loadingPortraitIndices}
                     onRetryPortrait={retryPortraitGeneration}
                   />
-                  {/* Empty row for spacing/alignment */}
-                  <tr>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
-                    ))}
-                  </tr>
                 </tbody>
               </table>
             </div>
           </td>
         </tr>
-      )}
+      ) : null}
     </>
   );
 };
