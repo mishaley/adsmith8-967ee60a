@@ -12,6 +12,12 @@ interface MessagesSectionProps {
   personas: Persona[];
 }
 
+interface Message {
+  id: string;
+  type: string;
+  content: string;
+}
+
 const MessagesSection: React.FC<MessagesSectionProps> = ({
   personas
 }) => {
@@ -20,6 +26,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [userProvidedMessage, setUserProvidedMessage] = useState("");
+  const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
+  const [isTableVisible, setIsTableVisible] = useState(false);
   
   // Use the first persona ID or empty string if no personas
   const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
@@ -67,12 +75,45 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   };
 
   const generateMessages = async () => {
-    if (!selectedPersonaId || !selectedMessageTypes.length) return;
+    if (!selectedMessageTypes.length) return;
+    
     setIsGeneratingMessages(true);
     try {
       // In a real implementation, you would call an API to generate messages
-      // For now, let's simulate a delay
+      // For now, let's create mock data for each persona and message type
+      const mockMessages: Record<string, Record<string, Message>> = {};
+      
+      personas.forEach((persona, personaIndex) => {
+        if (!persona.id) return;
+        
+        mockMessages[persona.id] = {};
+        
+        selectedMessageTypes.forEach(type => {
+          // For user-provided type, use the message entered by the user
+          if (type === "user-provided") {
+            mockMessages[persona.id][type] = {
+              id: `${persona.id}-${type}`,
+              type,
+              content: userProvidedMessage || `Default message for ${persona.title || 'this persona'}`
+            };
+          } else {
+            // Generate mock content for other message types
+            const messageContent = getMessageContentByType(type, persona, personaIndex);
+            mockMessages[persona.id][type] = {
+              id: `${persona.id}-${type}`,
+              type,
+              content: messageContent
+            };
+          }
+        });
+      });
+      
+      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      setGeneratedMessages(mockMessages);
+      setIsTableVisible(true);
+      
       await refetch();
     } catch (error) {
       console.error("Error generating messages:", error);
@@ -81,7 +122,33 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     }
   };
 
+  // Helper function to get mock message content based on type and persona
+  const getMessageContentByType = (type: string, persona: Persona, index: number): string => {
+    const personaName = persona.title || `Persona ${index + 1}`;
+    
+    switch (type) {
+      case "pain-point":
+        return `${personaName} is frustrated with traditional solutions that are ${persona.gender === 'Men' ? 'time-consuming' : 'complicated'} and expensive.`;
+      case "unique-offering":
+        return `Our solution offers ${personaName} a streamlined experience with intuitive controls and affordable pricing.`;
+      case "value-prop":
+        return `${personaName} will save 30% more time and money while achieving better results with our innovative approach.`;
+      default:
+        return `Message for ${personaName} with type: ${type}`;
+    }
+  };
+
   const isUserProvidedSelected = selectedMessageTypes.includes("user-provided");
+
+  const getMessageTypeLabel = (type: string): string => {
+    switch (type) {
+      case "pain-point": return "Pain Point";
+      case "unique-offering": return "Unique Offering";
+      case "value-prop": return "Value Prop";
+      case "user-provided": return "User Provided";
+      default: return type;
+    }
+  };
 
   return <>
       <tr className="border-b">
@@ -159,7 +226,68 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
             </Button>
           </div>
           
-          {selectedPersonaId && <MessagesList messages={messages} isLoading={isGeneratingMessages || isLoading} />}
+          {isTableVisible && personas.length > 0 && selectedMessageTypes.length > 0 && (
+            <div className="mt-6 border rounded overflow-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border p-2 text-left">Persona</th>
+                    {selectedMessageTypes.map(type => (
+                      <th key={type} className="border p-2 text-left">
+                        {getMessageTypeLabel(type)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {personas.map((persona, index) => (
+                    <tr key={persona.id || index} className="border-t">
+                      <td className="border p-2 align-top">
+                        <div className="flex items-center">
+                          {persona.portraitUrl ? (
+                            <img 
+                              src={persona.portraitUrl} 
+                              alt={`Portrait of ${persona.title || `Persona ${index + 1}`}`}
+                              className="w-16 h-16 rounded-md object-cover mr-2"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2">
+                              <span className="text-xs text-gray-500">No image</span>
+                            </div>
+                          )}
+                          <div>
+                            <div className="font-medium">{persona.title || `Persona ${index + 1}`}</div>
+                            <div className="text-sm text-gray-500">
+                              {persona.gender}, {persona.ageMin}-{persona.ageMax}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      {selectedMessageTypes.map(type => (
+                        <td key={`${persona.id}-${type}`} className="border p-2 align-top">
+                          {isGeneratingMessages ? (
+                            <div className="flex items-center justify-center h-16">
+                              <Loader className="h-4 w-4 animate-spin" />
+                            </div>
+                          ) : (
+                            <div>
+                              {persona.id && generatedMessages[persona.id]?.[type] ? (
+                                <p>{generatedMessages[persona.id][type].content}</p>
+                              ) : (
+                                <p className="text-gray-400">No message generated</p>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          
+          {selectedPersonaId && !isTableVisible && <MessagesList messages={messages} isLoading={isGeneratingMessages || isLoading} />}
         </td>
       </tr>
     </>;
