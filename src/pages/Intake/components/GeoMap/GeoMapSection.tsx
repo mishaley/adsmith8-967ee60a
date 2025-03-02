@@ -51,14 +51,18 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
       </tr>
       <tr>
         <td colSpan={2} className="p-0">
-          <div className="w-full p-4">
-            <MapDisplay
-              loading={loading}
-              error={error}
-              mapContainerRef={mapContainer}
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
-            />
+          <div className="w-full px-4 pb-4">
+            <div className="flex justify-start">
+              <div className="w-96">
+                <MapDisplay
+                  loading={loading}
+                  error={error}
+                  mapContainerRef={mapContainer}
+                  selectedCountry={selectedCountry}
+                  setSelectedCountry={setSelectedCountry}
+                />
+              </div>
+            </div>
           </div>
         </td>
       </tr>
