@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Persona } from "../Personas/types";
 import MessageTableHeader from "./TableComponents/MessageTableHeader";
 import MessageTableRow from "./TableComponents/MessageTableRow";
-import { Message } from "./hooks/useMessagesState";
+import { Message } from "./hooks/useMessagesFetching";
 
 // Simplified type definition to avoid deep nesting
 type GeneratedMessagesRecord = Record<string, Record<string, Message>>;

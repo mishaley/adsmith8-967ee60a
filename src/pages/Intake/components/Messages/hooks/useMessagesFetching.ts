@@ -24,7 +24,7 @@ export const useMessagesFetching = (selectedPersonaId: string, selectedMessageTy
         .from("d1messages")
         .select("*")
         .eq("persona_id", selectedPersonaId || "none")
-        .in("message_type", selectedMessageTypes);
+        .in("message_type", selectedMessageTypes as any); // Use type assertion to fix type error
       
       // Return the data directly as it already matches our Message interface
       return (data || []) as Message[];
