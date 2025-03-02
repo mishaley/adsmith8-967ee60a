@@ -4,7 +4,6 @@ import IntakeFormFields from "./IntakeFormFields";
 import GeoMapSection from "./GeoMap/GeoMapSection";
 import PersonasSection from "./Personas/PersonasSection";
 import { Persona } from "./Personas/types";
-
 interface IntakeFormContainerProps {
   // Form fields
   brandName: string;
@@ -24,7 +23,7 @@ interface IntakeFormContainerProps {
   selectedCountry: string;
   setSelectedCountry: (value: string) => void;
   handleSave: () => void;
-  
+
   // Personas
   personas: Persona[];
   summary: string;
@@ -35,7 +34,6 @@ interface IntakeFormContainerProps {
   loadingPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
 }
-
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   // Form fields
   brandName,
@@ -55,7 +53,6 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   selectedCountry,
   setSelectedCountry,
   handleSave,
-  
   // Personas
   personas,
   summary,
@@ -66,53 +63,22 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   loadingPortraitIndices,
   retryPortraitGeneration
 }) => {
-  return (
-    <div className="p-4 min-h-[calc(100vh-60px)] bg-white">
+  return <div className="p-4 min-h-[calc(100vh-60px)] bg-#d3e4fd">
       <IntakeHeader />
       
       <div className="mt-4">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse border">
             <tbody>
-              <IntakeFormFields 
-                brandName={brandName}
-                setBrandName={setBrandName}
-                industry={industry}
-                setIndustry={setIndustry}
-                offering={offering}
-                setOffering={setOffering}
-                sellingPoints={sellingPoints}
-                setSellingPoints={setSellingPoints}
-                problemSolved={problemSolved}
-                setProblemSolved={setProblemSolved}
-                uniqueOffering={uniqueOffering}
-                setUniqueOffering={setUniqueOffering}
-                adPlatform={adPlatform}
-                setAdPlatform={setAdPlatform}
-                handleSave={handleSave}
-              />
+              <IntakeFormFields brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} handleSave={handleSave} />
               
-              <GeoMapSection 
-                selectedCountry={selectedCountry}
-                setSelectedCountry={setSelectedCountry}
-              />
+              <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
               
-              <PersonasSection 
-                personas={personas}
-                summary={summary}
-                isGeneratingPersonas={isGeneratingPersonas}
-                isGeneratingPortraits={isGeneratingPortraits}
-                generatePersonas={generatePersonas}
-                updatePersona={updatePersona}
-                loadingPortraitIndices={loadingPortraitIndices}
-                retryPortraitGeneration={retryPortraitGeneration}
-              />
+              <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} />
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default IntakeFormContainer;
