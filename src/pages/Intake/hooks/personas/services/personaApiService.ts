@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../../../components/Personas/types";
-import { normalizeGender } from "../../../utils/personaUtils";
+import { normalizeGender, ensureTwoInterests } from "../../../utils/personaUtils";
 import { getRandomRace } from "../utils/personaGenerationUtils";
 
 /**
@@ -37,22 +37,26 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
     throw new Error("Invalid data format received from server");
   }
 
-  return enhancePersonas(personasData);
+  return enhancePersonas(personasData, offering);
 };
 
 /**
  * Enhance raw personas data with additional information
  */
-const enhancePersonas = (personasData: Persona[]): Persona[] => {
+const enhancePersonas = (personasData: Persona[], offering: string): Persona[] => {
   return personasData.map((persona: Persona) => {
     if (!persona.race) {
       const randomRace = getRandomRace();
       persona.race = randomRace;
     }
     
+    // Ensure each persona has exactly two relevant interests
+    const enhancedInterests = ensureTwoInterests(persona.interests || [], offering);
+    
     return {
       ...persona,
-      gender: normalizeGender(persona.gender)
+      gender: normalizeGender(persona.gender),
+      interests: enhancedInterests
     };
   });
 };
