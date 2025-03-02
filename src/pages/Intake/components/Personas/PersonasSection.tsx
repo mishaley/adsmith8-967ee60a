@@ -14,7 +14,6 @@ interface PersonasSectionProps {
   generatePersonas: () => void;
   updatePersona?: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
-  failedPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
   removePersona?: (index: number) => void;
 }
@@ -27,7 +26,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   generatePersonas,
   updatePersona,
   loadingPortraitIndices = [],
-  failedPortraitIndices = [],
   retryPortraitGeneration,
   removePersona
 }) => {
@@ -86,7 +84,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                     personas={personas}
                     isGeneratingPortraits={isGeneratingPortraits}
                     loadingIndices={loadingPortraitIndices}
-                    failedIndices={failedPortraitIndices}
                     onRetryPortrait={retryPortraitGeneration}
                   />
                 </tbody>

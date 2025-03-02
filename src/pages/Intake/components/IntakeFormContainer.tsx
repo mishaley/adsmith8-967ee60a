@@ -1,44 +1,43 @@
+
 import React from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Country, countries } from 'countries-list';
+import IntakeHeader from "./IntakeHeader";
+import IntakeFormFields from "./IntakeFormFields";
+import GeoMapSection from "./GeoMap/GeoMapSection";
 import PersonasSection from "./Personas/PersonasSection";
 import { Persona } from "./Personas/types";
-
 interface IntakeFormContainerProps {
+  // Form fields
   brandName: string;
-  setBrandName: (brandName: string) => void;
+  setBrandName: (value: string) => void;
   industry: string;
-  setIndustry: (industry: string) => void;
+  setIndustry: (value: string) => void;
   offering: string;
-  setOffering: (offering: string) => void;
+  setOffering: (value: string) => void;
   sellingPoints: string;
-  setSellingPoints: (sellingPoints: string) => void;
+  setSellingPoints: (value: string) => void;
   problemSolved: string;
-  setProblemSolved: (problemSolved: string) => void;
+  setProblemSolved: (value: string) => void;
   uniqueOffering: string;
-  setUniqueOffering: (uniqueOffering: string) => void;
+  setUniqueOffering: (value: string) => void;
   adPlatform: string;
-  setAdPlatform: (adPlatform: string) => void;
+  setAdPlatform: (value: string) => void;
   selectedCountry: string;
-  setSelectedCountry: (selectedCountry: string) => void;
+  setSelectedCountry: (value: string) => void;
   handleSave: () => void;
+
+  // Personas
   personas: Persona[];
   summary: string;
   isGeneratingPersonas: boolean;
   isGeneratingPortraits: boolean;
   generatePersonas: () => void;
-  updatePersona?: (index: number, updatedPersona: Persona) => void;
+  updatePersona: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
-  failedPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
   removePersona?: (index: number) => void;
 }
-
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
+  // Form fields
   brandName,
   setBrandName,
   industry,
@@ -56,6 +55,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   selectedCountry,
   setSelectedCountry,
   handleSave,
+  // Personas
   personas,
   summary,
   isGeneratingPersonas,
@@ -63,122 +63,25 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   generatePersonas,
   updatePersona,
   loadingPortraitIndices,
-  failedPortraitIndices,
   retryPortraitGeneration,
   removePersona
 }) => {
-  const countryOptions = Object.entries(countries).map(([code, country]: [string, Country]) => ({
-    value: code,
-    label: country.name,
-  }));
-
-  return (
-    <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="text-2xl font-bold mb-4">Intake Form</div>
-
-      <div className="grid gap-4">
-        <div>
-          <Label htmlFor="brandName">Brand Name</Label>
-          <Input
-            id="brandName"
-            value={brandName}
-            onChange={(e) => setBrandName(e.target.value)}
-          />
+  return <div className="p-4 min-h-[calc(100vh-60px)] bg-#d3e4fd">
+      <IntakeHeader />
+      
+      <div className="mt-4">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border">
+            <tbody>
+              <IntakeFormFields brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} handleSave={handleSave} />
+              
+              <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
+              
+              <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} />
+            </tbody>
+          </table>
         </div>
-
-        <div>
-          <Label htmlFor="industry">Industry</Label>
-          <Input
-            id="industry"
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="offering">Offering</Label>
-          <Input
-            id="offering"
-            value={offering}
-            onChange={(e) => setOffering(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="sellingPoints">Selling Points</Label>
-          <Textarea
-            id="sellingPoints"
-            value={sellingPoints}
-            onChange={(e) => setSellingPoints(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="problemSolved">Problem Solved</Label>
-          <Textarea
-            id="problemSolved"
-            value={problemSolved}
-            onChange={(e) => setProblemSolved(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="uniqueOffering">Unique Offering</Label>
-          <Textarea
-            id="uniqueOffering"
-            value={uniqueOffering}
-            onChange={(e) => setUniqueOffering(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="adPlatform">Ad Platform</Label>
-          <Input
-            id="adPlatform"
-            value={adPlatform}
-            onChange={(e) => setAdPlatform(e.target.value)}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="country">Country</Label>
-          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a country" />
-            </SelectTrigger>
-            <SelectContent>
-              {countryOptions.map((country) => (
-                <SelectItem key={country.value} value={country.value}>
-                  {country.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button onClick={handleSave}>Save</Button>
       </div>
-
-      <div className="mt-8 border rounded-md overflow-hidden bg-white">
-        <table className="w-full border-collapse">
-          <tbody>
-            <PersonasSection
-              personas={personas}
-              summary={summary}
-              isGeneratingPersonas={isGeneratingPersonas}
-              isGeneratingPortraits={isGeneratingPortraits}
-              generatePersonas={generatePersonas}
-              updatePersona={updatePersona}
-              loadingPortraitIndices={loadingPortraitIndices}
-              failedPortraitIndices={failedPortraitIndices}
-              retryPortraitGeneration={retryPortraitGeneration}
-              removePersona={removePersona}
-            />
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+    </div>;
 };
-
 export default IntakeFormContainer;
