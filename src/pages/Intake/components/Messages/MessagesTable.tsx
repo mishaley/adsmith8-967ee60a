@@ -3,6 +3,7 @@ import React from "react";
 import { Loader } from "lucide-react";
 import { Persona } from "../Personas/types";
 import PersonaCell from "./PersonaCell";
+import { Button } from "@/components/ui/button";
 
 interface Message {
   id: string;
@@ -43,7 +44,12 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
             <th className="border p-2 text-left w-64">Persona</th>
             {selectedMessageTypes.map(type => (
               <th key={type} className="border p-2 text-left">
-                {getMessageTypeLabel(type)}
+                <div className="flex items-center gap-2">
+                  <span>{getMessageTypeLabel(type)}</span>
+                  <Button variant="outline" size="sm" className="py-0 px-2 h-6 text-xs">
+                    Generate
+                  </Button>
+                </div>
               </th>
             ))}
           </tr>
