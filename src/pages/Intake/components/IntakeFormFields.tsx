@@ -75,7 +75,7 @@ const IntakeFormFields: React.FC<IntakeFormFieldsProps> = ({
         onChange={e => setIndustry(e.target.value)} 
       />
       <FormField 
-        label="Name one of your offerings" 
+        label="Name just one of your offerings" 
         helperText="We can add more later" 
         helperTextClassName="text-sm text-gray-500 mt-1" 
         value={offering} 
