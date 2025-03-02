@@ -1,13 +1,16 @@
 
 import React from "react";
 
-const IntakeHeader: React.FC = () => {
+interface IntakeHeaderProps {
+  title: string;
+  subtitle: string;
+}
+
+const IntakeHeader: React.FC<IntakeHeaderProps> = ({ title, subtitle }) => {
   return (
-    <div>
-      <p className="text-lg mb-4">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
-      <p className="text-lg mb-4">
-        Let's get a demo campaign set up. It'll only take a few minutes.
-      </p>
+    <div className="mb-6">
+      <h1 className="text-2xl font-bold">{title}</h1>
+      <p className="text-gray-600 mt-2">{subtitle}</p>
     </div>
   );
 };
