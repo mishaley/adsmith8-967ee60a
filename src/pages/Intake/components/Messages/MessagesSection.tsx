@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,19 +126,21 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       </tr>
       <tr>
         <td colSpan={2} className="p-4">
-          <MessageTypeSelector 
-            selectedMessageTypes={selectedMessageTypes}
-            toggleMessageType={toggleMessageType}
-            isLoaded={isLoaded}
-          />
-          
-          <div className="flex items-center mb-4">
+          <div className="flex flex-wrap gap-2 mb-4 items-center">
+            <MessageTypeSelector 
+              selectedMessageTypes={selectedMessageTypes}
+              toggleMessageType={toggleMessageType}
+              isLoaded={isLoaded}
+            />
+            
             <UserProvidedInput
               userProvidedMessage={userProvidedMessage}
               setUserProvidedMessage={setUserProvidedMessage}
               isUserProvidedSelected={isUserProvidedSelected}
             />
-            
+          </div>
+          
+          <div className="mb-4">
             <GenerateButton
               isGeneratingMessages={isGeneratingMessages}
               selectedMessageTypes={selectedMessageTypes}
