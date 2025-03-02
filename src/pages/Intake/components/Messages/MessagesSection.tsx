@@ -1,35 +1,41 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../Personas/types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MessagesList from "./MessagesList";
+
 interface MessagesSectionProps {
   personas: Persona[];
 }
+
 const MessagesSection: React.FC<MessagesSectionProps> = ({
   personas
 }) => {
-  const [selectedPersona, setSelectedPersona] = useState<string>("");
   const [messageType, setMessageType] = useState<string>("pain-point");
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
+  
+  // Use the first persona ID or empty string if no personas
+  const selectedPersonaId = personas.length > 0 && personas[0].id ? personas[0].id : "";
+  
   const {
     data: messages = [],
     refetch
   } = useQuery({
-    queryKey: ["messages", selectedPersona, messageType],
+    queryKey: ["messages", selectedPersonaId, messageType],
     queryFn: async () => {
       const {
         data
-      } = await supabase.from("d1messages").select("*").eq("persona_id", selectedPersona || "none").eq("type", messageType);
+      } = await supabase.from("d1messages").select("*").eq("persona_id", selectedPersonaId || "none").eq("type", messageType);
       return data || [];
     },
-    enabled: !!selectedPersona
+    enabled: !!selectedPersonaId
   });
+
   const generateMessages = async () => {
-    if (!selectedPersona) return;
+    if (!selectedPersonaId) return;
     setIsGeneratingMessages(true);
     try {
       // In a real implementation, you would call an API to generate messages
@@ -42,6 +48,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
       setIsGeneratingMessages(false);
     }
   };
+
   return <>
       <tr className="border-b">
         <td colSpan={2} className="py-4 text-lg">
@@ -67,26 +74,10 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
             </Button>
           </div>
           
-          <div className="flex items-end gap-4 mb-4">
-            <div className="w-64">
-              
-              <Select value={selectedPersona} onValueChange={setSelectedPersona}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a persona" />
-                </SelectTrigger>
-                <SelectContent>
-                  {personas.map((persona, index) => <SelectItem key={index} value={persona.id || index.toString()}>
-                      {persona.name || persona.title}
-                    </SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            
-          </div>
-          
-          {selectedPersona && <MessagesList messages={messages} isLoading={isGeneratingMessages} />}
+          {selectedPersonaId && <MessagesList messages={messages} isLoading={isGeneratingMessages} />}
         </td>
       </tr>
     </>;
 };
+
 export default MessagesSection;
