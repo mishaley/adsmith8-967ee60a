@@ -1,16 +1,16 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Loader, Image } from "lucide-react";
+import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
-import { usePersonaPortraits } from "./hooks/usePersonaPortraits";
 import { Persona } from "./types";
 
 interface PersonasSectionProps {
   personas: Persona[];
   summary: string;
   isGeneratingPersonas: boolean;
+  isGeneratingPortraits: boolean;
   generatePersonas: () => void;
   updatePersona?: (index: number, updatedPersona: Persona) => void;
 }
@@ -19,16 +19,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   personas,
   summary,
   isGeneratingPersonas,
+  isGeneratingPortraits,
   generatePersonas,
   updatePersona
 }) => {
-  const {
-    generatingPortraitFor,
-    generatingAllPortraits,
-    generatePortrait,
-    generateAllPortraits
-  } = usePersonaPortraits(personas, updatePersona);
-
   console.log("PersonasSection rendering with personas:", personas);
 
   return (
@@ -39,35 +33,21 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <span>Personas</span>
             <Button 
               onClick={generatePersonas} 
-              disabled={isGeneratingPersonas}
+              disabled={isGeneratingPersonas || isGeneratingPortraits}
               className="ml-4"
               size="sm"
             >
               {isGeneratingPersonas ? (
                 <>
                   <Loader className="h-4 w-4 animate-spin mr-2" />
-                  Generating...
+                  Generating Personas...
                 </>
-              ) : "Generate"}
-            </Button>
-            <Button 
-              onClick={generateAllPortraits} 
-              disabled={generatingAllPortraits || generatingPortraitFor !== null || personas.length === 0}
-              className="ml-2"
-              size="sm"
-              variant="outline"
-            >
-              {generatingAllPortraits ? (
+              ) : isGeneratingPortraits ? (
                 <>
                   <Loader className="h-4 w-4 animate-spin mr-2" />
-                  Generating...
+                  Generating Portraits...
                 </>
-              ) : (
-                <>
-                  <Image className="h-4 w-4 mr-2" />
-                  Portraits
-                </>
-              )}
+              ) : "Generate"}
             </Button>
           </div>
         </td>
@@ -87,10 +67,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 <tbody>
                   <PersonasList personas={personas} />
                   <PortraitRow 
-                    personas={personas} 
-                    generatePortrait={generatePortrait}
-                    generatingPortraitFor={generatingPortraitFor}
-                    generatingAllPortraits={generatingAllPortraits}
+                    personas={personas}
+                    isGeneratingPortraits={isGeneratingPortraits}
                   />
                   {/* Empty row for spacing/alignment */}
                   <tr>

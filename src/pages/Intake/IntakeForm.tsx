@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,8 @@ import GeoMapSection from "./components/GeoMap/GeoMapSection";
 import PersonasSection from "./components/Personas/PersonasSection";
 import { generatePersonaSummary, normalizeGender } from "./utils/personaUtils";
 import { Persona } from "./components/Personas/types";
+import { generatePersonaPortrait } from "./components/Personas/services/portraitService";
+import { getRandomRace, savePortraitsToSession } from "./components/Personas/utils/portraitUtils";
 
 const IntakeForm = () => {
   const [brandName, setBrandName] = useState("");
@@ -21,6 +22,7 @@ const IntakeForm = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
+  const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [summary, setSummary] = useState("");
   
   const handleSave = () => {
@@ -35,6 +37,55 @@ const IntakeForm = () => {
       selectedCountry
     });
     // Here you would typically save the data to a database
+  };
+
+  const generatePortraitsForAllPersonas = async (personasList: Persona[]) => {
+    if (personasList.length === 0) return;
+    
+    setIsGeneratingPortraits(true);
+    toast.info("Generating portraits for all personas...");
+    
+    const updatedPersonas = [...personasList];
+    
+    try {
+      // Generate portraits for each persona sequentially
+      for (let i = 0; i < personasList.length; i++) {
+        let persona = personasList[i];
+        
+        // Assign a random race if not already present
+        if (!persona.race) {
+          persona = {
+            ...persona,
+            race: getRandomRace()
+          };
+          updatedPersonas[i] = persona;
+        }
+        
+        const { imageUrl, error } = await generatePersonaPortrait(persona);
+        
+        if (imageUrl) {
+          updatedPersonas[i] = {
+            ...persona,
+            portraitUrl: imageUrl
+          };
+        } else if (error) {
+          console.error(`Error generating portrait for persona ${i + 1}:`, error);
+        }
+      }
+      
+      // Update personas with all new portraits
+      setPersonas(updatedPersonas);
+      
+      // Save portraits to session storage
+      savePortraitsToSession(updatedPersonas);
+      
+      toast.success("All portraits have been generated");
+    } catch (error) {
+      console.error("Error generating portraits:", error);
+      toast.error("Failed to generate some portraits");
+    } finally {
+      setIsGeneratingPortraits(false);
+    }
   };
 
   const generatePersonas = async () => {
@@ -83,6 +134,9 @@ const IntakeForm = () => {
         setSummary(newSummary);
         
         toast.success("Personas generated successfully");
+        
+        // Automatically generate portraits for all personas
+        await generatePortraitsForAllPersonas(normalizedPersonas);
       } else {
         console.error("No personas data received:", data);
         toast.error("No personas data received");
@@ -138,6 +192,7 @@ const IntakeForm = () => {
                     personas={personas}
                     summary={summary}
                     isGeneratingPersonas={isGeneratingPersonas}
+                    isGeneratingPortraits={isGeneratingPortraits}
                     generatePersonas={generatePersonas}
                     updatePersona={updatePersona}
                   />

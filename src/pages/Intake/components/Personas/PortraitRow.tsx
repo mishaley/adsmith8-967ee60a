@@ -1,21 +1,16 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { Persona } from "./types";
 
 interface PortraitRowProps {
   personas: Persona[];
-  generatePortrait: (persona: Persona, index: number) => void;
-  generatingPortraitFor: number | null;
-  generatingAllPortraits: boolean;
+  isGeneratingPortraits: boolean;
 }
 
 const PortraitRow: React.FC<PortraitRowProps> = ({ 
   personas, 
-  generatePortrait, 
-  generatingPortraitFor, 
-  generatingAllPortraits 
+  isGeneratingPortraits
 }) => {
   return (
     <tr>
@@ -28,37 +23,31 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                 alt={`Portrait of ${personas[index]?.title || `Persona ${index + 1}`}`}
                 className="w-full h-auto rounded-md"
                 onError={(e) => {
-                  // Handle image loading errors by replacing with a generate button
+                  // Handle image loading errors
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
+                  
+                  // Create a placeholder for failed images
                   const parentEl = target.parentElement;
-                  if (parentEl && personas[index]) {
-                    // Create a generate button when the image fails to load
-                    const btn = document.createElement('button');
-                    btn.className = 'w-full mt-1 px-4 py-2 text-sm border rounded hover:bg-gray-100';
-                    btn.innerText = 'Generate Portrait';
-                    btn.onclick = () => generatePortrait(personas[index], index);
-                    parentEl.appendChild(btn);
+                  if (parentEl) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500';
+                    placeholder.innerText = 'Failed to load image';
+                    parentEl.appendChild(placeholder);
                   }
                 }}
               />
             ) : personas.length > 0 && index < personas.length ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => generatePortrait(personas[index], index)}
-                disabled={generatingPortraitFor !== null || generatingAllPortraits}
-                className="w-full mt-1"
-              >
-                {generatingPortraitFor === index ? (
-                  <>
-                    <Loader className="h-4 w-4 animate-spin mr-2" />
-                    Generating...
-                  </>
-                ) : (
-                  "Generate Portrait"
-                )}
-              </Button>
+              isGeneratingPortraits ? (
+                <div className="w-full h-32 bg-gray-100 rounded-md flex flex-col items-center justify-center">
+                  <Loader className="h-4 w-4 animate-spin mb-2" />
+                  <span className="text-sm text-gray-500">Generating...</span>
+                </div>
+              ) : (
+                <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
+                  Waiting for portrait
+                </div>
+              )
             ) : (
               <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
                 No persona data
