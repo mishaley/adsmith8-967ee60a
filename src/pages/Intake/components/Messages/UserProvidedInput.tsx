@@ -19,7 +19,6 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
     <div className="w-60 flex items-start">
       <Input
         type="text"
-        placeholder="Enter your custom message here..."
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
         className="w-full h-9 rounded-l-none border-l-0 -ml-[1px]" // Added negative margin to overlap border
