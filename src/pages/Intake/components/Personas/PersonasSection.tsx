@@ -37,7 +37,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <span>Personas</span>
             <Button 
               onClick={generatePersonas} 
-              disabled={isGeneratingPersonas || isGeneratingPortraits}
+              disabled={isGeneratingPersonas}
               className="ml-4"
               size="sm"
             >
@@ -46,17 +46,20 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                   <Loader className="h-4 w-4 animate-spin mr-2" />
                   Generating Personas...
                 </>
-              ) : isGeneratingPortraits ? (
-                <>
-                  <Loader className="h-4 w-4 animate-spin mr-2" />
-                  Generating Portraits...
-                </>
-              ) : "Generate"}
+              ) : (
+                "Generate"
+              )}
             </Button>
+            {isGeneratingPortraits && !isGeneratingPersonas && (
+              <div className="ml-4 text-sm text-gray-500 flex items-center">
+                <Loader className="h-3 w-3 animate-spin mr-2" />
+                Generating portraits...
+              </div>
+            )}
           </div>
         </td>
       </tr>
-      {isGeneratingPersonas ? (
+      {isGeneratingPersonas && personas.length === 0 ? (
         <tr>
           <td colSpan={2} className="py-8 text-center">
             <Loader className="h-8 w-8 animate-spin mx-auto" />
@@ -69,7 +72,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <div className="w-full">
               <table className="w-full border-collapse">
                 <tbody>
-                  <PersonasList personas={personas} />
+                  <PersonasList 
+                    personas={personas} 
+                    isGeneratingPortraits={isGeneratingPortraits}
+                  />
                   <PortraitRow 
                     personas={personas}
                     isGeneratingPortraits={isGeneratingPortraits}

@@ -151,7 +151,11 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
       return;
     }
 
+    // Reset states
     setIsGeneratingPersonas(true);
+    setPersonas([]); // Clear existing personas to show we're starting fresh
+    setSummary("");
+    
     try {
       console.log("Calling generate-personas with product:", offering);
       
@@ -195,8 +199,9 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
         
         toast.success("Personas generated successfully");
         
-        // Automatically generate portraits for all personas
-        await generatePortraitsForAllPersonas(normalizedPersonas);
+        // Immediately start generating portraits in parallel
+        // This happens after we've already set the personas state, so text will show first
+        generatePortraitsForAllPersonas(normalizedPersonas);
       } else {
         console.error("Invalid personas data format received:", data);
         toast.error("Invalid data format received from server");
