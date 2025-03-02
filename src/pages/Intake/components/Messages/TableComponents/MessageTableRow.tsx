@@ -3,7 +3,7 @@ import React from "react";
 import { Persona } from "../../Personas/types";
 import PersonaCell from "../PersonaCell";
 import MessageTableCell from "./MessageTableCell";
-import { Message } from "../hooks/useMessagesState";
+import { Message } from "../hooks/useMessagesFetching";
 
 interface MessageTableRowProps {
   persona: Persona;

@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { Persona } from '../../Personas/types';
 import { GeneratedMessagesRecord } from '../hooks/useMessagesState';
@@ -91,7 +90,7 @@ export async function generateMessagesForAllPersonas(
   return allMessages;
 }
 
-export async function generateMessageForColumn(
+export async function generateColumnMessages(
   messageType: string, 
   personas: Persona[],
   existingMessages: GeneratedMessagesRecord

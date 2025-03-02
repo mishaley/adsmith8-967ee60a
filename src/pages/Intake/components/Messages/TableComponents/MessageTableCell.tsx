@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Loader } from "lucide-react";
-import { Message } from "../hooks/useMessagesState";
+import { Message } from "../hooks/useMessagesFetching";
 
 interface MessageTableCellProps {
   personaId: string;
