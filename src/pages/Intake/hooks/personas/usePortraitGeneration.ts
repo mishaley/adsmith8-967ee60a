@@ -66,7 +66,7 @@ export const usePortraitGeneration = () => {
     try {
       console.log(`Starting portrait generation for ${personasList.length} personas`);
       
-      // Generate portraits sequentially to avoid overloading the API
+      // Strict sequential processing with longer delays between requests
       for (let i = 0; i < personasList.length; i++) {
         const persona = personasList[i];
         
@@ -90,14 +90,21 @@ export const usePortraitGeneration = () => {
           savePortraitsToSession(updatedPersonasList);
           
           console.log(`Successfully generated portrait for persona ${i + 1}`);
+          
+          // Add a longer delay between successful requests to avoid overwhelming the API
+          if (i < personasList.length - 1) {
+            console.log("Waiting 3 seconds before generating next portrait...");
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
         } else {
           errorCount++;
           console.error(`Failed to generate portrait for persona ${i + 1}`);
-        }
-        
-        // Add a small delay between requests
-        if (i < personasList.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Still add a delay even after failure to avoid hammering the API
+          if (i < personasList.length - 1) {
+            console.log("Waiting 3 seconds before attempting next portrait...");
+            await new Promise(resolve => setTimeout(resolve, 3000));
+          }
         }
       }
       

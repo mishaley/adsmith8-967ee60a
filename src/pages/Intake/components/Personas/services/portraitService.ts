@@ -20,14 +20,14 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     const prompt = createPortraitPrompt(personaWithRace);
     console.log(`Generating portrait for ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax} with prompt: ${prompt.substring(0, 50)}...`);
     
-    // Add a timeout to the fetch request
+    // Add a timeout to the fetch request - now 60 seconds for initial generation
     const timeoutPromise = new Promise<{ data: null, error: Error }>((resolve) => {
       setTimeout(() => {
         resolve({ 
           data: null, 
-          error: new Error('Request timed out after 45 seconds') 
+          error: new Error('Request timed out after 60 seconds') 
         });
-      }, 45000); // Increased timeout to 45 seconds for initial generation
+      }, 60000); // Increased timeout to 60 seconds for initial generation
     });
     
     // Race the actual request against the timeout
@@ -36,7 +36,8 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
       supabase.functions.invoke('ideogram-test', {
         body: { 
           prompt,
-          highPriority: true // Mark this as high priority
+          highPriority: true, // Mark this as high priority
+          retryAttempt: 0 // Initial attempt
         }
       }),
       timeoutPromise
@@ -45,9 +46,9 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     if (error) {
       console.error('Error generating portrait:', error.message, error);
       
-      // Always retry on error, no limit on retries
-      console.log(`Retrying portrait generation. Waiting 3 seconds before retry.`);
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+      // Add a longer delay before retry to reduce API hammering
+      console.log(`Retrying portrait generation. Waiting 5 seconds before retry.`);
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Longer wait before retry
       return generatePersonaPortrait(persona, retryCount);
     }
     
@@ -64,8 +65,8 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     // If we got a response but no image URL, that's also an error - retry
     if (!imageUrl) {
       console.error('No image URL in response:', data);
-      console.log(`No image URL in response. Retrying. Waiting 3 seconds before retry.`);
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+      console.log(`No image URL in response. Retrying. Waiting 5 seconds before retry.`);
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Longer wait before retry
       return generatePersonaPortrait(persona, retryCount);
     }
     
@@ -76,16 +77,16 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
       return { imageUrl, error: null };
     } catch (urlError) {
       console.error('Invalid image URL:', imageUrl);
-      console.log(`Invalid image URL. Retrying. Waiting 3 seconds before retry.`);
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+      console.log(`Invalid image URL. Retrying. Waiting 5 seconds before retry.`);
+      await new Promise(resolve => setTimeout(resolve, 5000)); // Longer wait before retry
       return generatePersonaPortrait(persona, retryCount);
     }
   } catch (error) {
     console.error('Error in portrait generation:', error);
     
-    // Retry on any error
-    console.log(`Exception in portrait generation. Retrying. Waiting 3 seconds before retry.`);
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Wait before retry
+    // Retry on any error with longer delay
+    console.log(`Exception in portrait generation. Retrying. Waiting 5 seconds before retry.`);
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Longer wait before retry
     return generatePersonaPortrait(persona, retryCount);
   }
 };

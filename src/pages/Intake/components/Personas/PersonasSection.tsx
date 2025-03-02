@@ -32,6 +32,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   console.log("PersonasSection rendering with personas:", personas);
   
   const hasPersonas = personas && personas.length > 0;
+  const hasLoadingPortraits = loadingPortraitIndices.length > 0;
 
   return (
     <>
@@ -41,7 +42,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <span>Personas</span>
             <Button 
               onClick={generatePersonas} 
-              disabled={isGeneratingPersonas}
+              disabled={isGeneratingPersonas || isGeneratingPortraits}
               className="ml-4"
               size="sm"
             >
@@ -54,10 +55,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 "Generate"
               )}
             </Button>
-            {isGeneratingPortraits && !isGeneratingPersonas && (
-              <div className="ml-4 text-sm text-gray-500 flex items-center">
+            {(isGeneratingPortraits || hasLoadingPortraits) && !isGeneratingPersonas && (
+              <div className="ml-4 text-sm text-blue-500 flex items-center font-medium">
                 <Loader className="h-3 w-3 animate-spin mr-2" />
-                Generating portraits...
+                Generating portraits... {loadingPortraitIndices.length > 0 ? `(${loadingPortraitIndices.length} remaining)` : ''}
               </div>
             )}
           </div>

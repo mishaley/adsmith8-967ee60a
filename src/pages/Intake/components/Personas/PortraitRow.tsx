@@ -95,7 +95,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
             ) : personas.length > 0 && index < personas.length ? (
               loadingIndices.includes(index) ? (
                 <div className="w-full aspect-square bg-transparent rounded-md flex flex-col items-center justify-center">
-                  <Loader className="h-4 w-4 animate-spin mb-2 text-blue-500" />
+                  <Loader className="h-6 w-6 animate-spin mb-2 text-blue-500" />
                   <span className="text-sm text-gray-500">Generating portrait...</span>
                 </div>
               ) : (
@@ -104,14 +104,14 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="flex flex-col items-center">
-                          <AlertTriangle className="h-4 w-4 text-amber-500 mb-2" />
+                          <AlertTriangle className="h-5 w-5 text-amber-500 mb-2" />
                           <div className="mb-2 text-center">
-                            {isGeneratingPortraits ? "Waiting in queue..." : "Retry in progress..."}
+                            {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation needed"}
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Automatically retrying portrait generation...</p>
+                        <p>Click 'Retry Manually' to generate this portrait</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
