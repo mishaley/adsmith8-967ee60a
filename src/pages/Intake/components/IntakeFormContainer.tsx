@@ -1,13 +1,12 @@
-
 import React from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
-import PersonasSection from "./Personas/PersonasSection";
 import GeoMapSection from "./GeoMap/GeoMapSection";
-import CountrySelector from "./CountrySelector";
+import PersonasSection from "./Personas/PersonasSection";
 import { Persona } from "./Personas/types";
 
 interface IntakeFormContainerProps {
+  // Form fields
   brandName: string;
   setBrandName: (value: string) => void;
   industry: string;
@@ -25,17 +24,20 @@ interface IntakeFormContainerProps {
   selectedCountry: string;
   setSelectedCountry: (value: string) => void;
   handleSave: () => void;
+  
+  // Personas
   personas: Persona[];
   summary: string;
   isGeneratingPersonas: boolean;
   isGeneratingPortraits: boolean;
   generatePersonas: () => void;
-  updatePersona?: (index: number, updatedPersona: Persona) => void;
+  updatePersona: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
   retryPortraitGeneration?: (index: number) => void;
 }
 
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
+  // Form fields
   brandName,
   setBrandName,
   industry,
@@ -53,6 +55,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   selectedCountry,
   setSelectedCountry,
   handleSave,
+  
+  // Personas
   personas,
   summary,
   isGeneratingPersonas,
@@ -63,56 +67,49 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   retryPortraitGeneration
 }) => {
   return (
-    <div className="min-h-screen pb-10">
-      <IntakeHeader title="New Campaign" subtitle={`We're going to collect some information about ${brandName || "your brand"} to help us understand your business better.`} />
+    <div className="p-4 min-h-[calc(100vh-60px)] bg-white">
+      <IntakeHeader />
       
-      <div className="w-full rounded-md overflow-hidden">
-        <table className="w-full border-collapse bg-[#d3e4fd]">
-          <tbody>
-            <IntakeFormFields
-              brandName={brandName}
-              setBrandName={setBrandName}
-              industry={industry}
-              setIndustry={setIndustry}
-              offering={offering}
-              setOffering={setOffering}
-              sellingPoints={sellingPoints}
-              setSellingPoints={setSellingPoints}
-              problemSolved={problemSolved}
-              setProblemSolved={setProblemSolved}
-              uniqueOffering={uniqueOffering}
-              setUniqueOffering={setUniqueOffering}
-              adPlatform={adPlatform}
-              setAdPlatform={setAdPlatform}
-              handleSave={handleSave}
-            />
-            
-            <tr className="border-b">
-              <td className="py-4 pr-4 text-lg pl-4">
-                <div>Country</div>
-              </td>
-              <td className="py-4">
-                <CountrySelector
-                  selectedCountry={selectedCountry}
-                  setSelectedCountry={setSelectedCountry}
-                />
-              </td>
-            </tr>
-            
-            <GeoMapSection />
-            
-            <PersonasSection
-              personas={personas}
-              summary={summary}
-              isGeneratingPersonas={isGeneratingPersonas}
-              isGeneratingPortraits={isGeneratingPortraits}
-              generatePersonas={generatePersonas}
-              updatePersona={updatePersona}
-              loadingPortraitIndices={loadingPortraitIndices}
-              retryPortraitGeneration={retryPortraitGeneration}
-            />
-          </tbody>
-        </table>
+      <div className="mt-4">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border">
+            <tbody>
+              <IntakeFormFields 
+                brandName={brandName}
+                setBrandName={setBrandName}
+                industry={industry}
+                setIndustry={setIndustry}
+                offering={offering}
+                setOffering={setOffering}
+                sellingPoints={sellingPoints}
+                setSellingPoints={setSellingPoints}
+                problemSolved={problemSolved}
+                setProblemSolved={setProblemSolved}
+                uniqueOffering={uniqueOffering}
+                setUniqueOffering={setUniqueOffering}
+                adPlatform={adPlatform}
+                setAdPlatform={setAdPlatform}
+                handleSave={handleSave}
+              />
+              
+              <GeoMapSection 
+                selectedCountry={selectedCountry}
+                setSelectedCountry={setSelectedCountry}
+              />
+              
+              <PersonasSection 
+                personas={personas}
+                summary={summary}
+                isGeneratingPersonas={isGeneratingPersonas}
+                isGeneratingPortraits={isGeneratingPortraits}
+                generatePersonas={generatePersonas}
+                updatePersona={updatePersona}
+                loadingPortraitIndices={loadingPortraitIndices}
+                retryPortraitGeneration={retryPortraitGeneration}
+              />
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
