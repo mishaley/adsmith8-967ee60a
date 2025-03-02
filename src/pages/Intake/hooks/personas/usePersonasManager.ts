@@ -55,11 +55,9 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
       
       console.log(`${newPersonas.length} personas generated successfully, triggering portrait generation now`);
       
-      // CRITICAL: Trigger portrait generation with a very slight delay to ensure React has updated the state
-      setTimeout(() => {
-        // This is the key function call that triggers portrait generation
-        generatePortraitsForAll(generatePortraitsForAllPersonas);
-      }, 100);
+      // CRITICAL FIX: Pass the newPersonas directly to the portrait generation function
+      // instead of relying on the state update to have completed
+      generatePortraitsForAll(newPersonas, generatePortraitsForAllPersonas);
     });
   }, [offering, selectedCountry, generatePersonasBase, generatePortraitsForAll, generatePortraitsForAllPersonas]);
 

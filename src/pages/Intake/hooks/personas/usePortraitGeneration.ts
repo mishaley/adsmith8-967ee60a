@@ -10,10 +10,15 @@ export const usePortraitGeneration = () => {
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
 
   const generatePortraitForPersona = async (persona: Persona, index: number) => {
-    if (!persona) return;
+    if (!persona) return null;
     
     // Mark this specific persona as loading
-    setLoadingPortraitIndices(prev => [...prev, index]);
+    setLoadingPortraitIndices(prev => {
+      if (!prev.includes(index)) {
+        return [...prev, index];
+      }
+      return prev;
+    });
     
     try {
       console.log(`Starting portrait generation for persona ${index + 1}:`, persona);
@@ -47,6 +52,8 @@ export const usePortraitGeneration = () => {
         console.error(`Error generating portrait for persona ${index + 1}:`, error);
         return { success: false, error, updatedPersona: null };
       }
+      
+      return null;
     } catch (error) {
       console.error(`Exception generating portrait for persona ${index + 1}:`, error);
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
@@ -55,7 +62,10 @@ export const usePortraitGeneration = () => {
   };
 
   const generatePortraitsForAllPersonas = async (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => {
-    if (personasList.length === 0) return;
+    if (!personasList || personasList.length === 0) {
+      console.warn("No personas to generate portraits for in generatePortraitsForAllPersonas");
+      return;
+    }
     
     setIsGeneratingPortraits(true);
     console.log("Starting portrait generation for all personas:", personasList);
@@ -89,13 +99,14 @@ export const usePortraitGeneration = () => {
         
         if (result?.success && result.updatedPersona) {
           successCount++;
+          
           // Update persona in the parent state immediately
           updatePersonaCallback(i, result.updatedPersona);
           
           // Save portraits to session after each successful generation
           const updatedPersonasList = [...personasList];
           updatedPersonasList[i] = result.updatedPersona;
-          savePortraitsToSession(updatedPersonasList);
+          savePortraitsToSession(updatedPersonasList.filter(Boolean));
           
           console.log(`Successfully generated portrait for persona ${i + 1}`);
         } else {
@@ -116,7 +127,7 @@ export const usePortraitGeneration = () => {
             // Save portraits to session
             const updatedPersonasList = [...personasList];
             updatedPersonasList[i] = secondAttempt.updatedPersona;
-            savePortraitsToSession(updatedPersonasList);
+            savePortraitsToSession(updatedPersonasList.filter(Boolean));
             
             console.log(`Second attempt succeeded for persona ${i + 1}`);
           } else {

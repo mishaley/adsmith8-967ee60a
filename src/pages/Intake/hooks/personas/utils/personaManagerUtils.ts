@@ -41,6 +41,10 @@ export const handlePortraitUpdateCallback = (
   // Update a single persona with its portrait
   updatePersona(index, updatedPersona);
   
+  // Make a copy of the personas array with the updated persona
+  const updatedPersonas = [...personas];
+  updatedPersonas[index] = updatedPersona;
+  
   // Save updated personas to session
-  updateSessionWithPersonas(personas, index, updatedPersona);
+  savePortraitsToSession(updatedPersonas.filter(Boolean));
 };

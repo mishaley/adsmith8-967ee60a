@@ -20,14 +20,14 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
     const prompt = createPortraitPrompt(personaWithRace);
     console.log(`Generating portrait for ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax} with prompt: ${prompt.substring(0, 50)}...`);
     
-    // First attempt with a 2-minute timeout
+    // First attempt with a 3-minute timeout (extended for reliability)
     const timeoutPromise = new Promise<{ data: null, error: Error }>((resolve) => {
       setTimeout(() => {
         resolve({ 
           data: null, 
-          error: new Error('Request timed out after 120 seconds') 
+          error: new Error('Request timed out after 180 seconds') 
         });
-      }, 120000); // 2 minutes timeout for initial generation
+      }, 180000); // 3 minutes timeout for initial generation
     });
     
     // Make the API call with high priority flag
@@ -54,9 +54,9 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
         setTimeout(() => {
           resolve({ 
             data: null, 
-            error: new Error('Second attempt timed out after 120 seconds') 
+            error: new Error('Second attempt timed out after 180 seconds') 
           });
-        }, 120000);
+        }, 180000);
       });
       
       const secondAttempt = await Promise.race([

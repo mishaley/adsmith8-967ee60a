@@ -10,19 +10,22 @@ export const usePersonaPortraits = (
 ) => {
   // Wrapper for generating portraits for all personas
   const generatePortraitsForAll = useCallback((
+    personasList: Persona[],
     generatePortraitsForAllPersonas: (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => void
   ) => {
-    console.log("generatePortraitsForAll called with personas:", personas);
-    if (!personas || personas.length === 0) {
-      console.warn("No personas to generate portraits for");
+    console.log("generatePortraitsForAll called with personasList:", personasList);
+    
+    // Use the provided personasList instead of the personas from props
+    if (!personasList || personasList.length === 0) {
+      console.warn("No personas provided to generate portraits for");
       return;
     }
     
-    generatePortraitsForAllPersonas(personas, (index, updatedPersona) => {
+    generatePortraitsForAllPersonas(personasList, (index, updatedPersona) => {
       console.log(`Portrait generated for persona ${index + 1}, updating state`);
-      handlePortraitUpdateCallback(index, updatedPersona, personas, updatePersona);
+      handlePortraitUpdateCallback(index, updatedPersona, personasList, updatePersona);
     });
-  }, [personas, updatePersona]);
+  }, [updatePersona]);
 
   // Wrapper for retryPortraitGeneration
   const retryPortraitGeneration = useCallback((index: number) => {
