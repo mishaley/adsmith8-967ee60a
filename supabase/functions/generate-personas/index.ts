@@ -22,6 +22,8 @@ serve(async (req) => {
       throw new Error('Product name is required');
     }
 
+    console.log(`Generating personas for product: ${product}`);
+
     const prompt = `Generate 5 target customer personas for ${product}. 
     For each persona, provide:
     1. A catchy 3-word title
@@ -39,7 +41,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'You are a marketing expert who specializes in identifying target demographics.' },
           { role: 'user', content: prompt }
@@ -48,11 +50,24 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('OpenAI API error:', response.status, errorData);
+      throw new Error(`OpenAI API error: ${response.status} ${errorData}`);
+    }
+
     const data = await response.json();
+    console.log('OpenAI response received.');
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      throw new Error('Invalid response format from OpenAI');
+    }
+    
     const generatedText = data.choices[0].message.content;
     
     // Parse the JSON content
     const personasData = JSON.parse(generatedText);
+    console.log('Personas data parsed successfully. Sending response.');
 
     return new Response(JSON.stringify(personasData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

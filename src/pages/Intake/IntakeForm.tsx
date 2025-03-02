@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,13 +42,23 @@ const IntakeForm = () => {
 
     setIsGeneratingPersonas(true);
     try {
+      console.log("Calling generate-personas with product:", offering);
+      
       const { data, error } = await supabase.functions.invoke('generate-personas', {
         body: { product: offering || "ramen noodles" }
       });
 
+      console.log("Response from generate-personas:", data, error);
+
       if (error) {
         console.error("Error generating personas:", error);
-        toast.error("Failed to generate personas");
+        toast.error("Failed to generate personas: " + error.message);
+        return;
+      }
+
+      if (!data) {
+        console.error("No data received from generate-personas");
+        toast.error("No data received from the server");
         return;
       }
 
@@ -58,7 +69,7 @@ const IntakeForm = () => {
           gender: normalizeGender(persona.gender)
         }));
         
-        console.log("Generated personas:", normalizedPersonas); // Add for debugging
+        console.log("Generated personas:", normalizedPersonas);
         setPersonas(normalizedPersonas);
         
         // Generate a summary with normalized personas
@@ -72,7 +83,7 @@ const IntakeForm = () => {
       }
     } catch (err) {
       console.error("Error:", err);
-      toast.error("Something went wrong");
+      toast.error("Something went wrong: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setIsGeneratingPersonas(false);
     }

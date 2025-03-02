@@ -29,7 +29,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     generateAllPortraits
   } = usePersonaPortraits(personas, updatePersona);
 
-  console.log("PersonasSection rendering with personas:", personas); // Add for debugging
+  console.log("PersonasSection rendering with personas:", personas);
 
   return (
     <>
@@ -43,7 +43,12 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
               className="ml-4"
               size="sm"
             >
-              {isGeneratingPersonas ? "Generating..." : "Generate"}
+              {isGeneratingPersonas ? (
+                <>
+                  <Loader className="h-4 w-4 animate-spin mr-2" />
+                  Generating...
+                </>
+              ) : "Generate"}
             </Button>
             <Button 
               onClick={generateAllPortraits} 
@@ -67,29 +72,38 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           </div>
         </td>
       </tr>
-      <tr>
-        <td colSpan={2} className="p-0">
-          <div className="w-full">
-            <table className="w-full border-collapse">
-              <tbody>
-                <PersonasList personas={personas} />
-                <PortraitRow 
-                  personas={personas} 
-                  generatePortrait={generatePortrait}
-                  generatingPortraitFor={generatingPortraitFor}
-                  generatingAllPortraits={generatingAllPortraits}
-                />
-                {/* Empty row for spacing/alignment */}
-                <tr>
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </td>
-      </tr>
+      {isGeneratingPersonas ? (
+        <tr>
+          <td colSpan={2} className="py-8 text-center">
+            <Loader className="h-8 w-8 animate-spin mx-auto" />
+            <div className="mt-4 text-gray-500">Generating personas...</div>
+          </td>
+        </tr>
+      ) : (
+        <tr>
+          <td colSpan={2} className="p-0">
+            <div className="w-full">
+              <table className="w-full border-collapse">
+                <tbody>
+                  <PersonasList personas={personas} />
+                  <PortraitRow 
+                    personas={personas} 
+                    generatePortrait={generatePortrait}
+                    generatingPortraitFor={generatingPortraitFor}
+                    generatingAllPortraits={generatingAllPortraits}
+                  />
+                  {/* Empty row for spacing/alignment */}
+                  <tr>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <td key={index} className="py-4 px-2 border-r" style={{ width: "20%" }}></td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </td>
+        </tr>
+      )}
     </>
   );
 };
