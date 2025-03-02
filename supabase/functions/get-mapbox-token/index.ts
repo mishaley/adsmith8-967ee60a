@@ -1,6 +1,5 @@
 
 // Follow the Deno deploy docs here: https://deno.com/deploy/docs
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
 
 // Allowed CORS headers
 const corsHeaders = {
