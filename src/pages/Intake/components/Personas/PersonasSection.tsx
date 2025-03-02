@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Loader, Image } from "lucide-react";
 import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
-import { usePersonaPortraits } from "./usePersonaPortraits";
+import { usePersonaPortraits } from "./hooks/usePersonaPortraits";
 import { Persona } from "./types";
 
 interface PersonasSectionProps {
