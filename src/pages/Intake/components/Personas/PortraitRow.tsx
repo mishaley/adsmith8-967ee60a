@@ -1,10 +1,16 @@
 
 import React, { useState } from "react";
-import { Loader, RefreshCw } from "lucide-react";
+import { Loader, RefreshCw, AlertTriangle } from "lucide-react";
 import { Persona } from "./types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PortraitRowProps {
   personas: Persona[];
@@ -23,7 +29,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
 
   const handleRetry = (index: number) => {
     if (onRetryPortrait) {
-      toast.info(`Retrying portrait for ${personas[index]?.title || `Persona ${index + 1}`}`);
+      toast.info(`Retrying portrait for persona ${index + 1}`);
       onRetryPortrait(index);
     }
   };
@@ -49,7 +55,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                   >
                     <img 
                       src={personas[index].portraitUrl} 
-                      alt={`Portrait of ${personas[index]?.title || `Persona ${index + 1}`}`}
+                      alt={`Portrait of persona ${index + 1}`}
                       className="w-full h-auto rounded-md"
                       onError={(e) => {
                         console.log(`Image failed to load for persona ${index + 1}:`, personas[index].portraitUrl);
@@ -76,7 +82,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                 >
                   <img 
                     src={personas[index].portraitUrl} 
-                    alt={`Large portrait of ${personas[index]?.title || `Persona ${index + 1}`}`}
+                    alt={`Large portrait of persona ${index + 1}`}
                     className="max-w-[400px] max-h-[400px] h-auto rounded-md"
                   />
                 </PopoverContent>
@@ -89,9 +95,22 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                 </div>
               ) : (
                 <div className="w-full aspect-square bg-transparent rounded-md flex flex-col items-center justify-center text-sm text-gray-500">
-                  <div className="mb-2">
-                    {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation failed"}
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col items-center">
+                          <AlertTriangle className="h-4 w-4 text-amber-500 mb-2" />
+                          <div className="mb-2 text-center">
+                            {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation failed"}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>The edge function may be unavailable or experiencing issues.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
                   {!isGeneratingPortraits && onRetryPortrait && (
                     <Button 
                       variant="outline" 

@@ -18,19 +18,20 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     }
     
     const prompt = createPortraitPrompt(personaWithRace);
-    console.log(`Generating portrait for ${personaWithRace.title} with prompt: ${prompt.substring(0, 50)}...`);
+    console.log(`Generating portrait for ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax} with prompt: ${prompt.substring(0, 50)}...`);
     
-    // Add a timeout to the fetch request - increased to 30 seconds
+    // Add a timeout to the fetch request
     const timeoutPromise = new Promise<{ data: null, error: Error }>((resolve) => {
       setTimeout(() => {
         resolve({ 
           data: null, 
           error: new Error('Request timed out after 30 seconds') 
         });
-      }, 30000); // Increased from 15 to 30 seconds
+      }, 30000); // Increased timeout to 30 seconds
     });
     
     // Race the actual request against the timeout
+    console.log("Calling Supabase edge function: ideogram-test");
     const { data, error } = await Promise.race([
       supabase.functions.invoke('ideogram-test', {
         body: { prompt }
@@ -39,17 +40,19 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     ]);
     
     if (error) {
-      console.error('Error generating portrait:', error);
+      console.error('Error generating portrait:', error.message, error);
       
       // Retry logic if we have retries left
       if (retryCount > 0) {
-        console.log(`Retrying portrait generation for ${personaWithRace.title}. Attempts left: ${retryCount}`);
+        console.log(`Retrying portrait generation. Attempts left: ${retryCount}`);
         await new Promise(resolve => setTimeout(resolve, 2000)); // Wait before retry
         return generatePersonaPortrait(persona, retryCount - 1);
       }
       
       return { imageUrl: null, error };
     }
+    
+    console.log("Portrait generation response data:", data);
     
     // Extract image URL from response data
     let imageUrl = null;
@@ -71,7 +74,7 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     // Validate image URL by checking if it's a valid URL
     try {
       new URL(imageUrl);
-      console.log(`Successfully generated portrait for ${personaWithRace.title}`);
+      console.log(`Successfully generated portrait with URL: ${imageUrl.substring(0, 50)}...`);
       return { imageUrl, error: null };
     } catch (urlError) {
       console.error('Invalid image URL:', imageUrl);

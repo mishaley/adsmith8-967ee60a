@@ -16,6 +16,8 @@ export const usePortraitGeneration = () => {
     setLoadingPortraitIndices(prev => [...prev, index]);
     
     try {
+      console.log(`Starting portrait generation for persona ${index + 1}:`, persona);
+      
       // Assign a random race if not already present
       let personaToUse = { ...persona };
       if (!personaToUse.race) {
@@ -31,6 +33,7 @@ export const usePortraitGeneration = () => {
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
       
       if (imageUrl) {
+        console.log(`Portrait generated successfully for persona ${index + 1}`);
         return { 
           success: true, 
           error: null, 
@@ -57,8 +60,11 @@ export const usePortraitGeneration = () => {
     toast.info("Generating portraits for all personas...");
     
     let errorCount = 0;
+    let successCount = 0;
     
     try {
+      console.log(`Starting portrait generation for ${personasList.length} personas`);
+      
       // Prepare all promises to run in parallel
       const portraitPromises = personasList.map(async (persona, index) => {
         // Skip if portrait already exists
@@ -70,8 +76,11 @@ export const usePortraitGeneration = () => {
         // Individual portrait generation is now handled by generatePortraitForPersona
         const result = await generatePortraitForPersona(persona, index);
         if (result?.success && result.updatedPersona) {
+          successCount++;
           // Update persona in the parent state immediately when available
           updatePersonaCallback(index, result.updatedPersona);
+        } else {
+          errorCount++;
         }
         
         return { 
@@ -84,17 +93,17 @@ export const usePortraitGeneration = () => {
       // Process results as they come in using Promise.allSettled
       const results = await Promise.allSettled(portraitPromises);
       
+      console.log(`Portrait generation complete. Success: ${successCount}, Errors: ${errorCount}`);
+      
       results.forEach((result, i) => {
         if (result.status === 'fulfilled') {
           const { error } = result.value;
           
           if (error) {
-            errorCount++;
             console.error(`Error generating portrait for persona ${i + 1}:`, error);
           }
         } else {
           // This handles the case where the promise itself rejected
-          errorCount++;
           console.error(`Portrait generation for persona ${i + 1} failed:`, result.reason);
         }
       });
@@ -104,7 +113,7 @@ export const usePortraitGeneration = () => {
       } else if (errorCount < personasList.length) {
         toast.warning(`Generated ${personasList.length - errorCount} out of ${personasList.length} portraits`);
       } else {
-        toast.error("Failed to generate any portraits");
+        toast.error("Failed to generate any portraits. The Supabase edge function may be unavailable.");
       }
     } catch (error) {
       console.error("Error in portrait generation process:", error);
@@ -124,14 +133,15 @@ export const usePortraitGeneration = () => {
     if (!persona) return;
 
     try {
+      toast.info(`Retrying portrait for persona ${index + 1}`);
       setIsGeneratingPortraits(true);
       const result = await generatePortraitForPersona(persona, index);
       
       if (result?.success && result.updatedPersona) {
         updatePersonaCallback(index, result.updatedPersona);
-        toast.success(`Portrait for ${persona.title} has been generated`);
+        toast.success(`Portrait for persona ${index + 1} has been generated`);
       } else {
-        toast.error(`Failed to generate portrait for ${persona.title}`);
+        toast.error(`Failed to generate portrait for persona ${index + 1}. The edge function may be unavailable.`);
       }
     } catch (error) {
       console.error(`Error retrying portrait for persona ${index + 1}:`, error);
