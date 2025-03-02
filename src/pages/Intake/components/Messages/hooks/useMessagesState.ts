@@ -15,7 +15,7 @@ export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
 export const useMessagesState = (personas: Persona[]) => {
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>([]);
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true); // Initialize to true so buttons are enabled by default
   const [userProvidedMessage, setUserProvidedMessage] = useState("");
   const [generatedMessages, setGeneratedMessages] = useState<GeneratedMessagesRecord>({});
   const [isTableVisible, setIsTableVisible] = useState(false);

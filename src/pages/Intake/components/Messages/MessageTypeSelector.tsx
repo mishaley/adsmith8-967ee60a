@@ -13,13 +13,19 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
   toggleMessageType,
   isLoaded
 }) => {
+  // Function to handle button click with proper event handling
+  const handleButtonClick = (type: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleMessageType(type);
+  };
+
   return (
     <div className="flex flex-wrap gap-2 items-start">
       <Button 
         variant={selectedMessageTypes.includes("pain-point") ? "default" : "outline"} 
         size="sm" 
-        onClick={() => toggleMessageType("pain-point")}
-        className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={(e) => handleButtonClick("pain-point", e)}
+        className="transition-all duration-300"
         disabled={!isLoaded}
       >
         Pain Point
@@ -27,8 +33,8 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
       <Button 
         variant={selectedMessageTypes.includes("unique-offering") ? "default" : "outline"} 
         size="sm" 
-        onClick={() => toggleMessageType("unique-offering")}
-        className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={(e) => handleButtonClick("unique-offering", e)}
+        className="transition-all duration-300"
         disabled={!isLoaded}
       >
         Unique Offering
@@ -36,8 +42,8 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
       <Button 
         variant={selectedMessageTypes.includes("value-prop") ? "default" : "outline"} 
         size="sm" 
-        onClick={() => toggleMessageType("value-prop")}
-        className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={(e) => handleButtonClick("value-prop", e)}
+        className="transition-all duration-300"
         disabled={!isLoaded}
       >
         Value Prop
@@ -45,8 +51,8 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
       <Button 
         variant={selectedMessageTypes.includes("user-provided") ? "default" : "outline"} 
         size="sm" 
-        onClick={() => toggleMessageType("user-provided")}
-        className={`transition-all duration-300 ${!isLoaded ? 'opacity-50 cursor-not-allowed' : ''} ${selectedMessageTypes.includes("user-provided") ? 'rounded-r-none border-r-0 z-10' : ''}`}
+        onClick={(e) => handleButtonClick("user-provided", e)}
+        className={`transition-all duration-300 ${selectedMessageTypes.includes("user-provided") ? 'rounded-r-none border-r-0 z-10' : ''}`}
         disabled={!isLoaded}
       >
         User Provided

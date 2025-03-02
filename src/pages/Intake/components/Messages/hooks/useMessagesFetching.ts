@@ -25,7 +25,7 @@ export const useMessagesFetching = (selectedPersonaId: string, selectedMessageTy
         .eq("persona_id", selectedPersonaId || "none")
         .in("type", selectedMessageTypes);
       
-      return data || [];
+      return (data || []) as Message[];
     },
     enabled: !!selectedPersonaId && selectedMessageTypes.length > 0
   });
