@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,11 +47,24 @@ const IntakeForm = () => {
     toast.info("Generating portraits for all personas...");
     
     const updatedPersonas = [...personasList];
+    let errorCount = 0;
     
     try {
       // Generate portraits for each persona sequentially
       for (let i = 0; i < personasList.length; i++) {
+        if (errorCount >= 3) {
+          // Stop trying after 3 consecutive errors
+          toast.error("Too many errors while generating portraits. Please try again later.");
+          break;
+        }
+        
         let persona = personasList[i];
+        
+        // Skip if portrait already exists
+        if (persona.portraitUrl) {
+          console.log(`Portrait for persona ${i + 1} already exists, skipping...`);
+          continue;
+        }
         
         // Assign a random race if not already present
         if (!persona.race) {
@@ -61,28 +75,40 @@ const IntakeForm = () => {
           updatedPersonas[i] = persona;
         }
         
-        const { imageUrl, error } = await generatePersonaPortrait(persona);
-        
-        if (imageUrl) {
-          updatedPersonas[i] = {
-            ...persona,
-            portraitUrl: imageUrl
-          };
-        } else if (error) {
-          console.error(`Error generating portrait for persona ${i + 1}:`, error);
+        try {
+          const { imageUrl, error } = await generatePersonaPortrait(persona);
+          
+          if (imageUrl) {
+            errorCount = 0; // Reset error count on success
+            updatedPersonas[i] = {
+              ...persona,
+              portraitUrl: imageUrl
+            };
+            // Immediately update the personas state after each successful portrait generation
+            setPersonas([...updatedPersonas]);
+            // Save partial progress to session storage
+            savePortraitsToSession(updatedPersonas);
+          } else if (error) {
+            errorCount++;
+            console.error(`Error generating portrait for persona ${i + 1}:`, error);
+          }
+        } catch (portraitError) {
+          errorCount++;
+          console.error(`Exception generating portrait for persona ${i + 1}:`, portraitError);
         }
+        
+        // Small delay between requests to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
-      // Update personas with all new portraits
-      setPersonas(updatedPersonas);
-      
-      // Save portraits to session storage
-      savePortraitsToSession(updatedPersonas);
-      
-      toast.success("All portraits have been generated");
+      if (errorCount === 0) {
+        toast.success("All portraits have been generated");
+      } else if (errorCount < personasList.length) {
+        toast.warning(`Generated ${personasList.length - errorCount} out of ${personasList.length} portraits`);
+      }
     } catch (error) {
-      console.error("Error generating portraits:", error);
-      toast.error("Failed to generate some portraits");
+      console.error("Error in portrait generation process:", error);
+      toast.error("Failed to complete portrait generation");
     } finally {
       setIsGeneratingPortraits(false);
     }
@@ -119,9 +145,12 @@ const IntakeForm = () => {
         return;
       }
 
-      if (data && data.personas) {
+      // Check for the correct personas data structure
+      const personasData = data.personas || data.customer_personas;
+      
+      if (personasData && Array.isArray(personasData)) {
         // Normalize gender values in the personas
-        const normalizedPersonas = data.personas.map((persona: Persona) => ({
+        const normalizedPersonas = personasData.map((persona: Persona) => ({
           ...persona,
           gender: normalizeGender(persona.gender)
         }));
@@ -138,8 +167,8 @@ const IntakeForm = () => {
         // Automatically generate portraits for all personas
         await generatePortraitsForAllPersonas(normalizedPersonas);
       } else {
-        console.error("No personas data received:", data);
-        toast.error("No personas data received");
+        console.error("Invalid personas data format received:", data);
+        toast.error("Invalid data format received from server");
       }
     } catch (err) {
       console.error("Error:", err);

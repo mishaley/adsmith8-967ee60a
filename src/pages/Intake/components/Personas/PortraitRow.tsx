@@ -23,6 +23,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                 alt={`Portrait of ${personas[index]?.title || `Persona ${index + 1}`}`}
                 className="w-full h-auto rounded-md"
                 onError={(e) => {
+                  console.log(`Image failed to load for persona ${index + 1}:`, personas[index].portraitUrl);
                   // Handle image loading errors
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
@@ -32,7 +33,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                   if (parentEl) {
                     const placeholder = document.createElement('div');
                     placeholder.className = 'w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500';
-                    placeholder.innerText = 'Failed to load image';
+                    placeholder.innerText = 'Image failed to load';
                     parentEl.appendChild(placeholder);
                   }
                 }}
@@ -41,11 +42,11 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
               isGeneratingPortraits ? (
                 <div className="w-full h-32 bg-gray-100 rounded-md flex flex-col items-center justify-center">
                   <Loader className="h-4 w-4 animate-spin mb-2" />
-                  <span className="text-sm text-gray-500">Generating...</span>
+                  <span className="text-sm text-gray-500">Generating portrait...</span>
                 </div>
               ) : (
                 <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
-                  Waiting for portrait
+                  Portrait generation pending
                 </div>
               )
             ) : (
