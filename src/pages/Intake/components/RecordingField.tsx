@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import RecordingButton from "./RecordingButton";
 import { useTextareaResize } from "../hooks/useTextareaResize";
@@ -20,17 +20,29 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
   onChange,
   placeholder
 }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
   const {
     isRecording,
-    recordingTime,
-    toggleRecording,
-    recordingState,
-    transcription,
     isTranscribing,
+    timer: recordingTime,
+    startRecording,
+    stopRecording,
+    transcription,
     isCorrecting
-  } = useAudioRecording(onChange);
+  } = useAudioRecording({
+    onTranscriptionComplete: onChange
+  });
 
-  const textareaRef = useTextareaResize(value);
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  useTextareaResize(textareaRef, value, transcription || "");
 
   return (
     <tr className="border-b">
@@ -44,8 +56,8 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
             <div className="flex items-center gap-2">
               <RecordingButton
                 isRecording={isRecording}
-                onClick={toggleRecording}
-                recordingState={recordingState}
+                onStart={startRecording}
+                onStop={stopRecording}
               />
               {isRecording && (
                 <div className="text-sm text-red-500">

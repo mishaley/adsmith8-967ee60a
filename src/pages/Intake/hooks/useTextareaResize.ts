@@ -1,6 +1,10 @@
 import { useState, useEffect, RefObject } from "react";
 
-export const useTextareaResize = (textareaRef: RefObject<HTMLTextAreaElement>, value: string, tempTranscript: string) => {
+export const useTextareaResize = (
+  textareaRef: RefObject<HTMLTextAreaElement>, 
+  value: string, 
+  tempTranscript: string = ""
+) => {
   const [currentHeight, setCurrentHeight] = useState<number | null>(null);
   
   // Update height only when the content grows
@@ -26,7 +30,7 @@ export const useTextareaResize = (textareaRef: RefObject<HTMLTextAreaElement>, v
         textarea.style.height = `${currentHeight}px`;
       }
     }
-  }, [value, tempTranscript, currentHeight]);
+  }, [value, tempTranscript, currentHeight, textareaRef]);
   
   // Reset height when the field is cleared
   useEffect(() => {
@@ -36,7 +40,7 @@ export const useTextareaResize = (textareaRef: RefObject<HTMLTextAreaElement>, v
         textareaRef.current.style.height = "auto";
       }
     }
-  }, [value, tempTranscript]);
+  }, [value, tempTranscript, textareaRef, currentHeight]);
   
   return {
     currentHeight
