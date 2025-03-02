@@ -20,14 +20,14 @@ export const generatePersonaPortrait = async (persona: Persona, retryCount = 2):
     const prompt = createPortraitPrompt(personaWithRace);
     console.log(`Generating portrait for ${personaWithRace.title} with prompt: ${prompt.substring(0, 50)}...`);
     
-    // Add a timeout to the fetch request
+    // Add a timeout to the fetch request - increased to 30 seconds
     const timeoutPromise = new Promise<{ data: null, error: Error }>((resolve) => {
       setTimeout(() => {
         resolve({ 
           data: null, 
-          error: new Error('Request timed out after 15 seconds') 
+          error: new Error('Request timed out after 30 seconds') 
         });
-      }, 15000);
+      }, 30000); // Increased from 15 to 30 seconds
     });
     
     // Race the actual request against the timeout

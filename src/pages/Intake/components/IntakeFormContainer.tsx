@@ -1,4 +1,3 @@
-
 import React from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
@@ -32,8 +31,9 @@ interface IntakeFormContainerProps {
   isGeneratingPersonas: boolean;
   isGeneratingPortraits: boolean;
   generatePersonas: () => void;
-  updatePersona?: (index: number, updatedPersona: Persona) => void;
+  updatePersona: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
+  retryPortraitGeneration?: (index: number) => void;
 }
 
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
@@ -63,49 +63,53 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   isGeneratingPortraits,
   generatePersonas,
   updatePersona,
-  loadingPortraitIndices = []
+  loadingPortraitIndices,
+  retryPortraitGeneration
 }) => {
   return (
-    <div className="w-full">
+    <div className="p-4 min-h-[calc(100vh-60px)] bg-white">
       <IntakeHeader />
       
-      <div className="mt-8">
-        <table className="w-full border-collapse">
-          <tbody>
-            <IntakeFormFields 
-              brandName={brandName}
-              setBrandName={setBrandName}
-              industry={industry}
-              setIndustry={setIndustry}
-              offering={offering}
-              setOffering={setOffering}
-              sellingPoints={sellingPoints}
-              setSellingPoints={setSellingPoints}
-              problemSolved={problemSolved}
-              setProblemSolved={setProblemSolved}
-              uniqueOffering={uniqueOffering}
-              setUniqueOffering={setUniqueOffering}
-              adPlatform={adPlatform}
-              setAdPlatform={setAdPlatform}
-              handleSave={handleSave}
-            />
-            
-            <GeoMapSection 
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
-            />
-            
-            <PersonasSection 
-              personas={personas}
-              summary={summary}
-              isGeneratingPersonas={isGeneratingPersonas}
-              isGeneratingPortraits={isGeneratingPortraits}
-              generatePersonas={generatePersonas}
-              updatePersona={updatePersona}
-              loadingPortraitIndices={loadingPortraitIndices}
-            />
-          </tbody>
-        </table>
+      <div className="mt-4">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border">
+            <tbody>
+              <IntakeFormFields 
+                brandName={brandName}
+                setBrandName={setBrandName}
+                industry={industry}
+                setIndustry={setIndustry}
+                offering={offering}
+                setOffering={setOffering}
+                sellingPoints={sellingPoints}
+                setSellingPoints={setSellingPoints}
+                problemSolved={problemSolved}
+                setProblemSolved={setProblemSolved}
+                uniqueOffering={uniqueOffering}
+                setUniqueOffering={setUniqueOffering}
+                adPlatform={adPlatform}
+                setAdPlatform={setAdPlatform}
+                handleSave={handleSave}
+              />
+              
+              <GeoMapSection 
+                selectedCountry={selectedCountry}
+                setSelectedCountry={setSelectedCountry}
+              />
+              
+              <PersonasSection 
+                personas={personas}
+                summary={summary}
+                isGeneratingPersonas={isGeneratingPersonas}
+                isGeneratingPortraits={isGeneratingPortraits}
+                generatePersonas={generatePersonas}
+                updatePersona={updatePersona}
+                loadingPortraitIndices={loadingPortraitIndices}
+                retryPortraitGeneration={retryPortraitGeneration}
+              />
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

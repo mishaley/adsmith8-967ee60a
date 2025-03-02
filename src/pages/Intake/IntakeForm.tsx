@@ -33,7 +33,8 @@ const IntakeForm = () => {
     isGeneratingPortraits,
     loadingPortraitIndices,
     generatePersonas,
-    updatePersona
+    updatePersona,
+    retryPortraitGeneration
   } = usePersonasGeneration(offering, selectedCountry);
   
   return (
@@ -65,6 +66,7 @@ const IntakeForm = () => {
             generatePersonas={generatePersonas}
             updatePersona={updatePersona}
             loadingPortraitIndices={loadingPortraitIndices}
+            retryPortraitGeneration={retryPortraitGeneration}
           />
         )
       }}

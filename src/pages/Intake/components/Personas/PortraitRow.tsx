@@ -1,21 +1,32 @@
 
 import React, { useState } from "react";
-import { Loader } from "lucide-react";
+import { Loader, RefreshCw } from "lucide-react";
 import { Persona } from "./types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface PortraitRowProps {
   personas: Persona[];
   isGeneratingPortraits: boolean;
   loadingIndices?: number[];
+  onRetryPortrait?: (index: number) => void;
 }
 
 const PortraitRow: React.FC<PortraitRowProps> = ({ 
   personas, 
   isGeneratingPortraits,
-  loadingIndices = []
+  loadingIndices = [],
+  onRetryPortrait
 }) => {
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
+
+  const handleRetry = (index: number) => {
+    if (onRetryPortrait) {
+      toast.info(`Retrying portrait for ${personas[index]?.title || `Persona ${index + 1}`}`);
+      onRetryPortrait(index);
+    }
+  };
 
   return (
     <tr>
@@ -77,8 +88,21 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                   <span className="text-sm text-gray-500">Generating portrait...</span>
                 </div>
               ) : (
-                <div className="w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
-                  {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation pending"}
+                <div className="w-full h-32 bg-gray-100 rounded-md flex flex-col items-center justify-center text-sm text-gray-500">
+                  <div className="mb-2">
+                    {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation failed"}
+                  </div>
+                  {!isGeneratingPortraits && onRetryPortrait && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleRetry(index)}
+                      className="mt-2 text-xs"
+                    >
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      Retry
+                    </Button>
+                  )}
                 </div>
               )
             ) : (

@@ -14,6 +14,55 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
   const [summary, setSummary] = useState("");
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
 
+  const generatePortraitForPersona = async (persona: Persona, index: number) => {
+    if (!persona) return;
+    
+    // Mark this specific persona as loading
+    setLoadingPortraitIndices(prev => [...prev, index]);
+    
+    try {
+      // Assign a random race if not already present
+      let personaToUse = { ...persona };
+      if (!personaToUse.race) {
+        personaToUse = {
+          ...personaToUse,
+          race: getRandomRace()
+        };
+      }
+      
+      const { imageUrl, error } = await generatePersonaPortrait(personaToUse);
+      
+      // Remove this index from loading indices
+      setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
+      
+      if (imageUrl) {
+        // Update personas state immediately when the portrait is ready
+        setPersonas(prevPersonas => {
+          const newPersonas = [...prevPersonas];
+          newPersonas[index] = {
+            ...newPersonas[index],
+            portraitUrl: imageUrl,
+            race: personaToUse.race // Make sure to save the race used
+          };
+          
+          // Save updated personas to session storage
+          savePortraitsToSession(newPersonas);
+          
+          return newPersonas;
+        });
+        
+        return { success: true, error: null };
+      } else if (error) {
+        console.error(`Error generating portrait for persona ${index + 1}:`, error);
+        return { success: false, error };
+      }
+    } catch (error) {
+      console.error(`Exception generating portrait for persona ${index + 1}:`, error);
+      setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
+      return { success: false, error };
+    }
+  };
+
   const generatePortraitsForAllPersonas = async (personasList: Persona[]) => {
     if (personasList.length === 0) return;
     
@@ -24,10 +73,6 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
     let errorCount = 0;
     
     try {
-      // Set all personas as loading initially
-      const indices = personasList.map((_, index) => index);
-      setLoadingPortraitIndices(indices);
-      
       // Prepare all promises to run in parallel
       const portraitPromises = personasList.map(async (persona, index) => {
         // Skip if portrait already exists
@@ -36,26 +81,13 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
           return { index, imageUrl: persona.portraitUrl, error: null };
         }
         
-        // Assign a random race if not already present
-        if (!persona.race) {
-          persona = {
-            ...persona,
-            race: getRandomRace()
-          };
-          updatedPersonas[index] = persona;
-        }
-        
-        try {
-          const { imageUrl, error } = await generatePersonaPortrait(persona);
-          return { index, imageUrl, error };
-        } catch (portraitError) {
-          console.error(`Exception generating portrait for persona ${index + 1}:`, portraitError);
-          return { 
-            index, 
-            imageUrl: null, 
-            error: portraitError instanceof Error ? portraitError : new Error(String(portraitError))
-          };
-        }
+        // Individual portrait generation is now handled by generatePortraitForPersona
+        const result = await generatePortraitForPersona(persona, index);
+        return { 
+          index, 
+          imageUrl: result?.success ? updatedPersonas[index].portraitUrl : null, 
+          error: result?.error || null 
+        };
       });
       
       // Process results as they come in using Promise.allSettled
@@ -63,39 +95,18 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
       
       results.forEach((result, i) => {
         if (result.status === 'fulfilled') {
-          const { index, imageUrl, error } = result.value;
+          const { error } = result.value;
           
-          // Remove this index from loading indices
-          setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
-          
-          if (imageUrl) {
-            updatedPersonas[index] = {
-              ...updatedPersonas[index],
-              portraitUrl: imageUrl
-            };
-            // Update personas state immediately when each portrait is ready
-            setPersonas(prevPersonas => {
-              const newPersonas = [...prevPersonas];
-              newPersonas[index] = {
-                ...newPersonas[index],
-                portraitUrl: imageUrl
-              };
-              return newPersonas;
-            });
-          } else if (error) {
+          if (error) {
             errorCount++;
-            console.error(`Error generating portrait for persona ${index + 1}:`, error);
+            console.error(`Error generating portrait for persona ${i + 1}:`, error);
           }
         } else {
           // This handles the case where the promise itself rejected
           errorCount++;
           console.error(`Portrait generation for persona ${i + 1} failed:`, result.reason);
-          setLoadingPortraitIndices(prev => prev.filter(idx => idx !== i));
         }
       });
-      
-      // Final update and save to session storage
-      savePortraitsToSession(updatedPersonas);
       
       if (errorCount === 0) {
         toast.success("All portraits have been generated");
@@ -107,7 +118,28 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
     } catch (error) {
       console.error("Error in portrait generation process:", error);
       toast.error("Failed to complete portrait generation");
+    } finally {
+      setIsGeneratingPortraits(false);
       setLoadingPortraitIndices([]);
+    }
+  };
+
+  // Function to retry a single portrait generation
+  const retryPortraitGeneration = async (index: number) => {
+    if (!personas[index]) return;
+
+    try {
+      setIsGeneratingPortraits(true);
+      const result = await generatePortraitForPersona(personas[index], index);
+      
+      if (result?.success) {
+        toast.success(`Portrait for ${personas[index].title} has been generated`);
+      } else {
+        toast.error(`Failed to generate portrait for ${personas[index].title}`);
+      }
+    } catch (error) {
+      console.error(`Error retrying portrait for persona ${index + 1}:`, error);
+      toast.error(`Failed to generate portrait: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsGeneratingPortraits(false);
     }
@@ -190,6 +222,7 @@ export const usePersonasGeneration = (offering: string, selectedCountry: string)
     isGeneratingPortraits,
     loadingPortraitIndices,
     generatePersonas,
-    updatePersona
+    updatePersona,
+    retryPortraitGeneration
   };
 };

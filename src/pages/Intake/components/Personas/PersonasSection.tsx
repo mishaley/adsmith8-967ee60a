@@ -14,6 +14,7 @@ interface PersonasSectionProps {
   generatePersonas: () => void;
   updatePersona?: (index: number, updatedPersona: Persona) => void;
   loadingPortraitIndices?: number[];
+  retryPortraitGeneration?: (index: number) => void;
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -23,7 +24,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   isGeneratingPortraits,
   generatePersonas,
   updatePersona,
-  loadingPortraitIndices = []
+  loadingPortraitIndices = [],
+  retryPortraitGeneration
 }) => {
   console.log("PersonasSection rendering with personas:", personas);
 
@@ -72,6 +74,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                     personas={personas}
                     isGeneratingPortraits={isGeneratingPortraits}
                     loadingIndices={loadingPortraitIndices}
+                    onRetryPortrait={retryPortraitGeneration}
                   />
                   {/* Empty row for spacing/alignment */}
                   <tr>
