@@ -53,7 +53,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
         <td colSpan={2} className="p-0">
           <div className="w-full px-4 pb-4">
             <div className="flex justify-start">
-              <div className="w-96">
+              <div className="w-1/2">
                 <MapDisplay
                   loading={loading}
                   error={error}
