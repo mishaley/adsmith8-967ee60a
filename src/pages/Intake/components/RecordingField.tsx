@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from "react";
+import React from "react";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import RecordingButton from "./RecordingButton";
 import { useTextareaResize } from "../hooks/useTextareaResize";
@@ -7,70 +7,74 @@ import { formatTime } from "../utils/timeUtils";
 
 interface RecordingFieldProps {
   label: string;
+  helperText?: string;
   value: string;
-  setValue: (value: string) => void;
+  onChange: (value: string) => void;
   placeholder?: string;
 }
 
 const RecordingField: React.FC<RecordingFieldProps> = ({
   label,
+  helperText,
   value,
-  setValue,
-  placeholder = ""
+  onChange,
+  placeholder
 }) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [tempTranscript, setTempTranscript] = useState("");
-  
-  const handleTranscriptionComplete = (transcription: string) => {
-    setValue(transcription);
-    setTempTranscript("");
-  };
-  
-  const handleError = (error: Error) => {
-    console.error("Recording error:", error);
-  };
-  
   const {
     isRecording,
+    recordingTime,
+    toggleRecording,
+    recordingState,
+    transcription,
     isTranscribing,
-    timer,
-    startRecording,
-    stopRecording
-  } = useAudioRecording({
-    onTranscriptionComplete: handleTranscriptionComplete,
-    onError: handleError
-  });
+    isCorrecting
+  } = useAudioRecording(onChange);
 
-  useTextareaResize(textareaRef, value, tempTranscript);
+  const textareaRef = useTextareaResize(value);
 
   return (
-    <div className="mb-4">
-      <div className="flex justify-between mb-2">
-        <label className="block text-gray-700 font-medium">{label}</label>
-        <RecordingButton
-          isRecording={isRecording}
-          onStart={startRecording}
-          onStop={stopRecording}
-        />
-      </div>
-
-      <div className="relative">
-        <textarea
-          ref={textareaRef}
-          value={isTranscribing ? tempTranscript || "Processing recording..." : value}
-          onChange={(e) => setValue(e.target.value)}
-          disabled={isRecording || isTranscribing}
-          placeholder={placeholder}
-          className="w-full p-3 border rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] resize-none disabled:bg-gray-50"
-        />
-
-        {isRecording && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded text-xs animate-pulse">
-            {formatTime(timer)}
+    <tr className="border-b">
+      <td className="py-4 pr-4 text-lg align-top pl-4">
+        <div>{label}</div>
+        {helperText && <div className="text-sm text-gray-500 mt-1">{helperText}</div>}
+      </td>
+      <td className="py-4">
+        <div className="w-full max-w-3xl">
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center gap-2">
+              <RecordingButton
+                isRecording={isRecording}
+                onClick={toggleRecording}
+                recordingState={recordingState}
+              />
+              {isRecording && (
+                <div className="text-sm text-red-500">
+                  Recording: {formatTime(recordingTime)}
+                </div>
+              )}
+              {isTranscribing && (
+                <div className="text-sm text-blue-500">Transcribing...</div>
+              )}
+              {isCorrecting && (
+                <div className="text-sm text-blue-500">Improving transcription...</div>
+              )}
+            </div>
+            <textarea
+              ref={textareaRef}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 min-h-[100px] bg-white"
+              placeholder={placeholder}
+            />
+            {transcription && !value && (
+              <div className="text-sm text-gray-500 mt-1">
+                Transcription: {transcription}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </td>
+    </tr>
   );
 };
 

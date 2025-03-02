@@ -64,10 +64,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
 }) => {
   return (
     <div className="min-h-screen pb-10">
-      <IntakeHeader 
-        title="New Campaign" 
-        subtitle={`We're going to collect some information about ${brandName || "your brand"} to help us understand your business better.`} 
-      />
+      <IntakeHeader title="New Campaign" subtitle={`We're going to collect some information about ${brandName || "your brand"} to help us understand your business better.`} />
       
       <div className="w-full rounded-md overflow-hidden">
         <table className="w-full border-collapse bg-[#d3e4fd]">
@@ -102,10 +99,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
               </td>
             </tr>
             
-            <GeoMapSection
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
-            />
+            <GeoMapSection />
             
             <PersonasSection
               personas={personas}
