@@ -8,7 +8,7 @@ export interface PortraitResponse {
   error: Error | null;
 }
 
-// Generate portrait for a single persona with retry logic
+// Generate portrait for a single persona with reliable generation
 export const generatePersonaPortrait = async (persona: Persona): Promise<PortraitResponse> => {
   try {
     // Create a persona with race if not already present
@@ -20,42 +20,43 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
     const prompt = createPortraitPrompt(personaWithRace);
     console.log(`Generating portrait for ${personaWithRace.gender}, age ${personaWithRace.ageMin}-${personaWithRace.ageMax} with prompt: ${prompt.substring(0, 50)}...`);
     
-    // Add a longer timeout - 90 seconds for initial generation
+    // First attempt with a 2-minute timeout
     const timeoutPromise = new Promise<{ data: null, error: Error }>((resolve) => {
       setTimeout(() => {
         resolve({ 
           data: null, 
-          error: new Error('Request timed out after 90 seconds') 
+          error: new Error('Request timed out after 120 seconds') 
         });
-      }, 90000); // Increased timeout to 90 seconds for initial generation
+      }, 120000); // 2 minutes timeout for initial generation
     });
     
-    // Race the actual request against the timeout
-    console.log("Calling Supabase edge function: ideogram-test");
+    // Make the API call with high priority flag
+    console.log("Calling Supabase edge function: ideogram-test (first attempt)");
     const { data, error } = await Promise.race([
       supabase.functions.invoke('ideogram-test', {
         body: { 
           prompt,
-          highPriority: true, // Mark this as high priority
-          retryAttempt: 0 // Initial attempt
+          highPriority: true,
+          forceGeneration: true,
+          retryAttempt: 0
         }
       }),
       timeoutPromise
     ]);
     
     if (error) {
-      console.error('Error generating portrait:', error.message, error);
+      console.error('Error in first portrait generation attempt:', error);
       
-      // Retry once more immediately with a different timeout
-      console.log(`Retrying portrait generation immediately after error.`);
+      // Immediately try a second attempt with different parameters
+      console.log("Starting second attempt for portrait generation");
       
       const secondTimeoutPromise = new Promise<{ data: null, error: Error }>((resolve) => {
         setTimeout(() => {
           resolve({ 
             data: null, 
-            error: new Error('Second attempt timed out after 90 seconds') 
+            error: new Error('Second attempt timed out after 120 seconds') 
           });
-        }, 90000);
+        }, 120000);
       });
       
       const secondAttempt = await Promise.race([
@@ -63,7 +64,9 @@ export const generatePersonaPortrait = async (persona: Persona): Promise<Portrai
           body: { 
             prompt,
             highPriority: true,
-            retryAttempt: 1 // Mark as retry attempt
+            forceGeneration: true,
+            retryAttempt: 1,
+            emergencyGeneration: true
           }
         }),
         secondTimeoutPromise

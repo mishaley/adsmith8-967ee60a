@@ -27,7 +27,7 @@ export const usePortraitGeneration = () => {
         };
       }
       
-      // The portrait service now has built-in unlimited retries
+      // Generate the portrait
       const { imageUrl, error } = await generatePersonaPortrait(personaToUse);
       
       // Remove this index from loading indices
@@ -72,9 +72,9 @@ export const usePortraitGeneration = () => {
     let successCount = 0;
     
     try {
-      console.log(`Starting portrait generation for ${personasList.length} personas`);
+      console.log(`Starting sequential portrait generation for ${personasList.length} personas`);
       
-      // Strict sequential processing with proper delays between requests
+      // Process portraits one at a time with proper delays
       for (let i = 0; i < personasList.length; i++) {
         const persona = personasList[i];
         
@@ -89,7 +89,7 @@ export const usePortraitGeneration = () => {
         
         if (result?.success && result.updatedPersona) {
           successCount++;
-          // Update persona in the parent state immediately when available
+          // Update persona in the parent state immediately
           updatePersonaCallback(i, result.updatedPersona);
           
           // Save portraits to session after each successful generation
@@ -98,18 +98,12 @@ export const usePortraitGeneration = () => {
           savePortraitsToSession(updatedPersonasList);
           
           console.log(`Successfully generated portrait for persona ${i + 1}`);
-          
-          // Add a proper delay between successful requests to avoid overwhelming the API
-          if (i < personasList.length - 1) {
-            console.log("Waiting 4 seconds before generating next portrait...");
-            await new Promise(resolve => setTimeout(resolve, 4000));
-          }
         } else {
           errorCount++;
           console.error(`Failed to generate portrait for persona ${i + 1}`);
           
-          // Make a second attempt immediately
-          console.log(`Making a second attempt for persona ${i + 1}...`);
+          // Make a second attempt right away
+          console.log(`Making an immediate second attempt for persona ${i + 1}...`);
           const secondAttempt = await generatePortraitForPersona(persona, i);
           
           if (secondAttempt?.success && secondAttempt.updatedPersona) {
@@ -128,12 +122,12 @@ export const usePortraitGeneration = () => {
           } else {
             console.error(`Second attempt also failed for persona ${i + 1}`);
           }
-          
-          // Still add a delay even after failure to avoid hammering the API
-          if (i < personasList.length - 1) {
-            console.log("Waiting 4 seconds before attempting next portrait...");
-            await new Promise(resolve => setTimeout(resolve, 4000));
-          }
+        }
+        
+        // Add a short delay between personas to avoid API rate limiting
+        if (i < personasList.length - 1) {
+          console.log("Waiting 2 seconds before attempting next portrait...");
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
       
@@ -144,13 +138,15 @@ export const usePortraitGeneration = () => {
       } else if (successCount > 0 && errorCount > 0) {
         toast.warning(`Generated ${successCount} out of ${personasList.length} portraits. Click 'Retry Manually' for failed ones.`);
       } else if (successCount === 0) {
-        toast.error("Failed to generate any portraits. The Supabase edge function may be unavailable.");
+        toast.error("Failed to generate any portraits. Please try again or click 'Retry Manually'.");
       }
     } catch (error) {
-      console.error("Error in portrait generation process:", error);
+      console.error("Unexpected error in portrait generation process:", error);
       toast.error("Failed to complete portrait generation");
     } finally {
       setIsGeneratingPortraits(false);
+      // Clear any remaining loading indices
+      setLoadingPortraitIndices([]);
     }
   };
 
@@ -171,7 +167,7 @@ export const usePortraitGeneration = () => {
         updatePersonaCallback(index, result.updatedPersona);
         toast.success(`Portrait for persona ${index + 1} has been generated`);
       } else {
-        toast.error(`Failed to generate portrait for persona ${index + 1}. The edge function may be unavailable.`);
+        toast.error(`Failed to generate portrait for persona ${index + 1}. Please try again.`);
       }
     } catch (error) {
       console.error(`Error retrying portrait for persona ${index + 1}:`, error);

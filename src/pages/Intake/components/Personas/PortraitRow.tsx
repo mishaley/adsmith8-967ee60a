@@ -33,6 +33,14 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
       onRetryPortrait(index);
     }
   };
+  
+  // Log the current state to help debug
+  console.log("PortraitRow rendering with:", {
+    personasCount: personas.length, 
+    portraitsExist: personas.map(p => !!p?.portraitUrl),
+    loadingIndices,
+    isGeneratingPortraits
+  });
 
   return (
     <tr>

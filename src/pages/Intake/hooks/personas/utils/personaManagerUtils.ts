@@ -6,9 +6,24 @@ import { savePortraitsToSession } from "../../../components/Personas/utils/portr
  * Update portraits in session storage after a persona is updated
  */
 export const updateSessionWithPersonas = (personas: Persona[], updatedIndex: number, updatedPersona: Persona | null) => {
+  if (!personas || personas.length === 0) {
+    console.warn("Cannot update session storage: no personas available");
+    return personas;
+  }
+  
+  console.log(`Updating session storage for persona ${updatedIndex + 1}`);
   const updatedPersonas = [...personas];
-  updatedPersonas[updatedIndex] = updatedPersona;
-  savePortraitsToSession(updatedPersonas);
+  
+  if (updatedPersona === null) {
+    // Handle persona removal
+    updatedPersonas[updatedIndex] = null;
+  } else {
+    // Update the persona with new data (including portrait)
+    updatedPersonas[updatedIndex] = updatedPersona;
+  }
+  
+  // Save to session storage
+  savePortraitsToSession(updatedPersonas.filter(Boolean));
   return updatedPersonas;
 };
 
@@ -21,10 +36,11 @@ export const handlePortraitUpdateCallback = (
   personas: Persona[],
   updatePersona: (index: number, updatedPersona: Persona) => void
 ) => {
+  console.log(`Handling portrait update for persona ${index + 1}:`, updatedPersona.portraitUrl ? "Portrait URL exists" : "No portrait URL");
+  
   // Update a single persona with its portrait
   updatePersona(index, updatedPersona);
   
   // Save updated personas to session
   updateSessionWithPersonas(personas, index, updatedPersona);
 };
-

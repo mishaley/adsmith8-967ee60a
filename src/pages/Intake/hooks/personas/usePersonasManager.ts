@@ -4,6 +4,7 @@ import { usePortraitGeneration } from "./usePortraitGeneration";
 import { usePersonaRegeneration } from "./usePersonaRegeneration";
 import { usePersonaPortraits } from "./usePersonaPortraits";
 import { Persona } from "../../components/Personas/types";
+import { useCallback } from "react";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
   const {
@@ -43,19 +44,24 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     updatePersona
   );
 
-  // Wrapper for generatePersonas that also triggers portrait generation
-  const generatePersonas = async () => {
-    generatePersonasBase(offering, selectedCountry, (newPersonas) => {
-      console.log("Personas generated, now generating portraits automatically");
-      // Start portrait generation immediately after personas are generated
-      if (newPersonas && newPersonas.length > 0) {
-        // Use setTimeout to ensure the UI updates first
-        setTimeout(() => {
-          generatePortraitsForAll(generatePortraitsForAllPersonas);
-        }, 500);
+  // The most important function - generate personas and IMMEDIATELY trigger portrait generation
+  const generatePersonas = useCallback(() => {
+    console.log("Starting persona generation with automatic portrait generation to follow");
+    return generatePersonasBase(offering, selectedCountry, (newPersonas) => {
+      if (!newPersonas || newPersonas.length === 0) {
+        console.error("No personas were generated, cannot generate portraits");
+        return;
       }
+      
+      console.log(`${newPersonas.length} personas generated successfully, triggering portrait generation now`);
+      
+      // CRITICAL: Trigger portrait generation with a very slight delay to ensure React has updated the state
+      setTimeout(() => {
+        // This is the key function call that triggers portrait generation
+        generatePortraitsForAll(generatePortraitsForAllPersonas);
+      }, 100);
     });
-  };
+  }, [offering, selectedCountry, generatePersonasBase, generatePortraitsForAll, generatePortraitsForAllPersonas]);
 
   return {
     personas,

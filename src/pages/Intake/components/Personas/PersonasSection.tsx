@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
@@ -35,6 +35,18 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   const hasLoadingPortraits = loadingPortraitIndices.length > 0;
   const numPortraitsNeeded = personas.filter(p => !p.portraitUrl).length;
   const numPortraitsLoading = loadingPortraitIndices.length;
+  
+  // Monitor loading states for debugging
+  useEffect(() => {
+    console.log("PersonasSection state update:", {
+      hasPersonas,
+      isGeneratingPersonas,
+      isGeneratingPortraits,
+      hasLoadingPortraits,
+      loadingPortraitIndices,
+      portraitUrls: personas.map(p => !!p?.portraitUrl)
+    });
+  }, [personas, isGeneratingPersonas, isGeneratingPortraits, loadingPortraitIndices]);
 
   return (
     <>
