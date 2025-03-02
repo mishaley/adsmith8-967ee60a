@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Loader, RefreshCw, AlertTriangle } from "lucide-react";
+import { Loader, RefreshCw, AlertTriangle, WifiOff } from "lucide-react";
 import { Persona } from "./types";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ interface PortraitRowProps {
   personas: Persona[];
   isGeneratingPortraits: boolean;
   loadingIndices?: number[];
+  failedIndices?: number[];
   onRetryPortrait?: (index: number) => void;
 }
 
@@ -23,13 +24,13 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
   personas, 
   isGeneratingPortraits,
   loadingIndices = [],
+  failedIndices = [],
   onRetryPortrait
 }) => {
   const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
 
   const handleRetry = (index: number) => {
     if (onRetryPortrait) {
-      toast.info(`Retrying portrait for persona ${index + 1}`);
       onRetryPortrait(index);
     }
   };
@@ -99,14 +100,19 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="flex flex-col items-center">
-                          <AlertTriangle className="h-4 w-4 text-amber-500 mb-2" />
+                          {failedIndices?.includes(index) ? (
+                            <WifiOff className="h-4 w-4 text-red-500 mb-2" />
+                          ) : (
+                            <AlertTriangle className="h-4 w-4 text-amber-500 mb-2" />
+                          )}
                           <div className="mb-2 text-center">
                             {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation failed"}
                           </div>
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>The edge function may be unavailable or experiencing issues.</p>
+                        <p>The edge function may be unavailable or experiencing connectivity issues.</p>
+                        <p className="text-xs mt-1">Check Supabase logs for more details.</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

@@ -32,6 +32,7 @@ const IntakeForm = () => {
     isGeneratingPersonas,
     isGeneratingPortraits,
     loadingPortraitIndices,
+    failedPortraitIndices,
     generatePersonas,
     updatePersona,
     retryPortraitGeneration,
@@ -67,6 +68,7 @@ const IntakeForm = () => {
             generatePersonas={generatePersonas}
             updatePersona={updatePersona}
             loadingPortraitIndices={loadingPortraitIndices}
+            failedPortraitIndices={failedPortraitIndices}
             retryPortraitGeneration={retryPortraitGeneration}
             removePersona={removePersona}
           />

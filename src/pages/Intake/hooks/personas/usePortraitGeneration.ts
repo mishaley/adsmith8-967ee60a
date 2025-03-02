@@ -8,12 +8,14 @@ import { getRandomRace, savePortraitsToSession } from "../../components/Personas
 export const usePortraitGeneration = () => {
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
+  const [failedPortraitIndices, setFailedPortraitIndices] = useState<number[]>([]);
 
   const generatePortraitForPersona = async (persona: Persona, index: number) => {
     if (!persona) return;
     
     // Mark this specific persona as loading
     setLoadingPortraitIndices(prev => [...prev, index]);
+    setFailedPortraitIndices(prev => prev.filter(idx => idx !== index));
     
     try {
       console.log(`Starting portrait generation for persona ${index + 1}:`, persona);
@@ -44,11 +46,13 @@ export const usePortraitGeneration = () => {
         };
       } else if (error) {
         console.error(`Error generating portrait for persona ${index + 1}:`, error);
+        setFailedPortraitIndices(prev => [...prev, index]);
         return { success: false, error, updatedPersona: null };
       }
     } catch (error) {
       console.error(`Exception generating portrait for persona ${index + 1}:`, error);
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
+      setFailedPortraitIndices(prev => [...prev, index]);
       return { success: false, error, updatedPersona: null };
     }
   };
@@ -57,6 +61,7 @@ export const usePortraitGeneration = () => {
     if (personasList.length === 0) return;
     
     setIsGeneratingPortraits(true);
+    setFailedPortraitIndices([]);
     toast.info("Generating portraits for all personas...");
     
     let errorCount = 0;
@@ -64,6 +69,19 @@ export const usePortraitGeneration = () => {
     
     try {
       console.log(`Starting portrait generation for ${personasList.length} personas`);
+      
+      // Try to check if edge function is available first
+      try {
+        const testResponse = await supabase.functions.invoke('ideogram-test', {
+          body: { test: true }
+        });
+        console.log("Edge function status check:", testResponse);
+      } catch (checkError) {
+        console.error("Edge function availability check failed:", checkError);
+        toast.error("Portrait service is unavailable. The edge function may be down.");
+        setIsGeneratingPortraits(false);
+        return;
+      }
       
       // Prepare all promises to run in parallel
       const portraitPromises = personasList.map(async (persona, index) => {
@@ -113,14 +131,13 @@ export const usePortraitGeneration = () => {
       } else if (errorCount < personasList.length) {
         toast.warning(`Generated ${personasList.length - errorCount} out of ${personasList.length} portraits`);
       } else {
-        toast.error("Failed to generate any portraits. The Supabase edge function may be unavailable.");
+        toast.error("Failed to generate any portraits. The edge function may be unavailable.");
       }
     } catch (error) {
       console.error("Error in portrait generation process:", error);
       toast.error("Failed to complete portrait generation");
     } finally {
       setIsGeneratingPortraits(false);
-      setLoadingPortraitIndices([]);
     }
   };
 
@@ -139,6 +156,7 @@ export const usePortraitGeneration = () => {
       
       if (result?.success && result.updatedPersona) {
         updatePersonaCallback(index, result.updatedPersona);
+        setFailedPortraitIndices(prev => prev.filter(idx => idx !== index));
         toast.success(`Portrait for persona ${index + 1} has been generated`);
       } else {
         toast.error(`Failed to generate portrait for persona ${index + 1}. The edge function may be unavailable.`);
@@ -154,6 +172,7 @@ export const usePortraitGeneration = () => {
   return {
     isGeneratingPortraits,
     loadingPortraitIndices,
+    failedPortraitIndices,
     generatePortraitsForAllPersonas,
     retryPortraitGeneration
   };
