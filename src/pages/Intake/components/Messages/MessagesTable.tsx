@@ -31,10 +31,16 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   
   return (
     <div className="mt-6 border rounded overflow-auto">
-      <table className="w-full border-collapse">
+      <table className="w-full table-fixed border-collapse">
+        <colgroup>
+          <col className="w-64" /> {/* Fixed width for persona column */}
+          {selectedMessageTypes.map((type, index) => (
+            <col key={`col-${type}-${index}`} /> {/* Auto width for message columns */
+          ))}
+        </colgroup>
         <thead>
           <tr className="bg-gray-100">
-            <th className="border p-2 text-left">Persona</th>
+            <th className="border p-2 text-left w-64">Persona</th>
             {selectedMessageTypes.map(type => (
               <th key={type} className="border p-2 text-left">
                 {getMessageTypeLabel(type)}
@@ -45,7 +51,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
         <tbody>
           {personas.map((persona, index) => (
             <tr key={persona.id || index} className="border-t">
-              <td className="border p-2 align-top">
+              <td className="border p-2 align-top w-64">
                 <PersonaCell persona={persona} index={index} />
               </td>
               {selectedMessageTypes.map(type => (
