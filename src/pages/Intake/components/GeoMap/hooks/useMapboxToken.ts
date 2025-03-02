@@ -13,6 +13,10 @@ export const useMapboxToken = () => {
         setLoading(true);
         console.log("Fetching Mapbox token from Edge Function...");
         
+        // Clear current state
+        setMapboxToken('');
+        setError(null);
+        
         const { data, error: invokeError } = await supabase.functions.invoke('get-mapbox-token');
         
         if (invokeError) {
@@ -23,15 +27,22 @@ export const useMapboxToken = () => {
         
         console.log("Response from Edge Function:", data);
         
-        if (data && data.mapboxToken) {
-          console.log("Successfully received Mapbox token");
-          setMapboxToken(data.mapboxToken);
-        } else if (data && data.error) {
+        if (!data) {
+          console.error('Empty response from Edge Function');
+          setError('Empty response from server');
+          return;
+        }
+        
+        if (data.mapboxToken) {
+          const token = data.mapboxToken;
+          console.log(`Successfully received Mapbox token (first 5 chars: ${token.substring(0, 5)}...)`);
+          setMapboxToken(token);
+        } else if (data.error) {
           console.error('Error from Edge Function:', data.error);
           setError(`Error from server: ${data.error}`);
         } else {
           console.error('No mapbox token returned from Edge Function');
-          setError('No mapbox token found');
+          setError('No mapbox token found. Please check Supabase Edge Function Secrets.');
         }
       } catch (err) {
         console.error('Exception fetching Mapbox token:', err);

@@ -30,6 +30,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   console.log("GeoMapSection state:", { 
     loading, 
     hasToken: !!mapboxToken, 
+    tokenLength: mapboxToken ? mapboxToken.length : 0,
     error, 
     initialized 
   });

@@ -17,10 +17,9 @@ export const handler = async (req: Request): Promise<Response> => {
     console.log("Edge function get-mapbox-token called");
     
     // Get the Mapbox token from the environment
-    // Fixed: Use MAPBOX_TOKEN (correct name) 
     const mapboxToken = Deno.env.get('MAPBOX_TOKEN') || '';
     
-    console.log(`Retrieved token: ${mapboxToken ? 'Token exists' : 'No token found'}`);
+    console.log(`Retrieved token: ${mapboxToken ? 'Token exists (first 5 chars: ' + mapboxToken.substring(0, 5) + '...)' : 'No token found'}`);
     
     if (!mapboxToken) {
       console.warn("No Mapbox token found in environment variables");

@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from 'mapbox-gl';
 
@@ -25,14 +24,22 @@ export const useMapInitialization = ({
       console.log("Map initialization skipped:", {
         containerExists: !!mapContainer.current,
         tokenExists: !!mapboxToken,
+        tokenLength: mapboxToken ? mapboxToken.length : 0,
         mapAlreadyInitialized: !!map.current
       });
       return;
     }
     
-    console.log("Initializing map with token:", mapboxToken.substring(0, 5) + "..." + mapboxToken.substring(mapboxToken.length - 5));
+    console.log("Initializing map with token:", 
+      mapboxToken.length > 10 
+        ? `${mapboxToken.substring(0, 5)}...${mapboxToken.substring(mapboxToken.length - 5)}`
+        : "Invalid token (too short)");
     
     try {
+      // Clear any previous errors
+      setMapError(null);
+      
+      // Set the Mapbox access token
       mapboxgl.accessToken = mapboxToken;
       
       console.log("Creating map instance");
