@@ -30,8 +30,9 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
         type="text"
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px] border-[#0c343d] focus:border-[#0c343d] focus-visible:ring-[#0c343d]"
+        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px] focus:outline-none focus:ring-0 focus:border-transparent"
         autoFocus
+        style={{ border: "none", boxShadow: "none" }}
       />
     </div>
   );
