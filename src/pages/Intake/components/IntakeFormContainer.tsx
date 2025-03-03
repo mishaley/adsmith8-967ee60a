@@ -121,7 +121,10 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             generatedMessages={generatedMessages}
             selectedMessageTypes={selectedMessageTypes}
           />
-          <GeoMapSection selectedCountry={selectedCountry} />
+          <GeoMapSection 
+            selectedCountry={selectedCountry}
+            setSelectedCountry={setSelectedCountry}
+          />
         </tbody>
       </table>
     </div>
