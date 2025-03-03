@@ -46,7 +46,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     <table className="w-full border-collapse">
       <tbody>
         <tr>
-          <td className="border-r p-2 w-1/2 align-top">
+          <td className="p-2 w-1/2 align-top">
             <MapDisplay 
               loading={loading} 
               error={error} 
