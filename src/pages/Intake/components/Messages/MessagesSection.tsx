@@ -82,19 +82,19 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   return (
     <>
       <div className="flex flex-col items-center mb-4">
-        <div className="flex flex-wrap justify-center mb-2">
+        <div className="flex flex-wrap justify-center items-start mb-2">
           <MessageTypeSelector 
             selectedMessageTypes={selectedMessageTypes}
             toggleMessageType={toggleMessageType}
             isLoaded={isLoaded}
           />
+          
+          <UserProvidedInput
+            userProvidedMessage={userProvidedMessage}
+            setUserProvidedMessage={setUserProvidedMessage}
+            isUserProvidedSelected={isUserProvidedSelected}
+          />
         </div>
-        
-        <UserProvidedInput
-          userProvidedMessage={userProvidedMessage}
-          setUserProvidedMessage={setUserProvidedMessage}
-          isUserProvidedSelected={isUserProvidedSelected}
-        />
       </div>
       
       <MessagesTable

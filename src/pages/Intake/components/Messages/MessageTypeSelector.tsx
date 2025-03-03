@@ -58,7 +58,8 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
         size="sm" 
         onClick={(e) => handleButtonClick("user-provided", e)}
         className={cn(
-          buttonStyles(selectedMessageTypes.includes("user-provided"))
+          buttonStyles(selectedMessageTypes.includes("user-provided")),
+          selectedMessageTypes.includes("user-provided") ? 'rounded-r-none border-r-0 z-10' : ''
         )}
         disabled={!isLoaded}
       >
