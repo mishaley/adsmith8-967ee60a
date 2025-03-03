@@ -23,14 +23,15 @@ export const useMessagesGeneration = (
     setIsGeneratingMessages(true);
     try {
       console.log("Generating messages for all personas");
-      const mockMessages = await generateMessagesForAllPersonas(
+      const generatedMessages = await generateMessagesForAllPersonas(
         personas,
         selectedMessageTypes,
         userProvidedMessage
       );
       
-      console.log("Generated messages:", mockMessages);
-      setGeneratedMessages(mockMessages);
+      console.log("Generated messages:", generatedMessages);
+      // Make sure we're setting the state with the new messages
+      setGeneratedMessages(generatedMessages);
       setIsTableVisible(true);
       
       toast({
@@ -66,6 +67,11 @@ export const useMessagesGeneration = (
       // Update the state with the new messages
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
+      
+      toast({
+        title: "Success",
+        description: `Generated messages for ${messageType}`
+      });
       
       return updatedMessages;
     } catch (error) {

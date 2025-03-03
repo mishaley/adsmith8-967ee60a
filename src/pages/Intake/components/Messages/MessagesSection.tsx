@@ -53,8 +53,14 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
 
   // Create a wrapper function to adapt the return type to what MessagesTable expects
   const handleColumnGeneration = async (messageType: string): Promise<void> => {
-    await handleGenerateColumnMessages(messageType);
-    // Function returns void as required by the component props
+    console.log(`Starting generation for ${messageType}`);
+    try {
+      await handleGenerateColumnMessages(messageType);
+      console.log(`Generation completed for ${messageType}`);
+    } catch (error) {
+      console.error(`Error during generation for ${messageType}:`, error);
+      throw error; // Re-throw to maintain error propagation
+    }
   };
 
   return (

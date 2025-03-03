@@ -16,12 +16,19 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   isLoading,
   generatedMessages
 }) => {
-  // Check if we have a message for this persona and message type
-  const hasMessage = 
-    personaId && 
-    generatedMessages[personaId] && 
-    generatedMessages[personaId][messageType];
+  // Debug logging
+  const hasPersona = !!personaId && !!generatedMessages[personaId];
+  const hasMessage = hasPersona && !!generatedMessages[personaId][messageType];
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`MessageTableCell: personaId=${personaId}, messageType=${messageType}`);
+    console.log(`Has persona data: ${hasPersona}, Has message: ${hasMessage}`);
+    if (hasPersona && generatedMessages[personaId]) {
+      console.log(`Available message types for persona:`, Object.keys(generatedMessages[personaId]));
+    }
+  }
 
+  // Check if we have a message for this persona and message type
   const messageContent = hasMessage ? generatedMessages[personaId][messageType].message_name : null;
 
   if (isLoading) {
@@ -38,9 +45,9 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
     <td className="border p-2 align-top">
       <div>
         {messageContent ? (
-          <p>{messageContent}</p>
+          <p className="text-sm">{messageContent}</p>
         ) : (
-          <p className="text-gray-400">No message generated</p>
+          <p className="text-gray-400 text-sm">No message generated</p>
         )}
       </div>
     </td>

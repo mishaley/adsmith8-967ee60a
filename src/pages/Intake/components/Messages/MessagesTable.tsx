@@ -4,6 +4,7 @@ import { Persona } from "../Personas/types";
 import MessageTableHeader from "./TableComponents/MessageTableHeader";
 import MessageTableRow from "./TableComponents/MessageTableRow";
 import { Message } from "./hooks/useMessagesFetching";
+import { toast } from "sonner";
 
 // Simplified type definition to avoid deep nesting
 type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
@@ -29,20 +30,25 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
 }) => {
   const [cellLoadingStates, setCellLoadingStates] = useState<Record<string, boolean>>({});
   
+  // Debug log for generated messages
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && Object.keys(generatedMessages).length > 0) {
+      console.log("MessagesTable - generatedMessages:", generatedMessages);
+    }
+  }, [generatedMessages]);
+  
   // Reset cell loading states when generatedMessages changes
   useEffect(() => {
-    if (Object.keys(generatedMessages).length > 0) {
-      const newLoadingStates: Record<string, boolean> = {};
-      personas.forEach(persona => {
-        if (persona.id) {
-          selectedMessageTypes.forEach(type => {
-            newLoadingStates[`${persona.id}-${type}`] = false;
-          });
-        }
-      });
-      setCellLoadingStates(newLoadingStates);
-    }
-  }, [generatedMessages, personas, selectedMessageTypes]);
+    const newLoadingStates: Record<string, boolean> = {};
+    personas.forEach(persona => {
+      if (persona.id) {
+        selectedMessageTypes.forEach(type => {
+          newLoadingStates[`${persona.id}-${type}`] = false;
+        });
+      }
+    });
+    setCellLoadingStates(newLoadingStates);
+  }, [personas, selectedMessageTypes]);
   
   if (!isTableVisible || personas.length === 0 || selectedMessageTypes.length === 0) return null;
   
@@ -62,9 +68,18 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
       // Call the actual generate function and await it
       await onGenerateColumnMessages(messageType);
       console.log(`MessagesTable: Generation complete for ${messageType}`);
+      
+      toast({
+        title: "Success",
+        description: `Generation completed for ${messageType}`
+      });
     } catch (error) {
       console.error(`MessagesTable: Error generating ${messageType}:`, error);
-      throw error; // Re-throw to handle in the MessageTableHeader
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to generate ${messageType} messages`
+      });
     } finally {
       // Reset loading states for this column
       const resetLoadingStates = { ...cellLoadingStates };
