@@ -17,6 +17,8 @@ interface IntakeFormFieldsProps {
   setBrandName: (value: string) => void;
   industry: string;
   setIndustry: (value: string) => void;
+  businessDescription: string;
+  setBusinessDescription: (value: string) => void;
   offering: string;
   setOffering: (value: string) => void;
   sellingPoints: string;
@@ -37,6 +39,8 @@ const IntakeFormFields: React.FC<IntakeFormFieldsProps> = ({
   setBrandName,
   industry,
   setIndustry,
+  businessDescription,
+  setBusinessDescription,
   offering,
   setOffering,
   sellingPoints,
@@ -73,6 +77,12 @@ const IntakeFormFields: React.FC<IntakeFormFieldsProps> = ({
         label="What industry are you in?" 
         value={industry} 
         onChange={e => setIndustry(e.target.value)} 
+      />
+      <RecordingField 
+        label="Tell me about your business" 
+        value={businessDescription} 
+        onChange={setBusinessDescription} 
+        placeholder="Speak for at least 30 seconds" 
       />
       <FormField 
         label="Name just one of your offerings" 

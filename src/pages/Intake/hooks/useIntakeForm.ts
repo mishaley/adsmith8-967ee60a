@@ -4,6 +4,7 @@ import { useState } from "react";
 export const useIntakeForm = () => {
   const [brandName, setBrandName] = useState("");
   const [industry, setIndustry] = useState("");
+  const [businessDescription, setBusinessDescription] = useState("");
   const [offering, setOffering] = useState("");
   const [sellingPoints, setSellingPoints] = useState("");
   const [problemSolved, setProblemSolved] = useState(""); 
@@ -15,6 +16,7 @@ export const useIntakeForm = () => {
     console.log("Saving form data:", {
       brandName,
       industry,
+      businessDescription,
       offering,
       sellingPoints,
       problemSolved,
@@ -30,6 +32,8 @@ export const useIntakeForm = () => {
     setBrandName,
     industry,
     setIndustry,
+    businessDescription,
+    setBusinessDescription,
     offering,
     setOffering,
     sellingPoints,

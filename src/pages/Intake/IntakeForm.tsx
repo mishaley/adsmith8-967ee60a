@@ -12,6 +12,8 @@ const IntakeForm = () => {
     setBrandName,
     industry,
     setIndustry,
+    businessDescription,
+    setBusinessDescription,
     offering,
     setOffering,
     sellingPoints,
@@ -52,6 +54,8 @@ const IntakeForm = () => {
               setBrandName={setBrandName}
               industry={industry}
               setIndustry={setIndustry}
+              businessDescription={businessDescription}
+              setBusinessDescription={setBusinessDescription}
               offering={offering}
               setOffering={setOffering}
               sellingPoints={sellingPoints}

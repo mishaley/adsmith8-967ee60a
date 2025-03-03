@@ -15,6 +15,8 @@ interface IntakeFormContainerProps {
   setBrandName: (value: string) => void;
   industry: string;
   setIndustry: (value: string) => void;
+  businessDescription: string;
+  setBusinessDescription: (value: string) => void;
   offering: string;
   setOffering: (value: string) => void;
   sellingPoints: string;
@@ -49,6 +51,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   setBrandName,
   industry,
   setIndustry,
+  businessDescription,
+  setBusinessDescription,
   offering,
   setOffering,
   sellingPoints,
@@ -92,7 +96,9 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             brandName={brandName} 
             setBrandName={setBrandName} 
             industry={industry} 
-            setIndustry={setIndustry} 
+            setIndustry={setIndustry}
+            businessDescription={businessDescription}
+            setBusinessDescription={setBusinessDescription}
             offering={offering} 
             setOffering={setOffering} 
             sellingPoints={sellingPoints} 
