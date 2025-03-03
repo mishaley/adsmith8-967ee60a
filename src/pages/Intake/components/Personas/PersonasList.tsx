@@ -40,7 +40,7 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }
               <div className="text-sm mt-1">{personas[index].interests.join(", ")}</div>
             </div>
           ) : (
-            <div className="text-gray-400">No persona data</div>
+            <div className="text-gray-400"></div>
           )}
         </td>
       ))}
