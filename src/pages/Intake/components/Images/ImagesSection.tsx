@@ -1,7 +1,9 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -14,27 +16,46 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   generatedMessages,
   selectedMessageTypes 
 }) => {
-  // Get the first message type if available, otherwise use empty string
-  const firstMessageType = selectedMessageTypes.length > 0 ? selectedMessageTypes[0] : "";
-  
-  // Only use the first persona as per the personaCount setting
-  const firstPersona = personas.length > 0 ? personas[0] : null;
-  
-  // Get personaId for the first persona
-  const personaId = firstPersona?.id ? String(firstPersona.id) : firstPersona ? "persona-0" : "";
-  
-  // Get the message content (or fallback text)
-  const messageContent = personaId && firstMessageType 
-    ? generatedMessages[personaId]?.[firstMessageType]?.content || `Generated ${firstMessageType} Example`
-    : "No message available";
-  
   // Calculate total number of persona-message pairs
   const totalPersonas = personas.length;
   const totalMessageTypes = selectedMessageTypes.length;
   const totalPairs = totalPersonas * totalMessageTypes;
   
-  // Calculate current index - for now we're only showing the first
-  const currentIndex = (totalPairs > 0) ? 1 : 0;
+  // State for tracking the current index
+  const [currentPairIndex, setCurrentPairIndex] = useState(0);
+  
+  // Reset the index when personas or message types change
+  useEffect(() => {
+    setCurrentPairIndex(0);
+  }, [personas, selectedMessageTypes]);
+  
+  // Calculate which persona and message type to show based on the current index
+  const personaIndex = Math.floor(currentPairIndex / Math.max(1, totalMessageTypes));
+  const messageTypeIndex = currentPairIndex % Math.max(1, totalMessageTypes);
+  
+  // Get the current persona and message type
+  const currentPersona = personas[personaIndex] || null;
+  const currentMessageType = selectedMessageTypes[messageTypeIndex] || "";
+  
+  // Get personaId for the current persona
+  const personaId = currentPersona?.id ? String(currentPersona.id) : currentPersona ? "persona-0" : "";
+  
+  // Get the message content (or fallback text)
+  const messageContent = personaId && currentMessageType 
+    ? generatedMessages[personaId]?.[currentMessageType]?.content || `Generated ${currentMessageType} Example`
+    : "No message available";
+  
+  // Navigation handlers
+  const goToPrevious = () => {
+    setCurrentPairIndex(prev => (prev > 0 ? prev - 1 : totalPairs - 1));
+  };
+  
+  const goToNext = () => {
+    setCurrentPairIndex(prev => (prev < totalPairs - 1 ? prev + 1 : 0));
+  };
+  
+  // Display index starts from 1 for user-friendly numbering
+  const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
   
   return (
     <>
@@ -45,7 +66,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           </div>
         </td>
       </tr>
-      {firstPersona ? (
+      {currentPersona ? (
         <tr>
           <td colSpan={2} className="p-4">
             <table className="w-full border-collapse">
@@ -53,15 +74,36 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 <tr>
                   <td className="border p-3">
                     <div className="flex items-center">
+                      {/* Navigation Controls */}
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={goToPrevious}
+                        disabled={totalPairs <= 1}
+                        className="h-9 w-9 mr-1"
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </Button>
+                      
                       {/* Index counter box */}
                       <div className="bg-gray-100 border border-gray-300 rounded-md px-3 py-2 mr-3 flex items-center justify-center min-w-[60px]">
-                        <span className="font-medium">{currentIndex} / {totalPairs}</span>
+                        <span className="font-medium">{displayIndex} / {totalPairs}</span>
                       </div>
                       
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={goToNext}
+                        disabled={totalPairs <= 1}
+                        className="h-9 w-9 mr-3"
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                      
                       {/* Portrait - maintaining aspect ratio and doubling height from h-8 to h-16 */}
-                      {firstPersona.portraitUrl ? (
+                      {currentPersona.portraitUrl ? (
                         <img 
-                          src={firstPersona.portraitUrl} 
+                          src={currentPersona.portraitUrl} 
                           alt="Persona portrait"
                           className="w-auto h-16 rounded-md object-cover mr-4"
                         />
@@ -74,7 +116,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                       {/* Combined text with bullet point separators and 50% larger text */}
                       <div className="flex-1">
                         <span className="text-lg text-gray-700">
-                          {firstPersona.gender}, {firstPersona.ageMin}-{firstPersona.ageMax} • {firstPersona.interests?.join(", ") || "No interests"} • {messageContent}
+                          {currentPersona.gender}, {currentPersona.ageMin}-{currentPersona.ageMax} • {currentPersona.interests?.join(", ") || "No interests"} • {messageContent}
                         </span>
                       </div>
                     </div>
