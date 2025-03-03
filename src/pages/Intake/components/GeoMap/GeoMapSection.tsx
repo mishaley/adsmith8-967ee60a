@@ -42,22 +42,37 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     initialized
   });
 
-  return <>
-      <tr className="border-b">
-        
-      </tr>
-      <tr>
-        <td colSpan={2} className="p-0">
-          <MapDisplay 
-            loading={loading} 
-            error={error} 
-            mapContainerRef={mapContainer} 
-            selectedCountry={selectedCountry} 
-            setSelectedCountry={setSelectedCountry} 
-          />
-        </td>
-      </tr>
-    </>;
+  return (
+    <table className="w-full border-collapse">
+      <tbody>
+        <tr>
+          <td className="border-r p-2 w-1/2 align-top">
+            <MapDisplay 
+              loading={loading} 
+              error={error} 
+              mapContainerRef={mapContainer} 
+              selectedCountry={selectedCountry} 
+              setSelectedCountry={setSelectedCountry} 
+            />
+          </td>
+          <td className="p-2 w-1/2 align-top">
+            <div className="font-bold text-lg mb-4">Selections</div>
+            {selectedCountry && (
+              <div className="p-2 bg-[#f5f9ff] rounded">
+                <p className="font-medium">Selected Country:</p>
+                <p className="text-[#154851] font-bold">{selectedCountry}</p>
+              </div>
+            )}
+            {!selectedCountry && (
+              <div className="text-gray-500 italic">
+                No country selected. Click on a country on the map to select it.
+              </div>
+            )}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
 };
 
 export default GeoMapSection;

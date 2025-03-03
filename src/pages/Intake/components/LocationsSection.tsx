@@ -13,17 +13,11 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
 }) => {
   return (
     <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">LOCATIONS</h2>
-      <div className="flex justify-center">
-        <table className="border-collapse border-transparent">
-          <tbody>
-            <GeoMapSection
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
-            />
-          </tbody>
-        </table>
-      </div>
+      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">LOCATIONS</h2>
+      <GeoMapSection
+        selectedCountry={selectedCountry}
+        setSelectedCountry={setSelectedCountry}
+      />
     </div>
   );
 };
