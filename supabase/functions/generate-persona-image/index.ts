@@ -1,108 +1,131 @@
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Define CORS headers for browser access
+const IDEOGRAM_API_KEY = Deno.env.get('IDEOGRAM_API_KEY');
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
-// Handle CORS preflight requests
-Deno.serve(async (req) => {
+serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Extract request data
-    const requestData = await req.json()
-    const { prompt, resolution = "RESOLUTION_1024_1024" } = requestData
-
+    // Log the request
+    console.log('Received request for image generation');
+    
+    // Parse request body
+    const { prompt, resolution = 'RESOLUTION_1024_1024' } = await req.json();
+    
     if (!prompt) {
+      console.error('Error: No prompt provided');
       return new Response(
-        JSON.stringify({ error: 'Prompt is required' }),
+        JSON.stringify({ 
+          success: false, 
+          error: 'No prompt provided' 
+        }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      )
+      );
     }
-
-    // Get API key from environment
-    const ideogramApiKey = Deno.env.get('IDEOGRAM_API_KEY')
     
-    if (!ideogramApiKey) {
-      console.error('IDEOGRAM_API_KEY is not set in the environment variables')
+    console.log(`Processing image generation with prompt: ${prompt}`);
+    console.log(`Using resolution: ${resolution}`);
+    
+    if (!IDEOGRAM_API_KEY) {
+      console.error('Error: IDEOGRAM_API_KEY not set in environment');
       return new Response(
-        JSON.stringify({ error: 'API configuration error' }),
+        JSON.stringify({ 
+          success: false, 
+          error: 'API key not configured', 
+          details: 'The Ideogram API key is not set in the environment variables' 
+        }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      )
+      );
     }
 
-    console.log(`Generating image with prompt: ${prompt}`)
-    
-    // Call the Ideogram API
-    const ideogramResponse = await fetch('https://api.ideogram.ai/api/v1/text2image', {
+    // Call the Ideogram API to generate an image
+    const response = await fetch('https://api.ideogram.ai/api/v1/images/generations', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${ideogramApiKey}`,
+        'Authorization': `Bearer ${IDEOGRAM_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: "ideogram-1.0",
-        prompt: prompt,
-        aspect_ratio: resolution,
-        style_preset: "enhance"
+        prompt,
+        resolution,
+        style: "DEFAULT", // Default style or can be passed from request
       }),
-    })
+    });
 
-    const ideogramData = await ideogramResponse.json()
-    console.log('Ideogram API response:', JSON.stringify(ideogramData))
-
-    // Handle successful response
-    if (ideogramData.data && ideogramData.data.length > 0) {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          imageUrl: ideogramData.data[0].url
-        }),
-        { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    } else {
-      // Handle API error
+    const data = await response.json();
+    console.log('Ideogram API response:', JSON.stringify(data));
+    
+    if (!response.ok) {
+      console.error(`Error from Ideogram API: ${response.status} ${response.statusText}`);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'No image generated', 
-          details: ideogramData 
+          error: `Ideogram API error: ${response.status} ${response.statusText}`, 
+          details: data 
         }),
         { 
-          status: 400, 
+          status: 502, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
-      )
+      );
+    }
+
+    // Extract the image URL from the API response
+    if (data && data.data && data.data.length > 0 && data.data[0].url) {
+      const imageUrl = data.data[0].url;
+      console.log(`Image generated successfully: ${imageUrl}`);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          imageUrl 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    } else {
+      console.error('Error: Invalid response format from Ideogram API');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid response format from Ideogram API', 
+          details: data 
+        }),
+        { 
+          status: 502, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
   } catch (error) {
-    // Handle unexpected errors
-    console.error('Error generating image:', error)
-    
+    console.error('Error in generate-persona-image function:', error);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Failed to generate image',
-        details: error.message
+        error: error.message || 'Unknown error', 
+        stack: error.stack 
       }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
-    )
+    );
   }
-})
+});

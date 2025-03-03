@@ -69,34 +69,40 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
       const resolution = platformResolutions.length > 0 ? platformResolutions[0].value : "RESOLUTION_1024_1024";
 
       // Call the Edge function to generate the image
-      const response = await supabase.functions.invoke('generate-persona-image', {
+      const { data, error } = await supabase.functions.invoke('generate-persona-image', {
         body: { 
           prompt, 
           resolution 
         }
       });
       
-      console.log('Image generation response:', response);
+      console.log('Image generation response:', { data, error });
       
-      if (response.error) {
-        throw new Error(response.error.message || "Failed to generate image");
+      if (error) {
+        const errorMessage = error.message || "Failed to generate image";
+        console.error('Error calling edge function:', errorMessage);
+        setErrorDetails(`Edge Function Error: ${errorMessage}`);
+        setShowErrorDialog(true);
+        throw new Error(errorMessage);
       }
       
-      if (response.data.success && response.data.imageUrl) {
-        setGeneratedImageUrl(response.data.imageUrl);
+      if (data && data.success && data.imageUrl) {
+        setGeneratedImageUrl(data.imageUrl);
         toast({
           title: "Image Generated",
           description: "Image has been successfully generated.",
         });
       } else {
-        const errorMsg = response.data.error || "No image was generated";
-        const details = response.data.details ? JSON.stringify(response.data.details, null, 2) : "No details available";
-        setErrorDetails(`Error: ${errorMsg}\n\nDetails: ${details}`);
+        const errorMsg = data?.error || "Unknown error occurred";
+        const details = data?.details ? JSON.stringify(data.details, null, 2) : "No details available";
+        const fullError = `Error: ${errorMsg}\n\nDetails: ${details}`;
+        console.error('Error generating image:', fullError);
+        setErrorDetails(fullError);
         setShowErrorDialog(true);
         throw new Error(errorMsg);
       }
     } catch (error) {
-      console.error('Error generating image:', error);
+      console.error('Exception in image generation:', error);
       
       // If we don't have detailed error info yet, set it
       if (!errorDetails) {
