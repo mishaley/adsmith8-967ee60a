@@ -48,7 +48,8 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
 
   // The most important function - generate personas and IMMEDIATELY trigger portrait generation
   const generatePersonas = useCallback(() => {
-    console.log("Starting persona generation with automatic portrait generation to follow");
+    console.log(`Starting persona generation for ${personaCount} personas with automatic portrait generation to follow`);
+    
     return generatePersonasBase(offering, selectedCountry, personaCount, (newPersonas) => {
       if (!newPersonas || newPersonas.length === 0) {
         console.error("No personas were generated, cannot generate portraits");

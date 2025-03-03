@@ -34,7 +34,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   personaCount = 1,
   setPersonaCount
 }) => {
-  console.log("PersonasSection rendering with personas:", personas);
+  console.log("PersonasSection rendering with personas:", personas, "and personaCount:", personaCount);
   
   const hasPersonas = personas && personas.length > 0;
   const hasLoadingPortraits = loadingPortraitIndices.length > 0;
@@ -49,13 +49,16 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       isGeneratingPortraits,
       hasLoadingPortraits,
       loadingPortraitIndices,
+      personaCount,
       portraitUrls: personas.map(p => !!p?.portraitUrl)
     });
-  }, [personas, isGeneratingPersonas, isGeneratingPortraits, loadingPortraitIndices]);
+  }, [personas, isGeneratingPersonas, isGeneratingPortraits, loadingPortraitIndices, personaCount]);
 
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
-      setPersonaCount(parseInt(value, 10));
+      const count = parseInt(value, 10);
+      console.log(`Persona count changed to: ${count}`);
+      setPersonaCount(count);
     }
   };
 
@@ -69,10 +72,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             {setPersonaCount && (
               <div className="ml-4 w-20">
                 <Select value={personaCount.toString()} onValueChange={handleCountChange}>
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Count" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white z-50">
                     <SelectItem value="1">1</SelectItem>
                     <SelectItem value="2">2</SelectItem>
                     <SelectItem value="3">3</SelectItem>
