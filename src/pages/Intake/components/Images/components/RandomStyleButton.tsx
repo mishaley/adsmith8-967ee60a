@@ -1,10 +1,13 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { useToast } from "@/hooks/use-toast";
+
 interface RandomStyleButtonProps {
   onStyleSelected?: (style: string) => void;
 }
+
 const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({
   onStyleSelected
 }) => {
@@ -12,6 +15,7 @@ const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({
   const {
     toast
   } = useToast();
+
   const handleGetRandomStyle = async () => {
     setIsLoading(true);
     try {
@@ -31,10 +35,12 @@ const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({
       setIsLoading(false);
     }
   };
-  return <div className="flex items-center gap-3">
+
+  return <div className="flex justify-center items-center gap-3 w-full">
       <Button onClick={handleGetRandomStyle} variant="outline" size="sm" disabled={isLoading} className="text-center">
         {isLoading ? "Loading..." : "Get Random Style"}
       </Button>
     </div>;
 };
+
 export default RandomStyleButton;

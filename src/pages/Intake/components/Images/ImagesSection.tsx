@@ -65,7 +65,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
     <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
       <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">IMAGES</h2>
 
-      <div className="mb-4">
+      <div className="mb-4 text-center">
         <RandomStyleButton />
       </div>
 
