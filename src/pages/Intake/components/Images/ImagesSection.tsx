@@ -70,9 +70,9 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                         </span>
                       </div>
                       
-                      {/* Message - Updated styling to match other elements */}
+                      {/* Message - Updated styling to remove background */}
                       <div className="flex-1">
-                        <span className="text-sm text-gray-700 block p-2 bg-gray-50 rounded border border-gray-100">
+                        <span className="text-sm text-gray-700 block p-2 rounded">
                           {messageContent}
                         </span>
                       </div>
