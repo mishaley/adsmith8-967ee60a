@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 // Function to generate a random 3-word phrase
@@ -18,7 +19,7 @@ export const getRandomApprovedStyle = async () => {
   try {
     console.log("Fetching styles from y1styles table...");
     
-    // Get the count of styles
+    // First check if table exists and has any records
     const { count, error: countError } = await supabase
       .from('y1styles')
       .select('*', { count: 'exact', head: true });
@@ -28,9 +29,10 @@ export const getRandomApprovedStyle = async () => {
       throw new Error(`Database count error: ${countError.message}`);
     }
     
-    console.log(`Found ${count} total styles in the database`);
+    const totalCount = count || 0;
+    console.log(`Found ${totalCount} total styles in the database`);
     
-    if (count === 0) {
+    if (totalCount === 0) {
       throw new Error('No styles found in database');
     }
     
