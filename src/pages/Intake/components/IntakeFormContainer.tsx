@@ -1,11 +1,12 @@
+
 import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
 import { Persona } from "./Personas/types";
-import { PersonasSection } from "./Personas";
-import { MessagesSection } from "./Messages";
+import PersonasSection from "./Personas/PersonasSection";
+import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
-import { GeoMapSection } from "./GeoMap/GeoMapSection";
+import GeoMapSection from "./GeoMap/GeoMapSection";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 
 interface IntakeFormContainerProps {

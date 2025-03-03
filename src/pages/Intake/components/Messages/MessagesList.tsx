@@ -49,10 +49,10 @@ const MessagesList: React.FC<MessagesListProps> = ({ messages, isLoading }) => {
         </thead>
         <tbody>
           {messages.map((message) => (
-            <tr key={message.message_id} className="border-b hover:bg-gray-50">
-              <td className="px-4 py-3">{message.message_name}</td>
-              <td className="px-4 py-3">{getMessageTypeLabel(message.message_type)}</td>
-              <td className="px-4 py-3">{message.message_status}</td>
+            <tr key={message.id || message.message_id} className="border-b hover:bg-gray-50">
+              <td className="px-4 py-3">{message.content || message.message_name}</td>
+              <td className="px-4 py-3">{getMessageTypeLabel(message.type || message.message_type || '')}</td>
+              <td className="px-4 py-3">{message.status || message.message_status}</td>
             </tr>
           ))}
         </tbody>
