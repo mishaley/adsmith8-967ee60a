@@ -8,6 +8,7 @@ import { usePersonasManager } from "./hooks/personas/usePersonasManager";
 import OrganizationSection from "./components/OrganizationSection";
 import OfferingSection from "./components/OfferingSection";
 import LocationsSection from "./components/LocationsSection";
+import PersonasContainer from "./components/PersonasSection";
 
 const IntakeForm = () => {
   const {
@@ -78,6 +79,19 @@ const IntakeForm = () => {
             <LocationsSection
               selectedCountry={selectedCountry}
               setSelectedCountry={setSelectedCountry}
+            />
+            <PersonasContainer
+              personas={personas}
+              summary={summary}
+              isGeneratingPersonas={isGeneratingPersonas}
+              isGeneratingPortraits={isGeneratingPortraits}
+              generatePersonas={generatePersonas}
+              updatePersona={updatePersona}
+              loadingPortraitIndices={loadingPortraitIndices}
+              retryPortraitGeneration={retryPortraitGeneration}
+              removePersona={removePersona}
+              personaCount={personaCount}
+              setPersonaCount={setPersonaCount}
             />
             <IntakeTop />
             <IntakeFormContainer 

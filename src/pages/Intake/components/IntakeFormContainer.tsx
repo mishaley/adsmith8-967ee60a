@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
 import { Persona } from "./Personas/types";
-import PersonasSection from "./Personas/PersonasSection";
 import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
 import LanguagesSection from "./Languages/LanguagesSection";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
+
 interface IntakeFormContainerProps {
   // Form fields
   brandName: string;
@@ -46,7 +46,9 @@ interface IntakeFormContainerProps {
   personaCount: number;
   setPersonaCount: (count: number) => void;
 }
+
 const PLATFORM_OPTIONS = ["Google", "Meta"];
+
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   // Form fields
   brandName,
@@ -85,17 +87,37 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
 }) => {
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
+  
   const handleMessagesUpdate = (messages: Record<string, Record<string, Message>>, types: string[]) => {
     setGeneratedMessages(messages);
     setSelectedMessageTypes(types);
   };
+  
   return <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
       <IntakeHeader />
       <table className="w-full border-collapse">
         <tbody>
-          <IntakeFormFields brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} businessDescription={businessDescription} setBusinessDescription={setBusinessDescription} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} handleSave={handleSave} />
+          <IntakeFormFields 
+            brandName={brandName} 
+            setBrandName={setBrandName} 
+            industry={industry} 
+            setIndustry={setIndustry} 
+            businessDescription={businessDescription} 
+            setBusinessDescription={setBusinessDescription} 
+            offering={offering} 
+            setOffering={setOffering} 
+            sellingPoints={sellingPoints} 
+            setSellingPoints={setSellingPoints} 
+            problemSolved={problemSolved} 
+            setProblemSolved={setProblemSolved} 
+            uniqueOffering={uniqueOffering} 
+            setUniqueOffering={setUniqueOffering} 
+            adPlatform={adPlatform} 
+            setAdPlatform={setAdPlatform} 
+            handleSave={handleSave} 
+          />
           
-          <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} personaCount={personaCount} setPersonaCount={setPersonaCount} />
+          {/* Personas section has been moved to a separate component */}
           
           <LanguagesSection selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />
           
@@ -141,4 +163,5 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
       </table>
     </div>;
 };
+
 export default IntakeFormContainer;
