@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { Persona } from "../../Personas/types";
+import { Button } from "@/components/ui/button";
 
 interface UseImageGenerationProps {
   currentPersona: Persona | null;
