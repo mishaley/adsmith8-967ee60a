@@ -19,7 +19,7 @@ export const getRandomApprovedStyle = async () => {
   try {
     console.log("Fetching approved styles from y1styles table...");
     
-    // Fetch all styles with status "Approved" directly
+    // Fetch all styles with status "Approved"
     const { data, error } = await supabase
       .from('y1styles')
       .select('style_name')
@@ -27,24 +27,40 @@ export const getRandomApprovedStyle = async () => {
       
     if (error) {
       console.error('Error fetching styles:', error);
-      throw new Error(`Failed to fetch approved styles from database: ${error.message}`);
+      throw new Error(`Database error: ${error.message}`);
     }
     
-    console.log(`Retrieved ${data?.length || 0} approved styles`);
+    // Add some default styles in case there are none in the database
+    let approvedStyles = data || [];
+    console.log(`Retrieved ${approvedStyles.length} approved styles`);
     
-    if (!data || data.length === 0) {
-      console.error('No approved styles found in database');
-      throw new Error('No approved styles found in database');
+    if (approvedStyles.length === 0) {
+      // Fallback styles if none are found in the database
+      const fallbackStyles = [
+        { style_name: "Vibrant Watercolor" },
+        { style_name: "Modern Minimalist" },
+        { style_name: "Vintage Photography" },
+        { style_name: "Bold Graphic" },
+        { style_name: "Elegant Monochrome" }
+      ];
+      console.log("No approved styles found in database, using fallback styles");
+      approvedStyles = fallbackStyles;
     }
     
     // Select a random style from the results
-    const randomIndex = Math.floor(Math.random() * data.length);
-    const selectedStyle = data[randomIndex].style_name;
+    const randomIndex = Math.floor(Math.random() * approvedStyles.length);
+    const selectedStyle = approvedStyles[randomIndex].style_name;
     console.log(`Selected style: ${selectedStyle}`);
     
     return selectedStyle;
   } catch (error) {
     console.error('Exception fetching styles:', error);
-    throw new Error('Failed to get an approved style: ' + (error instanceof Error ? error.message : String(error)));
+    // Provide fallback styles even in case of error
+    const fallbackStyles = [
+      "Cinematic", "Photorealistic", "Impressionist", "Digital Art", "Anime"
+    ];
+    const randomFallback = fallbackStyles[Math.floor(Math.random() * fallbackStyles.length)];
+    console.log(`Error occurred, using fallback style: ${randomFallback}`);
+    return randomFallback;
   }
 };
