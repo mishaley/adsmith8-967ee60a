@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { Persona } from '../../Personas/types';
 import { GeneratedMessagesRecord } from '../hooks/useMessagesState';
@@ -27,6 +26,8 @@ const mockMessages = {
 // AI-powered tagline generation
 async function generateTaglineWithAI(messageType: string, persona: Persona): Promise<string> {
   try {
+    console.log(`Generating tagline for ${messageType} and persona:`, persona.name || 'Unknown');
+    
     const { data, error } = await supabase.functions.invoke('generate-marketing-taglines', {
       body: { 
         messageType,
@@ -44,6 +45,7 @@ async function generateTaglineWithAI(messageType: string, persona: Persona): Pro
       throw error;
     }
 
+    console.log('AI tagline generated:', data.tagline);
     return data.tagline;
   } catch (error) {
     console.error('Error generating tagline with AI:', error);
@@ -60,6 +62,8 @@ export async function generateMessageForType(
   userProvidedMessage: string = "",
   persona?: Persona
 ): Promise<Message> {
+  console.log(`Generating message for type: ${messageType}, personaId: ${personaId}`);
+  
   // For user-provided message type, just use what the user entered
   if (messageType === "user-provided" && userProvidedMessage) {
     return {
@@ -135,10 +139,12 @@ export async function generateColumnMessages(
   personas: Persona[],
   existingMessages: GeneratedMessagesRecord
 ): Promise<GeneratedMessagesRecord> {
+  console.log(`Generating column messages for type: ${messageType}, personas count: ${personas.length}`);
   const updatedMessages = { ...existingMessages };
 
   for (const persona of personas) {
     if (persona.id) {
+      console.log(`Generating message for persona: ${persona.id}`);
       const message = await generateMessageForType(messageType, persona.id, "", persona);
       
       // Initialize persona entry if it doesn't exist
@@ -148,6 +154,7 @@ export async function generateColumnMessages(
       
       // Add the generated message
       updatedMessages[persona.id][messageType] = message;
+      console.log(`Generated message for persona ${persona.id}: ${message.message_name}`);
     }
   }
 

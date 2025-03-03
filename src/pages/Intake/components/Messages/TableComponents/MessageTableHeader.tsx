@@ -2,11 +2,12 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface MessageTableHeaderProps {
   messageType: string;
   getMessageTypeLabel: (type: string) => string;
-  onGenerateColumnMessages: (messageType: string) => void;
+  onGenerateColumnMessages: (messageType: string) => Promise<void>;
   isGeneratingMessages: boolean;
 }
 
@@ -17,11 +18,24 @@ const MessageTableHeader: React.FC<MessageTableHeaderProps> = ({
   isGeneratingMessages
 }) => {
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const { toast } = useToast();
   
   const handleGenerateClick = async () => {
     try {
       setIsGenerating(true);
+      console.log(`Starting generation for ${messageType}`);
       await onGenerateColumnMessages(messageType);
+      toast({
+        title: "Success",
+        description: `Generated messages for ${getMessageTypeLabel(messageType)}`,
+      });
+    } catch (error) {
+      console.error(`Error generating ${messageType} messages:`, error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to generate messages for ${getMessageTypeLabel(messageType)}`,
+      });
     } finally {
       // Ensure we reset the loading state even if there's an error
       setIsGenerating(false);

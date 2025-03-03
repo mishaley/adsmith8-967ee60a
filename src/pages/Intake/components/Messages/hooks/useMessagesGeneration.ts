@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Persona } from "../../Personas/types";
 import { GeneratedMessagesRecord } from "./useMessagesState";
 import { generateMessagesForAllPersonas, generateColumnMessages } from "../services/messageGenerationService";
+import { useToast } from "@/hooks/use-toast";
 
 export const useMessagesGeneration = (
   personas: Persona[],
@@ -14,6 +15,7 @@ export const useMessagesGeneration = (
 ) => {
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { toast } = useToast();
 
   // Set isLoaded after a short delay
   useEffect(() => {
@@ -29,6 +31,7 @@ export const useMessagesGeneration = (
     
     setIsGeneratingMessages(true);
     try {
+      console.log("Generating messages for all personas");
       const mockMessages = await generateMessagesForAllPersonas(
         personas,
         selectedMessageTypes,
@@ -38,14 +41,25 @@ export const useMessagesGeneration = (
       setGeneratedMessages(mockMessages);
       setIsTableVisible(true);
       
+      toast({
+        title: "Success",
+        description: "Generated messages for all personas"
+      });
+      
     } catch (error) {
       console.error("Error generating messages:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate messages. Please try again."
+      });
     } finally {
       setIsGeneratingMessages(false);
     }
   };
 
   const handleGenerateColumnMessages = async (messageType: string) => {
+    console.log(`useMessagesGeneration: Generating column messages for type: ${messageType}`);
     setIsGeneratingMessages(true);
     
     try {
@@ -55,11 +69,15 @@ export const useMessagesGeneration = (
         generatedMessages
       );
       
+      console.log("Updated messages:", updatedMessages);
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
       
+      return updatedMessages; // Return the result for proper Promise chaining
+      
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
+      throw error; // Re-throw to handle in the component
     } finally {
       setIsGeneratingMessages(false);
     }

@@ -15,7 +15,7 @@ interface MessagesTableProps {
   generatedMessages: GeneratedMessagesRecord;
   isGeneratingMessages: boolean;
   getMessageTypeLabel: (type: string) => string;
-  onGenerateColumnMessages: (messageType: string) => void;
+  onGenerateColumnMessages: (messageType: string) => Promise<void>;
 }
 
 const MessagesTable: React.FC<MessagesTableProps> = ({
@@ -31,7 +31,9 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   
   if (!isTableVisible || personas.length === 0 || selectedMessageTypes.length === 0) return null;
   
-  const handleGenerateColumnMessages = async (messageType: string) => {
+  const handleGenerateColumnMessages = async (messageType: string): Promise<void> => {
+    console.log(`MessagesTable: Starting generation for ${messageType}`);
+    
     // Set all cells in this column to loading state
     const newLoadingStates = { ...cellLoadingStates };
     personas.forEach(persona => {
@@ -41,17 +43,23 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
     });
     setCellLoadingStates(newLoadingStates);
     
-    // Call the actual generate function
-    await onGenerateColumnMessages(messageType);
-    
-    // Reset loading states for this column
-    const resetLoadingStates = { ...newLoadingStates };
-    personas.forEach(persona => {
-      if (persona.id) {
-        resetLoadingStates[`${persona.id}-${messageType}`] = false;
-      }
-    });
-    setCellLoadingStates(resetLoadingStates);
+    try {
+      // Call the actual generate function and await it
+      await onGenerateColumnMessages(messageType);
+      console.log(`MessagesTable: Generation complete for ${messageType}`);
+    } catch (error) {
+      console.error(`MessagesTable: Error generating ${messageType}:`, error);
+      throw error; // Re-throw to handle in the MessageTableHeader
+    } finally {
+      // Reset loading states for this column
+      const resetLoadingStates = { ...cellLoadingStates };
+      personas.forEach(persona => {
+        if (persona.id) {
+          resetLoadingStates[`${persona.id}-${messageType}`] = false;
+        }
+      });
+      setCellLoadingStates(resetLoadingStates);
+    }
   };
   
   return (
