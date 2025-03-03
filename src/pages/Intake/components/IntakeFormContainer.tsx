@@ -132,6 +132,11 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             setPersonaCount={setPersonaCount}
           />
           
+          <MessagesSection 
+            personas={personas} 
+            onUpdateMessages={handleMessagesUpdate} 
+          />
+          
           {/* Ad Platform Section */}
           <tr className="border-b">
             <td colSpan={2} className="py-4 text-lg">
@@ -175,10 +180,6 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             </td>
           </tr>
           
-          <MessagesSection 
-            personas={personas} 
-            onUpdateMessages={handleMessagesUpdate} 
-          />
           <ImagesSection 
             personas={personas} 
             generatedMessages={generatedMessages} 
