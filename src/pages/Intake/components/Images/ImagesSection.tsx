@@ -5,6 +5,7 @@ import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "./components/PersonaDisplay";
 import ResolutionOptions from "./components/ResolutionOptions";
 import ImageGenerator from "./components/ImageGenerator";
+import StyleTester from "./components/StyleTester";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -102,6 +103,12 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                       currentPersona={currentPersona} 
                       adPlatform={adPlatform} 
                     />
+                  </td>
+                </tr>
+                {/* New row for the style tester */}
+                <tr>
+                  <td className="border-t-0 border-x border-b p-3">
+                    <StyleTester />
                   </td>
                 </tr>
               </tbody>
