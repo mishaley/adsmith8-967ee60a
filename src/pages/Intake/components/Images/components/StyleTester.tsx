@@ -22,19 +22,8 @@ const StyleTester: React.FC = () => {
     setDiagInfo(null);
     
     try {
-      // First, let's debug what tables are available
-      const { data: tables, error: tablesError } = await supabase
-        .from('_tables')
-        .select('table_name');
-        
-      if (tablesError) {
-        console.log("Error fetching tables:", tablesError);
-      } else {
-        console.log("Available tables:", tables);
-      }
-      
-      // Now check the y1styles table
-      const { data: countInfo, count, error: countError } = await supabase
+      // Check the y1styles table
+      const { count, error: countError } = await supabase
         .from('y1styles')
         .select('*', { count: 'exact', head: true });
       

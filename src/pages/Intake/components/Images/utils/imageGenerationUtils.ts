@@ -19,28 +19,21 @@ export const getRandomApprovedStyle = async () => {
   try {
     console.log("Fetching styles from y1styles table...");
     
-    // Debug the table structure
-    const { data: tables } = await supabase
-      .from('_tables')
-      .select('table_name');
-    
-    console.log("Available tables:", tables);
-    
-    // Check count with explicit schema reference
-    const countResult = await supabase
+    // Check count
+    const { count, error: countError } = await supabase
       .from('y1styles')
       .select('*', { count: 'exact', head: true });
       
-    if (countResult.error) {
-      console.error('Error checking style count:', countResult.error);
-      throw new Error(`Database count error: ${countResult.error.message}`);
+    if (countError) {
+      console.error('Error checking style count:', countError);
+      throw new Error(`Database count error: ${countError.message}`);
     }
     
-    const totalCount = countResult.count ?? 0;
+    const totalCount = count ?? 0;
     console.log(`Found ${totalCount} total styles in the database`);
     
     if (totalCount === 0) {
-      // Try alternative query to see if table exists but name is different
+      // Try alternative query to see if table exists
       console.log("Trying alternative queries to debug...");
       
       const { data: allStyles, error: stylesError } = await supabase
