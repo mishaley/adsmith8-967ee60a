@@ -17,7 +17,7 @@ const FormField = ({
   onChange 
 }: FormFieldProps) => {
   return (
-    <tr className="border-b">
+    <tr className="border-transparent">
       <td className="py-4 pr-4 text-lg">
         <div>{label}</div>
         {helperText && <div className={helperTextClassName}>{helperText}</div>}

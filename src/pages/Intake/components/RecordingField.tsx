@@ -100,7 +100,7 @@ const RecordingField = ({
   };
   
   return (
-    <tr className="border-b">
+    <tr className="border-transparent">
       <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
         <div>{label}</div>
         {helperText && <div className="text-sm text-gray-500 mt-1">{helperText}</div>}
