@@ -1,9 +1,9 @@
-import React from "react";
+
+import React, { useEffect } from "react";
 import { Persona } from "../Personas/types";
 import MessagesList from "./MessagesList";
 import MessageTypeSelector from "./MessageTypeSelector";
 import UserProvidedInput from "./UserProvidedInput";
-import GenerateButton from "./GenerateButton";
 import MessagesTable from "./MessagesTable";
 import { getMessageTypeLabel } from "./messageUtils";
 import { useMessagesState } from "./hooks/useMessagesState";
@@ -30,14 +30,25 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     toggleMessageType,
     setUserProvidedMessage,
     setGeneratedMessages,
-    setIsTableVisible
+    setIsTableVisible,
+    setSelectedMessageTypes
   } = useMessagesState(personas);
 
-  React.useEffect(() => {
+  // Update parent component with messages data when they change
+  useEffect(() => {
     if (onUpdateMessages) {
       onUpdateMessages(generatedMessages, selectedMessageTypes);
     }
   }, [generatedMessages, selectedMessageTypes, onUpdateMessages]);
+
+  // Show table automatically when message types are selected
+  useEffect(() => {
+    if (selectedMessageTypes.length > 0 && personas.length > 0) {
+      setIsTableVisible(true);
+    } else {
+      setIsTableVisible(false);
+    }
+  }, [selectedMessageTypes, personas, setIsTableVisible]);
 
   const {
     data: messages = [],
@@ -47,7 +58,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
 
   const {
     isGeneratingMessages,
-    generateMessages,
     handleGenerateColumnMessages
   } = useMessagesGeneration(
     personas,
@@ -93,15 +103,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
               userProvidedMessage={userProvidedMessage}
               setUserProvidedMessage={setUserProvidedMessage}
               isUserProvidedSelected={isUserProvidedSelected}
-            />
-          </div>
-          
-          <div className="mb-4">
-            <GenerateButton
-              isGeneratingMessages={isGeneratingMessages || isGeneratingState}
-              selectedMessageTypes={selectedMessageTypes}
-              isLoaded={isLoaded}
-              generateMessages={generateMessages}
             />
           </div>
           
