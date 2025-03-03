@@ -12,6 +12,7 @@ import PersonasContainer from "./components/PersonasSection";
 import LanguagesSection from "./components/Languages/LanguagesSection";
 import MessagesContainer from "./components/Messages/MessagesContainer";
 import PlatformsSection from "./components/Platforms/PlatformsSection";
+import { ImagesSection } from "./components/Images";
 
 const IntakeForm = () => {
   const {
@@ -117,6 +118,12 @@ const IntakeForm = () => {
             <PlatformsSection
               adPlatform={adPlatform}
               setAdPlatform={setAdPlatform}
+            />
+            <ImagesSection 
+              personas={personas}
+              generatedMessages={IntakeFormContainer.generatedMessages || {}}
+              selectedMessageTypes={IntakeFormContainer.selectedMessageTypes || ["tagline"]}
+              adPlatform={adPlatform}
             />
             <IntakeTop />
             <IntakeFormContainer 

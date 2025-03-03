@@ -1,9 +1,8 @@
 
-import React, { useState } from "react";
+import React from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
 import { Persona } from "./Personas/types";
-import { ImagesSection } from "./Images";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 
 interface IntakeFormContainerProps {
@@ -86,39 +85,27 @@ const IntakeFormContainer: IntakeFormContainerType = ({
   personaCount,
   setPersonaCount
 }) => {
-  // Use the static properties for messages data, or default to empty if not set
-  const generatedMessages = IntakeFormContainer.generatedMessages || {};
-  const selectedMessageTypes = IntakeFormContainer.selectedMessageTypes || ["tagline"];
-  
   return <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
       <IntakeHeader />
-      <table className="w-full border-collapse">
-        <tbody>
-          <IntakeFormFields 
-            brandName={brandName} 
-            setBrandName={setBrandName} 
-            industry={industry} 
-            setIndustry={setIndustry} 
-            businessDescription={businessDescription} 
-            setBusinessDescription={setBusinessDescription} 
-            offering={offering} 
-            setOffering={setOffering} 
-            sellingPoints={sellingPoints} 
-            setSellingPoints={setSellingPoints} 
-            problemSolved={problemSolved} 
-            setProblemSolved={setProblemSolved} 
-            uniqueOffering={uniqueOffering} 
-            setUniqueOffering={setUniqueOffering} 
-            adPlatform={adPlatform} 
-            setAdPlatform={setAdPlatform} 
-            handleSave={handleSave} 
-          />
-          
-          {/* Platform section has been moved to a separate component */}
-          
-          <ImagesSection personas={personas} generatedMessages={generatedMessages} selectedMessageTypes={selectedMessageTypes} adPlatform={adPlatform} />
-        </tbody>
-      </table>
+      <IntakeFormFields 
+        brandName={brandName} 
+        setBrandName={setBrandName} 
+        industry={industry} 
+        setIndustry={setIndustry} 
+        businessDescription={businessDescription} 
+        setBusinessDescription={setBusinessDescription} 
+        offering={offering} 
+        setOffering={setOffering} 
+        sellingPoints={sellingPoints} 
+        setSellingPoints={setSellingPoints} 
+        problemSolved={problemSolved} 
+        setProblemSolved={setProblemSolved} 
+        uniqueOffering={uniqueOffering} 
+        setUniqueOffering={setUniqueOffering} 
+        adPlatform={adPlatform} 
+        setAdPlatform={setAdPlatform} 
+        handleSave={handleSave} 
+      />
     </div>;
 };
 

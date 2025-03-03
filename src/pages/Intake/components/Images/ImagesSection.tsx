@@ -61,62 +61,42 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
   
   return (
-    <>
-      <tr className="border-b">
-        <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4 flex items-center">
-            <span>Images</span>
-          </div>
-        </td>
-      </tr>
+    <div className="mb-8">
+      <div className="border-b pb-4 mb-4">
+        <h2 className="text-lg font-medium">Images</h2>
+      </div>
 
       {currentPersona ? (
-        <tr>
-          <td colSpan={2} className="p-4">
-            <table className="w-full border-collapse">
-              <tbody>
-                <tr>
-                  <td className="border p-3">
-                    <PersonaDisplay 
-                      currentPersona={currentPersona}
-                      currentMessageType={currentMessageType}
-                      messageContent={messageContent}
-                      displayIndex={displayIndex}
-                      totalPairs={totalPairs}
-                      goToPrevious={goToPrevious}
-                      goToNext={goToNext}
-                    />
-                  </td>
-                </tr>
-                {/* Second row for resolution options */}
-                <tr>
-                  <td className="border-t-0 border-x border-b p-3 pt-0">
-                    <div className="flex justify-center items-center">
-                      <ResolutionOptions adPlatform={adPlatform} />
-                    </div>
-                  </td>
-                </tr>
-                {/* Third row for generate button and future images */}
-                <tr>
-                  <td className="border-t-0 border-x border-b p-5">
-                    <ImageGenerator 
-                      currentPersona={currentPersona} 
-                      adPlatform={adPlatform} 
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
+        <div className="border rounded-md overflow-hidden">
+          <div className="p-4 border-b">
+            <PersonaDisplay 
+              currentPersona={currentPersona}
+              currentMessageType={currentMessageType}
+              messageContent={messageContent}
+              displayIndex={displayIndex}
+              totalPairs={totalPairs}
+              goToPrevious={goToPrevious}
+              goToNext={goToNext}
+            />
+          </div>
+          <div className="border-t p-3">
+            <div className="flex justify-center items-center">
+              <ResolutionOptions adPlatform={adPlatform} />
+            </div>
+          </div>
+          <div className="border-t p-5">
+            <ImageGenerator 
+              currentPersona={currentPersona} 
+              adPlatform={adPlatform} 
+            />
+          </div>
+        </div>
       ) : (
-        <tr>
-          <td colSpan={2} className="p-4 text-center text-gray-500">
-            No personas available to display
-          </td>
-        </tr>
+        <div className="p-4 text-center text-gray-500">
+          No personas available to display
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
