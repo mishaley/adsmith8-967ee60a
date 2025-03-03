@@ -56,11 +56,7 @@ export const generateMessagesForAllPersonas = async (
     return messages;
   } catch (error) {
     console.error("Error generating messages:", error);
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Failed to generate messages. Please try again."
-    });
+    toast.error("Failed to generate messages. Please try again.");
     return {};
   }
 };
@@ -102,11 +98,7 @@ export const generateColumnMessages = async (
     return updatedMessages;
   } catch (error) {
     console.error("Error generating column messages:", error);
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: `Failed to generate ${messageType} messages. Please try again.`
-    });
+    toast.error(`Failed to generate ${messageType} messages. Please try again.`);
     return existingMessages;
   }
 };

@@ -69,17 +69,10 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
       await onGenerateColumnMessages(messageType);
       console.log(`MessagesTable: Generation complete for ${messageType}`);
       
-      toast({
-        title: "Success",
-        description: `Generation completed for ${messageType}`
-      });
+      toast.success(`Generation completed for ${messageType}`);
     } catch (error) {
       console.error(`MessagesTable: Error generating ${messageType}:`, error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: `Failed to generate ${messageType} messages`
-      });
+      toast.error(`Failed to generate ${messageType} messages`);
     } finally {
       // Reset loading states for this column
       const resetLoadingStates = { ...cellLoadingStates };

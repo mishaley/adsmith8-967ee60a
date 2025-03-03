@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 import { Persona } from "../../Personas/types";
 import { GeneratedMessagesRecord } from "./useMessagesState";
 import { generateMessagesForAllPersonas, generateColumnMessages } from "../services/messageGenerationService";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export const useMessagesGeneration = (
   personas: Persona[],
@@ -15,7 +15,6 @@ export const useMessagesGeneration = (
 ) => {
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(true);
-  const { toast } = useToast();
 
   const generateMessages = async () => {
     if (!selectedMessageTypes.length) return;
@@ -34,18 +33,11 @@ export const useMessagesGeneration = (
       setGeneratedMessages(generatedMessages);
       setIsTableVisible(true);
       
-      toast({
-        title: "Success",
-        description: "Generated messages for all personas"
-      });
+      toast.success("Generated messages for all personas");
       
     } catch (error) {
       console.error("Error generating messages:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to generate messages. Please try again."
-      });
+      toast.error("Failed to generate messages. Please try again.");
     } finally {
       setIsGeneratingMessages(false);
     }
@@ -68,24 +60,17 @@ export const useMessagesGeneration = (
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
       
-      toast({
-        title: "Success",
-        description: `Generated messages for ${messageType}`
-      });
+      toast.success(`Generated messages for ${messageType}`);
       
       return updatedMessages;
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: `Failed to generate ${messageType} messages. Please try again.`
-      });
+      toast.error(`Failed to generate ${messageType} messages. Please try again.`);
       throw error;
     } finally {
       setIsGeneratingMessages(false);
     }
-  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible, toast]);
+  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible]);
 
   return {
     isGeneratingMessages,
