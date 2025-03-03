@@ -73,51 +73,56 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
               <tbody>
                 <tr>
                   <td className="border p-3">
-                    <div className="flex items-center">
-                      {/* Navigation Controls */}
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={goToPrevious}
-                        disabled={totalPairs <= 1}
-                        className="h-9 w-9 mr-1"
-                      >
-                        <ChevronLeft className="h-5 w-5" />
-                      </Button>
-                      
-                      {/* Index counter box */}
-                      <div className="bg-gray-100 border border-gray-300 rounded-md px-3 py-2 mr-3 flex items-center justify-center min-w-[60px]">
-                        <span className="font-medium">{displayIndex} / {totalPairs}</span>
+                    <div className="flex">
+                      {/* Left Column - Navigation and Counter */}
+                      <div className="flex flex-col items-center justify-center pr-4 w-24">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={goToPrevious}
+                          disabled={totalPairs <= 1}
+                          className="h-9 w-9 mb-2"
+                        >
+                          <ChevronLeft className="h-5 w-5" />
+                        </Button>
+                        
+                        {/* Index counter box */}
+                        <div className="bg-gray-100 border border-gray-300 rounded-md px-3 py-2 mb-2 flex items-center justify-center min-w-[60px]">
+                          <span className="font-medium">{displayIndex} / {totalPairs}</span>
+                        </div>
+                        
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={goToNext}
+                          disabled={totalPairs <= 1}
+                          className="h-9 w-9"
+                        >
+                          <ChevronRight className="h-5 w-5" />
+                        </Button>
                       </div>
                       
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={goToNext}
-                        disabled={totalPairs <= 1}
-                        className="h-9 w-9 mr-3"
-                      >
-                        <ChevronRight className="h-5 w-5" />
-                      </Button>
-                      
-                      {/* Portrait - maintaining aspect ratio and doubling height from h-8 to h-16 */}
-                      {currentPersona.portraitUrl ? (
-                        <img 
-                          src={currentPersona.portraitUrl} 
-                          alt="Persona portrait"
-                          className="w-auto h-16 rounded-md object-cover mr-4"
-                        />
-                      ) : (
-                        <div className="w-auto h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4">
-                          <span className="text-gray-500 text-xs">No image</span>
+                      {/* Right Column - Content */}
+                      <div className="flex items-center flex-1">
+                        {/* Portrait - maintaining aspect ratio */}
+                        {currentPersona.portraitUrl ? (
+                          <img 
+                            src={currentPersona.portraitUrl} 
+                            alt="Persona portrait"
+                            className="w-auto h-16 rounded-md object-cover mr-4"
+                          />
+                        ) : (
+                          <div className="w-auto h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4">
+                            <span className="text-gray-500 text-xs">No image</span>
+                          </div>
+                        )}
+                        
+                        {/* Combined text with bullet point separators */}
+                        <div className="flex-1">
+                          <span className="text-lg text-gray-700">
+                            {currentPersona.gender}, {currentPersona.ageMin}-{currentPersona.ageMax} • {currentPersona.interests?.join(", ") || "No interests"} • {messageContent}
+                          </span>
                         </div>
-                      )}
-                      
-                      {/* Combined text with bullet point separators and 50% larger text */}
-                      <div className="flex-1">
-                        <span className="text-lg text-gray-700">
-                          {currentPersona.gender}, {currentPersona.ageMin}-{currentPersona.ageMax} • {currentPersona.interests?.join(", ") || "No interests"} • {messageContent}
-                        </span>
                       </div>
                     </div>
                   </td>
