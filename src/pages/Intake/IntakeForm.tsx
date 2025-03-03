@@ -1,3 +1,4 @@
+
 import React from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import IntakeFormContainer from "./components/IntakeFormContainer";
@@ -47,7 +48,7 @@ const IntakeForm = () => {
 
   return <QuadrantLayout>
       {{
-      q4: <div className="p-[18px]">
+      q4: <div className="p-[18px] pl-0">
             <div className="mb-6 text-center">
               <p className="mb-4 text-2xl">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
               <p className="mb-4 text-2xl">
