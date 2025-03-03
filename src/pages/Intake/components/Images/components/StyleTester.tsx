@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dice1 } from "lucide-react";
@@ -22,15 +21,12 @@ const StyleTester: React.FC = () => {
     setDiagInfo(null);
     
     try {
-      const { data: tableInfo, error: tableError } = await supabase
+      const countResult = await supabase
         .from('y1styles')
         .select('*', { count: 'exact', head: true });
       
-      if (tableInfo !== null) {
-        // The count is a property of the response, not the data
-        const totalCount = tableInfo?.count ?? 0;
-        setDiagInfo(`Database has ${totalCount} total styles`);
-      }
+      const totalCount = countResult.count ?? 0;
+      setDiagInfo(`Database has ${totalCount} total styles`);
       
       const style = await getRandomApprovedStyle();
       setRandomStyle(style);

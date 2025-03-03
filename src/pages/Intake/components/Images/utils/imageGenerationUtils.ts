@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 // Function to generate a random 3-word phrase
@@ -19,17 +18,16 @@ export const getRandomApprovedStyle = async () => {
   try {
     console.log("Fetching styles from y1styles table...");
     
-    // First check if table exists and has any records
-    const { count, error: countError } = await supabase
+    const countResult = await supabase
       .from('y1styles')
       .select('*', { count: 'exact', head: true });
       
-    if (countError) {
-      console.error('Error checking style count:', countError);
-      throw new Error(`Database count error: ${countError.message}`);
+    if (countResult.error) {
+      console.error('Error checking style count:', countResult.error);
+      throw new Error(`Database count error: ${countResult.error.message}`);
     }
     
-    const totalCount = count || 0;
+    const totalCount = countResult.count ?? 0;
     console.log(`Found ${totalCount} total styles in the database`);
     
     if (totalCount === 0) {
