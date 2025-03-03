@@ -3,7 +3,6 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { Persona } from "../../Personas/types";
-import { Button } from "@/components/ui/button";
 
 interface UseImageGenerationProps {
   currentPersona: Persona | null;
@@ -144,11 +143,10 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
         title: "Generation Failed",
         description: "Click 'View Details' for more information.",
         variant: "destructive",
-        action: (
-          <Button onClick={() => setShowErrorDialog(true)} variant="outline" size="sm">
-            View Details
-          </Button>
-        )
+        action: {
+          label: "View Details",
+          onClick: () => setShowErrorDialog(true)
+        }
       });
     } finally {
       setIsGeneratingImages(false);
