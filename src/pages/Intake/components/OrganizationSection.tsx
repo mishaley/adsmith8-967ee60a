@@ -21,15 +21,15 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   setBusinessDescription,
   handleSave
 }) => {
-  return <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg flex justify-center">
+  return <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
       <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">ORGANIZATION</h2>
-      <table className="border-collapse border-transparent">
+      <table className="w-full border-collapse border-transparent">
         <tbody>
           <tr className="border-transparent">
             <td className="py-4 pr-4 text-lg">
               <div>What's your brand name?</div>
             </td>
-            <td className="py-4 w-auto">
+            <td className="py-4">
               <div className="flex items-center gap-3">
                 <div className="w-96">
                   <input type="text" value={brandName} onChange={e => setBrandName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
