@@ -13,6 +13,7 @@ import LanguagesSection from "./components/Languages/LanguagesSection";
 import MessagesContainer from "./components/Messages/MessagesContainer";
 import PlatformsSection from "./components/Platforms/PlatformsSection";
 import { ImagesSection } from "./components/Images";
+import { CaptionsSection } from "./components/Captions";
 
 const IntakeForm = () => {
   const {
@@ -125,6 +126,7 @@ const IntakeForm = () => {
               selectedMessageTypes={IntakeFormContainer.selectedMessageTypes || ["tagline"]}
               adPlatform={adPlatform}
             />
+            <CaptionsSection />
             <IntakeTop />
             <IntakeFormContainer 
               brandName={brandName} 
