@@ -5,7 +5,6 @@ import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "./components/PersonaDisplay";
 import ResolutionOptions from "./components/ResolutionOptions";
 import ImageGenerator from "./components/ImageGenerator";
-import StyleTester from "./components/StyleTester";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -68,13 +67,6 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           <div className="w-full text-left pl-4 flex items-center">
             <span>Images</span>
           </div>
-        </td>
-      </tr>
-
-      {/* Always show the Style Tester section regardless of personas */}
-      <tr>
-        <td colSpan={2} className="p-4">
-          <StyleTester />
         </td>
       </tr>
 
