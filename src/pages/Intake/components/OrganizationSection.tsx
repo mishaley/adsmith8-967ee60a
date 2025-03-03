@@ -1,3 +1,4 @@
+
 import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
@@ -22,9 +23,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
 }) => {
   return <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
       <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">ORGANIZATION</h2>
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse border-transparent">
         <tbody>
-          <tr className="border-b">
+          <tr className="border-transparent">
             <td className="py-4 pr-4 text-lg">
               <div>What's your brand name?</div>
             </td>
