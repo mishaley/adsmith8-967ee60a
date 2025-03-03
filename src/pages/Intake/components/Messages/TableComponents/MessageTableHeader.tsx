@@ -45,7 +45,7 @@ const MessageTableHeader: React.FC<MessageTableHeaderProps> = ({
         <Button 
           variant="outline" 
           size="sm" 
-          className="py-0 px-2 h-6 text-xs"
+          className="py-0 px-2 h-6 text-xs hover:bg-[#0c343d] hover:text-white"
           onClick={handleGenerateClick}
           disabled={isGeneratingMessages || isGenerating}
         >
