@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
@@ -38,9 +39,13 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
     if (!currentPersona) return;
     
     setIsGeneratingPrompt(true);
+    setErrorDetails(null);
     
     try {
+      console.log("Starting prompt generation process...");
       const style = await getRandomApprovedStyle();
+      console.log("Successfully retrieved style:", style);
+      
       const phrase = generateRandomPhrase();
       const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       
@@ -56,6 +61,7 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
       console.error('Error generating prompt:', error);
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error message:', errorMessage);
       
       toast({
         title: "Prompt Generation Failed",
@@ -80,6 +86,7 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
     try {
       let prompt = generatedPrompt;
       if (!prompt) {
+        console.log("No prompt available, generating a new one...");
         const style = await getRandomApprovedStyle();
         const phrase = generateRandomPhrase();
         const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
@@ -128,7 +135,7 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
       console.error('Exception in image generation:', error);
       
       if (!errorDetails) {
-        setErrorDetails(`Error: ${error.message || "Unknown error"}`);
+        setErrorDetails(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
       
       toast({

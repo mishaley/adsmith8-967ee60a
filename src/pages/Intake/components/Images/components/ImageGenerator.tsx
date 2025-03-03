@@ -24,7 +24,6 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
     generatedPrompt,
     errorDetails,
     showErrorDialog,
-    styleSource,
     handleGeneratePrompt,
     handleGenerateImages,
     setGeneratedPrompt,
@@ -43,7 +42,6 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
         ) : (
           <PromptDisplay 
             generatedPrompt={generatedPrompt}
-            styleSource={styleSource}
             isGeneratingPrompt={isGeneratingPrompt}
             isGeneratingImages={isGeneratingImages}
             handleGeneratePrompt={handleGeneratePrompt}
