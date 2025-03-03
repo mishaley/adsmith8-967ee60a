@@ -45,15 +45,15 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 <tr>
                   <td className="border p-3">
                     <div className="flex items-center">
-                      {/* Portrait - reduced height by 50% */}
+                      {/* Portrait - maintaining aspect ratio and doubling height from h-8 to h-16 */}
                       {firstPersona.portraitUrl ? (
                         <img 
                           src={firstPersona.portraitUrl} 
                           alt="Persona portrait"
-                          className="w-16 h-8 rounded-md object-cover mr-4"
+                          className="w-auto h-16 rounded-md object-cover mr-4"
                         />
                       ) : (
-                        <div className="w-16 h-8 bg-gray-200 rounded-md flex items-center justify-center mr-4">
+                        <div className="w-auto h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4">
                           <span className="text-gray-500 text-xs">No image</span>
                         </div>
                       )}
