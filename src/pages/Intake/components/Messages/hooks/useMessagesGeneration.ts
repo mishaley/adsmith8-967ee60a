@@ -15,6 +15,20 @@ export const useMessagesGeneration = (
 ) => {
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(true);
+  
+  // Enhanced logging to track valid personas
+  const logPersonasInfo = useCallback(() => {
+    console.log("useMessagesGeneration - Personas info:", {
+      totalCount: personas.length,
+      withIds: personas.filter(p => !!p.id).length,
+      validIds: personas.map(p => p.id ? String(p.id) : "missing-id"),
+      personaDetails: personas.map(p => ({
+        id: p.id ? String(p.id) : "missing-id",
+        name: p.name,
+        idType: p.id ? typeof p.id : "undefined",
+      }))
+    });
+  }, [personas]);
 
   const generateMessages = async () => {
     if (!selectedMessageTypes.length) {
@@ -23,23 +37,25 @@ export const useMessagesGeneration = (
     }
     
     // Log personas data to debug
-    console.log("Personas before generating:", personas.map(p => ({
-      id: p.id,
-      name: p.name,
-      gender: p.gender,
-      age: `${p.ageMin}-${p.ageMax}`
-    })));
+    logPersonasInfo();
+    
+    // Filter out personas without IDs
+    const validPersonas = personas.filter(p => !!p.id);
+    if (validPersonas.length === 0) {
+      toast.error("No valid personas found with IDs");
+      return;
+    }
     
     setIsGeneratingMessages(true);
     try {
       console.log("Generating messages for all personas");
       const messages = await generateMessagesForAllPersonas(
-        personas,
+        validPersonas, // Only use personas with valid IDs
         selectedMessageTypes,
         userProvidedMessage
       );
       
-      console.log("Generated messages:", messages);
+      console.log("Messages generated successfully:", JSON.stringify(messages, null, 2));
       
       // Update the state with the new messages
       setGeneratedMessages(messages);
@@ -55,23 +71,27 @@ export const useMessagesGeneration = (
 
   const handleGenerateColumnMessages = useCallback(async (messageType: string): Promise<void> => {
     console.log(`useMessagesGeneration: Generating column messages for type: ${messageType}`);
+    
+    // Log personas info for debugging
+    logPersonasInfo();
+    
+    // Filter out personas without IDs
+    const validPersonas = personas.filter(p => !!p.id);
+    if (validPersonas.length === 0) {
+      toast.error("No valid personas found with IDs");
+      throw new Error("No valid personas found with IDs");
+    }
+    
     setIsGeneratingMessages(true);
     
     try {
-      // Log personas for debugging
-      console.log("Personas for column generation:", personas.map(p => ({
-        id: p.id, 
-        name: p.name,
-        hasId: !!p.id
-      })));
-      
       const updatedMessages = await generateColumnMessages(
         messageType,
-        personas,
+        validPersonas, // Only use personas with valid IDs
         generatedMessages
       );
       
-      console.log("Messages generated successfully:", updatedMessages);
+      console.log("Messages generated successfully:", JSON.stringify(updatedMessages, null, 2));
       
       // Make sure we're updating the state with the new messages
       setGeneratedMessages(updatedMessages);
@@ -84,7 +104,7 @@ export const useMessagesGeneration = (
     } finally {
       setIsGeneratingMessages(false);
     }
-  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible]);
+  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible, logPersonasInfo]);
 
   return {
     isGeneratingMessages,

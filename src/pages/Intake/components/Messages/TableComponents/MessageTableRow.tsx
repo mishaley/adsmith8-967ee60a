@@ -22,22 +22,32 @@ const MessageTableRow: React.FC<MessageTableRowProps> = ({
   isGeneratingMessages,
   cellLoadingStates
 }) => {
-  // Check if persona has an ID
-  if (!persona.id) {
+  // Ensure persona ID is a string
+  const personaId = persona.id ? String(persona.id) : "";
+  
+  // Enhanced logging for debugging
+  console.log(`MessageTableRow ${index}:`, {
+    personaId,
+    personaIdType: typeof personaId,
+    personaName: persona.name,
+    hasValidId: !!personaId,
+    messageTypes: selectedMessageTypes,
+    hasMessagesForThisPersona: !!generatedMessages[personaId],
+    availableMessageTypesForPersona: generatedMessages[personaId] 
+      ? Object.keys(generatedMessages[personaId]) 
+      : []
+  });
+  
+  // Skip rendering if no persona ID
+  if (!personaId) {
     console.warn(`Persona at index ${index} has no ID, cannot render row`, persona);
     return null;
   }
 
-  // Log data for this row
-  console.log(`Rendering MessageTableRow for persona ID ${persona.id}:`, {
-    messageTypes: selectedMessageTypes,
-    hasMessages: !!generatedMessages[persona.id],
-    messageKeys: generatedMessages[persona.id] ? Object.keys(generatedMessages[persona.id]) : []
-  });
-  
   // Check if a specific cell is loading
   const isCellLoading = (personaId: string, messageType: string) => {
-    return cellLoadingStates[`${personaId}-${messageType}`] === true;
+    const cellKey = `${personaId}-${messageType}`;
+    return cellLoadingStates[cellKey] === true;
   };
 
   return (
@@ -47,10 +57,10 @@ const MessageTableRow: React.FC<MessageTableRowProps> = ({
       </td>
       {selectedMessageTypes.map(type => (
         <MessageTableCell
-          key={`${persona.id}-${type}`}
-          personaId={persona.id}
+          key={`${personaId}-${type}`}
+          personaId={personaId}
           messageType={type}
-          isLoading={isGeneratingMessages || isCellLoading(persona.id, type)}
+          isLoading={isGeneratingMessages || isCellLoading(personaId, type)}
           generatedMessages={generatedMessages}
         />
       ))}

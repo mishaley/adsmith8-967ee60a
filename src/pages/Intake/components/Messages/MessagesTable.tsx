@@ -30,42 +30,60 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
 }) => {
   const [cellLoadingStates, setCellLoadingStates] = useState<Record<string, boolean>>({});
   
-  // Debug log for generated messages
+  // Debug log for component rendering
   useEffect(() => {
     if (isTableVisible) {
       console.log("MessagesTable - component rendered with:", {
-        personas: personas.map(p => ({ id: p.id, name: p.name })), 
+        personasCount: personas.length,
+        personaIds: personas.map(p => p.id ? String(p.id) : "missing-id"),
         selectedTypes: selectedMessageTypes,
-        messagesData: generatedMessages
+        messageKeys: Object.keys(generatedMessages),
+        tableVisible: isTableVisible
       });
     }
   }, [isTableVisible, personas, selectedMessageTypes, generatedMessages]);
   
-  // Reset cell loading states when generatedMessages changes
+  // Reset cell loading states when the component props change
   useEffect(() => {
     const newLoadingStates: Record<string, boolean> = {};
     personas.forEach(persona => {
       if (persona.id) {
+        const personaId = String(persona.id);
         selectedMessageTypes.forEach(type => {
-          newLoadingStates[`${persona.id}-${type}`] = false;
+          newLoadingStates[`${personaId}-${type}`] = false;
         });
-      } else {
-        console.warn("Found persona without ID in MessagesTable", persona);
       }
     });
     setCellLoadingStates(newLoadingStates);
   }, [personas, selectedMessageTypes]);
   
-  if (!isTableVisible || personas.length === 0 || selectedMessageTypes.length === 0) return null;
+  // Don't render if conditions aren't met
+  if (!isTableVisible) return null;
+  if (personas.length === 0) {
+    console.log("No personas available, not rendering table");
+    return null;
+  }
+  if (selectedMessageTypes.length === 0) {
+    console.log("No message types selected, not rendering table");
+    return null;
+  }
+  
+  // Filter out personas without IDs
+  const validPersonas = personas.filter(persona => !!persona.id);
+  if (validPersonas.length === 0) {
+    console.log("No valid personas with IDs, not rendering table");
+    return null;
+  }
   
   const handleGenerateColumnMessages = async (messageType: string): Promise<void> => {
     console.log(`MessagesTable: Starting generation for ${messageType}`);
     
     // Set all cells in this column to loading state
     const newLoadingStates = { ...cellLoadingStates };
-    personas.forEach(persona => {
+    validPersonas.forEach(persona => {
       if (persona.id) {
-        newLoadingStates[`${persona.id}-${messageType}`] = true;
+        const personaId = String(persona.id);
+        newLoadingStates[`${personaId}-${messageType}`] = true;
       }
     });
     setCellLoadingStates(newLoadingStates);
@@ -82,9 +100,10 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
     } finally {
       // Reset loading states for this column
       const resetLoadingStates = { ...cellLoadingStates };
-      personas.forEach(persona => {
+      validPersonas.forEach(persona => {
         if (persona.id) {
-          resetLoadingStates[`${persona.id}-${messageType}`] = false;
+          const personaId = String(persona.id);
+          resetLoadingStates[`${personaId}-${messageType}`] = false;
         }
       });
       setCellLoadingStates(resetLoadingStates);
@@ -115,24 +134,17 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {personas.map((persona, index) => {
-            if (!persona.id) {
-              console.warn(`Persona at index ${index} has no ID, skipping row`);
-              return null;
-            }
-            
-            return (
-              <MessageTableRow
-                key={persona.id || `persona-${index}`}
-                persona={persona}
-                index={index}
-                selectedMessageTypes={selectedMessageTypes}
-                generatedMessages={generatedMessages}
-                isGeneratingMessages={isGeneratingMessages}
-                cellLoadingStates={cellLoadingStates}
-              />
-            );
-          })}
+          {validPersonas.map((persona, index) => (
+            <MessageTableRow
+              key={persona.id ? String(persona.id) : `persona-${index}`}
+              persona={persona}
+              index={index}
+              selectedMessageTypes={selectedMessageTypes}
+              generatedMessages={generatedMessages}
+              isGeneratingMessages={isGeneratingMessages}
+              cellLoadingStates={cellLoadingStates}
+            />
+          ))}
         </tbody>
       </table>
     </div>

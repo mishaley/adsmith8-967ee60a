@@ -4,13 +4,14 @@ import { Message } from "../hooks/useMessagesFetching";
 import { GeneratedMessagesRecord } from "../hooks/useMessagesState";
 import { toast } from "sonner";
 
-// Mock message generation function
+// Generate messages for all personas
 export const generateMessagesForAllPersonas = async (
   personas: Persona[],
   messageTypes: string[],
   userProvidedMessage: string
 ): Promise<GeneratedMessagesRecord> => {
   console.log(`Generating messages for ${personas.length} personas and ${messageTypes.length} message types`);
+  console.log("Personas:", personas.map(p => ({ id: p.id, name: p.name, idType: typeof p.id })));
   
   // Create a new record to store all messages
   const messages: GeneratedMessagesRecord = {};
@@ -18,46 +19,47 @@ export const generateMessagesForAllPersonas = async (
   try {
     // For each persona, generate a message for each message type
     for (const persona of personas) {
-      if (!persona.id) {
+      // Ensure persona ID is valid and convert to string if needed
+      const personaId = persona.id ? String(persona.id) : null;
+      
+      if (!personaId) {
         console.warn("Persona without ID encountered, skipping", persona);
         continue;
       }
       
-      console.log(`Generating messages for persona: ${persona.id} (${persona.name || 'Unnamed'})`);
+      console.log(`Generating messages for persona: ${personaId} (${persona.name || 'Unnamed'})`);
       
-      // Initialize the record for this persona if it doesn't exist
-      if (!messages[persona.id]) {
-        messages[persona.id] = {};
-      }
+      // Initialize the record for this persona
+      messages[personaId] = {};
       
       // For each message type, generate a message
       for (const messageType of messageTypes) {
         // If user-provided and a message was provided, use that
         if (messageType === "user-provided" && userProvidedMessage) {
-          messages[persona.id][messageType] = {
-            message_id: `${persona.id}-${messageType}`,
+          messages[personaId][messageType] = {
+            message_id: `${personaId}-${messageType}`,
             message_name: userProvidedMessage,
             message_type: messageType,
             message_url: "",
             message_status: "Generated",
-            persona_id: persona.id
+            persona_id: personaId
           };
         } else {
           // Generate a mock message based on persona and message type
           const mockMessage = generateMockMessage(persona, messageType);
-          messages[persona.id][messageType] = {
-            message_id: `${persona.id}-${messageType}`,
+          messages[personaId][messageType] = {
+            message_id: `${personaId}-${messageType}`,
             message_name: mockMessage,
             message_type: messageType,
             message_url: "",
             message_status: "Generated",
-            persona_id: persona.id
+            persona_id: personaId
           };
         }
       }
     }
     
-    console.log("Generated messages:", messages);
+    console.log("Generated messages structure:", JSON.stringify(messages, null, 2));
     toast.success("Generated messages for all personas");
     return messages;
   } catch (error) {
@@ -74,6 +76,11 @@ export const generateColumnMessages = async (
   existingMessages: GeneratedMessagesRecord
 ): Promise<GeneratedMessagesRecord> => {
   console.log(`Generating column messages for type: ${messageType}, personas count: ${personas.length}`);
+  console.log("Personas for column generation:", personas.map(p => ({ 
+    id: p.id, 
+    idType: typeof p.id,
+    name: p.name 
+  })));
   
   // Create a deep copy of the existing messages
   const updatedMessages = JSON.parse(JSON.stringify(existingMessages || {})) as GeneratedMessagesRecord;
@@ -83,35 +90,37 @@ export const generateColumnMessages = async (
     
     // For each persona, generate a message for this message type
     for (const persona of personas) {
-      if (!persona.id) {
+      // Ensure persona ID is valid and convert to string if needed
+      const personaId = persona.id ? String(persona.id) : null;
+      
+      if (!personaId) {
         console.warn("Persona without ID encountered, skipping", persona);
         continue;
       }
       
-      // Ensure this persona has a valid ID and log it
-      console.log(`Generating ${messageType} message for persona with ID: ${persona.id}`);
+      console.log(`Generating ${messageType} message for persona with ID: ${personaId}`);
       
       // Initialize the record for this persona if it doesn't exist
-      if (!updatedMessages[persona.id]) {
-        updatedMessages[persona.id] = {};
+      if (!updatedMessages[personaId]) {
+        updatedMessages[personaId] = {};
       }
       
       // Generate a mock message based on persona and message type
       const mockMessage = generateMockMessage(persona, messageType);
-      updatedMessages[persona.id][messageType] = {
-        message_id: `${persona.id}-${messageType}`,
+      updatedMessages[personaId][messageType] = {
+        message_id: `${personaId}-${messageType}`,
         message_name: mockMessage,
         message_type: messageType,
         message_url: "",
         message_status: "Generated",
-        persona_id: persona.id
+        persona_id: personaId
       };
       
       generationCount++;
     }
     
     console.log(`Generated ${generationCount} messages for ${messageType}`);
-    console.log("Updated messages:", updatedMessages);
+    console.log("Updated messages structure:", JSON.stringify(updatedMessages, null, 2));
     toast.success(`Generated messages for ${messageType}`);
     return updatedMessages;
   } catch (error) {
@@ -123,7 +132,10 @@ export const generateColumnMessages = async (
 
 // Helper function to generate a mock message based on persona and message type
 const generateMockMessage = (persona: Persona, messageType: string): string => {
-  const prefix = persona.name || `${persona.gender || 'Unknown'}, ${persona.ageMin || '?'}-${persona.ageMax || '?'}`;
+  const name = persona.name || 'Unknown';
+  const gender = persona.gender || 'Unknown';
+  const age = `${persona.ageMin || '?'}-${persona.ageMax || '?'}`;
+  const prefix = name !== 'Unknown' ? name : `${gender}, ${age}`;
   
   switch (messageType) {
     case "pain-point":

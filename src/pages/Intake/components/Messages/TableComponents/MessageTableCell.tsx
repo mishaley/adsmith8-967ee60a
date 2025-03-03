@@ -17,16 +17,13 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   generatedMessages
 }) => {
   // Add more comprehensive debug logging
-  const hasPersonaMessages = personaId && generatedMessages[personaId];
-  const messageContent = hasPersonaMessages && generatedMessages[personaId][messageType] 
-    ? generatedMessages[personaId][messageType].message_name 
-    : null;
-  
   console.log(`MessageTableCell for personaId=${personaId}, type=${messageType}:`, { 
-    hasPersonaMessages,
-    messageContent,
-    personaMessages: hasPersonaMessages ? generatedMessages[personaId] : 'none',
-    availablePersonas: Object.keys(generatedMessages)
+    personaIdType: typeof personaId,
+    hasPersonaMessages: personaId && generatedMessages[personaId] ? true : false,
+    availablePersonas: Object.keys(generatedMessages),
+    availableMessageTypes: personaId && generatedMessages[personaId] 
+      ? Object.keys(generatedMessages[personaId]) 
+      : []
   });
 
   if (isLoading) {
@@ -38,6 +35,16 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
       </td>
     );
   }
+
+  // Check if we have valid data for this cell
+  const hasData = 
+    personaId && 
+    generatedMessages[personaId] && 
+    generatedMessages[personaId][messageType] &&
+    generatedMessages[personaId][messageType].message_name;
+  
+  // Get the message content only if all the required properties exist
+  const messageContent = hasData ? generatedMessages[personaId][messageType].message_name : null;
 
   return (
     <td className="border p-2 align-top">
