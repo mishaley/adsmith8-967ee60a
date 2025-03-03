@@ -48,7 +48,7 @@ const IntakeForm = () => {
 
   return <QuadrantLayout>
       {{
-      q4: <div className="p-[18px] pl-0">
+      q4: <div className="p-[18px] pl-0 pt-0">
             <div className="mb-6 text-center">
               <p className="mb-4 text-2xl">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
               <p className="mb-4 text-2xl">
