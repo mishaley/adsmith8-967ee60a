@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 
@@ -30,9 +29,12 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
         type="text"
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px] focus:outline-none focus:ring-0 focus:border-transparent"
+        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px] focus:outline-none focus:ring-0"
         autoFocus
-        style={{ border: "none", boxShadow: "none" }}
+        style={{ 
+          boxShadow: "none",
+          outline: "none"
+        }}
       />
     </div>
   );
