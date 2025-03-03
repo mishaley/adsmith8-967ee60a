@@ -139,7 +139,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
               )
             ) : (
               <div className="w-full aspect-square bg-transparent rounded-md flex items-center justify-center text-sm text-gray-500">
-                No persona data
+                {/* Removed the "No persona data" text here */}
               </div>
             )}
           </div>
