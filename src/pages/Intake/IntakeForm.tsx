@@ -14,6 +14,7 @@ import MessagesContainer from "./components/Messages/MessagesContainer";
 import PlatformsSection from "./components/Platforms/PlatformsSection";
 import { ImagesSection } from "./components/Images";
 import { CaptionsSection } from "./components/Captions";
+import { ParametersSection } from "./components/Parameters";
 
 const IntakeForm = () => {
   const {
@@ -127,6 +128,7 @@ const IntakeForm = () => {
               adPlatform={adPlatform}
             />
             <CaptionsSection />
+            <ParametersSection />
             <IntakeTop />
             <IntakeFormContainer 
               brandName={brandName} 
