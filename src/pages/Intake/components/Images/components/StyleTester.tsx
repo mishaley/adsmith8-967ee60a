@@ -23,12 +23,12 @@ const StyleTester: React.FC = () => {
     
     try {
       // Check if table exists and has data
-      const { data: tableInfo, error: tableError } = await fetch('/styles-check')
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null);
+      const { data: tableInfo, error: tableError } = await supabase
+        .from('y1styles')
+        .select('*', { count: 'exact', head: true });
       
-      if (tableInfo) {
-        setDiagInfo(`Database has ${tableInfo.count || 0} styles. Approved: ${tableInfo.approvedCount || 0}`);
+      if (tableInfo !== null) {
+        setDiagInfo(`Database has ${tableInfo.count || 0} total styles`);
       }
       
       const style = await getRandomApprovedStyle();
