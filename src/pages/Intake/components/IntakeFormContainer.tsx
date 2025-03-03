@@ -1,8 +1,8 @@
+
 import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
 import { Persona } from "./Personas/types";
-import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -45,9 +45,15 @@ interface IntakeFormContainerProps {
   setPersonaCount: (count: number) => void;
 }
 
+// Add static properties to store messages data shared between components
+interface IntakeFormContainerType extends React.FC<IntakeFormContainerProps> {
+  generatedMessages?: Record<string, Record<string, Message>>;
+  selectedMessageTypes?: string[];
+}
+
 const PLATFORM_OPTIONS = ["Google", "Meta"];
 
-const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
+const IntakeFormContainer: IntakeFormContainerType = ({
   // Form fields
   brandName,
   setBrandName,
@@ -83,13 +89,9 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   personaCount,
   setPersonaCount
 }) => {
-  const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
-  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
-  
-  const handleMessagesUpdate = (messages: Record<string, Record<string, Message>>, types: string[]) => {
-    setGeneratedMessages(messages);
-    setSelectedMessageTypes(types);
-  };
+  // Use the static properties for messages data, or default to empty if not set
+  const generatedMessages = IntakeFormContainer.generatedMessages || {};
+  const selectedMessageTypes = IntakeFormContainer.selectedMessageTypes || ["tagline"];
   
   return <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
       <IntakeHeader />
@@ -115,11 +117,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             handleSave={handleSave} 
           />
           
-          {/* Personas section has been moved to a separate component */}
-          
-          {/* Languages section has been moved to a separate component */}
-          
-          <MessagesSection personas={personas} onUpdateMessages={handleMessagesUpdate} />
+          {/* MessagesSection has been moved to a separate container component */}
           
           {/* Ad Platform Section */}
           <tr className="border-b">
@@ -161,5 +159,9 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
       </table>
     </div>;
 };
+
+// Initialize static properties
+IntakeFormContainer.generatedMessages = {};
+IntakeFormContainer.selectedMessageTypes = ["tagline"];
 
 export default IntakeFormContainer;

@@ -10,6 +10,7 @@ import OfferingSection from "./components/OfferingSection";
 import LocationsSection from "./components/LocationsSection";
 import PersonasContainer from "./components/PersonasSection";
 import LanguagesSection from "./components/Languages/LanguagesSection";
+import MessagesContainer from "./components/Messages/MessagesContainer";
 
 const IntakeForm = () => {
   const {
@@ -97,6 +98,20 @@ const IntakeForm = () => {
             <LanguagesSection 
               selectedLanguage={selectedLanguage}
               setSelectedLanguage={setSelectedLanguage}
+            />
+            <MessagesContainer
+              personas={personas}
+              onUpdateMessages={(messages, types) => {
+                // Store messages data for passing to IntakeFormContainer
+                const updatedMessages = messages;
+                const updatedTypes = types;
+                
+                // We pass this through to IntakeFormContainer for image generation
+                if (IntakeFormContainer) {
+                  IntakeFormContainer.generatedMessages = updatedMessages;
+                  IntakeFormContainer.selectedMessageTypes = updatedTypes;
+                }
+              }}
             />
             <IntakeTop />
             <IntakeFormContainer 

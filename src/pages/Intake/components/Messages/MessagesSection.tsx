@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Persona } from "../Personas/types";
 import MessagesList from "./MessagesList";
@@ -34,14 +33,12 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     setSelectedMessageTypes
   } = useMessagesState(personas);
 
-  // Update parent component with messages data when they change
   useEffect(() => {
     if (onUpdateMessages) {
       onUpdateMessages(generatedMessages, selectedMessageTypes);
     }
   }, [generatedMessages, selectedMessageTypes, onUpdateMessages]);
 
-  // Show table automatically when message types are selected
   useEffect(() => {
     if (selectedMessageTypes.length > 0 && personas.length > 0) {
       setIsTableVisible(true);
@@ -83,44 +80,33 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
 
   return (
     <>
-      <tr className="border-b">
-        <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4 flex items-center">
-            <span>Messages</span>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td colSpan={2} className="p-4">
-          <div className="flex flex-wrap mb-4 items-start">
-            <MessageTypeSelector 
-              selectedMessageTypes={selectedMessageTypes}
-              toggleMessageType={toggleMessageType}
-              isLoaded={isLoaded}
-            />
-            
-            <UserProvidedInput
-              userProvidedMessage={userProvidedMessage}
-              setUserProvidedMessage={setUserProvidedMessage}
-              isUserProvidedSelected={isUserProvidedSelected}
-            />
-          </div>
-          
-          <MessagesTable
-            isTableVisible={isTableVisible}
-            personas={personas}
-            selectedMessageTypes={selectedMessageTypes}
-            generatedMessages={generatedMessages}
-            isGeneratingMessages={isGeneratingMessages || isGeneratingState}
-            getMessageTypeLabel={getMessageTypeLabel}
-            onGenerateColumnMessages={handleColumnGeneration}
-          />
-          
-          {selectedPersonaId && !isTableVisible && (
-            <MessagesList messages={messages} isLoading={isGeneratingMessages || isGeneratingState || isLoading} />
-          )}
-        </td>
-      </tr>
+      <div className="flex flex-wrap mb-4 items-start">
+        <MessageTypeSelector 
+          selectedMessageTypes={selectedMessageTypes}
+          toggleMessageType={toggleMessageType}
+          isLoaded={isLoaded}
+        />
+        
+        <UserProvidedInput
+          userProvidedMessage={userProvidedMessage}
+          setUserProvidedMessage={setUserProvidedMessage}
+          isUserProvidedSelected={isUserProvidedSelected}
+        />
+      </div>
+      
+      <MessagesTable
+        isTableVisible={isTableVisible}
+        personas={personas}
+        selectedMessageTypes={selectedMessageTypes}
+        generatedMessages={generatedMessages}
+        isGeneratingMessages={isGeneratingMessages || isGeneratingState}
+        getMessageTypeLabel={getMessageTypeLabel}
+        onGenerateColumnMessages={handleColumnGeneration}
+      />
+      
+      {selectedPersonaId && !isTableVisible && (
+        <MessagesList messages={messages} isLoading={isGeneratingMessages || isGeneratingState || isLoading} />
+      )}
     </>
   );
 };
