@@ -27,9 +27,32 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   getMessageTypeLabel,
   onGenerateColumnMessages
 }) => {
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  const [cellLoadingStates, setCellLoadingStates] = useState<Record<string, boolean>>({});
   
   if (!isTableVisible || personas.length === 0 || selectedMessageTypes.length === 0) return null;
+  
+  const handleGenerateColumnMessages = async (messageType: string) => {
+    // Set all cells in this column to loading state
+    const newLoadingStates = { ...cellLoadingStates };
+    personas.forEach(persona => {
+      if (persona.id) {
+        newLoadingStates[`${persona.id}-${messageType}`] = true;
+      }
+    });
+    setCellLoadingStates(newLoadingStates);
+    
+    // Call the actual generate function
+    await onGenerateColumnMessages(messageType);
+    
+    // Reset loading states for this column
+    const resetLoadingStates = { ...newLoadingStates };
+    personas.forEach(persona => {
+      if (persona.id) {
+        resetLoadingStates[`${persona.id}-${messageType}`] = false;
+      }
+    });
+    setCellLoadingStates(resetLoadingStates);
+  };
   
   return (
     <div className="mt-6 border rounded overflow-auto">
@@ -48,7 +71,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
                 key={type}
                 messageType={type}
                 getMessageTypeLabel={getMessageTypeLabel}
-                onGenerateColumnMessages={onGenerateColumnMessages}
+                onGenerateColumnMessages={handleGenerateColumnMessages}
                 isGeneratingMessages={isGeneratingMessages}
               />
             ))}
@@ -63,7 +86,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
               selectedMessageTypes={selectedMessageTypes}
               generatedMessages={generatedMessages}
               isGeneratingMessages={isGeneratingMessages}
-              cellLoadingStates={loadingStates}
+              cellLoadingStates={cellLoadingStates}
             />
           ))}
         </tbody>
