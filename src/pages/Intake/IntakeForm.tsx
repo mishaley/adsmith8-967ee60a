@@ -7,6 +7,7 @@ import { useIntakeForm } from "./hooks/useIntakeForm";
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
 import OrganizationSection from "./components/OrganizationSection";
 import OfferingSection from "./components/OfferingSection";
+import LocationsSection from "./components/LocationsSection";
 
 const IntakeForm = () => {
   const {
@@ -73,6 +74,10 @@ const IntakeForm = () => {
               setProblemSolved={setProblemSolved}
               uniqueOffering={uniqueOffering}
               setUniqueOffering={setUniqueOffering}
+            />
+            <LocationsSection
+              selectedCountry={selectedCountry}
+              setSelectedCountry={setSelectedCountry}
             />
             <IntakeTop />
             <IntakeFormContainer 

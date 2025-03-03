@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
@@ -5,7 +6,6 @@ import { Persona } from "./Personas/types";
 import PersonasSection from "./Personas/PersonasSection";
 import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
-import GeoMapSection from "./GeoMap/GeoMapSection";
 import LanguagesSection from "./Languages/LanguagesSection";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -94,7 +94,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
       <table className="w-full border-collapse">
         <tbody>
           <IntakeFormFields brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} businessDescription={businessDescription} setBusinessDescription={setBusinessDescription} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} handleSave={handleSave} />
-          <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
+          
           <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} personaCount={personaCount} setPersonaCount={setPersonaCount} />
           
           <LanguagesSection selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />
