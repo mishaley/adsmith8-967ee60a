@@ -11,6 +11,7 @@ import LocationsSection from "./components/LocationsSection";
 import PersonasContainer from "./components/PersonasSection";
 import LanguagesSection from "./components/Languages/LanguagesSection";
 import MessagesContainer from "./components/Messages/MessagesContainer";
+import PlatformsSection from "./components/Platforms/PlatformsSection";
 
 const IntakeForm = () => {
   const {
@@ -112,6 +113,10 @@ const IntakeForm = () => {
                   IntakeFormContainer.selectedMessageTypes = updatedTypes;
                 }
               }}
+            />
+            <PlatformsSection
+              adPlatform={adPlatform}
+              setAdPlatform={setAdPlatform}
             />
             <IntakeTop />
             <IntakeFormContainer 

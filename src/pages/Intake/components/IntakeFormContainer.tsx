@@ -5,7 +5,6 @@ import IntakeFormFields from "./IntakeFormFields";
 import { Persona } from "./Personas/types";
 import { ImagesSection } from "./Images";
 import { Message } from "./Messages/hooks/useMessagesFetching";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
 
 interface IntakeFormContainerProps {
   // Form fields
@@ -50,8 +49,6 @@ interface IntakeFormContainerType extends React.FC<IntakeFormContainerProps> {
   generatedMessages?: Record<string, Record<string, Message>>;
   selectedMessageTypes?: string[];
 }
-
-const PLATFORM_OPTIONS = ["Google", "Meta"];
 
 const IntakeFormContainer: IntakeFormContainerType = ({
   // Form fields
@@ -117,42 +114,7 @@ const IntakeFormContainer: IntakeFormContainerType = ({
             handleSave={handleSave} 
           />
           
-          {/* MessagesSection has been moved to a separate container component */}
-          
-          {/* Ad Platform Section */}
-          <tr className="border-b">
-            <td colSpan={2} className="py-4 text-lg">
-              <div className="w-full text-left pl-4 flex items-center">
-                <span>Platforms</span>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td colSpan={2} className="py-4 pl-4">
-              <div className="inline-block min-w-[180px]">
-                <Select value={adPlatform} onValueChange={value => {
-                if (value === "clear-selection") {
-                  setAdPlatform("");
-                } else {
-                  setAdPlatform(value);
-                }
-              }}>
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Select platform" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                    {PLATFORM_OPTIONS.map(platform => <SelectItem key={platform} value={platform}>
-                        {platform}
-                      </SelectItem>)}
-                    <SelectSeparator className="my-1" />
-                    <SelectItem value="clear-selection" className="text-gray-500">
-                      Clear
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </td>
-          </tr>
+          {/* Platform section has been moved to a separate component */}
           
           <ImagesSection personas={personas} generatedMessages={generatedMessages} selectedMessageTypes={selectedMessageTypes} adPlatform={adPlatform} />
         </tbody>
