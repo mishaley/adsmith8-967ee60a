@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Image } from "lucide-react";
 import { resolutionOptions } from "@/pages/Images/options";
 
 interface ImagesSectionProps {
@@ -26,6 +26,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   // State for tracking the current index
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
   
   // Reset the index when personas or message types change
   useEffect(() => {
@@ -55,6 +56,16 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   const goToNext = () => {
     setCurrentPairIndex(prev => (prev < totalPairs - 1 ? prev + 1 : 0));
+  };
+  
+  // Mock function to handle image generation
+  const handleGenerateImages = () => {
+    setIsGeneratingImages(true);
+    
+    // Simulating API call with timeout
+    setTimeout(() => {
+      setIsGeneratingImages(false);
+    }, 2000);
   };
   
   // Display index starts from 1 for user-friendly numbering
@@ -177,6 +188,35 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                   <td className="border-t-0 border-x border-b p-3 pt-0">
                     <div className="flex justify-center items-center">
                       {renderResolutionRow()}
+                    </div>
+                  </td>
+                </tr>
+                {/* Third row for generate button and future images */}
+                <tr>
+                  <td className="border-t-0 border-x border-b p-5">
+                    <div className="flex flex-col items-center min-h-52">
+                      <div className="mb-4">
+                        <Button 
+                          onClick={handleGenerateImages} 
+                          disabled={isGeneratingImages || !adPlatform}
+                          className="px-6"
+                        >
+                          {isGeneratingImages ? (
+                            <>
+                              <span className="animate-pulse mr-2">Generating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Image className="mr-2 h-4 w-4" />
+                              Generate Images
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      
+                      <div className="w-full h-40 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
+                        <span className="text-gray-400">Images will appear here after generation</span>
+                      </div>
                     </div>
                   </td>
                 </tr>
