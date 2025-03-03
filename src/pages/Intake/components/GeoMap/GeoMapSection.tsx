@@ -1,3 +1,4 @@
+
 import React, { useRef } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from "./hooks/useMapboxToken";
@@ -45,8 +46,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
       <tr>
         <td colSpan={2} className="p-0">
           <div className="w-full px-4 pb-4">
-            <div className="flex justify-start">
-              <div className="w-1/2">
+            <div className="flex justify-center">
+              <div className="w-full">
                 <MapDisplay loading={loading} error={error} mapContainerRef={mapContainer} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
               </div>
             </div>
