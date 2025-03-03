@@ -52,6 +52,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                 <Select 
                   value={selectedLanguage} 
                   onValueChange={value => setSelectedLanguage(value)}
+                  defaultValue="English"
                 >
                   <SelectTrigger className="w-full bg-white">
                     <SelectValue placeholder="Select language">
