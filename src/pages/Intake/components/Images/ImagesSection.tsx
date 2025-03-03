@@ -2,11 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Image, Loader } from "lucide-react";
-import { resolutionOptions } from "@/pages/Images/options";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import PersonaDisplay from "./components/PersonaDisplay";
+import ResolutionOptions from "./components/ResolutionOptions";
+import ImageGenerator from "./components/ImageGenerator";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -28,14 +26,10 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   // State for tracking the current index
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
-  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const { toast } = useToast();
   
   // Reset the index when personas or message types change
   useEffect(() => {
     setCurrentPairIndex(0);
-    setGeneratedImageUrl(null);
   }, [personas, selectedMessageTypes]);
   
   // Calculate which persona and message type to show based on the current index
@@ -57,162 +51,14 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   // Navigation handlers
   const goToPrevious = () => {
     setCurrentPairIndex(prev => (prev > 0 ? prev - 1 : totalPairs - 1));
-    setGeneratedImageUrl(null);
   };
   
   const goToNext = () => {
     setCurrentPairIndex(prev => (prev < totalPairs - 1 ? prev + 1 : 0));
-    setGeneratedImageUrl(null);
-  };
-  
-  // Function to generate a random 3-word phrase
-  const generateRandomPhrase = () => {
-    const adjectives = ["amazing", "innovative", "exciting", "remarkable", "incredible", "outstanding", "impressive", "extraordinary"];
-    const nouns = ["experience", "solution", "feature", "product", "service", "design", "technology", "value"];
-    const verbs = ["transforms", "elevates", "enhances", "revolutionizes", "improves", "optimizes", "maximizes", "delivers"];
-    
-    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
-    const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
-    
-    return `${randomAdjective} ${randomNoun} ${randomVerb}`;
-  };
-  
-  // Function to get random approved style
-  const getRandomApprovedStyle = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('y1styles')
-        .select('style_name')
-        .eq('style_status', 'Approved');
-        
-      if (error) {
-        console.error('Error fetching styles:', error);
-        return null;
-      }
-      
-      if (!data || data.length === 0) {
-        console.warn('No approved styles found');
-        return "Vibrant and Modern";  // Fallback style
-      }
-      
-      // Select a random style from the results
-      const randomIndex = Math.floor(Math.random() * data.length);
-      return data[randomIndex].style_name;
-    } catch (error) {
-      console.error('Exception fetching styles:', error);
-      return "Vibrant and Modern";  // Fallback style
-    }
-  };
-  
-  // Handle image generation
-  const handleGenerateImages = async () => {
-    if (!currentPersona || !adPlatform) return;
-    
-    setIsGeneratingImages(true);
-    setGeneratedImageUrl(null);
-    
-    try {
-      // Get a random approved style
-      const style = await getRandomApprovedStyle();
-      
-      // Generate a random phrase
-      const phrase = generateRandomPhrase();
-      
-      // Prepare demographics text
-      const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
-      
-      // Create the prompt
-      const prompt = `Style: ${style}
-Subject: ${demographics}
-Message: '${phrase}'
-${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}` : ""}`;
-
-      console.log("Image generation prompt:", prompt);
-      
-      // Determine resolution based on adPlatform
-      const platformResolutions = getResolutionsForPlatform();
-      const resolution = platformResolutions.length > 0 ? platformResolutions[0].value : "RESOLUTION_1024_1024";
-
-      // Call the Edge function to generate the image
-      const response = await supabase.functions.invoke('generate-persona-image', {
-        body: { 
-          prompt, 
-          resolution 
-        }
-      });
-      
-      if (response.error) {
-        throw new Error(response.error.message || "Failed to generate image");
-      }
-      
-      console.log('Image generation response:', response.data);
-      
-      if (response.data.success && response.data.imageUrl) {
-        setGeneratedImageUrl(response.data.imageUrl);
-        toast({
-          title: "Image Generated",
-          description: "Image has been successfully generated.",
-        });
-      } else {
-        throw new Error(response.data.error || "No image was generated");
-      }
-    } catch (error) {
-      console.error('Error generating image:', error);
-      toast({
-        title: "Generation Failed",
-        description: error.message || "Failed to generate image",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGeneratingImages(false);
-    }
   };
   
   // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
-  
-  // Get the appropriate resolution options based on the ad platform
-  const getResolutionsForPlatform = () => {
-    const platformResolutions = {
-      "Google": [
-        { label: "1:1", value: "RESOLUTION_1024_1024" },
-        { label: "4:5", value: "RESOLUTION_896_1120" },
-        { label: "21:11", value: "RESOLUTION_1344_704" }
-      ],
-      "Meta": [
-        { label: "1:1", value: "RESOLUTION_1024_1024" },
-        { label: "4:5", value: "RESOLUTION_896_1120" },
-        { label: "9:16", value: "RESOLUTION_720_1280" }
-      ]
-    };
-    
-    return adPlatform && platformResolutions[adPlatform] ? platformResolutions[adPlatform] : [];
-  };
-  
-  // Calculate the number of images (placeholder for now)
-  const getImageCountPlaceholder = () => 10;
-  
-  // Determine what to display in the resolution row
-  const renderResolutionRow = () => {
-    if (!adPlatform) {
-      return <span className="text-gray-500">Select an Ad Platform to see available resolutions</span>;
-    }
-    
-    const resOptions = getResolutionsForPlatform();
-    
-    return (
-      <div>
-        <span className="font-medium">{adPlatform} - </span>
-        {resOptions.map((res, index) => (
-          <React.Fragment key={res.value}>
-            <span>{res.label} ({getImageCountPlaceholder()}) </span>
-            {index < resOptions.length - 1 && <span className="text-gray-400">• </span>}
-          </React.Fragment>
-        ))}
-      </div>
-    );
-  };
   
   return (
     <>
@@ -230,104 +76,32 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
               <tbody>
                 <tr>
                   <td className="border p-3">
-                    <div className="flex">
-                      {/* Left Column - Navigation and Counter */}
-                      <div className="flex flex-row items-center justify-start pr-4 w-24">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={goToPrevious}
-                          disabled={totalPairs <= 1}
-                          className="h-7 w-7"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        
-                        {/* Index counter box */}
-                        <div className="bg-gray-100 border border-gray-300 rounded-md px-2 py-1 mx-1 flex items-center justify-center">
-                          <span className="text-xs font-medium whitespace-nowrap">{displayIndex}/{totalPairs}</span>
-                        </div>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={goToNext}
-                          disabled={totalPairs <= 1}
-                          className="h-7 w-7"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      
-                      {/* Right Column - Content */}
-                      <div className="flex items-center flex-1">
-                        {/* Portrait - maintaining aspect ratio */}
-                        {currentPersona.portraitUrl ? (
-                          <img 
-                            src={currentPersona.portraitUrl} 
-                            alt="Persona portrait"
-                            className="w-auto h-16 rounded-md object-cover mr-4"
-                          />
-                        ) : (
-                          <div className="w-auto h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4">
-                            <span className="text-gray-500 text-xs">No image</span>
-                          </div>
-                        )}
-                        
-                        {/* Combined text with bullet point separators */}
-                        <div className="flex-1">
-                          <span className="text-lg text-gray-700">
-                            {currentPersona.gender}, {currentPersona.ageMin}-{currentPersona.ageMax} • {currentPersona.interests?.join(", ") || "No interests"} • {messageContent}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                    <PersonaDisplay 
+                      currentPersona={currentPersona}
+                      currentMessageType={currentMessageType}
+                      messageContent={messageContent}
+                      displayIndex={displayIndex}
+                      totalPairs={totalPairs}
+                      goToPrevious={goToPrevious}
+                      goToNext={goToNext}
+                    />
                   </td>
                 </tr>
                 {/* Second row for resolution options */}
                 <tr>
                   <td className="border-t-0 border-x border-b p-3 pt-0">
                     <div className="flex justify-center items-center">
-                      {renderResolutionRow()}
+                      <ResolutionOptions adPlatform={adPlatform} />
                     </div>
                   </td>
                 </tr>
                 {/* Third row for generate button and future images */}
                 <tr>
                   <td className="border-t-0 border-x border-b p-5">
-                    <div className="flex flex-col items-center min-h-52">
-                      <div className="mb-4">
-                        <Button 
-                          onClick={handleGenerateImages} 
-                          disabled={isGeneratingImages || !adPlatform}
-                          className="px-6"
-                        >
-                          {isGeneratingImages ? (
-                            <>
-                              <Loader className="mr-2 h-4 w-4 animate-spin" />
-                              <span>Generating...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Image className="mr-2 h-4 w-4" />
-                              Generate Images
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                      
-                      <div className="w-full h-40 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
-                        {generatedImageUrl ? (
-                          <img 
-                            src={generatedImageUrl} 
-                            alt="Generated persona image" 
-                            className="max-w-full max-h-40 object-contain"
-                          />
-                        ) : (
-                          <span className="text-gray-400">Images will appear here after generation</span>
-                        )}
-                      </div>
-                    </div>
+                    <ImageGenerator 
+                      currentPersona={currentPersona} 
+                      adPlatform={adPlatform} 
+                    />
                   </td>
                 </tr>
               </tbody>
