@@ -3,8 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Image } from "lucide-react";
+import { ChevronLeft, ChevronRight, Image, Loader } from "lucide-react";
 import { resolutionOptions } from "@/pages/Images/options";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -27,10 +29,13 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   // State for tracking the current index
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const { toast } = useToast();
   
   // Reset the index when personas or message types change
   useEffect(() => {
     setCurrentPairIndex(0);
+    setGeneratedImageUrl(null);
   }, [personas, selectedMessageTypes]);
   
   // Calculate which persona and message type to show based on the current index
@@ -52,20 +57,116 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   // Navigation handlers
   const goToPrevious = () => {
     setCurrentPairIndex(prev => (prev > 0 ? prev - 1 : totalPairs - 1));
+    setGeneratedImageUrl(null);
   };
   
   const goToNext = () => {
     setCurrentPairIndex(prev => (prev < totalPairs - 1 ? prev + 1 : 0));
+    setGeneratedImageUrl(null);
   };
   
-  // Mock function to handle image generation
-  const handleGenerateImages = () => {
-    setIsGeneratingImages(true);
+  // Function to generate a random 3-word phrase
+  const generateRandomPhrase = () => {
+    const adjectives = ["amazing", "innovative", "exciting", "remarkable", "incredible", "outstanding", "impressive", "extraordinary"];
+    const nouns = ["experience", "solution", "feature", "product", "service", "design", "technology", "value"];
+    const verbs = ["transforms", "elevates", "enhances", "revolutionizes", "improves", "optimizes", "maximizes", "delivers"];
     
-    // Simulating API call with timeout
-    setTimeout(() => {
+    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+    const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+    
+    return `${randomAdjective} ${randomNoun} ${randomVerb}`;
+  };
+  
+  // Function to get random approved style
+  const getRandomApprovedStyle = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('y1styles')
+        .select('style_name')
+        .eq('style_status', 'Approved');
+        
+      if (error) {
+        console.error('Error fetching styles:', error);
+        return null;
+      }
+      
+      if (!data || data.length === 0) {
+        console.warn('No approved styles found');
+        return "Vibrant and Modern";  // Fallback style
+      }
+      
+      // Select a random style from the results
+      const randomIndex = Math.floor(Math.random() * data.length);
+      return data[randomIndex].style_name;
+    } catch (error) {
+      console.error('Exception fetching styles:', error);
+      return "Vibrant and Modern";  // Fallback style
+    }
+  };
+  
+  // Handle image generation
+  const handleGenerateImages = async () => {
+    if (!currentPersona || !adPlatform) return;
+    
+    setIsGeneratingImages(true);
+    setGeneratedImageUrl(null);
+    
+    try {
+      // Get a random approved style
+      const style = await getRandomApprovedStyle();
+      
+      // Generate a random phrase
+      const phrase = generateRandomPhrase();
+      
+      // Prepare demographics text
+      const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+      
+      // Create the prompt
+      const prompt = `Style: ${style}
+Subject: ${demographics}
+Message: '${phrase}'
+${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}` : ""}`;
+
+      console.log("Image generation prompt:", prompt);
+      
+      // Determine resolution based on adPlatform
+      const platformResolutions = getResolutionsForPlatform();
+      const resolution = platformResolutions.length > 0 ? platformResolutions[0].value : "RESOLUTION_1024_1024";
+
+      // Call the Edge function to generate the image
+      const response = await supabase.functions.invoke('generate-persona-image', {
+        body: { 
+          prompt, 
+          resolution 
+        }
+      });
+      
+      if (response.error) {
+        throw new Error(response.error.message || "Failed to generate image");
+      }
+      
+      console.log('Image generation response:', response.data);
+      
+      if (response.data.success && response.data.imageUrl) {
+        setGeneratedImageUrl(response.data.imageUrl);
+        toast({
+          title: "Image Generated",
+          description: "Image has been successfully generated.",
+        });
+      } else {
+        throw new Error(response.data.error || "No image was generated");
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to generate image",
+        variant: "destructive",
+      });
+    } finally {
       setIsGeneratingImages(false);
-    }, 2000);
+    }
   };
   
   // Display index starts from 1 for user-friendly numbering
@@ -203,7 +304,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                         >
                           {isGeneratingImages ? (
                             <>
-                              <span className="animate-pulse mr-2">Generating...</span>
+                              <Loader className="mr-2 h-4 w-4 animate-spin" />
+                              <span>Generating...</span>
                             </>
                           ) : (
                             <>
@@ -215,7 +317,15 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                       </div>
                       
                       <div className="w-full h-40 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
-                        <span className="text-gray-400">Images will appear here after generation</span>
+                        {generatedImageUrl ? (
+                          <img 
+                            src={generatedImageUrl} 
+                            alt="Generated persona image" 
+                            className="max-w-full max-h-40 object-contain"
+                          />
+                        ) : (
+                          <span className="text-gray-400">Images will appear here after generation</span>
+                        )}
                       </div>
                     </div>
                   </td>
