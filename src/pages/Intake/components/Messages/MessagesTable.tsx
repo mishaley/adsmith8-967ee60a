@@ -35,7 +35,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
     if (isTableVisible) {
       console.log("MessagesTable - component rendered with:", {
         personasCount: personas.length,
-        personaIds: personas.map(p => p.id ? String(p.id) : "missing-id"),
+        personaIds: personas.map(p => p.id ? String(p.id) : `persona-${personas.indexOf(p)}`),
         selectedTypes: selectedMessageTypes,
         messageKeys: Object.keys(generatedMessages),
         tableVisible: isTableVisible
@@ -46,13 +46,12 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   // Reset cell loading states when the component props change
   useEffect(() => {
     const newLoadingStates: Record<string, boolean> = {};
-    personas.forEach(persona => {
-      if (persona.id) {
-        const personaId = String(persona.id);
-        selectedMessageTypes.forEach(type => {
-          newLoadingStates[`${personaId}-${type}`] = false;
-        });
-      }
+    personas.forEach((persona, index) => {
+      // Use index as fallback when no id is present
+      const personaId = persona.id ? String(persona.id) : `persona-${index}`;
+      selectedMessageTypes.forEach(type => {
+        newLoadingStates[`${personaId}-${type}`] = false;
+      });
     });
     setCellLoadingStates(newLoadingStates);
   }, [personas, selectedMessageTypes]);
@@ -68,23 +67,14 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
     return null;
   }
   
-  // Filter out personas without IDs
-  const validPersonas = personas.filter(persona => !!persona.id);
-  if (validPersonas.length === 0) {
-    console.log("No valid personas with IDs, not rendering table");
-    return null;
-  }
-  
   const handleGenerateColumnMessages = async (messageType: string): Promise<void> => {
     console.log(`MessagesTable: Starting generation for ${messageType}`);
     
     // Set all cells in this column to loading state
     const newLoadingStates = { ...cellLoadingStates };
-    validPersonas.forEach(persona => {
-      if (persona.id) {
-        const personaId = String(persona.id);
-        newLoadingStates[`${personaId}-${messageType}`] = true;
-      }
+    personas.forEach((persona, index) => {
+      const personaId = persona.id ? String(persona.id) : `persona-${index}`;
+      newLoadingStates[`${personaId}-${messageType}`] = true;
     });
     setCellLoadingStates(newLoadingStates);
     
@@ -100,11 +90,9 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
     } finally {
       // Reset loading states for this column
       const resetLoadingStates = { ...cellLoadingStates };
-      validPersonas.forEach(persona => {
-        if (persona.id) {
-          const personaId = String(persona.id);
-          resetLoadingStates[`${personaId}-${messageType}`] = false;
-        }
+      personas.forEach((persona, index) => {
+        const personaId = persona.id ? String(persona.id) : `persona-${index}`;
+        resetLoadingStates[`${personaId}-${messageType}`] = false;
       });
       setCellLoadingStates(resetLoadingStates);
     }
@@ -134,7 +122,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {validPersonas.map((persona, index) => (
+          {personas.map((persona, index) => (
             <MessageTableRow
               key={persona.id ? String(persona.id) : `persona-${index}`}
               persona={persona}

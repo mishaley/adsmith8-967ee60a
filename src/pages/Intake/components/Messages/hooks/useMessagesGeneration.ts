@@ -16,16 +16,13 @@ export const useMessagesGeneration = (
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(true);
   
-  // Enhanced logging to track valid personas
+  // Enhanced logging to track personas
   const logPersonasInfo = useCallback(() => {
     console.log("useMessagesGeneration - Personas info:", {
       totalCount: personas.length,
-      withIds: personas.filter(p => !!p.id).length,
-      validIds: personas.map(p => p.id ? String(p.id) : "missing-id"),
-      personaDetails: personas.map(p => ({
-        id: p.id ? String(p.id) : "missing-id",
-        name: p.name,
-        idType: p.id ? typeof p.id : "undefined",
+      personaDetails: personas.map((p, index) => ({
+        id: p.id ? String(p.id) : `persona-${index}`,
+        name: p.name || p.title,
       }))
     });
   }, [personas]);
@@ -39,10 +36,8 @@ export const useMessagesGeneration = (
     // Log personas data to debug
     logPersonasInfo();
     
-    // Filter out personas without IDs
-    const validPersonas = personas.filter(p => !!p.id);
-    if (validPersonas.length === 0) {
-      toast.error("No valid personas found with IDs");
+    if (personas.length === 0) {
+      toast.error("No personas available");
       return;
     }
     
@@ -50,7 +45,7 @@ export const useMessagesGeneration = (
     try {
       console.log("Generating messages for all personas");
       const messages = await generateMessagesForAllPersonas(
-        validPersonas, // Only use personas with valid IDs
+        personas,
         selectedMessageTypes,
         userProvidedMessage
       );
@@ -75,11 +70,9 @@ export const useMessagesGeneration = (
     // Log personas info for debugging
     logPersonasInfo();
     
-    // Filter out personas without IDs
-    const validPersonas = personas.filter(p => !!p.id);
-    if (validPersonas.length === 0) {
-      toast.error("No valid personas found with IDs");
-      throw new Error("No valid personas found with IDs");
+    if (personas.length === 0) {
+      toast.error("No personas available");
+      throw new Error("No personas available");
     }
     
     setIsGeneratingMessages(true);
@@ -87,7 +80,7 @@ export const useMessagesGeneration = (
     try {
       const updatedMessages = await generateColumnMessages(
         messageType,
-        validPersonas, // Only use personas with valid IDs
+        personas,
         generatedMessages
       );
       

@@ -1,152 +1,83 @@
 
 import { Persona } from "../../Personas/types";
 import { Message } from "../hooks/useMessagesFetching";
-import { GeneratedMessagesRecord } from "../hooks/useMessagesState";
-import { toast } from "sonner";
 
-// Generate messages for all personas
+// Simplified type definition to avoid deep nesting
+export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
+
+/**
+ * Generate messages for all personas and all selected message types.
+ * This would normally call an API, but for now we're returning hardcoded examples.
+ */
 export const generateMessagesForAllPersonas = async (
   personas: Persona[],
   messageTypes: string[],
   userProvidedMessage: string
 ): Promise<GeneratedMessagesRecord> => {
-  console.log(`Generating messages for ${personas.length} personas and ${messageTypes.length} message types`);
-  console.log("Personas:", personas.map(p => ({ id: p.id, name: p.name, idType: typeof p.id })));
+  console.log("generateMessagesForAllPersonas called with:", {
+    personasCount: personas.length,
+    messageTypes,
+    userProvidedMessage: userProvidedMessage ? "provided" : "not provided"
+  });
   
-  // Create a new record to store all messages
-  const messages: GeneratedMessagesRecord = {};
+  const result: GeneratedMessagesRecord = {};
   
-  try {
-    // For each persona, generate a message for each message type
-    for (const persona of personas) {
-      // Ensure persona ID is valid and convert to string if needed
-      const personaId = persona.id ? String(persona.id) : null;
-      
-      if (!personaId) {
-        console.warn("Persona without ID encountered, skipping", persona);
-        continue;
-      }
-      
-      console.log(`Generating messages for persona: ${personaId} (${persona.name || 'Unnamed'})`);
-      
-      // Initialize the record for this persona
-      messages[personaId] = {};
-      
-      // For each message type, generate a message
-      for (const messageType of messageTypes) {
-        // If user-provided and a message was provided, use that
-        if (messageType === "user-provided" && userProvidedMessage) {
-          messages[personaId][messageType] = {
-            message_id: `${personaId}-${messageType}`,
-            message_name: userProvidedMessage,
-            message_type: messageType,
-            message_url: "",
-            message_status: "Generated",
-            persona_id: personaId
-          };
-        } else {
-          // Generate a mock message based on persona and message type
-          const mockMessage = generateMockMessage(persona, messageType);
-          messages[personaId][messageType] = {
-            message_id: `${personaId}-${messageType}`,
-            message_name: mockMessage,
-            message_type: messageType,
-            message_url: "",
-            message_status: "Generated",
-            persona_id: personaId
-          };
-        }
-      }
-    }
+  // For each persona, generate messages for each selected type
+  personas.forEach((persona, index) => {
+    // Use ID or index as key
+    const personaId = persona.id ? String(persona.id) : `persona-${index}`;
+    result[personaId] = {};
     
-    console.log("Generated messages structure:", JSON.stringify(messages, null, 2));
-    toast.success("Generated messages for all personas");
-    return messages;
-  } catch (error) {
-    console.error("Error generating messages:", error);
-    toast.error("Failed to generate messages. Please try again.");
-    return {};
-  }
+    messageTypes.forEach(type => {
+      result[personaId][type] = {
+        message_id: `${personaId}-${type}`,
+        message_name: `Generated ${type} Example`,
+        persona_id: personaId,
+        message_type: type,
+        created_at: new Date().toISOString(),
+      };
+    });
+  });
+  
+  console.log("Generated messages result:", result);
+  return result;
 };
 
-// Generate a message for a specific column (message type) for all personas
+/**
+ * Generate messages for a specific column (message type) for all personas.
+ * This would normally call an API, but for now we're returning hardcoded examples.
+ */
 export const generateColumnMessages = async (
   messageType: string,
   personas: Persona[],
   existingMessages: GeneratedMessagesRecord
 ): Promise<GeneratedMessagesRecord> => {
-  console.log(`Generating column messages for type: ${messageType}, personas count: ${personas.length}`);
-  console.log("Personas for column generation:", personas.map(p => ({ 
-    id: p.id, 
-    idType: typeof p.id,
-    name: p.name 
-  })));
+  console.log(`generateColumnMessages called for type: ${messageType}`, {
+    personasCount: personas.length
+  });
   
-  // Create a deep copy of the existing messages
-  const updatedMessages = JSON.parse(JSON.stringify(existingMessages || {})) as GeneratedMessagesRecord;
+  // Create a new object to avoid mutating the original
+  const updatedMessages = { ...existingMessages };
   
-  try {
-    let generationCount = 0;
+  // For each persona, generate a message for the specified type
+  personas.forEach((persona, index) => {
+    // Use ID or index as key
+    const personaId = persona.id ? String(persona.id) : `persona-${index}`;
     
-    // For each persona, generate a message for this message type
-    for (const persona of personas) {
-      // Ensure persona ID is valid and convert to string if needed
-      const personaId = persona.id ? String(persona.id) : null;
-      
-      if (!personaId) {
-        console.warn("Persona without ID encountered, skipping", persona);
-        continue;
-      }
-      
-      console.log(`Generating ${messageType} message for persona with ID: ${personaId}`);
-      
-      // Initialize the record for this persona if it doesn't exist
-      if (!updatedMessages[personaId]) {
-        updatedMessages[personaId] = {};
-      }
-      
-      // Generate a mock message based on persona and message type
-      const mockMessage = generateMockMessage(persona, messageType);
-      updatedMessages[personaId][messageType] = {
-        message_id: `${personaId}-${messageType}`,
-        message_name: mockMessage,
-        message_type: messageType,
-        message_url: "",
-        message_status: "Generated",
-        persona_id: personaId
-      };
-      
-      generationCount++;
+    // Initialize persona entry if it doesn't exist
+    if (!updatedMessages[personaId]) {
+      updatedMessages[personaId] = {};
     }
     
-    console.log(`Generated ${generationCount} messages for ${messageType}`);
-    console.log("Updated messages structure:", JSON.stringify(updatedMessages, null, 2));
-    toast.success(`Generated messages for ${messageType}`);
-    return updatedMessages;
-  } catch (error) {
-    console.error("Error generating column messages:", error);
-    toast.error(`Failed to generate ${messageType} messages. Please try again.`);
-    return existingMessages || {};
-  }
-};
-
-// Helper function to generate a mock message based on persona and message type
-const generateMockMessage = (persona: Persona, messageType: string): string => {
-  const name = persona.name || 'Unknown';
-  const gender = persona.gender || 'Unknown';
-  const age = `${persona.ageMin || '?'}-${persona.ageMax || '?'}`;
-  const prefix = name !== 'Unknown' ? name : `${gender}, ${age}`;
+    // Add or update message for this type
+    updatedMessages[personaId][messageType] = {
+      message_id: `${personaId}-${messageType}`,
+      message_name: `Generated ${messageType} Example`,
+      persona_id: personaId,
+      message_type: messageType,
+      created_at: new Date().toISOString(),
+    };
+  });
   
-  switch (messageType) {
-    case "pain-point":
-      return `${prefix} struggles with finding reliable solutions that don't waste time.`;
-    case "unique-offering":
-      return `${prefix} would appreciate our unique approach to solving their specific problems.`;
-    case "value-prop":
-      return `For ${prefix}, our solution saves 30% more time while delivering better results.`;
-    case "user-provided":
-      return `Custom message for ${prefix}.`;
-    default:
-      return `Generated message for ${prefix} (${messageType}).`;
-  }
+  return updatedMessages;
 };

@@ -22,48 +22,32 @@ const MessageTableRow: React.FC<MessageTableRowProps> = ({
   isGeneratingMessages,
   cellLoadingStates
 }) => {
-  // Ensure persona ID is a string
-  const personaId = persona.id ? String(persona.id) : "";
+  // Use index as fallback for personas without IDs
+  const personaId = persona.id ? String(persona.id) : `persona-${index}`;
   
-  // Enhanced logging for debugging
-  console.log(`MessageTableRow ${index}:`, {
-    personaId,
-    personaIdType: typeof personaId,
-    personaName: persona.name,
-    hasValidId: !!personaId,
-    messageTypes: selectedMessageTypes,
-    hasMessagesForThisPersona: !!generatedMessages[personaId],
-    availableMessageTypesForPersona: generatedMessages[personaId] 
-      ? Object.keys(generatedMessages[personaId]) 
-      : []
+  console.log(`MessageTableRow rendering for personaId=${personaId}`, {
+    personaName: persona.title || `Persona ${index + 1}`,
+    selectedTypes: selectedMessageTypes.length
   });
   
-  // Skip rendering if no persona ID
-  if (!personaId) {
-    console.warn(`Persona at index ${index} has no ID, cannot render row`, persona);
-    return null;
-  }
-
-  // Check if a specific cell is loading
-  const isCellLoading = (personaId: string, messageType: string) => {
-    const cellKey = `${personaId}-${messageType}`;
-    return cellLoadingStates[cellKey] === true;
-  };
-
   return (
-    <tr className="border-t">
-      <td className="border p-2 align-top w-64">
+    <tr className="border-b">
+      <td className="border p-2">
         <PersonaCell persona={persona} index={index} />
       </td>
-      {selectedMessageTypes.map(type => (
-        <MessageTableCell
-          key={`${personaId}-${type}`}
-          personaId={personaId}
-          messageType={type}
-          isLoading={isGeneratingMessages || isCellLoading(personaId, type)}
-          generatedMessages={generatedMessages}
-        />
-      ))}
+      {selectedMessageTypes.map((messageType) => {
+        const isLoading = cellLoadingStates[`${personaId}-${messageType}`] || false;
+        
+        return (
+          <MessageTableCell
+            key={`${personaId}-${messageType}`}
+            personaId={personaId}
+            messageType={messageType}
+            isLoading={isGeneratingMessages || isLoading}
+            generatedMessages={generatedMessages}
+          />
+        );
+      })}
     </tr>
   );
 };
