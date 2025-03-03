@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dice1 } from "lucide-react";
 import { getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/integrations/supabase/client";
 
 const StyleTester: React.FC = () => {
   const [randomStyle, setRandomStyle] = useState<string | null>(null);
@@ -11,7 +11,6 @@ const StyleTester: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [diagInfo, setDiagInfo] = useState<string | null>(null);
   
-  // Load a random style on component mount
   useEffect(() => {
     handleGetRandomStyle();
   }, []);
@@ -22,7 +21,6 @@ const StyleTester: React.FC = () => {
     setDiagInfo(null);
     
     try {
-      // Check if table exists and has data
       const { data: tableInfo, error: tableError } = await supabase
         .from('y1styles')
         .select('*', { count: 'exact', head: true });
