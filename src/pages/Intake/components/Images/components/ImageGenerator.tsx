@@ -56,9 +56,10 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({
       
       {errorDetails && (
         <ErrorDialog 
-          isOpen={showErrorDialog} 
-          onClose={() => setShowErrorDialog(false)}
+          showErrorDialog={showErrorDialog}
+          setShowErrorDialog={setShowErrorDialog}
           errorDetails={errorDetails}
+          handleGenerateImages={handleGenerateImages}
         />
       )}
     </div>
