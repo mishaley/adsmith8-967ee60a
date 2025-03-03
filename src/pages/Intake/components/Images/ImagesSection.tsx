@@ -5,6 +5,7 @@ import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "./components/PersonaDisplay";
 import ResolutionOptions from "./components/ResolutionOptions";
 import ImageGenerator from "./components/ImageGenerator";
+import RandomStyleButton from "./components/RandomStyleButton";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -63,6 +64,10 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   return (
     <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
       <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">IMAGES</h2>
+
+      <div className="mb-4">
+        <RandomStyleButton />
+      </div>
 
       {currentPersona ? (
         <div className="border rounded-md overflow-hidden bg-white">
