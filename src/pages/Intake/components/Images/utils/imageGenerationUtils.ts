@@ -14,19 +14,7 @@ export const generateRandomPhrase = () => {
   return `${randomAdjective} ${randomNoun} ${randomVerb}`;
 };
 
-// Default styles to use if database has no approved styles
-const defaultStyles = [
-  "Digital Art",
-  "Photorealistic",
-  "Watercolor",
-  "Abstract",
-  "Cinematic",
-  "Vintage",
-  "Illustration",
-  "Minimalist"
-];
-
-// Function to get random approved style
+// Function to get random approved style from the database
 export const getRandomApprovedStyle = async () => {
   try {
     const { data, error } = await supabase
@@ -36,13 +24,12 @@ export const getRandomApprovedStyle = async () => {
       
     if (error) {
       console.error('Error fetching styles:', error);
-      console.warn('Using default styles due to database error');
-      return getRandomDefaultStyle();
+      throw new Error('Failed to fetch approved styles from database');
     }
     
     if (!data || data.length === 0) {
-      console.warn('No approved styles found in database, using default styles');
-      return getRandomDefaultStyle();
+      console.error('No approved styles found in database');
+      throw new Error('No approved styles found in database');
     }
     
     // Select a random style from the results
@@ -50,13 +37,6 @@ export const getRandomApprovedStyle = async () => {
     return data[randomIndex].style_name;
   } catch (error) {
     console.error('Exception fetching styles:', error);
-    console.warn('Using default styles due to exception');
-    return getRandomDefaultStyle();
+    throw new Error('Failed to get an approved style: ' + (error instanceof Error ? error.message : String(error)));
   }
-};
-
-// Function to get a random style from our default styles
-const getRandomDefaultStyle = () => {
-  const randomIndex = Math.floor(Math.random() * defaultStyles.length);
-  return defaultStyles[randomIndex];
 };

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
@@ -17,7 +16,6 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
-  const [styleSource, setStyleSource] = useState<string>("database");
   
   const getResolutionsForPlatform = () => {
     const platformResolutions = {
@@ -43,18 +41,6 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
     
     try {
       const style = await getRandomApprovedStyle();
-      const dbResult = await supabase
-        .from('y1styles')
-        .select('style_name')
-        .eq('style_status', 'Approved');
-        
-      // Update style source for debugging purposes
-      if (dbResult.error || !dbResult.data || dbResult.data.length === 0) {
-        setStyleSource("default");
-      } else {
-        setStyleSource("database");
-      }
-      
       const phrase = generateRandomPhrase();
       const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       
@@ -68,11 +54,17 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
       });
     } catch (error) {
       console.error('Error generating prompt:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
       toast({
         title: "Prompt Generation Failed",
-        description: "Failed to generate image prompt.",
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      setErrorDetails(`Failed to generate prompt: ${errorMessage}`);
+      setShowErrorDialog(true);
     } finally {
       setIsGeneratingPrompt(false);
     }
@@ -160,7 +152,6 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
     generatedPrompt,
     errorDetails,
     showErrorDialog,
-    styleSource,
     handleGeneratePrompt,
     handleGenerateImages,
     setGeneratedPrompt,

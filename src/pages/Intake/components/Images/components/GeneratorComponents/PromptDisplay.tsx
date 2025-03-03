@@ -6,7 +6,6 @@ import { Image, Loader } from "lucide-react";
 
 interface PromptDisplayProps {
   generatedPrompt: string;
-  styleSource: string;
   isGeneratingPrompt: boolean;
   isGeneratingImages: boolean;
   handleGeneratePrompt: () => void;
@@ -16,7 +15,6 @@ interface PromptDisplayProps {
 
 export const PromptDisplay: React.FC<PromptDisplayProps> = ({
   generatedPrompt,
-  styleSource,
   isGeneratingPrompt,
   isGeneratingImages,
   handleGeneratePrompt,
@@ -31,11 +29,6 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
           readOnly
           className="min-h-32 mb-2 font-mono text-sm"
         />
-        {styleSource === "default" && (
-          <div className="text-xs text-yellow-600 mb-1">
-            * Using default style (no approved styles found in database)
-          </div>
-        )}
       </div>
       <div className="flex gap-2">
         <Button 
