@@ -83,6 +83,13 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
 
   return (
     <>
+      <tr className="border-b">
+        <td colSpan={2} className="py-4 text-lg">
+          <div className="w-full text-left pl-4 flex items-center">
+            <span>Messages</span>
+          </div>
+        </td>
+      </tr>
       <tr>
         <td colSpan={2} className="p-4">
           <div className="flex flex-wrap mb-4 items-start">

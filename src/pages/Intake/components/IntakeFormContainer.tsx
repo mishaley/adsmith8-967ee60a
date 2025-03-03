@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
@@ -7,7 +6,6 @@ import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
-import MessagesContainer from "./Messages/MessagesContainer";
 
 interface IntakeFormContainerProps {
   // Form fields
@@ -117,8 +115,11 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             handleSave={handleSave} 
           />
           
-          {/* Messages section has been moved to a dedicated container */}
-          <MessagesContainer personas={personas} onUpdateMessages={handleMessagesUpdate} />
+          {/* Personas section has been moved to a separate component */}
+          
+          {/* Languages section has been moved to a separate component */}
+          
+          <MessagesSection personas={personas} onUpdateMessages={handleMessagesUpdate} />
           
           {/* Ad Platform Section */}
           <tr className="border-b">
