@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
 
 interface PlatformsSectionProps {
@@ -17,6 +17,13 @@ const PlatformsSection: React.FC<PlatformsSectionProps> = ({
   adPlatform,
   setAdPlatform
 }) => {
+  // Set Google as the default platform when component mounts
+  useEffect(() => {
+    if (!adPlatform) {
+      setAdPlatform("Google");
+    }
+  }, [adPlatform, setAdPlatform]);
+
   return (
     <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
       <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">PLATFORMS</h2>
