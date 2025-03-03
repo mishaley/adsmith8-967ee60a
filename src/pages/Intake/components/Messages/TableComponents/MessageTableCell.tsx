@@ -16,6 +16,14 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   isLoading,
   generatedMessages
 }) => {
+  // Check if we have a message for this persona and message type
+  const hasMessage = 
+    personaId && 
+    generatedMessages[personaId] && 
+    generatedMessages[personaId][messageType];
+
+  const messageContent = hasMessage ? generatedMessages[personaId][messageType].message_name : null;
+
   if (isLoading) {
     return (
       <td className="border p-2 align-top">
@@ -29,8 +37,8 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   return (
     <td className="border p-2 align-top">
       <div>
-        {personaId && generatedMessages[personaId]?.[messageType] ? (
-          <p>{generatedMessages[personaId][messageType].message_name}</p>
+        {messageContent ? (
+          <p>{messageContent}</p>
         ) : (
           <p className="text-gray-400">No message generated</p>
         )}

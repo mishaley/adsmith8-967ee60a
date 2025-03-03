@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import MessageTableHeader from "./TableComponents/MessageTableHeader";
 import MessageTableRow from "./TableComponents/MessageTableRow";
@@ -28,6 +28,21 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   onGenerateColumnMessages
 }) => {
   const [cellLoadingStates, setCellLoadingStates] = useState<Record<string, boolean>>({});
+  
+  // Reset cell loading states when generatedMessages changes
+  useEffect(() => {
+    if (Object.keys(generatedMessages).length > 0) {
+      const newLoadingStates: Record<string, boolean> = {};
+      personas.forEach(persona => {
+        if (persona.id) {
+          selectedMessageTypes.forEach(type => {
+            newLoadingStates[`${persona.id}-${type}`] = false;
+          });
+        }
+      });
+      setCellLoadingStates(newLoadingStates);
+    }
+  }, [generatedMessages, personas, selectedMessageTypes]);
   
   if (!isTableVisible || personas.length === 0 || selectedMessageTypes.length === 0) return null;
   

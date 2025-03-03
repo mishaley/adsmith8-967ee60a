@@ -1,3 +1,4 @@
+
 import { v4 as uuidv4 } from 'uuid';
 import { Persona } from '../../Personas/types';
 import { GeneratedMessagesRecord } from '../hooks/useMessagesState';
@@ -144,7 +145,7 @@ export async function generateColumnMessages(
 
   for (const persona of personas) {
     if (persona.id) {
-      console.log(`Generating message for persona: ${persona.id}`);
+      console.log(`Generating message for persona: ${persona.name || persona.id}`);
       const message = await generateMessageForType(messageType, persona.id, "", persona);
       
       // Initialize persona entry if it doesn't exist
@@ -158,5 +159,6 @@ export async function generateColumnMessages(
     }
   }
 
+  console.log("Updated messages:", updatedMessages);
   return updatedMessages;
 }

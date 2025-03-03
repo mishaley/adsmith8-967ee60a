@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -17,14 +17,18 @@ const MessageTableHeader: React.FC<MessageTableHeaderProps> = ({
   onGenerateColumnMessages,
   isGeneratingMessages
 }) => {
-  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   
   const handleGenerateClick = async () => {
+    if (isGenerating || isGeneratingMessages) return;
+    
     try {
       setIsGenerating(true);
       console.log(`Starting generation for ${messageType}`);
       await onGenerateColumnMessages(messageType);
+      console.log(`Generation completed for ${messageType}`);
+      
       toast({
         title: "Success",
         description: `Generated messages for ${getMessageTypeLabel(messageType)}`,
@@ -53,7 +57,7 @@ const MessageTableHeader: React.FC<MessageTableHeaderProps> = ({
           onClick={handleGenerateClick}
           disabled={isGeneratingMessages || isGenerating}
         >
-          {isGenerating ? (
+          {(isGenerating || isGeneratingMessages) ? (
             <>
               <Loader className="mr-1 h-3 w-3 animate-spin" />
               <span>Generating...</span>

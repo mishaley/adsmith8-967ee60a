@@ -51,6 +51,12 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
 
   const isUserProvidedSelected = selectedMessageTypes.includes("user-provided");
 
+  // Create a wrapper function to adapt the return type to what MessagesTable expects
+  const handleColumnGeneration = async (messageType: string): Promise<void> => {
+    await handleGenerateColumnMessages(messageType);
+    // Function returns void as required by the component props
+  };
+
   return (
     <>
       <tr className="border-b">
@@ -92,7 +98,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
             generatedMessages={generatedMessages}
             isGeneratingMessages={isGeneratingMessages || isGeneratingState}
             getMessageTypeLabel={getMessageTypeLabel}
-            onGenerateColumnMessages={handleGenerateColumnMessages}
+            onGenerateColumnMessages={handleColumnGeneration}
           />
           
           {selectedPersonaId && !isTableVisible && (

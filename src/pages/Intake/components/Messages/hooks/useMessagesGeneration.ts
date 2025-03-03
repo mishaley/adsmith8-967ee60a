@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Persona } from "../../Personas/types";
 import { GeneratedMessagesRecord } from "./useMessagesState";
 import { generateMessagesForAllPersonas, generateColumnMessages } from "../services/messageGenerationService";
@@ -14,17 +14,8 @@ export const useMessagesGeneration = (
   setIsTableVisible: (visible: boolean) => void
 ) => {
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
   const { toast } = useToast();
-
-  // Set isLoaded after a short delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   const generateMessages = async () => {
     if (!selectedMessageTypes.length) return;
@@ -38,6 +29,7 @@ export const useMessagesGeneration = (
         userProvidedMessage
       );
       
+      console.log("Generated messages:", mockMessages);
       setGeneratedMessages(mockMessages);
       setIsTableVisible(true);
       
@@ -58,7 +50,7 @@ export const useMessagesGeneration = (
     }
   };
 
-  const handleGenerateColumnMessages = async (messageType: string) => {
+  const handleGenerateColumnMessages = useCallback(async (messageType: string): Promise<GeneratedMessagesRecord> => {
     console.log(`useMessagesGeneration: Generating column messages for type: ${messageType}`);
     setIsGeneratingMessages(true);
     
@@ -69,19 +61,25 @@ export const useMessagesGeneration = (
         generatedMessages
       );
       
-      console.log("Updated messages:", updatedMessages);
+      console.log("Messages generated successfully:", updatedMessages);
+      
+      // Update the state with the new messages
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
       
-      return updatedMessages; // Return the result for proper Promise chaining
-      
+      return updatedMessages;
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
-      throw error; // Re-throw to handle in the component
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to generate ${messageType} messages. Please try again.`
+      });
+      throw error;
     } finally {
       setIsGeneratingMessages(false);
     }
-  };
+  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible, toast]);
 
   return {
     isGeneratingMessages,
