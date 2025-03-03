@@ -16,14 +16,14 @@ export const generateRandomPhrase = () => {
 
 // Default styles to use if database has no approved styles
 const defaultStyles = [
-  "Vibrant and Modern",
-  "Clean and Minimalist",
-  "Bold and Energetic",
-  "Elegant and Sophisticated",
-  "Warm and Inviting",
-  "Professional and Corporate",
-  "Creative and Artistic",
-  "Playful and Whimsical"
+  "Digital Art",
+  "Photorealistic",
+  "Watercolor",
+  "Abstract",
+  "Cinematic",
+  "Vintage",
+  "Illustration",
+  "Minimalist"
 ];
 
 // Function to get random approved style
@@ -36,6 +36,7 @@ export const getRandomApprovedStyle = async () => {
       
     if (error) {
       console.error('Error fetching styles:', error);
+      console.warn('Using default styles due to database error');
       return getRandomDefaultStyle();
     }
     
@@ -49,6 +50,7 @@ export const getRandomApprovedStyle = async () => {
     return data[randomIndex].style_name;
   } catch (error) {
     console.error('Exception fetching styles:', error);
+    console.warn('Using default styles due to exception');
     return getRandomDefaultStyle();
   }
 };

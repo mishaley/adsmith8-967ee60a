@@ -21,6 +21,7 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
+  const [styleSource, setStyleSource] = useState<string>("database");
   const { toast } = useToast();
   
   const getResolutionsForPlatform = () => {
@@ -47,6 +48,18 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
     
     try {
       const style = await getRandomApprovedStyle();
+      const dbResult = await supabase
+        .from('y1styles')
+        .select('style_name')
+        .eq('style_status', 'Approved');
+        
+      // Update style source for debugging purposes
+      if (dbResult.error || !dbResult.data || dbResult.data.length === 0) {
+        setStyleSource("default");
+      } else {
+        setStyleSource("database");
+      }
+      
       const phrase = generateRandomPhrase();
       const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       
@@ -169,11 +182,18 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
           </Button>
         ) : (
           <div className="mb-4 w-full">
-            <Textarea 
-              value={generatedPrompt}
-              readOnly
-              className="min-h-32 mb-2 font-mono text-sm"
-            />
+            <div className="flex flex-col mb-2">
+              <Textarea 
+                value={generatedPrompt}
+                readOnly
+                className="min-h-32 mb-2 font-mono text-sm"
+              />
+              {styleSource === "default" && (
+                <div className="text-xs text-yellow-600 mb-1">
+                  * Using default style (no approved styles found in database)
+                </div>
+              )}
+            </div>
             <div className="flex gap-2">
               <Button 
                 onClick={handleGeneratePrompt} 
