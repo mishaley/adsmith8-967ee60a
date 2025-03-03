@@ -35,39 +35,44 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
   setSelectedLanguage
 }) => {
   return (
-    <>
-      <tr className="border-b">
-        <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4 flex items-center">
-            <span>Languages</span>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td colSpan={2} className="py-4 pl-4">
-          <div className="inline-block min-w-[180px]">
-            <Select 
-              value={selectedLanguage} 
-              onValueChange={(value) => setSelectedLanguage(value)}
-            >
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                {LANGUAGES.map((language) => (
-                  <SelectItem 
-                    key={language}
-                    value={language}
-                  >
-                    {language}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </td>
-      </tr>
-    </>
+    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
+      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">LANGUAGES</h2>
+      <table className="w-full border-collapse">
+        <tbody>
+          <tr className="border-b">
+            <td colSpan={2} className="py-4 text-lg">
+              <div className="w-full text-left pl-4 flex items-center">
+                <span>Languages</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={2} className="py-4 pl-4">
+              <div className="inline-block min-w-[180px]">
+                <Select 
+                  value={selectedLanguage} 
+                  onValueChange={(value) => setSelectedLanguage(value)}
+                >
+                  <SelectTrigger className="w-full bg-white">
+                    <SelectValue placeholder="Select language" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                    {LANGUAGES.map((language) => (
+                      <SelectItem 
+                        key={language}
+                        value={language}
+                      >
+                        {language}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

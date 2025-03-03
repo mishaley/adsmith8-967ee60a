@@ -1,11 +1,9 @@
-
 import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
 import { Persona } from "./Personas/types";
 import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
-import LanguagesSection from "./Languages/LanguagesSection";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
 
@@ -119,7 +117,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
           
           {/* Personas section has been moved to a separate component */}
           
-          <LanguagesSection selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />
+          {/* Languages section has been moved to a separate component */}
           
           <MessagesSection personas={personas} onUpdateMessages={handleMessagesUpdate} />
           

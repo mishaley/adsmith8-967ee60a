@@ -9,6 +9,7 @@ import OrganizationSection from "./components/OrganizationSection";
 import OfferingSection from "./components/OfferingSection";
 import LocationsSection from "./components/LocationsSection";
 import PersonasContainer from "./components/PersonasSection";
+import LanguagesSection from "./components/Languages/LanguagesSection";
 
 const IntakeForm = () => {
   const {
@@ -92,6 +93,10 @@ const IntakeForm = () => {
               removePersona={removePersona}
               personaCount={personaCount}
               setPersonaCount={setPersonaCount}
+            />
+            <LanguagesSection 
+              selectedLanguage={selectedLanguage}
+              setSelectedLanguage={setSelectedLanguage}
             />
             <IntakeTop />
             <IntakeFormContainer 
