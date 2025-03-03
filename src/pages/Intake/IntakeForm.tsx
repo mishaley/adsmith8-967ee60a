@@ -5,6 +5,7 @@ import IntakeFormContainer from "./components/IntakeFormContainer";
 import IntakeTop from "./components/IntakeTop";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
+import OrganizationSection from "./components/OrganizationSection";
 
 const IntakeForm = () => {
   const {
@@ -49,7 +50,8 @@ const IntakeForm = () => {
     <QuadrantLayout>
       {{
         q4: (
-          <>
+          <div className="p-[18px]">
+            <OrganizationSection />
             <IntakeTop />
             <IntakeFormContainer
               brandName={brandName}
@@ -85,7 +87,7 @@ const IntakeForm = () => {
               personaCount={personaCount}
               setPersonaCount={setPersonaCount}
             />
-          </>
+          </div>
         )
       }}
     </QuadrantLayout>
