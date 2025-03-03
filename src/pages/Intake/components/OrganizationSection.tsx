@@ -24,8 +24,8 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   handleSave
 }) => {
   return (
-    <div className="bg-[#e9f2fe] mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 py-2 font-bold text-xl">ORGANIZATION</h2>
+    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
+      <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">ORGANIZATION</h2>
       <table className="w-full border-collapse">
         <tbody>
           <tr className="border-b">
