@@ -14,6 +14,18 @@ export const generateRandomPhrase = () => {
   return `${randomAdjective} ${randomNoun} ${randomVerb}`;
 };
 
+// Default styles to use if database has no approved styles
+const defaultStyles = [
+  "Vibrant and Modern",
+  "Clean and Minimalist",
+  "Bold and Energetic",
+  "Elegant and Sophisticated",
+  "Warm and Inviting",
+  "Professional and Corporate",
+  "Creative and Artistic",
+  "Playful and Whimsical"
+];
+
 // Function to get random approved style
 export const getRandomApprovedStyle = async () => {
   try {
@@ -24,12 +36,12 @@ export const getRandomApprovedStyle = async () => {
       
     if (error) {
       console.error('Error fetching styles:', error);
-      return null;
+      return getRandomDefaultStyle();
     }
     
     if (!data || data.length === 0) {
-      console.warn('No approved styles found');
-      return "Vibrant and Modern";  // Fallback style
+      console.warn('No approved styles found in database, using default styles');
+      return getRandomDefaultStyle();
     }
     
     // Select a random style from the results
@@ -37,6 +49,12 @@ export const getRandomApprovedStyle = async () => {
     return data[randomIndex].style_name;
   } catch (error) {
     console.error('Exception fetching styles:', error);
-    return "Vibrant and Modern";  // Fallback style
+    return getRandomDefaultStyle();
   }
+};
+
+// Function to get a random style from our default styles
+const getRandomDefaultStyle = () => {
+  const randomIndex = Math.floor(Math.random() * defaultStyles.length);
+  return defaultStyles[randomIndex];
 };

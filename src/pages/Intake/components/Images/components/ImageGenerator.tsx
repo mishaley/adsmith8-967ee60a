@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../../Personas/types";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface ImageGeneratorProps {
   currentPersona: Persona | null;
@@ -15,6 +16,8 @@ interface ImageGeneratorProps {
 const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatform }) => {
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
   const { toast } = useToast();
   
   // Get the appropriate resolution options based on the ad platform
@@ -41,6 +44,7 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
     
     setIsGeneratingImages(true);
     setGeneratedImageUrl(null);
+    setErrorDetails(null);
     
     try {
       // Get a random approved style
@@ -72,11 +76,11 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
         }
       });
       
+      console.log('Image generation response:', response);
+      
       if (response.error) {
         throw new Error(response.error.message || "Failed to generate image");
       }
-      
-      console.log('Image generation response:', response.data);
       
       if (response.data.success && response.data.imageUrl) {
         setGeneratedImageUrl(response.data.imageUrl);
@@ -85,14 +89,29 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
           description: "Image has been successfully generated.",
         });
       } else {
-        throw new Error(response.data.error || "No image was generated");
+        const errorMsg = response.data.error || "No image was generated";
+        const details = response.data.details ? JSON.stringify(response.data.details, null, 2) : "No details available";
+        setErrorDetails(`Error: ${errorMsg}\n\nDetails: ${details}`);
+        setShowErrorDialog(true);
+        throw new Error(errorMsg);
       }
     } catch (error) {
       console.error('Error generating image:', error);
+      
+      // If we don't have detailed error info yet, set it
+      if (!errorDetails) {
+        setErrorDetails(`Error: ${error.message || "Unknown error"}`);
+      }
+      
       toast({
         title: "Generation Failed",
-        description: error.message || "Failed to generate image",
+        description: "Click 'View Details' for more information.",
         variant: "destructive",
+        action: (
+          <Button onClick={() => setShowErrorDialog(true)} variant="outline" size="sm">
+            View Details
+          </Button>
+        )
       });
     } finally {
       setIsGeneratingImages(false);
@@ -132,6 +151,21 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
           <span className="text-gray-400">Images will appear here after generation</span>
         )}
       </div>
+
+      <AlertDialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Image Generation Error</AlertDialogTitle>
+            <AlertDialogDescription className="max-h-80 overflow-y-auto whitespace-pre-wrap font-mono text-xs">
+              {errorDetails}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+            <AlertDialogAction onClick={handleGenerateImages}>Retry</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
