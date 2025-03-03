@@ -37,9 +37,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   console.log("PersonasSection rendering with personas:", personas, "and personaCount:", personaCount);
   
   const hasPersonas = personas && personas.length > 0;
-  const hasLoadingPortraits = loadingPortraitIndices.length > 0;
-  const numPortraitsNeeded = personas.filter(p => !p.portraitUrl).length;
-  const numPortraitsLoading = loadingPortraitIndices.length;
   
   // Monitor loading states for debugging
   useEffect(() => {
@@ -47,7 +44,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       hasPersonas,
       isGeneratingPersonas,
       isGeneratingPortraits,
-      hasLoadingPortraits,
       loadingPortraitIndices,
       personaCount,
       portraitUrls: personas.map(p => !!p?.portraitUrl)
@@ -101,12 +97,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 "Generate"
               )}
             </Button>
-            {(isGeneratingPortraits || hasLoadingPortraits) && !isGeneratingPersonas && (
-              <div className="ml-4 text-sm text-blue-500 flex items-center font-medium">
-                <Loader className="h-3 w-3 animate-spin mr-2" />
-                Generating portraits... {numPortraitsLoading > 0 ? `(${numPortraitsLoading} of ${numPortraitsNeeded})` : ''}
-              </div>
-            )}
+            {/* Removed the portraits generation message here */}
           </div>
         </td>
       </tr>

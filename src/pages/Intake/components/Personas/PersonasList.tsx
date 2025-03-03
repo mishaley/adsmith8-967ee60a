@@ -17,7 +17,7 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }
       {Array.from({ length: 5 }).map((_, index) => (
         <td 
           key={index} 
-          className="py-3 px-3 border-r align-top relative" 
+          className="py-3 px-3 align-top relative" 
           style={{ width: "20%" }}
           onMouseEnter={() => setHoveredIndex(index)}
           onMouseLeave={() => setHoveredIndex(null)}

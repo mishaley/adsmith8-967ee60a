@@ -45,7 +45,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
   return (
     <tr>
       {Array.from({ length: 5 }).map((_, index) => (
-        <td key={index} className="py-3 px-3 border-r" style={{ width: "20%" }}>
+        <td key={index} className="py-3 px-3" style={{ width: "20%" }}>
           <div className="flex flex-col items-center">
             {personas[index]?.portraitUrl ? (
               <Popover open={openPopoverIndex === index} onOpenChange={(open) => {
