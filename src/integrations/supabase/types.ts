@@ -253,6 +253,33 @@ export type Database = {
           },
         ]
       }
+      y1styles: {
+        Row: {
+          created_at: string
+          style_description: string | null
+          style_id: string
+          style_name: string
+          style_status: Database["public"]["Enums"]["asset_status"]
+          style_type: Database["public"]["Enums"]["style_type"]
+        }
+        Insert: {
+          created_at?: string
+          style_description?: string | null
+          style_id?: string
+          style_name: string
+          style_status: Database["public"]["Enums"]["asset_status"]
+          style_type: Database["public"]["Enums"]["style_type"]
+        }
+        Update: {
+          created_at?: string
+          style_description?: string | null
+          style_id?: string
+          style_name?: string
+          style_status?: Database["public"]["Enums"]["asset_status"]
+          style_type?: Database["public"]["Enums"]["style_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -289,6 +316,7 @@ export type Database = {
         | "Housing"
         | "Social issues, elections or politics"
       persona_gender: "Women" | "Men" | "Both"
+      style_type: "Genre" | "Artist"
     }
     CompositeTypes: {
       [_ in never]: never

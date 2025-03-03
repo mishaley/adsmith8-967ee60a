@@ -1,11 +1,12 @@
-
-import React from "react";
+import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
-import GeoMapSection from "./GeoMap/GeoMapSection";
-import PersonasSection from "./Personas/PersonasSection";
-import MessagesSection from "./Messages/MessagesSection";
 import { Persona } from "./Personas/types";
+import { PersonasSection } from "./Personas";
+import { MessagesSection } from "./Messages";
+import { ImagesSection } from "./Images";
+import { GeoMapSection } from "./GeoMap/GeoMapSection";
+import { Message } from "./Messages/hooks/useMessagesFetching";
 
 interface IntakeFormContainerProps {
   // Form fields
@@ -34,10 +35,11 @@ interface IntakeFormContainerProps {
   isGeneratingPortraits: boolean;
   generatePersonas: () => void;
   updatePersona: (index: number, updatedPersona: Persona) => void;
-  loadingPortraitIndices?: number[];
-  retryPortraitGeneration?: (index: number) => void;
-  removePersona?: (index: number) => void;
+  loadingPortraitIndices: number[];
+  retryPortraitGeneration: (index: number) => void;
+  removePersona: (index: number) => void;
 }
+
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   // Form fields
   brandName,
@@ -68,24 +70,61 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   retryPortraitGeneration,
   removePersona
 }) => {
-  return <div className="p-4 min-h-[calc(100vh-60px)] bg-#d3e4fd">
-      <IntakeHeader />
-      
-      <div className="mt-4">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border">
-            <tbody>
-              <IntakeFormFields brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} handleSave={handleSave} />
-              
-              <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
-              
-              <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} />
+  const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
+  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
 
-              <MessagesSection personas={personas} />
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>;
+  const handleMessagesUpdate = (messages: Record<string, Record<string, Message>>, types: string[]) => {
+    setGeneratedMessages(messages);
+    setSelectedMessageTypes(types);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
+      <IntakeHeader />
+      <table className="w-full border-collapse">
+        <tbody>
+          <IntakeFormFields
+            brandName={brandName}
+            setBrandName={setBrandName}
+            industry={industry}
+            setIndustry={setIndustry}
+            offering={offering}
+            setOffering={setOffering}
+            sellingPoints={sellingPoints}
+            setSellingPoints={setSellingPoints}
+            problemSolved={problemSolved}
+            setProblemSolved={setProblemSolved}
+            uniqueOffering={uniqueOffering}
+            setUniqueOffering={setUniqueOffering}
+            adPlatform={adPlatform}
+            setAdPlatform={setAdPlatform}
+            handleSave={handleSave}
+          />
+          <PersonasSection
+            personas={personas}
+            summary={summary}
+            isGeneratingPersonas={isGeneratingPersonas}
+            isGeneratingPortraits={isGeneratingPortraits}
+            generatePersonas={generatePersonas}
+            updatePersona={updatePersona}
+            loadingPortraitIndices={loadingPortraitIndices}
+            retryPortraitGeneration={retryPortraitGeneration}
+            removePersona={removePersona}
+          />
+          <MessagesSection 
+            personas={personas} 
+            onUpdateMessages={handleMessagesUpdate}
+          />
+          <ImagesSection 
+            personas={personas}
+            generatedMessages={generatedMessages}
+            selectedMessageTypes={selectedMessageTypes}
+          />
+          <GeoMapSection selectedCountry={selectedCountry} />
+        </tbody>
+      </table>
+    </div>
+  );
 };
+
 export default IntakeFormContainer;

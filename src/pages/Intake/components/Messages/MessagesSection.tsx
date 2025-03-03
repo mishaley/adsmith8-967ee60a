@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Persona } from "../Personas/types";
 import MessagesList from "./MessagesList";
@@ -13,9 +12,13 @@ import { useMessagesGeneration } from "./hooks/useMessagesGeneration";
 
 interface MessagesSectionProps {
   personas: Persona[];
+  onUpdateMessages?: (generatedMessages: Record<string, Record<string, any>>, selectedTypes: string[]) => void;
 }
 
-const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
+const MessagesSection: React.FC<MessagesSectionProps> = ({ 
+  personas,
+  onUpdateMessages
+}) => {
   const {
     selectedMessageTypes,
     isGeneratingMessages: isGeneratingState,
@@ -29,6 +32,12 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
     setGeneratedMessages,
     setIsTableVisible
   } = useMessagesState(personas);
+
+  React.useEffect(() => {
+    if (onUpdateMessages) {
+      onUpdateMessages(generatedMessages, selectedMessageTypes);
+    }
+  }, [generatedMessages, selectedMessageTypes, onUpdateMessages]);
 
   const {
     data: messages = [],
@@ -51,7 +60,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
 
   const isUserProvidedSelected = selectedMessageTypes.includes("user-provided");
 
-  // Create a wrapper function to adapt the return type to what MessagesTable expects
   const handleColumnGeneration = async (messageType: string): Promise<void> => {
     console.log(`Starting generation for ${messageType}`);
     try {
@@ -59,7 +67,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({ personas }) => {
       console.log(`Generation completed for ${messageType}`);
     } catch (error) {
       console.error(`Error during generation for ${messageType}:`, error);
-      throw error; // Re-throw to maintain error propagation
+      throw error;
     }
   };
 
