@@ -26,6 +26,8 @@ const IntakeForm = () => {
     setAdPlatform,
     selectedCountry,
     setSelectedCountry,
+    selectedLanguage,
+    setSelectedLanguage,
     handleSave
   } = useIntakeForm();
 
@@ -68,6 +70,8 @@ const IntakeForm = () => {
               setAdPlatform={setAdPlatform}
               selectedCountry={selectedCountry}
               setSelectedCountry={setSelectedCountry}
+              selectedLanguage={selectedLanguage}
+              setSelectedLanguage={setSelectedLanguage}
               handleSave={handleSave}
               personas={personas}
               summary={summary}

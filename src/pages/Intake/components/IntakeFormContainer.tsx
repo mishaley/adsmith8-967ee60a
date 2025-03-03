@@ -7,6 +7,7 @@ import PersonasSection from "./Personas/PersonasSection";
 import MessagesSection from "./Messages";
 import { ImagesSection } from "./Images";
 import GeoMapSection from "./GeoMap/GeoMapSection";
+import LanguagesSection from "./Languages/LanguagesSection";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
 
@@ -30,6 +31,8 @@ interface IntakeFormContainerProps {
   setAdPlatform: (value: string) => void;
   selectedCountry: string;
   setSelectedCountry: (value: string) => void;
+  selectedLanguage: string;
+  setSelectedLanguage: (value: string) => void;
   handleSave: () => void;
 
   // Personas
@@ -68,6 +71,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   setAdPlatform,
   selectedCountry,
   setSelectedCountry,
+  selectedLanguage,
+  setSelectedLanguage,
   handleSave,
   // Personas
   personas,
@@ -130,6 +135,11 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             removePersona={removePersona}
             personaCount={personaCount}
             setPersonaCount={setPersonaCount}
+          />
+          
+          <LanguagesSection
+            selectedLanguage={selectedLanguage}
+            setSelectedLanguage={setSelectedLanguage}
           />
           
           <MessagesSection 

@@ -11,6 +11,7 @@ export const useIntakeForm = () => {
   const [uniqueOffering, setUniqueOffering] = useState("");
   const [adPlatform, setAdPlatform] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("English");
 
   const handleSave = () => {
     console.log("Saving form data:", {
@@ -22,7 +23,8 @@ export const useIntakeForm = () => {
       problemSolved,
       uniqueOffering,
       adPlatform,
-      selectedCountry
+      selectedCountry,
+      selectedLanguage
     });
     // Here you would typically save the data to a database
   };
@@ -46,6 +48,8 @@ export const useIntakeForm = () => {
     setAdPlatform,
     selectedCountry,
     setSelectedCountry,
+    selectedLanguage,
+    setSelectedLanguage,
     handleSave
   };
 };
