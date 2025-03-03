@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getRandomApprovedStyle } from "../utils/imageGenerationUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface RandomStyleButtonProps {
   onStyleSelected?: (style: string) => void;
@@ -9,11 +10,10 @@ interface RandomStyleButtonProps {
 
 const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({ onStyleSelected }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleGetRandomStyle = async () => {
     setIsLoading(true);
-    setError(null);
     
     try {
       const randomStyle = await getRandomApprovedStyle();
@@ -21,7 +21,13 @@ const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({ onStyleSelected }
         onStyleSelected(randomStyle);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to get random style");
+      const errorMessage = err instanceof Error ? err.message : "Failed to get random style";
+      toast({
+        title: "Style Error",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 3000, // Will disappear after 3 seconds
+      });
     } finally {
       setIsLoading(false);
     }
@@ -37,10 +43,6 @@ const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({ onStyleSelected }
       >
         {isLoading ? "Loading..." : "Get Random Style"}
       </Button>
-      
-      {error && (
-        <span className="text-sm text-red-500">{error}</span>
-      )}
     </div>
   );
 };
