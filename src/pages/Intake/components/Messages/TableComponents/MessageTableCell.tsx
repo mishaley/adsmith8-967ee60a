@@ -20,7 +20,7 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   const message = generatedMessages[personaId]?.[messageType];
   const hasContent = message && (message.content || message.message_name);
 
-  // Generate a random phrase for empty cells
+  // Generate a random phrase for empty cells with capitalized words
   const randomPhrase = useMemo(() => {
     const adjectives = ["amazing", "perfect", "brilliant", "creative", "impressive", "incredible", "powerful"];
     const nouns = ["solution", "approach", "design", "strategy", "concept", "offering", "product", "service"];
@@ -33,9 +33,12 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
     // 50% chance to include all three words or just adjective and noun
     const useAllThree = Math.random() > 0.5;
     
+    // Function to capitalize first letter of each word
+    const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+    
     return useAllThree 
-      ? `${randomAdjective} ${randomNoun} ${randomVerb}` 
-      : `${randomAdjective} ${randomNoun}`;
+      ? `${capitalize(randomAdjective)} ${capitalize(randomNoun)} ${capitalize(randomVerb)}` 
+      : `${capitalize(randomAdjective)} ${capitalize(randomNoun)}`;
   }, [personaId, messageType]);
 
   if (isLoading) {
@@ -50,11 +53,11 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
 
   return (
     <td className="border p-2 align-top">
-      <div className="min-h-[60px]">
+      <div className="min-h-[60px] flex items-center justify-center">
         {hasContent ? (
           <p className="text-sm">{message.content || message.message_name}</p>
         ) : (
-          <div className="flex items-center justify-center h-full text-sm text-gray-600">
+          <div className="text-sm text-gray-600 text-center w-full">
             <span>{randomPhrase}</span>
           </div>
         )}

@@ -25,11 +25,6 @@ const MessageTableRow: React.FC<MessageTableRowProps> = ({
   // Use index as fallback for personas without IDs
   const personaId = persona.id ? String(persona.id) : `persona-${index}`;
   
-  console.log(`MessageTableRow rendering for personaId=${personaId}`, {
-    personaName: persona.title || `Persona ${index + 1}`,
-    selectedTypes: selectedMessageTypes.length
-  });
-  
   return (
     <tr className="border-b">
       <td className="border p-2">
