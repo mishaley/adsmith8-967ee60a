@@ -3,11 +3,13 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dice1 } from "lucide-react";
 import { getRandomApprovedStyle } from "../utils/imageGenerationUtils";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const StyleTester: React.FC = () => {
   const [randomStyle, setRandomStyle] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [diagInfo, setDiagInfo] = useState<string | null>(null);
   
   // Load a random style on component mount
   useEffect(() => {
@@ -17,8 +19,18 @@ const StyleTester: React.FC = () => {
   const handleGetRandomStyle = async () => {
     setIsLoading(true);
     setError(null);
+    setDiagInfo(null);
     
     try {
+      // Check if table exists and has data
+      const { data: tableInfo, error: tableError } = await fetch('/styles-check')
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null);
+      
+      if (tableInfo) {
+        setDiagInfo(`Database has ${tableInfo.count || 0} styles. Approved: ${tableInfo.approvedCount || 0}`);
+      }
+      
       const style = await getRandomApprovedStyle();
       setRandomStyle(style);
     } catch (error) {
@@ -30,7 +42,7 @@ const StyleTester: React.FC = () => {
   };
 
   return (
-    <div className="p-4 border rounded-md bg-white shadow-sm">
+    <div className="p-4 border rounded-md bg-white shadow-sm mb-6">
       <div className="flex flex-col items-center gap-4">
         <h3 className="text-lg font-semibold">Style Tester</h3>
         <p className="text-sm text-gray-500 text-center">
@@ -49,9 +61,11 @@ const StyleTester: React.FC = () => {
         {isLoading && <p className="text-gray-500">Loading random style...</p>}
         
         {error && (
-          <div className="text-red-500 p-2 bg-red-50 rounded-md w-full text-center">
-            {error}
-          </div>
+          <Alert variant="destructive" className="w-full">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription className="text-sm">{error}</AlertDescription>
+            {diagInfo && <p className="mt-2 text-xs">{diagInfo}</p>}
+          </Alert>
         )}
         
         {randomStyle && !isLoading && !error && (

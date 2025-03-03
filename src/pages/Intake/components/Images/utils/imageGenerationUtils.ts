@@ -19,10 +19,23 @@ export const getRandomApprovedStyle = async () => {
   try {
     console.log("Fetching approved styles from y1styles table...");
     
-    // Fetch all styles with status "Approved"
+    // Get the count of approved styles first
+    const { count, error: countError } = await supabase
+      .from('y1styles')
+      .select('*', { count: 'exact', head: true })
+      .eq('style_status', 'Approved');
+      
+    if (countError) {
+      console.error('Error checking style count:', countError);
+      throw new Error(`Database count error: ${countError.message}`);
+    }
+    
+    console.log(`Found ${count} total styles in the database`);
+    
+    // Now fetch all approved styles
     const { data, error } = await supabase
       .from('y1styles')
-      .select('style_name')
+      .select('style_name, style_status')
       .eq('style_status', 'Approved');
       
     if (error) {
@@ -30,8 +43,23 @@ export const getRandomApprovedStyle = async () => {
       throw new Error(`Database error: ${error.message}`);
     }
     
+    console.log(`Fetched data:`, data);
+    
     if (!data || data.length === 0) {
-      console.error('No approved styles found in database');
+      console.error('No approved styles found. Checking for any styles in the database...');
+      
+      // Check if there are any styles at all (regardless of status)
+      const { data: allStyles, error: allStylesError } = await supabase
+        .from('y1styles')
+        .select('style_name, style_status');
+        
+      if (allStylesError) {
+        console.error('Error fetching all styles:', allStylesError);
+      } else {
+        console.log(`Found ${allStyles?.length || 0} total styles with various statuses:`, 
+          allStyles?.map(s => `${s.style_name} (${s.style_status})`));
+      }
+      
       throw new Error('No approved styles found in database');
     }
     
