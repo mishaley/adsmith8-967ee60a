@@ -28,6 +28,14 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
     ? generatedMessages[personaId]?.[firstMessageType]?.content || `Generated ${firstMessageType} Example`
     : "No message available";
   
+  // Calculate total number of persona-message pairs
+  const totalPersonas = personas.length;
+  const totalMessageTypes = selectedMessageTypes.length;
+  const totalPairs = totalPersonas * totalMessageTypes;
+  
+  // Calculate current index - for now we're only showing the first
+  const currentIndex = (totalPairs > 0) ? 1 : 0;
+  
   return (
     <>
       <tr className="border-b">
@@ -45,6 +53,11 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 <tr>
                   <td className="border p-3">
                     <div className="flex items-center">
+                      {/* Index counter box */}
+                      <div className="bg-gray-100 border border-gray-300 rounded-md px-3 py-2 mr-3 flex items-center justify-center min-w-[60px]">
+                        <span className="font-medium">{currentIndex} / {totalPairs}</span>
+                      </div>
+                      
                       {/* Portrait - maintaining aspect ratio and doubling height from h-8 to h-16 */}
                       {firstPersona.portraitUrl ? (
                         <img 
