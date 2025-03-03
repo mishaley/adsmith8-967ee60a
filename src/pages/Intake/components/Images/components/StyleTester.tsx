@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dice1 } from "lucide-react";
@@ -21,12 +22,39 @@ const StyleTester: React.FC = () => {
     setDiagInfo(null);
     
     try {
-      const countResult = await supabase
+      // First, let's debug what tables are available
+      const { data: tables, error: tablesError } = await supabase
+        .from('_tables')
+        .select('table_name');
+        
+      if (tablesError) {
+        console.log("Error fetching tables:", tablesError);
+      } else {
+        console.log("Available tables:", tables);
+      }
+      
+      // Now check the y1styles table
+      const { data: countInfo, count, error: countError } = await supabase
         .from('y1styles')
         .select('*', { count: 'exact', head: true });
       
-      const totalCount = countResult.count ?? 0;
-      setDiagInfo(`Database has ${totalCount} total styles`);
+      if (countError) {
+        console.error("Error counting styles:", countError);
+        setDiagInfo(`Error counting styles: ${countError.message}`);
+      } else {
+        const totalCount = count ?? 0;
+        setDiagInfo(`Database has ${totalCount} total styles`);
+        
+        // Let's also check raw data
+        const { data: sampleData, error: sampleError } = await supabase
+          .from('y1styles')
+          .select('style_id, style_name')
+          .limit(3);
+          
+        if (!sampleError && sampleData) {
+          console.log("Sample data:", sampleData);
+        }
+      }
       
       const style = await getRandomApprovedStyle();
       setRandomStyle(style);
