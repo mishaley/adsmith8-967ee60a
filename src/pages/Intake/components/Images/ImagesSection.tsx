@@ -4,17 +4,20 @@ import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { resolutionOptions } from "@/pages/Images/options";
 
 interface ImagesSectionProps {
   personas: Persona[];
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
+  adPlatform: string;
 }
 
 const ImagesSection: React.FC<ImagesSectionProps> = ({ 
   personas, 
   generatedMessages,
-  selectedMessageTypes 
+  selectedMessageTypes,
+  adPlatform
 }) => {
   // Calculate total number of persona-message pairs
   const totalPersonas = personas.length;
@@ -56,6 +59,48 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
+  
+  // Get the appropriate resolution options based on the ad platform
+  const getResolutionsForPlatform = () => {
+    const platformResolutions = {
+      "Google": [
+        { label: "1:1", value: "RESOLUTION_1024_1024" },
+        { label: "4:5", value: "RESOLUTION_896_1120" },
+        { label: "21:11", value: "RESOLUTION_1344_704" }
+      ],
+      "Meta": [
+        { label: "1:1", value: "RESOLUTION_1024_1024" },
+        { label: "4:5", value: "RESOLUTION_896_1120" },
+        { label: "9:16", value: "RESOLUTION_720_1280" }
+      ]
+    };
+    
+    return adPlatform && platformResolutions[adPlatform] ? platformResolutions[adPlatform] : [];
+  };
+  
+  // Calculate the number of images (placeholder for now)
+  const getImageCountPlaceholder = () => 10;
+  
+  // Determine what to display in the third column
+  const renderResolutionColumn = () => {
+    if (!adPlatform) {
+      return <span className="text-gray-500">Select an Ad Platform to see available resolutions</span>;
+    }
+    
+    const resOptions = getResolutionsForPlatform();
+    
+    return (
+      <div>
+        <span className="font-medium">{adPlatform} - </span>
+        {resOptions.map((res, index) => (
+          <React.Fragment key={res.value}>
+            <span>{res.label} ({getImageCountPlaceholder()}) </span>
+            {index < resOptions.length - 1 && <span className="text-gray-400">• </span>}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
   
   return (
     <>
@@ -102,7 +147,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                         </Button>
                       </div>
                       
-                      {/* Right Column - Content */}
+                      {/* Middle Column - Content */}
                       <div className="flex items-center flex-1">
                         {/* Portrait - maintaining aspect ratio */}
                         {currentPersona.portraitUrl ? (
@@ -123,6 +168,11 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                             {currentPersona.gender}, {currentPersona.ageMin}-{currentPersona.ageMax} • {currentPersona.interests?.join(", ") || "No interests"} • {messageContent}
                           </span>
                         </div>
+                      </div>
+
+                      {/* Right Column - Resolution options based on platform */}
+                      <div className="flex items-center border-l pl-4 ml-4">
+                        {renderResolutionColumn()}
                       </div>
                     </div>
                   </td>

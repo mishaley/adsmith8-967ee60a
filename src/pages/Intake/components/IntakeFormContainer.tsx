@@ -125,7 +125,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
           <ImagesSection 
             personas={personas} 
             generatedMessages={generatedMessages} 
-            selectedMessageTypes={selectedMessageTypes} 
+            selectedMessageTypes={selectedMessageTypes}
+            adPlatform={adPlatform}
           />
           <GeoMapSection 
             selectedCountry={selectedCountry} 
