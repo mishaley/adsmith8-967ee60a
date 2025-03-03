@@ -20,7 +20,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="h-[300px] flex items-center justify-center bg-gray-100 rounded w-full px-4 pb-4">
+      <div className="h-[300px] w-[200px] flex items-center justify-center bg-gray-100 rounded px-4 pb-4">
         <Loader className="h-8 w-8 animate-spin text-[#154851]" />
         <div className="ml-2">Loading map...</div>
       </div>
@@ -29,7 +29,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
 
   if (error) {
     return (
-      <div className="h-[300px] flex flex-col items-center justify-center bg-gray-100 rounded text-red-500 p-4 w-full px-4 pb-4">
+      <div className="h-[300px] w-[200px] flex flex-col items-center justify-center bg-gray-100 rounded text-red-500 p-4 px-4 pb-4">
         <AlertCircle className="h-8 w-8 mb-2" />
         <div className="font-semibold mb-2">Error loading map</div>
         <div className="text-sm text-center max-w-md">{error}</div>
