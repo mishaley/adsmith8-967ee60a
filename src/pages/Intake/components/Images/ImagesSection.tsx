@@ -75,20 +75,20 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                   <td className="border p-3">
                     <div className="flex">
                       {/* Left Column - Navigation and Counter */}
-                      <div className="flex flex-col items-center justify-center pr-4 w-24">
+                      <div className="flex flex-row items-center justify-start pr-4 w-24">
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={goToPrevious}
                           disabled={totalPairs <= 1}
-                          className="h-9 w-9 mb-2"
+                          className="h-7 w-7"
                         >
-                          <ChevronLeft className="h-5 w-5" />
+                          <ChevronLeft className="h-4 w-4" />
                         </Button>
                         
                         {/* Index counter box */}
-                        <div className="bg-gray-100 border border-gray-300 rounded-md px-3 py-2 mb-2 flex items-center justify-center min-w-[60px]">
-                          <span className="font-medium">{displayIndex} / {totalPairs}</span>
+                        <div className="bg-gray-100 border border-gray-300 rounded-md px-2 py-1 mx-1 flex items-center justify-center">
+                          <span className="text-xs font-medium whitespace-nowrap">{displayIndex}/{totalPairs}</span>
                         </div>
                         
                         <Button 
@@ -96,9 +96,9 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                           size="icon" 
                           onClick={goToNext}
                           disabled={totalPairs <= 1}
-                          className="h-9 w-9"
+                          className="h-7 w-7"
                         >
-                          <ChevronRight className="h-5 w-5" />
+                          <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>
                       
