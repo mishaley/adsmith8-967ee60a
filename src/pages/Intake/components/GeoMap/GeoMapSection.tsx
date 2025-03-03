@@ -40,14 +40,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   });
   return <>
       <tr className="border-b">
-        <td colSpan={2} className="py-4 text-lg">
-          <div className="w-full text-left pl-4 flex items-center">
-            <span>Locations</span>
-            {selectedCountry && <div className="ml-4 px-3 py-1 rounded bg-[#154851] text-white text-sm">
-                {selectedCountry}
-              </div>}
-          </div>
-        </td>
+        
       </tr>
       <tr>
         <td colSpan={2} className="p-0">
