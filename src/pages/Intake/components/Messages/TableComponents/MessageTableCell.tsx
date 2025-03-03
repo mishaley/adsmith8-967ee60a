@@ -16,20 +16,19 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   isLoading,
   generatedMessages
 }) => {
-  // Debug logging
-  const hasPersona = !!personaId && !!generatedMessages[personaId];
-  const hasMessage = hasPersona && !!generatedMessages[personaId][messageType];
+  // Get message content if it exists
+  const messageContent = personaId && 
+    generatedMessages[personaId] && 
+    generatedMessages[personaId][messageType] ? 
+    generatedMessages[personaId][messageType].message_name : null;
   
   if (process.env.NODE_ENV === 'development') {
-    console.log(`MessageTableCell: personaId=${personaId}, messageType=${messageType}`);
-    console.log(`Has persona data: ${hasPersona}, Has message: ${hasMessage}`);
-    if (hasPersona && generatedMessages[personaId]) {
-      console.log(`Available message types for persona:`, Object.keys(generatedMessages[personaId]));
+    console.log(`MessageTableCell rendering for personaId=${personaId}, messageType=${messageType}`);
+    console.log(`Has message: ${!!messageContent}`);
+    if (personaId && generatedMessages[personaId]) {
+      console.log(`Available message types:`, Object.keys(generatedMessages[personaId]));
     }
   }
-
-  // Check if we have a message for this persona and message type
-  const messageContent = hasMessage ? generatedMessages[personaId][messageType].message_name : null;
 
   if (isLoading) {
     return (

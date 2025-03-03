@@ -33,7 +33,6 @@ const MessageTableHeader: React.FC<MessageTableHeaderProps> = ({
       console.error(`Error generating ${messageType} messages:`, error);
       toast.error(`Failed to generate messages for ${getMessageTypeLabel(messageType)}`);
     } finally {
-      // Ensure we reset the loading state even if there's an error
       setIsGenerating(false);
     }
   };

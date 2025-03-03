@@ -18,7 +18,12 @@ export const generateMessagesForAllPersonas = async (
   try {
     // For each persona, generate a message for each message type
     for (const persona of personas) {
-      if (!persona.id) continue;
+      if (!persona.id) {
+        console.warn("Persona without ID encountered, skipping");
+        continue;
+      }
+      
+      console.log(`Generating messages for persona: ${persona.id}`);
       
       // Initialize the record for this persona if it doesn't exist
       if (!messages[persona.id]) {
@@ -53,6 +58,7 @@ export const generateMessagesForAllPersonas = async (
     }
     
     console.log("Generated messages:", messages);
+    toast.success("Generated messages for all personas");
     return messages;
   } catch (error) {
     console.error("Error generating messages:", error);
@@ -73,9 +79,16 @@ export const generateColumnMessages = async (
   const updatedMessages = JSON.parse(JSON.stringify(existingMessages)) as GeneratedMessagesRecord;
   
   try {
+    let generationCount = 0;
+    
     // For each persona, generate a message for this message type
     for (const persona of personas) {
-      if (!persona.id) continue;
+      if (!persona.id) {
+        console.warn("Persona without ID encountered, skipping");
+        continue;
+      }
+      
+      console.log(`Generating ${messageType} message for persona: ${persona.id}`);
       
       // Initialize the record for this persona if it doesn't exist
       if (!updatedMessages[persona.id]) {
@@ -92,9 +105,13 @@ export const generateColumnMessages = async (
         message_status: "Generated",
         persona_id: persona.id
       };
+      
+      generationCount++;
     }
     
+    console.log(`Generated ${generationCount} messages for ${messageType}`);
     console.log("Updated messages:", updatedMessages);
+    toast.success(`Generated messages for ${messageType}`);
     return updatedMessages;
   } catch (error) {
     console.error("Error generating column messages:", error);

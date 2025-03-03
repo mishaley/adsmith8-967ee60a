@@ -17,23 +17,25 @@ export const useMessagesGeneration = (
   const [isLoaded, setIsLoaded] = useState(true);
 
   const generateMessages = async () => {
-    if (!selectedMessageTypes.length) return;
+    if (!selectedMessageTypes.length) {
+      toast.error("Please select at least one message type");
+      return;
+    }
     
     setIsGeneratingMessages(true);
     try {
       console.log("Generating messages for all personas");
-      const generatedMessages = await generateMessagesForAllPersonas(
+      const messages = await generateMessagesForAllPersonas(
         personas,
         selectedMessageTypes,
         userProvidedMessage
       );
       
-      console.log("Generated messages:", generatedMessages);
-      // Make sure we're setting the state with the new messages
-      setGeneratedMessages(generatedMessages);
-      setIsTableVisible(true);
+      console.log("Generated messages:", messages);
       
-      toast.success("Generated messages for all personas");
+      // Update the state with the new messages
+      setGeneratedMessages(messages);
+      setIsTableVisible(true);
       
     } catch (error) {
       console.error("Error generating messages:", error);
@@ -43,7 +45,7 @@ export const useMessagesGeneration = (
     }
   };
 
-  const handleGenerateColumnMessages = useCallback(async (messageType: string): Promise<GeneratedMessagesRecord> => {
+  const handleGenerateColumnMessages = useCallback(async (messageType: string): Promise<void> => {
     console.log(`useMessagesGeneration: Generating column messages for type: ${messageType}`);
     setIsGeneratingMessages(true);
     
@@ -56,13 +58,10 @@ export const useMessagesGeneration = (
       
       console.log("Messages generated successfully:", updatedMessages);
       
-      // Update the state with the new messages
+      // Make sure we're updating the state with the new messages
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
       
-      toast.success(`Generated messages for ${messageType}`);
-      
-      return updatedMessages;
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
       toast.error(`Failed to generate ${messageType} messages. Please try again.`);

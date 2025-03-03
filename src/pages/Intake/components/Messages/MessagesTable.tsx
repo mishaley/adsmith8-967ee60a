@@ -32,7 +32,7 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   
   // Debug log for generated messages
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && Object.keys(generatedMessages).length > 0) {
+    if (Object.keys(generatedMessages).length > 0) {
       console.log("MessagesTable - generatedMessages:", generatedMessages);
     }
   }, [generatedMessages]);
