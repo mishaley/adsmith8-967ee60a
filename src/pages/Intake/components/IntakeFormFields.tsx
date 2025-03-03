@@ -2,14 +2,6 @@
 import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectSeparator,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
 interface IntakeFormFieldsProps {
@@ -31,8 +23,6 @@ interface IntakeFormFieldsProps {
   setAdPlatform: (value: string) => void;
   handleSave: () => void;
 }
-
-const PLATFORM_OPTIONS = ["Google", "Meta"];
 
 const IntakeFormFields: React.FC<IntakeFormFieldsProps> = ({
   brandName,
@@ -112,43 +102,6 @@ const IntakeFormFields: React.FC<IntakeFormFieldsProps> = ({
         onChange={setUniqueOffering} 
         placeholder="Speak for at least 30 seconds" 
       />
-      <tr className="border-b">
-        <td className="py-4 pr-4 text-lg">
-          <div>Ad Platform</div>
-        </td>
-        <td className="py-4">
-          <div className="inline-block min-w-[180px]">
-            <Select 
-              value={adPlatform} 
-              onValueChange={(value) => {
-                if (value === "clear-selection") {
-                  setAdPlatform("");
-                } else {
-                  setAdPlatform(value);
-                }
-              }}
-            >
-              <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="" />
-              </SelectTrigger>
-              <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                {PLATFORM_OPTIONS.map((platform) => (
-                  <SelectItem 
-                    key={platform}
-                    value={platform}
-                  >
-                    {platform}
-                  </SelectItem>
-                ))}
-                <SelectSeparator className="my-1" />
-                <SelectItem value="clear-selection" className="text-gray-500">
-                  Clear
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </td>
-      </tr>
     </>
   );
 };
