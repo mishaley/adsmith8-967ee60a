@@ -16,19 +16,18 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   isLoading,
   generatedMessages
 }) => {
-  // Get message content if it exists
-  const messageContent = personaId && 
-    generatedMessages[personaId] && 
-    generatedMessages[personaId][messageType] ? 
-    generatedMessages[personaId][messageType].message_name : null;
+  // Add more comprehensive debug logging
+  const hasPersonaMessages = personaId && generatedMessages[personaId];
+  const messageContent = hasPersonaMessages && generatedMessages[personaId][messageType] 
+    ? generatedMessages[personaId][messageType].message_name 
+    : null;
   
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`MessageTableCell rendering for personaId=${personaId}, messageType=${messageType}`);
-    console.log(`Has message: ${!!messageContent}`);
-    if (personaId && generatedMessages[personaId]) {
-      console.log(`Available message types:`, Object.keys(generatedMessages[personaId]));
-    }
-  }
+  console.log(`MessageTableCell for personaId=${personaId}, type=${messageType}:`, { 
+    hasPersonaMessages,
+    messageContent,
+    personaMessages: hasPersonaMessages ? generatedMessages[personaId] : 'none',
+    availablePersonas: Object.keys(generatedMessages)
+  });
 
   if (isLoading) {
     return (
@@ -42,7 +41,7 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
 
   return (
     <td className="border p-2 align-top">
-      <div>
+      <div className="min-h-[60px]">
         {messageContent ? (
           <p className="text-sm">{messageContent}</p>
         ) : (

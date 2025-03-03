@@ -28,6 +28,7 @@ const MessageTableHeader: React.FC<MessageTableHeaderProps> = ({
       await onGenerateColumnMessages(messageType);
       console.log(`Generation completed for ${messageType}`);
       
+      // Use the correct toast API
       toast.success(`Generated messages for ${getMessageTypeLabel(messageType)}`);
     } catch (error) {
       console.error(`Error generating ${messageType} messages:`, error);

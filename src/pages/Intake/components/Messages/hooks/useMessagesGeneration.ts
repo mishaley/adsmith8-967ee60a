@@ -22,6 +22,14 @@ export const useMessagesGeneration = (
       return;
     }
     
+    // Log personas data to debug
+    console.log("Personas before generating:", personas.map(p => ({
+      id: p.id,
+      name: p.name,
+      gender: p.gender,
+      age: `${p.ageMin}-${p.ageMax}`
+    })));
+    
     setIsGeneratingMessages(true);
     try {
       console.log("Generating messages for all personas");
@@ -50,6 +58,13 @@ export const useMessagesGeneration = (
     setIsGeneratingMessages(true);
     
     try {
+      // Log personas for debugging
+      console.log("Personas for column generation:", personas.map(p => ({
+        id: p.id, 
+        name: p.name,
+        hasId: !!p.id
+      })));
+      
       const updatedMessages = await generateColumnMessages(
         messageType,
         personas,

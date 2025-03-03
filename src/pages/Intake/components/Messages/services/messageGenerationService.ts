@@ -19,11 +19,11 @@ export const generateMessagesForAllPersonas = async (
     // For each persona, generate a message for each message type
     for (const persona of personas) {
       if (!persona.id) {
-        console.warn("Persona without ID encountered, skipping");
+        console.warn("Persona without ID encountered, skipping", persona);
         continue;
       }
       
-      console.log(`Generating messages for persona: ${persona.id}`);
+      console.log(`Generating messages for persona: ${persona.id} (${persona.name || 'Unnamed'})`);
       
       // Initialize the record for this persona if it doesn't exist
       if (!messages[persona.id]) {
@@ -76,7 +76,7 @@ export const generateColumnMessages = async (
   console.log(`Generating column messages for type: ${messageType}, personas count: ${personas.length}`);
   
   // Create a deep copy of the existing messages
-  const updatedMessages = JSON.parse(JSON.stringify(existingMessages)) as GeneratedMessagesRecord;
+  const updatedMessages = JSON.parse(JSON.stringify(existingMessages || {})) as GeneratedMessagesRecord;
   
   try {
     let generationCount = 0;
@@ -84,11 +84,12 @@ export const generateColumnMessages = async (
     // For each persona, generate a message for this message type
     for (const persona of personas) {
       if (!persona.id) {
-        console.warn("Persona without ID encountered, skipping");
+        console.warn("Persona without ID encountered, skipping", persona);
         continue;
       }
       
-      console.log(`Generating ${messageType} message for persona: ${persona.id}`);
+      // Ensure this persona has a valid ID and log it
+      console.log(`Generating ${messageType} message for persona with ID: ${persona.id}`);
       
       // Initialize the record for this persona if it doesn't exist
       if (!updatedMessages[persona.id]) {
@@ -116,13 +117,13 @@ export const generateColumnMessages = async (
   } catch (error) {
     console.error("Error generating column messages:", error);
     toast.error(`Failed to generate ${messageType} messages. Please try again.`);
-    return existingMessages;
+    return existingMessages || {};
   }
 };
 
 // Helper function to generate a mock message based on persona and message type
 const generateMockMessage = (persona: Persona, messageType: string): string => {
-  const prefix = persona.name || `${persona.gender}, ${persona.ageMin}-${persona.ageMax}`;
+  const prefix = persona.name || `${persona.gender || 'Unknown'}, ${persona.ageMin || '?'}-${persona.ageMax || '?'}`;
   
   switch (messageType) {
     case "pain-point":

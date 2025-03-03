@@ -32,10 +32,14 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
   
   // Debug log for generated messages
   useEffect(() => {
-    if (Object.keys(generatedMessages).length > 0) {
-      console.log("MessagesTable - generatedMessages:", generatedMessages);
+    if (isTableVisible) {
+      console.log("MessagesTable - component rendered with:", {
+        personas: personas.map(p => ({ id: p.id, name: p.name })), 
+        selectedTypes: selectedMessageTypes,
+        messagesData: generatedMessages
+      });
     }
-  }, [generatedMessages]);
+  }, [isTableVisible, personas, selectedMessageTypes, generatedMessages]);
   
   // Reset cell loading states when generatedMessages changes
   useEffect(() => {
@@ -45,6 +49,8 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
         selectedMessageTypes.forEach(type => {
           newLoadingStates[`${persona.id}-${type}`] = false;
         });
+      } else {
+        console.warn("Found persona without ID in MessagesTable", persona);
       }
     });
     setCellLoadingStates(newLoadingStates);
@@ -109,17 +115,24 @@ const MessagesTable: React.FC<MessagesTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {personas.map((persona, index) => (
-            <MessageTableRow
-              key={persona.id || index}
-              persona={persona}
-              index={index}
-              selectedMessageTypes={selectedMessageTypes}
-              generatedMessages={generatedMessages}
-              isGeneratingMessages={isGeneratingMessages}
-              cellLoadingStates={cellLoadingStates}
-            />
-          ))}
+          {personas.map((persona, index) => {
+            if (!persona.id) {
+              console.warn(`Persona at index ${index} has no ID, skipping row`);
+              return null;
+            }
+            
+            return (
+              <MessageTableRow
+                key={persona.id || `persona-${index}`}
+                persona={persona}
+                index={index}
+                selectedMessageTypes={selectedMessageTypes}
+                generatedMessages={generatedMessages}
+                isGeneratingMessages={isGeneratingMessages}
+                cellLoadingStates={cellLoadingStates}
+              />
+            );
+          })}
         </tbody>
       </table>
     </div>
