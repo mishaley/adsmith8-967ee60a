@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Image, Loader, MessageSquare } from "lucide-react";
@@ -49,7 +50,7 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
       const phrase = generateRandomPhrase();
       const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       
-      const prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nInterests: ${currentPersona.interests.join(", ")}` : ""}`;
+      const prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nThemes: ${currentPersona.interests.join(", ")}` : ""}`;
       
       setGeneratedPrompt(prompt);
       
@@ -83,7 +84,7 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
         const phrase = generateRandomPhrase();
         const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
         
-        prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nInterests: ${currentPersona.interests.join(", ")}` : ""}`;
+        prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nThemes: ${currentPersona.interests.join(", ")}` : ""}`;
       }
 
       console.log("Image generation prompt:", prompt);
@@ -171,7 +172,7 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
             <Textarea 
               value={generatedPrompt}
               readOnly
-              className="min-h-20 mb-2 font-mono text-sm"
+              className="min-h-32 mb-2 font-mono text-sm"
             />
             <div className="flex gap-2">
               <Button 
