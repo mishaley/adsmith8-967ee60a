@@ -70,6 +70,14 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           </div>
         </td>
       </tr>
+
+      {/* Always show the Style Tester section regardless of personas */}
+      <tr>
+        <td colSpan={2} className="p-4">
+          <StyleTester />
+        </td>
+      </tr>
+
       {currentPersona ? (
         <tr>
           <td colSpan={2} className="p-4">
@@ -103,12 +111,6 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                       currentPersona={currentPersona} 
                       adPlatform={adPlatform} 
                     />
-                  </td>
-                </tr>
-                {/* New row for the style tester */}
-                <tr>
-                  <td className="border-t-0 border-x border-b p-3">
-                    <StyleTester />
                   </td>
                 </tr>
               </tbody>

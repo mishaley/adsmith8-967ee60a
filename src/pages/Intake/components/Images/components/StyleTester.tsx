@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Dice1 } from "lucide-react";
 import { getRandomApprovedStyle } from "../utils/imageGenerationUtils";
@@ -8,6 +8,11 @@ const StyleTester: React.FC = () => {
   const [randomStyle, setRandomStyle] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Load a random style on component mount
+  useEffect(() => {
+    handleGetRandomStyle();
+  }, []);
 
   const handleGetRandomStyle = async () => {
     setIsLoading(true);
@@ -25,9 +30,13 @@ const StyleTester: React.FC = () => {
   };
 
   return (
-    <div className="mt-4 p-4 border rounded-md">
+    <div className="p-4 border rounded-md bg-white shadow-sm">
       <div className="flex flex-col items-center gap-4">
-        <h3 className="text-lg font-medium">Style Tester</h3>
+        <h3 className="text-lg font-semibold">Style Tester</h3>
+        <p className="text-sm text-gray-500 text-center">
+          Click the button below to fetch a random style from the database
+        </p>
+        
         <Button 
           onClick={handleGetRandomStyle}
           disabled={isLoading}
