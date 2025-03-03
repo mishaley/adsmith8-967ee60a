@@ -43,16 +43,16 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 <tr>
                   <td className="border p-3">
                     <div className="flex items-center">
-                      {/* Portrait */}
+                      {/* Portrait - Reduced size from w-24 h-24 to w-16 h-16 */}
                       {firstPersona.portraitUrl ? (
                         <img 
                           src={firstPersona.portraitUrl} 
                           alt="Persona portrait"
-                          className="w-24 h-24 rounded-md object-cover mr-4"
+                          className="w-16 h-16 rounded-md object-cover mr-4"
                         />
                       ) : (
-                        <div className="w-24 h-24 bg-gray-200 rounded-md flex items-center justify-center mr-4">
-                          <span className="text-gray-500">No image</span>
+                        <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4">
+                          <span className="text-gray-500 text-xs">No image</span>
                         </div>
                       )}
                       
