@@ -5,6 +5,8 @@ import IntakeTop from "./components/IntakeTop";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
 import OrganizationSection from "./components/OrganizationSection";
+import OfferingSection from "./components/OfferingSection";
+
 const IntakeForm = () => {
   const {
     brandName,
@@ -42,6 +44,7 @@ const IntakeForm = () => {
     personaCount,
     setPersonaCount
   } = usePersonasManager(offering, selectedCountry);
+
   return <QuadrantLayout>
       {{
       q4: <div className="p-[18px]">
@@ -51,11 +54,63 @@ const IntakeForm = () => {
                 Let's get a demo campaign set up. It'll only take a few minutes.
               </p>
             </div>
-            <OrganizationSection brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} businessDescription={businessDescription} setBusinessDescription={setBusinessDescription} handleSave={handleSave} />
+            <OrganizationSection 
+              brandName={brandName} 
+              setBrandName={setBrandName} 
+              industry={industry} 
+              setIndustry={setIndustry} 
+              businessDescription={businessDescription} 
+              setBusinessDescription={setBusinessDescription} 
+              handleSave={handleSave} 
+            />
+            <OfferingSection
+              offering={offering}
+              setOffering={setOffering}
+              sellingPoints={sellingPoints}
+              setSellingPoints={setSellingPoints}
+              problemSolved={problemSolved}
+              setProblemSolved={setProblemSolved}
+              uniqueOffering={uniqueOffering}
+              setUniqueOffering={setUniqueOffering}
+            />
             <IntakeTop />
-            <IntakeFormContainer brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} businessDescription={businessDescription} setBusinessDescription={setBusinessDescription} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} handleSave={handleSave} personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} personaCount={personaCount} setPersonaCount={setPersonaCount} />
+            <IntakeFormContainer 
+              brandName={brandName} 
+              setBrandName={setBrandName} 
+              industry={industry} 
+              setIndustry={setIndustry} 
+              businessDescription={businessDescription} 
+              setBusinessDescription={setBusinessDescription} 
+              offering={offering} 
+              setOffering={setOffering} 
+              sellingPoints={sellingPoints} 
+              setSellingPoints={setSellingPoints} 
+              problemSolved={problemSolved} 
+              setProblemSolved={setProblemSolved} 
+              uniqueOffering={uniqueOffering} 
+              setUniqueOffering={setUniqueOffering} 
+              adPlatform={adPlatform} 
+              setAdPlatform={setAdPlatform} 
+              selectedCountry={selectedCountry} 
+              setSelectedCountry={setSelectedCountry} 
+              selectedLanguage={selectedLanguage} 
+              setSelectedLanguage={setSelectedLanguage} 
+              handleSave={handleSave} 
+              personas={personas} 
+              summary={summary} 
+              isGeneratingPersonas={isGeneratingPersonas} 
+              isGeneratingPortraits={isGeneratingPortraits} 
+              generatePersonas={generatePersonas} 
+              updatePersona={updatePersona} 
+              loadingPortraitIndices={loadingPortraitIndices} 
+              retryPortraitGeneration={retryPortraitGeneration} 
+              removePersona={removePersona} 
+              personaCount={personaCount} 
+              setPersonaCount={setPersonaCount} 
+            />
           </div>
     }}
     </QuadrantLayout>;
 };
+
 export default IntakeForm;
