@@ -33,7 +33,7 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
   return (
     <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
       <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">PERSONAS</h2>
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse border-transparent">
         <tbody>
           <PersonasSection
             personas={personas}

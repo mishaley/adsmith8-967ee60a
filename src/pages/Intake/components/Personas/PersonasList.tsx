@@ -13,11 +13,11 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }
 
   // Always render 5 columns, populated with personas data when available
   return (
-    <tr>
+    <tr className="border-transparent">
       {Array.from({ length: 5 }).map((_, index) => (
         <td 
           key={index} 
-          className="py-3 px-3 align-top relative" 
+          className="py-3 px-3 align-top relative border-transparent" 
           style={{ width: "20%" }}
           onMouseEnter={() => setHoveredIndex(index)}
           onMouseLeave={() => setHoveredIndex(null)}
