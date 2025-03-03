@@ -35,10 +35,6 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     initialized 
   });
 
-  // Commented out for now - can be re-enabled in the future
-  return null;
-  
-  /* Original implementation preserved as comment for future reference
   return (
     <>
       <tr className="border-b">
@@ -72,7 +68,6 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
       </tr>
     </>
   );
-  */
 };
 
 export default GeoMapSection;
