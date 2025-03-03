@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Loader } from "lucide-react";
 import { Message } from "../hooks/useMessagesFetching";
 
@@ -20,6 +20,24 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
   const message = generatedMessages[personaId]?.[messageType];
   const hasContent = message && (message.content || message.message_name);
 
+  // Generate a random phrase for empty cells
+  const randomPhrase = useMemo(() => {
+    const adjectives = ["amazing", "perfect", "brilliant", "creative", "impressive", "incredible", "powerful"];
+    const nouns = ["solution", "approach", "design", "strategy", "concept", "offering", "product", "service"];
+    const verbs = ["delivers", "provides", "creates", "enhances", "transforms", "elevates"];
+    
+    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+    const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+    
+    // 50% chance to include all three words or just adjective and noun
+    const useAllThree = Math.random() > 0.5;
+    
+    return useAllThree 
+      ? `${randomAdjective} ${randomNoun} ${randomVerb}` 
+      : `${randomAdjective} ${randomNoun}`;
+  }, [personaId, messageType]);
+
   if (isLoading) {
     return (
       <td className="border p-2 align-top">
@@ -36,8 +54,8 @@ const MessageTableCell: React.FC<MessageTableCellProps> = ({
         {hasContent ? (
           <p className="text-sm">{message.content || message.message_name}</p>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-            <span>Click "Generate" in header to create content</span>
+          <div className="flex items-center justify-center h-full text-sm text-gray-600">
+            <span>{randomPhrase}</span>
           </div>
         )}
       </div>
