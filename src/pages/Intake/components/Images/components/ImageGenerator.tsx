@@ -1,12 +1,12 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Image, Loader } from "lucide-react";
+import { Image, Loader, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../../Personas/types";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ImageGeneratorProps {
   currentPersona: Persona | null;
@@ -18,9 +18,10 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
+  const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
   const { toast } = useToast();
   
-  // Get the appropriate resolution options based on the ad platform
   const getResolutionsForPlatform = () => {
     const platformResolutions = {
       "Google": [
@@ -38,7 +39,36 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
     return adPlatform && platformResolutions[adPlatform] ? platformResolutions[adPlatform] : [];
   };
   
-  // Handle image generation
+  const handleGeneratePrompt = async () => {
+    if (!currentPersona) return;
+    
+    setIsGeneratingPrompt(true);
+    
+    try {
+      const style = await getRandomApprovedStyle();
+      const phrase = generateRandomPhrase();
+      const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+      
+      const prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nInterests: ${currentPersona.interests.join(", ")}` : ""}`;
+      
+      setGeneratedPrompt(prompt);
+      
+      toast({
+        title: "Prompt Generated",
+        description: "Image prompt has been created.",
+      });
+    } catch (error) {
+      console.error('Error generating prompt:', error);
+      toast({
+        title: "Prompt Generation Failed",
+        description: "Failed to generate image prompt.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPrompt(false);
+    }
+  };
+  
   const handleGenerateImages = async () => {
     if (!currentPersona || !adPlatform) return;
     
@@ -47,28 +77,20 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
     setErrorDetails(null);
     
     try {
-      // Get a random approved style
-      const style = await getRandomApprovedStyle();
-      
-      // Generate a random phrase
-      const phrase = generateRandomPhrase();
-      
-      // Prepare demographics text
-      const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
-      
-      // Create the prompt
-      const prompt = `Style: ${style}
-Subject: ${demographics}
-Message: '${phrase}'
-${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}` : ""}`;
+      let prompt = generatedPrompt;
+      if (!prompt) {
+        const style = await getRandomApprovedStyle();
+        const phrase = generateRandomPhrase();
+        const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+        
+        prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nInterests: ${currentPersona.interests.join(", ")}` : ""}`;
+      }
 
       console.log("Image generation prompt:", prompt);
       
-      // Determine resolution based on adPlatform
       const platformResolutions = getResolutionsForPlatform();
       const resolution = platformResolutions.length > 0 ? platformResolutions[0].value : "RESOLUTION_1024_1024";
 
-      // Call the Edge function to generate the image
       const { data, error } = await supabase.functions.invoke('generate-persona-image', {
         body: { 
           prompt, 
@@ -104,7 +126,6 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
     } catch (error) {
       console.error('Exception in image generation:', error);
       
-      // If we don't have detailed error info yet, set it
       if (!errorDetails) {
         setErrorDetails(`Error: ${error.message || "Unknown error"}`);
       }
@@ -126,24 +147,90 @@ ${currentPersona.interests ? `Interests: ${currentPersona.interests.join(", ")}`
   
   return (
     <div className="flex flex-col items-center min-h-52">
-      <div className="mb-4">
-        <Button 
-          onClick={handleGenerateImages} 
-          disabled={isGeneratingImages || !adPlatform}
-          className="px-6"
-        >
-          {isGeneratingImages ? (
-            <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
-              <span>Generating...</span>
-            </>
-          ) : (
-            <>
-              <Image className="mr-2 h-4 w-4" />
-              Generate Images
-            </>
-          )}
-        </Button>
+      <div className="mb-4 w-full">
+        {!generatedPrompt ? (
+          <Button 
+            onClick={handleGeneratePrompt}
+            disabled={isGeneratingPrompt || !currentPersona}
+            className="px-6 mb-4 w-full"
+          >
+            {isGeneratingPrompt ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                <span>Generating Prompt...</span>
+              </>
+            ) : (
+              <>
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Generate Prompt
+              </>
+            )}
+          </Button>
+        ) : (
+          <div className="mb-4 w-full">
+            <Textarea 
+              value={generatedPrompt}
+              readOnly
+              className="min-h-20 mb-2 font-mono text-sm"
+            />
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleGeneratePrompt} 
+                variant="outline"
+                size="sm"
+                disabled={isGeneratingPrompt}
+                className="w-1/2"
+              >
+                {isGeneratingPrompt ? (
+                  <>
+                    <Loader className="mr-2 h-3 w-3 animate-spin" />
+                    <span>Regenerate</span>
+                  </>
+                ) : (
+                  "Regenerate Prompt"
+                )}
+              </Button>
+              <Button 
+                onClick={handleGenerateImages} 
+                disabled={isGeneratingImages || !adPlatform}
+                className="w-1/2"
+                size="sm"
+              >
+                {isGeneratingImages ? (
+                  <>
+                    <Loader className="mr-2 h-3 w-3 animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Image className="mr-2 h-3 w-3" />
+                    Generate Image
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+        
+        {!generatedPrompt && (
+          <Button 
+            onClick={handleGenerateImages} 
+            disabled={isGeneratingImages || !adPlatform}
+            className="px-6 w-full"
+          >
+            {isGeneratingImages ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                <span>Generating...</span>
+              </>
+            ) : (
+              <>
+                <Image className="mr-2 h-4 w-4" />
+                Generate Image
+              </>
+            )}
+          </Button>
+        )}
       </div>
       
       <div className="w-full h-40 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
