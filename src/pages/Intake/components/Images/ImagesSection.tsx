@@ -81,8 +81,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   // Calculate the number of images (placeholder for now)
   const getImageCountPlaceholder = () => 10;
   
-  // Determine what to display in the third column
-  const renderResolutionColumn = () => {
+  // Determine what to display in the resolution row
+  const renderResolutionRow = () => {
     if (!adPlatform) {
       return <span className="text-gray-500">Select an Ad Platform to see available resolutions</span>;
     }
@@ -147,7 +147,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                         </Button>
                       </div>
                       
-                      {/* Middle Column - Content */}
+                      {/* Right Column - Content */}
                       <div className="flex items-center flex-1">
                         {/* Portrait - maintaining aspect ratio */}
                         {currentPersona.portraitUrl ? (
@@ -169,11 +169,14 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                           </span>
                         </div>
                       </div>
-
-                      {/* Right Column - Resolution options based on platform */}
-                      <div className="flex items-center border-l pl-4 ml-4">
-                        {renderResolutionColumn()}
-                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {/* Second row for resolution options */}
+                <tr>
+                  <td className="border-t-0 border-x border-b p-3 pt-0">
+                    <div className="flex items-center pl-24">
+                      {renderResolutionRow()}
                     </div>
                   </td>
                 </tr>
