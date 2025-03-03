@@ -23,6 +23,13 @@ const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({
       if (onStyleSelected) {
         onStyleSelected(randomStyle);
       }
+      
+      // Show success toast with the selected style name
+      toast({
+        title: "Style Selected",
+        description: `Style "${randomStyle}" has been selected`,
+        duration: 3000 // Will disappear after 3 seconds
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to get random style";
       toast({
