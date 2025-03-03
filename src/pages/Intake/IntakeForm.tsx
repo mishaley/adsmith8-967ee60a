@@ -51,7 +51,15 @@ const IntakeForm = () => {
       {{
         q4: (
           <div className="p-[18px]">
-            <OrganizationSection />
+            <OrganizationSection 
+              brandName={brandName}
+              setBrandName={setBrandName}
+              industry={industry}
+              setIndustry={setIndustry}
+              businessDescription={businessDescription}
+              setBusinessDescription={setBusinessDescription}
+              handleSave={handleSave}
+            />
             <IntakeTop />
             <IntakeFormContainer
               brandName={brandName}
