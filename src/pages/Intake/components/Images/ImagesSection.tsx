@@ -175,7 +175,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 {/* Second row for resolution options */}
                 <tr>
                   <td className="border-t-0 border-x border-b p-3 pt-0">
-                    <div className="flex items-center pl-24">
+                    <div className="flex justify-center items-center">
                       {renderResolutionRow()}
                     </div>
                   </td>
