@@ -21,7 +21,7 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
         type="text"
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px]"
+        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px] border-[#e9f2fe] focus:border-[#e9f2fe] focus-visible:ring-[#e9f2fe]"
       />
     </div>
   );
