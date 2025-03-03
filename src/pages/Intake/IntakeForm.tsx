@@ -35,7 +35,9 @@ const IntakeForm = () => {
     generatePersonas,
     updatePersona,
     retryPortraitGeneration,
-    removePersona
+    removePersona,
+    personaCount,
+    setPersonaCount
   } = usePersonasManager(offering, selectedCountry);
   
   return (
@@ -69,6 +71,8 @@ const IntakeForm = () => {
             loadingPortraitIndices={loadingPortraitIndices}
             retryPortraitGeneration={retryPortraitGeneration}
             removePersona={removePersona}
+            personaCount={personaCount}
+            setPersonaCount={setPersonaCount}
           />
         )
       }}

@@ -73,6 +73,7 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
 }) => {
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
+  const [personaCount, setPersonaCount] = useState<number>(1);
 
   const handleMessagesUpdate = (messages: Record<string, Record<string, Message>>, types: string[]) => {
     setGeneratedMessages(messages);
@@ -111,6 +112,8 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             loadingPortraitIndices={loadingPortraitIndices}
             retryPortraitGeneration={retryPortraitGeneration}
             removePersona={removePersona}
+            personaCount={personaCount}
+            setPersonaCount={setPersonaCount}
           />
           <MessagesSection 
             personas={personas} 

@@ -4,9 +4,11 @@ import { usePortraitGeneration } from "./usePortraitGeneration";
 import { usePersonaRegeneration } from "./usePersonaRegeneration";
 import { usePersonaPortraits } from "./usePersonaPortraits";
 import { Persona } from "../../components/Personas/types";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
+  const [personaCount, setPersonaCount] = useState<number>(1);
+  
   const {
     personas,
     summary,
@@ -47,7 +49,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
   // The most important function - generate personas and IMMEDIATELY trigger portrait generation
   const generatePersonas = useCallback(() => {
     console.log("Starting persona generation with automatic portrait generation to follow");
-    return generatePersonasBase(offering, selectedCountry, (newPersonas) => {
+    return generatePersonasBase(offering, selectedCountry, personaCount, (newPersonas) => {
       if (!newPersonas || newPersonas.length === 0) {
         console.error("No personas were generated, cannot generate portraits");
         return;
@@ -59,7 +61,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
       // instead of relying on the state update to have completed
       generatePortraitsForAll(newPersonas, generatePortraitsForAllPersonas);
     });
-  }, [offering, selectedCountry, generatePersonasBase, generatePortraitsForAll, generatePortraitsForAllPersonas]);
+  }, [offering, selectedCountry, personaCount, generatePersonasBase, generatePortraitsForAll, generatePortraitsForAllPersonas]);
 
   return {
     personas,
@@ -71,6 +73,8 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     updatePersona,
     retryPortraitGeneration,
     regeneratePersona,
-    removePersona
+    removePersona,
+    personaCount,
+    setPersonaCount
   };
 };

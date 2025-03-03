@@ -15,7 +15,8 @@ export const usePersonaGeneration = () => {
    */
   const generatePersonas = async (
     offering: string, 
-    selectedCountry: string, 
+    selectedCountry: string,
+    count: number = 1,
     onPersonasGenerated: (personas: Persona[]) => void
   ) => {
     if (!offering) {
@@ -28,7 +29,7 @@ export const usePersonaGeneration = () => {
     setSummary("");
     
     try {
-      const enhancedPersonas = await generatePersonasApi(offering, selectedCountry);
+      const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, count);
       
       console.log("Generated personas with enhanced titles:", enhancedPersonas);
       setPersonas(enhancedPersonas);
