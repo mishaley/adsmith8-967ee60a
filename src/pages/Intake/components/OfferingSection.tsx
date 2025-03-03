@@ -25,9 +25,9 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
   setUniqueOffering
 }) => {
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
+    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg flex justify-center">
       <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">OFFERING</h2>
-      <table className="w-full border-collapse border-transparent">
+      <table className="border-collapse border-transparent">
         <tbody>
           <FormField 
             label="Name just one of your offerings" 
