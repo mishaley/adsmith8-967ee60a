@@ -51,6 +51,12 @@ const IntakeForm = () => {
       {{
         q4: (
           <div className="p-[18px]">
+            <div className="mb-6">
+              <p className="text-lg mb-4">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
+              <p className="text-lg mb-4">
+                Let's get a demo campaign set up. It'll only take a few minutes.
+              </p>
+            </div>
             <OrganizationSection 
               brandName={brandName}
               setBrandName={setBrandName}
