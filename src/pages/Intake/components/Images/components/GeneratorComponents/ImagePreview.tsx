@@ -7,15 +7,15 @@ interface ImagePreviewProps {
 
 export const ImagePreview: React.FC<ImagePreviewProps> = ({ generatedImageUrl }) => {
   return (
-    <div className="w-full h-40 bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
+    <div className="w-full aspect-square bg-gray-50 rounded-md border border-dashed border-gray-300 flex items-center justify-center">
       {generatedImageUrl ? (
         <img 
           src={generatedImageUrl} 
           alt="Generated persona image" 
-          className="max-w-full max-h-40 object-contain"
+          className="max-w-full max-h-full object-contain"
         />
       ) : (
-        <span className="text-gray-400">Images will appear here after generation</span>
+        <span className="text-gray-400 text-center px-4">Images will appear here after generation</span>
       )}
     </div>
   );

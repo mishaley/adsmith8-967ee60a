@@ -1,22 +1,23 @@
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Persona } from "../../Personas/types";
-import { GeneratePromptButton } from "./GeneratorComponents/GeneratePromptButton";
-import { PromptDisplay } from "./GeneratorComponents/PromptDisplay";
-import { GenerateImageButton } from "./GeneratorComponents/GenerateImageButton";
-import { ImagePreview } from "./GeneratorComponents/ImagePreview";
-import { ErrorDialog } from "./GeneratorComponents/ErrorDialog";
 import { useImageGeneration } from "../hooks/useImageGeneration";
+import { ImagePreview } from "./GeneratorComponents/ImagePreview";
+import { PromptDisplay } from "./GeneratorComponents/PromptDisplay";
+import { ErrorDialog } from "./GeneratorComponents/ErrorDialog";
 
 interface ImageGeneratorProps {
-  currentPersona: Persona | null;
+  currentPersona: Persona;
   adPlatform: string;
 }
 
-const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatform }) => {
+const ImageGenerator: React.FC<ImageGeneratorProps> = ({ 
+  currentPersona, 
+  adPlatform 
+}) => {
   const { toast } = useToast();
+  
   const {
     isGeneratingImages,
     isGeneratingPrompt,
@@ -28,45 +29,38 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({ currentPersona, adPlatf
     handleGenerateImages,
     setGeneratedPrompt,
     setShowErrorDialog
-  } = useImageGeneration({ currentPersona, adPlatform, toast });
-  
+  } = useImageGeneration({ 
+    currentPersona, 
+    adPlatform, 
+    toast 
+  });
+
   return (
-    <div className="flex flex-col items-center min-h-52">
-      <div className="mb-4 w-full">
-        {!generatedPrompt ? (
-          <GeneratePromptButton 
-            isGeneratingPrompt={isGeneratingPrompt}
-            handleGeneratePrompt={handleGeneratePrompt}
-            disabled={!currentPersona}
-          />
-        ) : (
+    <div className="flex flex-col space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col">
           <PromptDisplay 
-            generatedPrompt={generatedPrompt}
+            generatedPrompt={generatedPrompt || ""}
             isGeneratingPrompt={isGeneratingPrompt}
             isGeneratingImages={isGeneratingImages}
             handleGeneratePrompt={handleGeneratePrompt}
             handleGenerateImages={handleGenerateImages}
-            disabled={!adPlatform}
+            disabled={!generatedPrompt && !currentPersona}
           />
-        )}
+        </div>
         
-        {!generatedPrompt && (
-          <GenerateImageButton 
-            isGeneratingImages={isGeneratingImages}
-            handleGenerateImages={handleGenerateImages}
-            disabled={!adPlatform}
-          />
-        )}
+        <div className="flex flex-col">
+          <ImagePreview generatedImageUrl={generatedImageUrl} />
+        </div>
       </div>
       
-      <ImagePreview generatedImageUrl={generatedImageUrl} />
-
-      <ErrorDialog 
-        showErrorDialog={showErrorDialog}
-        setShowErrorDialog={setShowErrorDialog}
-        errorDetails={errorDetails}
-        handleGenerateImages={handleGenerateImages}
-      />
+      {errorDetails && (
+        <ErrorDialog 
+          isOpen={showErrorDialog} 
+          onClose={() => setShowErrorDialog(false)}
+          errorDetails={errorDetails}
+        />
+      )}
     </div>
   );
 };
