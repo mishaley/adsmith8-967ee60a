@@ -111,6 +111,10 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             setAdPlatform={setAdPlatform} 
             handleSave={handleSave} 
           />
+          <GeoMapSection 
+            selectedCountry={selectedCountry} 
+            setSelectedCountry={setSelectedCountry} 
+          />
           <PersonasSection 
             personas={personas} 
             summary={summary} 
@@ -133,10 +137,6 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             generatedMessages={generatedMessages} 
             selectedMessageTypes={selectedMessageTypes}
             adPlatform={adPlatform}
-          />
-          <GeoMapSection 
-            selectedCountry={selectedCountry} 
-            setSelectedCountry={setSelectedCountry} 
           />
         </tbody>
       </table>
