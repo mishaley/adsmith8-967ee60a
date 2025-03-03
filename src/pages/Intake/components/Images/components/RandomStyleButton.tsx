@@ -1,20 +1,19 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { useToast } from "@/hooks/use-toast";
-
 interface RandomStyleButtonProps {
   onStyleSelected?: (style: string) => void;
 }
-
-const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({ onStyleSelected }) => {
+const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({
+  onStyleSelected
+}) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleGetRandomStyle = async () => {
     setIsLoading(true);
-    
     try {
       const randomStyle = await getRandomApprovedStyle();
       if (onStyleSelected) {
@@ -26,25 +25,16 @@ const RandomStyleButton: React.FC<RandomStyleButtonProps> = ({ onStyleSelected }
         title: "Style Error",
         description: errorMessage,
         variant: "destructive",
-        duration: 3000, // Will disappear after 3 seconds
+        duration: 3000 // Will disappear after 3 seconds
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="flex items-center gap-3">
-      <Button 
-        onClick={handleGetRandomStyle} 
-        variant="outline" 
-        size="sm"
-        disabled={isLoading}
-      >
+  return <div className="flex items-center gap-3">
+      <Button onClick={handleGetRandomStyle} variant="outline" size="sm" disabled={isLoading} className="text-center">
         {isLoading ? "Loading..." : "Get Random Style"}
       </Button>
-    </div>
-  );
+    </div>;
 };
-
 export default RandomStyleButton;
