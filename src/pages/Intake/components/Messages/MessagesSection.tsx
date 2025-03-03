@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { Persona } from "../Personas/types";
 import MessagesList from "./MessagesList";
@@ -80,12 +81,14 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
 
   return (
     <>
-      <div className="flex flex-wrap mb-4 items-start">
-        <MessageTypeSelector 
-          selectedMessageTypes={selectedMessageTypes}
-          toggleMessageType={toggleMessageType}
-          isLoaded={isLoaded}
-        />
+      <div className="flex flex-col items-center mb-4">
+        <div className="flex flex-wrap justify-center mb-2">
+          <MessageTypeSelector 
+            selectedMessageTypes={selectedMessageTypes}
+            toggleMessageType={toggleMessageType}
+            isLoaded={isLoaded}
+          />
+        </div>
         
         <UserProvidedInput
           userProvidedMessage={userProvidedMessage}

@@ -25,7 +25,7 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
       isSelected ? "bg-[#0c343d] text-white hover:bg-[#0c343d]/90" : "");
 
   return (
-    <div className="flex flex-wrap gap-2 items-start">
+    <div className="inline-flex flex-wrap gap-2 justify-center">
       <Button 
         variant={selectedMessageTypes.includes("pain-point") ? "default" : "outline"} 
         size="sm" 
@@ -58,8 +58,7 @@ const MessageTypeSelector: React.FC<MessageTypeSelectorProps> = ({
         size="sm" 
         onClick={(e) => handleButtonClick("user-provided", e)}
         className={cn(
-          buttonStyles(selectedMessageTypes.includes("user-provided")),
-          selectedMessageTypes.includes("user-provided") ? 'rounded-r-none border-r-0 z-10' : ''
+          buttonStyles(selectedMessageTypes.includes("user-provided"))
         )}
         disabled={!isLoaded}
       >

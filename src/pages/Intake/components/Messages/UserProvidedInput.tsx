@@ -16,12 +16,13 @@ const UserProvidedInput: React.FC<UserProvidedInputProps> = ({
   if (!isUserProvidedSelected) return null;
   
   return (
-    <div className="w-60 flex items-start">
+    <div className="w-full max-w-[300px] mt-2">
       <Input
         type="text"
         value={userProvidedMessage}
         onChange={(e) => setUserProvidedMessage(e.target.value)}
-        className="w-full h-9 rounded-l-none border-l-0 -ml-[1px] border-[#0c343d] focus:border-[#0c343d] focus-visible:ring-[#0c343d]"
+        className="w-full border-[#0c343d] focus:border-[#0c343d] focus-visible:ring-[#0c343d]"
+        placeholder="Enter your message"
       />
     </div>
   );
