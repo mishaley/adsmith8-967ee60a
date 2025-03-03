@@ -45,22 +45,22 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 <tr>
                   <td className="border p-3">
                     <div className="flex items-center">
-                      {/* Portrait */}
+                      {/* Portrait - reduced height by 50% */}
                       {firstPersona.portraitUrl ? (
                         <img 
                           src={firstPersona.portraitUrl} 
                           alt="Persona portrait"
-                          className="w-16 h-16 rounded-md object-cover mr-4"
+                          className="w-16 h-8 rounded-md object-cover mr-4"
                         />
                       ) : (
-                        <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-4">
+                        <div className="w-16 h-8 bg-gray-200 rounded-md flex items-center justify-center mr-4">
                           <span className="text-gray-500 text-xs">No image</span>
                         </div>
                       )}
                       
-                      {/* Combined text with bullet point separators */}
+                      {/* Combined text with bullet point separators and 50% larger text */}
                       <div className="flex-1">
-                        <span className="text-sm text-gray-700">
+                        <span className="text-lg text-gray-700">
                           {firstPersona.gender}, {firstPersona.ageMin}-{firstPersona.ageMax} • {firstPersona.interests?.join(", ") || "No interests"} • {messageContent}
                         </span>
                       </div>
