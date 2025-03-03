@@ -1,7 +1,6 @@
 
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
-import { Google, Facebook } from "lucide-react";
 
 interface PlatformsSectionProps {
   adPlatform: string;
@@ -9,6 +8,10 @@ interface PlatformsSectionProps {
 }
 
 const PLATFORM_OPTIONS = ["Google", "Meta"];
+const PLATFORM_ICONS = {
+  Google: "https://kyxotvtinlpackztktxe.supabase.co/storage/v1/object/public/adsmith_assets/app/icons/googleads.png",
+  Meta: "https://kyxotvtinlpackztktxe.supabase.co/storage/v1/object/public/adsmith_assets/app/icons/meta.png"
+};
 
 const PlatformsSection: React.FC<PlatformsSectionProps> = ({
   adPlatform,
@@ -35,19 +38,14 @@ const PlatformsSection: React.FC<PlatformsSectionProps> = ({
                   <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                     {PLATFORM_OPTIONS.map(platform => (
                       <SelectItem key={platform} value={platform} className="flex items-center">
-                        {platform === "Google" ? (
-                          <div className="flex items-center gap-2">
-                            <Google className="h-4 w-4" />
-                            <span>Google</span>
-                          </div>
-                        ) : platform === "Meta" ? (
-                          <div className="flex items-center gap-2">
-                            <Facebook className="h-4 w-4" />
-                            <span>Meta</span>
-                          </div>
-                        ) : (
-                          platform
-                        )}
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={PLATFORM_ICONS[platform]} 
+                            alt={`${platform} icon`} 
+                            className="h-4 w-4" 
+                          />
+                          <span>{platform}</span>
+                        </div>
                       </SelectItem>
                     ))}
                     <SelectSeparator className="my-1" />
