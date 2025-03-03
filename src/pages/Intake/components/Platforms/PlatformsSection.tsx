@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
+import { Google, Facebook } from "lucide-react";
 
 interface PlatformsSectionProps {
   adPlatform: string;
@@ -29,12 +30,24 @@ const PlatformsSection: React.FC<PlatformsSectionProps> = ({
                   }
                 }}>
                   <SelectTrigger className="w-full bg-white">
-                    <SelectValue placeholder="Select platform" />
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
                     {PLATFORM_OPTIONS.map(platform => (
-                      <SelectItem key={platform} value={platform}>
-                        {platform}
+                      <SelectItem key={platform} value={platform} className="flex items-center">
+                        {platform === "Google" ? (
+                          <div className="flex items-center gap-2">
+                            <Google className="h-4 w-4" />
+                            <span>Google</span>
+                          </div>
+                        ) : platform === "Meta" ? (
+                          <div className="flex items-center gap-2">
+                            <Facebook className="h-4 w-4" />
+                            <span>Meta</span>
+                          </div>
+                        ) : (
+                          platform
+                        )}
                       </SelectItem>
                     ))}
                     <SelectSeparator className="my-1" />
