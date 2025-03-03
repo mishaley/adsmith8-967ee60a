@@ -61,13 +61,11 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
   
   return (
-    <div className="mb-8">
-      <div className="border-b pb-4 mb-4">
-        <h2 className="text-lg font-medium">Images</h2>
-      </div>
+    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
+      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">IMAGES</h2>
 
       {currentPersona ? (
-        <div className="border rounded-md overflow-hidden">
+        <div className="border rounded-md overflow-hidden bg-white">
           <div className="p-4 border-b">
             <PersonaDisplay 
               currentPersona={currentPersona}
@@ -92,7 +90,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500">
+        <div className="p-4 text-center text-gray-500 bg-white rounded-md">
           No personas available to display
         </div>
       )}
