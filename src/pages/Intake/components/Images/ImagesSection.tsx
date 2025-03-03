@@ -44,31 +44,34 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                   <td className="border p-3">
                     <div className="flex items-center">
                       {/* Portrait */}
+                      {firstPersona.portraitUrl ? (
+                        <img 
+                          src={firstPersona.portraitUrl} 
+                          alt="Persona portrait"
+                          className="w-24 h-24 rounded-md object-cover mr-4"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 bg-gray-200 rounded-md flex items-center justify-center mr-4">
+                          <span className="text-gray-500">No image</span>
+                        </div>
+                      )}
+                      
+                      {/* Demographics */}
                       <div className="mr-4">
-                        {firstPersona.portraitUrl ? (
-                          <img 
-                            src={firstPersona.portraitUrl} 
-                            alt={`${firstPersona.title} portrait`}
-                            className="w-24 h-24 rounded-md object-cover"
-                          />
-                        ) : (
-                          <div className="w-24 h-24 bg-gray-200 rounded-md flex items-center justify-center">
-                            <span className="text-gray-500">No image</span>
-                          </div>
-                        )}
+                        <span className="text-sm text-gray-700">
+                          {firstPersona.gender}, {firstPersona.ageMin}-{firstPersona.ageMax}
+                        </span>
                       </div>
                       
-                      {/* Persona Info + Message */}
+                      {/* Interests */}
+                      <div className="mr-4">
+                        <span className="text-sm text-gray-700">
+                          {firstPersona.interests?.join(", ") || "No interests"}
+                        </span>
+                      </div>
+                      
+                      {/* Message */}
                       <div className="flex-1">
-                        <div className="mb-2 text-sm text-gray-700">
-                          <span className="font-medium">{firstPersona.title}</span>
-                          <span className="mx-2">•</span>
-                          <span>{firstPersona.gender}, {firstPersona.ageMin}-{firstPersona.ageMax}</span>
-                          <span className="mx-2">•</span>
-                          <span>{firstPersona.interests?.join(", ") || "No interests"}</span>
-                        </div>
-                        
-                        {/* Message */}
                         <div className="p-3 bg-white rounded-md shadow-sm">
                           {messageContent}
                         </div>
