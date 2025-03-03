@@ -56,24 +56,10 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                         </div>
                       )}
                       
-                      {/* Demographics */}
-                      <div className="mr-4">
-                        <span className="text-sm text-gray-700">
-                          {firstPersona.gender}, {firstPersona.ageMin}-{firstPersona.ageMax}
-                        </span>
-                      </div>
-                      
-                      {/* Interests */}
-                      <div className="mr-4">
-                        <span className="text-sm text-gray-700">
-                          {firstPersona.interests?.join(", ") || "No interests"}
-                        </span>
-                      </div>
-                      
-                      {/* Message - Updated styling to remove background */}
+                      {/* Combined text with bullet point separators */}
                       <div className="flex-1">
-                        <span className="text-sm text-gray-700 block p-2 rounded">
-                          {messageContent}
+                        <span className="text-sm text-gray-700">
+                          {firstPersona.gender}, {firstPersona.ageMin}-{firstPersona.ageMax} • {firstPersona.interests?.join(", ") || "No interests"} • {messageContent}
                         </span>
                       </div>
                     </div>
