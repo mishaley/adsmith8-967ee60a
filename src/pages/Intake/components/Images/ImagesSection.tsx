@@ -16,6 +16,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
 }) => {
   // Get the first message type if available, otherwise use empty string
   const firstMessageType = selectedMessageTypes.length > 0 ? selectedMessageTypes[0] : "";
+  
+  // Only use the first persona as per the personaCount setting
   const firstPersona = personas.length > 0 ? personas[0] : null;
   
   // Get personaId for the first persona
@@ -43,7 +45,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
                 <tr>
                   <td className="border p-3">
                     <div className="flex items-center">
-                      {/* Portrait - Reduced size from w-24 h-24 to w-16 h-16 */}
+                      {/* Portrait */}
                       {firstPersona.portraitUrl ? (
                         <img 
                           src={firstPersona.portraitUrl} 

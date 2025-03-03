@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { Persona } from "../../components/Personas/types";
@@ -24,22 +23,30 @@ export const usePersonaGeneration = () => {
       return;
     }
 
+    // Validate count to ensure it's a positive number
+    const validCount = Math.max(1, Math.min(5, count));
+    console.log(`Generating ${validCount} personas (requested: ${count})`);
+
     setIsGeneratingPersonas(true);
     setPersonas([]);
     setSummary("");
     
     try {
-      const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, count);
+      // Pass the validated count to the API
+      const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, validCount);
       
-      console.log("Generated personas with enhanced titles:", enhancedPersonas);
-      setPersonas(enhancedPersonas);
+      console.log(`Generated ${enhancedPersonas.length} personas with enhanced titles:`, enhancedPersonas);
       
-      const newSummary = generatePersonaSummary(offering, enhancedPersonas);
+      // Only set the personas that match the requested count
+      setPersonas(enhancedPersonas.slice(0, validCount));
+      
+      const newSummary = generatePersonaSummary(offering, enhancedPersonas.slice(0, validCount));
       setSummary(newSummary);
       
-      toast.success("Personas generated successfully");
+      toast.success(`${validCount} persona${validCount > 1 ? 's' : ''} generated successfully`);
       
-      onPersonasGenerated(enhancedPersonas);
+      // Only pass the personas that match the requested count to the callback
+      onPersonasGenerated(enhancedPersonas.slice(0, validCount));
     } catch (err) {
       console.error("Error:", err);
       toast.error("Something went wrong: " + (err instanceof Error ? err.message : String(err)));
