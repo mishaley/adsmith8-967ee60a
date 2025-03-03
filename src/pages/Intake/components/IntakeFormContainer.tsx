@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import IntakeHeader from "./IntakeHeader";
 import IntakeFormFields from "./IntakeFormFields";
@@ -10,7 +9,6 @@ import GeoMapSection from "./GeoMap/GeoMapSection";
 import LanguagesSection from "./Languages/LanguagesSection";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
-
 interface IntakeFormContainerProps {
   // Form fields
   brandName: string;
@@ -48,9 +46,7 @@ interface IntakeFormContainerProps {
   personaCount: number;
   setPersonaCount: (count: number) => void;
 }
-
 const PLATFORM_OPTIONS = ["Google", "Meta"];
-
 const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
   // Form fields
   brandName,
@@ -89,97 +85,47 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
 }) => {
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
-  
   const handleMessagesUpdate = (messages: Record<string, Record<string, Message>>, types: string[]) => {
     setGeneratedMessages(messages);
     setSelectedMessageTypes(types);
   };
-  
-  return (
-    <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
+  return <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
       <IntakeHeader />
       <table className="w-full border-collapse">
         <tbody>
-          <IntakeFormFields 
-            brandName={brandName} 
-            setBrandName={setBrandName} 
-            industry={industry} 
-            setIndustry={setIndustry}
-            businessDescription={businessDescription}
-            setBusinessDescription={setBusinessDescription}
-            offering={offering} 
-            setOffering={setOffering} 
-            sellingPoints={sellingPoints} 
-            setSellingPoints={setSellingPoints} 
-            problemSolved={problemSolved} 
-            setProblemSolved={setProblemSolved} 
-            uniqueOffering={uniqueOffering} 
-            setUniqueOffering={setUniqueOffering} 
-            adPlatform={adPlatform} 
-            setAdPlatform={setAdPlatform} 
-            handleSave={handleSave} 
-          />
-          <GeoMapSection 
-            selectedCountry={selectedCountry} 
-            setSelectedCountry={setSelectedCountry} 
-          />
-          <PersonasSection 
-            personas={personas} 
-            summary={summary} 
-            isGeneratingPersonas={isGeneratingPersonas} 
-            isGeneratingPortraits={isGeneratingPortraits} 
-            generatePersonas={generatePersonas} 
-            updatePersona={updatePersona} 
-            loadingPortraitIndices={loadingPortraitIndices} 
-            retryPortraitGeneration={retryPortraitGeneration} 
-            removePersona={removePersona}
-            personaCount={personaCount}
-            setPersonaCount={setPersonaCount}
-          />
+          <IntakeFormFields brandName={brandName} setBrandName={setBrandName} industry={industry} setIndustry={setIndustry} businessDescription={businessDescription} setBusinessDescription={setBusinessDescription} offering={offering} setOffering={setOffering} sellingPoints={sellingPoints} setSellingPoints={setSellingPoints} problemSolved={problemSolved} setProblemSolved={setProblemSolved} uniqueOffering={uniqueOffering} setUniqueOffering={setUniqueOffering} adPlatform={adPlatform} setAdPlatform={setAdPlatform} handleSave={handleSave} />
+          <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
+          <PersonasSection personas={personas} summary={summary} isGeneratingPersonas={isGeneratingPersonas} isGeneratingPortraits={isGeneratingPortraits} generatePersonas={generatePersonas} updatePersona={updatePersona} loadingPortraitIndices={loadingPortraitIndices} retryPortraitGeneration={retryPortraitGeneration} removePersona={removePersona} personaCount={personaCount} setPersonaCount={setPersonaCount} />
           
-          <LanguagesSection
-            selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-          />
+          <LanguagesSection selectedLanguage={selectedLanguage} setSelectedLanguage={setSelectedLanguage} />
           
-          <MessagesSection 
-            personas={personas} 
-            onUpdateMessages={handleMessagesUpdate} 
-          />
+          <MessagesSection personas={personas} onUpdateMessages={handleMessagesUpdate} />
           
           {/* Ad Platform Section */}
           <tr className="border-b">
             <td colSpan={2} className="py-4 text-lg">
               <div className="w-full text-left pl-4 flex items-center">
-                <span>Ad Platform</span>
+                <span>Platforms</span>
               </div>
             </td>
           </tr>
           <tr>
             <td colSpan={2} className="py-4 pl-4">
               <div className="inline-block min-w-[180px]">
-                <Select 
-                  value={adPlatform} 
-                  onValueChange={(value) => {
-                    if (value === "clear-selection") {
-                      setAdPlatform("");
-                    } else {
-                      setAdPlatform(value);
-                    }
-                  }}
-                >
+                <Select value={adPlatform} onValueChange={value => {
+                if (value === "clear-selection") {
+                  setAdPlatform("");
+                } else {
+                  setAdPlatform(value);
+                }
+              }}>
                   <SelectTrigger className="w-full bg-white">
                     <SelectValue placeholder="Select platform" />
                   </SelectTrigger>
                   <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                    {PLATFORM_OPTIONS.map((platform) => (
-                      <SelectItem 
-                        key={platform}
-                        value={platform}
-                      >
+                    {PLATFORM_OPTIONS.map(platform => <SelectItem key={platform} value={platform}>
                         {platform}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                     <SelectSeparator className="my-1" />
                     <SelectItem value="clear-selection" className="text-gray-500">
                       Clear
@@ -190,16 +136,9 @@ const IntakeFormContainer: React.FC<IntakeFormContainerProps> = ({
             </td>
           </tr>
           
-          <ImagesSection 
-            personas={personas} 
-            generatedMessages={generatedMessages} 
-            selectedMessageTypes={selectedMessageTypes}
-            adPlatform={adPlatform}
-          />
+          <ImagesSection personas={personas} generatedMessages={generatedMessages} selectedMessageTypes={selectedMessageTypes} adPlatform={adPlatform} />
         </tbody>
       </table>
-    </div>
-  );
+    </div>;
 };
-
 export default IntakeFormContainer;
