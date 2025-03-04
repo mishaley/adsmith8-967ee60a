@@ -14,68 +14,38 @@ export const generateRandomPhrase = () => {
   return `${randomAdjective} ${randomNoun} ${randomVerb}`;
 };
 
-// Function to get random style from the database regardless of status
+// Function to get random style from the database
 export const getRandomApprovedStyle = async () => {
   try {
-    console.log("Fetching styles from y1styles table...");
+    console.log("Fetching random style from database...");
     
-    // Check count
-    const { count, error: countError } = await supabase
-      .from('y1styles')
-      .select('*', { count: 'exact', head: true });
-      
-    if (countError) {
-      console.error('Error checking style count:', countError);
-      throw new Error(`Database count error: ${countError.message}`);
-    }
-    
-    const totalCount = count ?? 0;
-    console.log(`Found ${totalCount} total styles in the database`);
-    
-    if (totalCount === 0) {
-      // Try alternative query to see if table exists
-      console.log("Trying alternative queries to debug...");
-      
-      const { data: allStyles, error: stylesError } = await supabase
-        .from('y1styles')
-        .select('style_id, style_name, style_status')
-        .limit(5);
-        
-      if (stylesError) {
-        console.error("Error with alternative query:", stylesError);
-      } else {
-        console.log("Alternative query found data:", allStyles);
-      }
-      
-      throw new Error('No styles found in database');
-    }
-    
-    // Now fetch all styles with more detailed logging
-    console.log("Fetching style records...");
+    // Fetch all styles from the y1styles table
     const { data, error } = await supabase
       .from('y1styles')
-      .select('style_name, style_status');
-      
+      .select('style_name')
+      .not('style_name', 'is', null);
+    
     if (error) {
       console.error('Error fetching styles:', error);
       throw new Error(`Database error: ${error.message}`);
     }
     
-    console.log(`Fetched data:`, data);
-    
     if (!data || data.length === 0) {
-      console.error('No styles found in result set, despite count showing records');
-      throw new Error('No styles found in database');
+      console.warn('No styles found in the database');
+      // Return a default style if no styles found
+      return "photographic";
     }
     
     // Select a random style from the results
     const randomIndex = Math.floor(Math.random() * data.length);
     const selectedStyle = data[randomIndex].style_name;
-    console.log(`Selected style: ${selectedStyle} (Status: ${data[randomIndex].style_status})`);
+    console.log(`Selected style: ${selectedStyle}`);
     
     return selectedStyle;
   } catch (error) {
     console.error('Exception fetching styles:', error);
-    throw new Error('Failed to get a style: ' + (error instanceof Error ? error.message : String(error)));
+    // Return a default style in case of any error
+    console.warn('Using default style due to error');
+    return "photographic";
   }
 };
