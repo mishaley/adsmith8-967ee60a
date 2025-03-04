@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Trash2 } from "lucide-react";
@@ -24,7 +25,9 @@ const SimplifiedMessagesTable: React.FC = () => {
       // Find the editable div for this column and focus it
       const editableDiv = document.querySelector(`[data-column-id="${columnToFocus}"]`) as HTMLElement;
       if (editableDiv) {
+        // Direct focus on the editable element
         editableDiv.focus();
+        
         // Place cursor at the end of any existing content
         if (editableDiv.textContent) {
           const selection = window.getSelection();
@@ -34,6 +37,7 @@ const SimplifiedMessagesTable: React.FC = () => {
           selection?.removeAllRanges();
           selection?.addRange(range);
         }
+        
         // Reset after focusing
         setColumnToFocus(null);
       }
@@ -163,16 +167,13 @@ const SimplifiedMessagesTable: React.FC = () => {
                     <div
                       contentEditable
                       data-column-id={column.id}
-                      className="absolute inset-0 overflow-auto"
+                      className="absolute inset-0 overflow-auto flex items-center justify-center"
                       style={{ 
                         outline: "none",
                         resize: "none",
                         padding: "0",
                         margin: "0",
                         background: "transparent",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
                         textAlign: "center"
                       }}
                       onInput={(e) => handleContentChange(
