@@ -1,5 +1,4 @@
-
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,32 @@ const SimplifiedMessagesTable: React.FC = () => {
     { id: `column-${nextColumnIdRef.current}`, type: "" }
   ]);
   
+  // Keep a reference to any newly created user-provided cell that needs focus
+  const [columnToFocus, setColumnToFocus] = useState<string | null>(null);
+  
   const messageTypes = ["pain-point", "unique-offering", "value-prop", "user-provided"];
+
+  // Effect to handle auto-focusing on newly selected user-provided cells
+  useEffect(() => {
+    if (columnToFocus) {
+      // Find the editable div for this column and focus it
+      const editableDiv = document.querySelector(`[data-column-id="${columnToFocus}"]`) as HTMLElement;
+      if (editableDiv) {
+        editableDiv.focus();
+        // Place cursor at the end of any existing content
+        if (editableDiv.textContent) {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(editableDiv);
+          range.collapse(false); // collapse to end
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
+        // Reset after focusing
+        setColumnToFocus(null);
+      }
+    }
+  }, [columnToFocus]);
 
   // Add a new column
   const handleAddColumn = () => {
@@ -36,6 +60,11 @@ const SimplifiedMessagesTable: React.FC = () => {
       setMessageColumns(messageColumns.map(column => 
         column.id === columnId ? { ...column, type: newType } : column
       ));
+      
+      // If the new type is user-provided, set this column for focusing
+      if (newType === "user-provided") {
+        setColumnToFocus(columnId);
+      }
     }
   };
 
@@ -133,13 +162,18 @@ const SimplifiedMessagesTable: React.FC = () => {
                   >
                     <div
                       contentEditable
+                      data-column-id={column.id}
                       className="absolute inset-0 overflow-auto"
                       style={{ 
                         outline: "none",
                         resize: "none",
                         padding: "0",
                         margin: "0",
-                        background: "transparent"
+                        background: "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center"
                       }}
                       onInput={(e) => handleContentChange(
                         column.id, 
