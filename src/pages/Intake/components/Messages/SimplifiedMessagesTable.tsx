@@ -4,13 +4,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 const SimplifiedMessagesTable: React.FC = () => {
   // Use a counter for unique column IDs
   const nextColumnIdRef = useRef(1);
   
   // Track active message columns - initialize with one column
-  const [messageColumns, setMessageColumns] = useState<{id: string, type: string}[]>([
+  const [messageColumns, setMessageColumns] = useState<{id: string, type: string, content?: string}[]>([
     { id: `column-${nextColumnIdRef.current}`, type: "" }
   ]);
   
@@ -37,6 +38,13 @@ const SimplifiedMessagesTable: React.FC = () => {
         column.id === columnId ? { ...column, type: newType } : column
       ));
     }
+  };
+
+  // Handle user-provided content changes
+  const handleContentChange = (columnId: string, newContent: string) => {
+    setMessageColumns(messageColumns.map(column => 
+      column.id === columnId ? { ...column, content: newContent } : column
+    ));
   };
 
   return (
@@ -119,17 +127,27 @@ const SimplifiedMessagesTable: React.FC = () => {
             {/* Render message cells for each column */}
             {messageColumns.map(column => (
               <td key={column.id} className="border p-2 align-top">
-                <div className="min-h-[60px] flex items-center justify-center">
-                  {column.type ? (
-                    <div className="text-gray-400 text-center">
-                      Select a message type to generate content
-                    </div>
-                  ) : (
-                    <div className="text-gray-400 text-center">
-                      No message selected
-                    </div>
-                  )}
-                </div>
+                {column.type === "user-provided" ? (
+                  <Input
+                    className="w-full h-full border-0 rounded-none focus:outline-none focus:ring-0 shadow-none p-1 min-h-[60px]"
+                    value={column.content || ""}
+                    onChange={(e) => handleContentChange(column.id, e.target.value)}
+                    placeholder="Enter your message here..."
+                    style={{ boxShadow: "none" }}
+                  />
+                ) : (
+                  <div className="min-h-[60px] flex items-center justify-center">
+                    {column.type ? (
+                      <div className="text-gray-400 text-center">
+                        Select a message type to generate content
+                      </div>
+                    ) : (
+                      <div className="text-gray-400 text-center">
+                        No message selected
+                      </div>
+                    )}
+                  </div>
+                )}
               </td>
             ))}
             
