@@ -4,7 +4,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
 
 const SimplifiedMessagesTable: React.FC = () => {
   // Use a counter for unique column IDs
@@ -128,13 +127,29 @@ const SimplifiedMessagesTable: React.FC = () => {
             {messageColumns.map(column => (
               <td key={column.id} className="border p-2 align-top">
                 {column.type === "user-provided" ? (
-                  <Input
-                    className="w-full h-full border-0 rounded-none focus:outline-none focus:ring-0 shadow-none p-1 min-h-[60px]"
-                    value={column.content || ""}
-                    onChange={(e) => handleContentChange(column.id, e.target.value)}
-                    placeholder="Enter your message here..."
-                    style={{ boxShadow: "none" }}
-                  />
+                  <div 
+                    className="min-h-[60px] w-full h-full"
+                    style={{ position: "relative" }}
+                  >
+                    <div
+                      contentEditable
+                      className="absolute inset-0 overflow-auto"
+                      style={{ 
+                        outline: "none",
+                        resize: "none",
+                        padding: "0",
+                        margin: "0",
+                        background: "transparent"
+                      }}
+                      onInput={(e) => handleContentChange(
+                        column.id, 
+                        (e.target as HTMLDivElement).textContent || ""
+                      )}
+                      suppressContentEditableWarning={true}
+                    >
+                      {column.content}
+                    </div>
+                  </div>
                 ) : (
                   <div className="min-h-[60px] flex items-center justify-center">
                     {column.type ? (
