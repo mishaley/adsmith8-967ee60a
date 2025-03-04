@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -22,9 +21,16 @@ const SimplifiedMessagesTable: React.FC = () => {
 
   // Update message type for a specific column
   const handleMessageTypeChange = (columnId: string, newType: string) => {
-    setMessageColumns(messageColumns.map(column => 
-      column.id === columnId ? { ...column, type: newType } : column
-    ));
+    if (newType === "remove") {
+      // If "remove" is selected, remove this column
+      setMessageColumns(messageColumns.filter(column => column.id !== columnId));
+      toast.success("Message column removed");
+    } else {
+      // Otherwise update the column type
+      setMessageColumns(messageColumns.map(column => 
+        column.id === columnId ? { ...column, type: newType } : column
+      ));
+    }
   };
 
   return (
@@ -57,6 +63,13 @@ const SimplifiedMessagesTable: React.FC = () => {
                         {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                       </SelectItem>
                     ))}
+                    {/* Add remove option with red text */}
+                    <SelectItem key="remove" value="remove" className="text-red-500">
+                      <div className="flex items-center">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Remove
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </th>
