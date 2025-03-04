@@ -1,20 +1,26 @@
-import React, { useState } from "react";
+
+import React, { useState, useRef } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const SimplifiedMessagesTable: React.FC = () => {
+  // Use a counter for unique column IDs
+  const nextColumnIdRef = useRef(1);
+  
   // Track active message columns - initialize with one column
   const [messageColumns, setMessageColumns] = useState<{id: string, type: string}[]>([
-    { id: "column-1", type: "" }
+    { id: `column-${nextColumnIdRef.current}`, type: "" }
   ]);
   
   const messageTypes = ["pain-point", "unique-offering", "value-prop", "user-provided"];
 
   // Add a new column
   const handleAddColumn = () => {
-    const newColumnId = `column-${messageColumns.length + 1}`;
+    // Increment the counter for next column ID
+    nextColumnIdRef.current += 1;
+    const newColumnId = `column-${nextColumnIdRef.current}`;
     setMessageColumns([...messageColumns, { id: newColumnId, type: "" }]);
     toast.success("New message column added");
   };
