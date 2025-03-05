@@ -64,7 +64,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
 
-  // Generate 11 rows for the table
+  // Generate rows for the table based on platform
   const renderTableRows = () => {
     const rows = [];
     
@@ -83,25 +83,40 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
           </td>
         </tr>
       );
-    }
-    
-    // Calculate how many regular rows to add (if we have a header, add 10 more rows, otherwise 11)
-    const regularRowCount = (adPlatform && adPlatform.toLowerCase() === "meta") ? 10 : 11;
-    
-    for (let i = 0; i < regularRowCount; i++) {
-      rows.push(
-        <tr key={`row-${i}`} className="border-b border-gray-200">
-          <td className="border-r border-gray-200 w-1/3">
-            <div className="h-[60px]"></div>
-          </td>
-          <td className="border-r border-gray-200 w-1/3">
-            <div className="h-[60px]"></div>
-          </td>
-          <td className="w-1/3">
-            <div className="h-[60px]"></div>
-          </td>
-        </tr>
-      );
+      
+      // For Meta platform, add 5 empty rows after the header
+      for (let i = 0; i < 5; i++) {
+        rows.push(
+          <tr key={`row-${i}`} className="border-b border-gray-200">
+            <td className="border-r border-gray-200 w-1/3">
+              <div className="h-[60px]"></div>
+            </td>
+            <td className="border-r border-gray-200 w-1/3">
+              <div className="h-[60px]"></div>
+            </td>
+            <td className="w-1/3">
+              <div className="h-[60px]"></div>
+            </td>
+          </tr>
+        );
+      }
+    } else {
+      // For other platforms (e.g., Google), show 11 rows without a header
+      for (let i = 0; i < 11; i++) {
+        rows.push(
+          <tr key={`row-${i}`} className="border-b border-gray-200">
+            <td className="border-r border-gray-200 w-1/3">
+              <div className="h-[60px]"></div>
+            </td>
+            <td className="border-r border-gray-200 w-1/3">
+              <div className="h-[60px]"></div>
+            </td>
+            <td className="w-1/3">
+              <div className="h-[60px]"></div>
+            </td>
+          </tr>
+        );
+      }
     }
     return rows;
   };
