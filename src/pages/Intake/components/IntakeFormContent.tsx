@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ChevronDown } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +17,7 @@ import {
 import IntakeTop from "./IntakeTop";
 import IntakeFormContainer from "./IntakeFormContainer";
 import SectionsContainer from "./Containers/SectionsContainer";
+import SummaryTable from "./SummaryTable";
 import { Persona } from "./Personas/types";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 
@@ -96,6 +98,9 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
           Let's get a demo campaign set up. It'll only take a few minutes.
         </p>
       </div>
+      
+      {/* Add the summary table above the sections container */}
+      <SummaryTable />
       
       <SectionsContainer {...props} />
       
