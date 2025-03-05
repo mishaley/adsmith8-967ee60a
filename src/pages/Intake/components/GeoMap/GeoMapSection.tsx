@@ -9,11 +9,15 @@ import SelectionDisplay from "./components/SelectionDisplay";
 interface GeoMapSectionProps {
   selectedCountry: string;
   setSelectedCountry: (country: string) => void;
+  selectedLanguage: string;
+  setSelectedLanguage: (language: string) => void;
 }
 
 const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   selectedCountry,
-  setSelectedCountry
+  setSelectedCountry,
+  selectedLanguage,
+  setSelectedLanguage
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const {
@@ -58,6 +62,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
         <SelectionDisplay 
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}
+          selectedLanguage={selectedLanguage}
+          setSelectedLanguage={setSelectedLanguage}
         />
       </div>
     </div>
