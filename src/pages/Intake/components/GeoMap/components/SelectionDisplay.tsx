@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +56,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#f5f9ff] rounded-lg p-4 border border-[#d0e1f9]">
+    <div className="w-full bg-transparent rounded-lg p-4 border-transparent">
       <div className="font-bold text-lg mb-4">Selections</div>
       
       {/* Map Selection Status */}
