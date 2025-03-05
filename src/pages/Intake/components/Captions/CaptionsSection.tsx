@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "../Images/components/PersonaDisplay";
 import CollapsibleSection from "../CollapsibleSection";
-import { Square } from "lucide-react";
 
 interface CaptionsSectionProps {
   personas: Persona[];
@@ -78,22 +78,6 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
 
   const { columnHeaders, rowCounts } = getTableConfig();
   
-  const [reviewStatus, setReviewStatus] = useState<Record<number, Record<number, boolean | null>>>({
-    0: {}, // First table
-    1: {}, // Second table
-    2: {}  // Third table
-  });
-  
-  const handleReviewClick = (tableIndex: number, rowIndex: number, isApproved: boolean) => {
-    setReviewStatus(prev => ({
-      ...prev,
-      [tableIndex]: {
-        ...prev[tableIndex],
-        [rowIndex]: isApproved
-      }
-    }));
-  };
-  
   const renderSingleTable = (columnIndex: number) => {
     const rows = [];
     const header = columnHeaders[columnIndex];
@@ -102,7 +86,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     if (header) {
       rows.push(
         <tr key="header-row" className="border-b border-gray-200 bg-gray-50">
-          <td className="w-full font-bold text-center py-2">
+          <td colSpan={2} className="font-bold text-center py-2">
             {header}
           </td>
         </tr>
@@ -112,13 +96,13 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     for (let i = 0; i < rowCount; i++) {
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
-          <td className="w-full">
-            <div className="h-[60px] flex items-center justify-between px-3">
+          <td className="py-2 px-3">
+            <div className="h-[60px] flex items-center">
               <div className="flex-grow"></div>
-              <div className="flex items-center ml-auto">
-                <Square className="h-5 w-5 text-gray-400" />
-              </div>
             </div>
+          </td>
+          <td className="p-0">
+            <div className="h-[60px] w-[60px] border-l border-gray-200"></div>
           </td>
         </tr>
       );
