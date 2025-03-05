@@ -20,7 +20,8 @@ const TopRowCell: React.FC<TopRowCellProps> = ({
   const isWideAspect = currentRatioConfig.ratio === "21:11";
   
   // Calculate available space remaining for display after buttons
-  const availableHeight = cellHeight - buttonHeight - 20; // 20px for spacing
+  // Removed the 20px spacing that was creating the gap
+  const availableHeight = cellHeight - buttonHeight;
   
   return (
     <div className="w-full h-full flex flex-col relative">

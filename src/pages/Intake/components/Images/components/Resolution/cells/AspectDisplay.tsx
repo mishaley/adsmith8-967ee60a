@@ -32,7 +32,8 @@ export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({
         width: `${displayWidth}px`,
         height: `${displayHeight}px`,
         left: `${(containerWidth - displayWidth) / 2}px`,
-        top: `${buttonHeight + 20}px`,
+        // Remove the 20px spacing that was creating the gap
+        top: `${buttonHeight}px`,
       }}
     />
   );
@@ -78,7 +79,8 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
         width: `${displayWidth}px`,
         height: `${displayHeight}px`,
         left: `${(containerWidth - displayWidth) / 2}px`,
-        top: `${buttonHeight + 20}px`,
+        // Remove the 20px spacing that was creating the gap
+        top: `${buttonHeight}px`,
       }}
     />
   );
