@@ -1,11 +1,9 @@
-
 import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
-
 interface OrganizationSectionProps {
   brandName: string;
   setBrandName: (value: string) => void;
@@ -15,7 +13,6 @@ interface OrganizationSectionProps {
   setBusinessDescription: (value: string) => void;
   handleSave: () => void;
 }
-
 const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   brandName,
   setBrandName,
@@ -26,22 +23,20 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   handleSave
 }) => {
   // Get organization dropdown data and functionality
-  const { selectedOrgId, organizations, handleOrgChange } = useSummaryTableData();
-
-  return (
-    <CollapsibleSection title="ORGANIZATION">
+  const {
+    selectedOrgId,
+    organizations,
+    handleOrgChange
+  } = useSummaryTableData();
+  return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
           <tbody>
             <tr className="border-transparent">
               <td colSpan={2} className="py-4 text-center">
-                <div className="mb-2">Select Organization</div>
+                
                 <div className="w-72 mx-auto">
-                  <OrganizationSelect 
-                    selectedOrgId={selectedOrgId}
-                    organizations={organizations}
-                    onValueChange={handleOrgChange}
-                  />
+                  <OrganizationSelect selectedOrgId={selectedOrgId} organizations={organizations} onValueChange={handleOrgChange} />
                 </div>
               </td>
             </tr>
@@ -52,12 +47,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
               <td className="py-4">
                 <div className="flex items-center gap-3">
                   <div className="w-96">
-                    <input 
-                      type="text" 
-                      value={brandName} 
-                      onChange={e => setBrandName(e.target.value)} 
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
-                    />
+                    <input type="text" value={brandName} onChange={e => setBrandName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
                   </div>
                 </div>
               </td>
@@ -67,8 +57,6 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
           </tbody>
         </table>
       </div>
-    </CollapsibleSection>
-  );
+    </CollapsibleSection>;
 };
-
 export default OrganizationSection;
