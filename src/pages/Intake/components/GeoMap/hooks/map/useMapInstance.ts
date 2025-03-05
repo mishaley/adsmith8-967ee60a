@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from 'mapbox-gl';
 
@@ -70,10 +69,10 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 10], // Moved center point up (positive value)
+        center: [0, 8], // Slightly lowered from 10 to 8
         projection: {
           name: 'mercator',
-          center: [0, 10], // Matching center point with the map center
+          center: [0, 8], // Matching center point with the map center
           parallels: [0, 60]
         },
         minZoom: 0.5,
@@ -155,8 +154,8 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   };
   
   map.fitBounds([
-    [-180, -60], // Southwest - showing less of the south
-    [180, 80]    // Northeast - showing more of the north
+    [-180, -65], // Southwest - slightly adjusted to show a bit more of the south
+    [180, 75]    // Northeast - slightly adjusted to show a bit less of the north
   ], {
     padding,
     linear: true,
