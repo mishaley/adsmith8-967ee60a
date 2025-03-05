@@ -150,14 +150,15 @@ export const useMapInstance = ({
 function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
-  // Base zoom level, adjusted to be slightly lower for better vertical fit
-  let zoom = 0.7;
+  // Adjust zoom level based on container width
+  // Using smaller starting zoom values to fit the entire world in smaller width
+  let zoom = 0.6;
   if (width >= 400 && width < 600) {
-    zoom = 0.9;
+    zoom = 0.7;
   } else if (width >= 600 && width < 800) {
-    zoom = 1.0;
+    zoom = 0.8;
   } else if (width >= 800) {
-    zoom = 1.1;
+    zoom = 0.9;
   }
   
   map.setZoom(zoom);
