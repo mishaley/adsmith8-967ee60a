@@ -19,13 +19,13 @@ const RejectedRow: React.FC<RejectedRowProps> = ({
   const rowHeight = cellHeight * 0.25;
   
   return (
-    <div className="grid grid-cols-3 w-full bg-transparent">
+    <div className="grid grid-cols-3 w-full">
       <div 
-        className="col-span-3 bg-transparent border border-red-200 flex items-center pl-4 py-[10px]" 
+        className="col-span-3 bg-white border border-red-200 flex items-center pl-4 py-[10px]" 
         style={{ height: `${rowHeight}px` }}
       >
         <X size={20} color="#990000" />
-        <div className="flex ml-4 gap-1 h-full items-center flex-1 pr-4 bg-transparent">
+        <div className="flex ml-4 gap-1 h-full items-center flex-1 pr-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <div 
               key={index}
