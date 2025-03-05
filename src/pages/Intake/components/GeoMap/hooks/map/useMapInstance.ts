@@ -79,16 +79,16 @@ export const useMapInstance = ({
         zoom: 1,
         center: [0, 20],
         projection: {
-          name: 'mercator',
+          name: 'equirectangular',  // Changed to equirectangular to prevent world repetition
           center: [0, 20],
-          parallels: [0, 60]
         },
         minZoom: 0.5,
         maxZoom: 8,
         maxBounds: [
-          [-190, -85], // Southwest coordinates (extended for better visibility)
-          [190, 85]    // Northeast coordinates (extended for better visibility)
+          [-180, -85],  // Southwest coordinates (exact world bounds)
+          [180, 85]     // Northeast coordinates (exact world bounds)
         ],
+        renderWorldCopies: false,  // Important: prevent world copies from rendering
         attributionControl: false,
         preserveDrawingBuffer: true
       });
@@ -150,35 +150,34 @@ export const useMapInstance = ({
 function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
-  // Adjust zoom level based on container width
-  // Using smaller starting zoom values to fit the entire world in smaller width
-  let zoom = 0.6;
+  // Calculate optimal zoom level based on container width
+  // This ensures the entire world fits without duplicating
+  let zoom = 0.5;
   if (width >= 400 && width < 600) {
-    zoom = 0.7;
+    zoom = 0.6;
   } else if (width >= 600 && width < 800) {
-    zoom = 0.8;
+    zoom = 0.7;
   } else if (width >= 800) {
-    zoom = 0.9;
+    zoom = 0.8;
   }
   
   map.setZoom(zoom);
   
-  // Calculate padding with more top/bottom padding for better vertical fit
+  // Calculate padding
   const padding = {
-    top: 50,  // Increased top padding
-    bottom: 50, // Increased bottom padding
-    left: width > 600 ? 40 : 20,
-    right: width > 600 ? 40 : 20
+    top: 40,
+    bottom: 40,
+    left: 20,
+    right: 20
   };
   
-  // Ensure the world map is visible with appropriate padding
-  // Adjusted the bounds to show more of the poles
+  // Ensure the world map is visible without repeating
   map.fitBounds([
-    [-170, -70], // Southwest coordinates - increased latitude range
-    [170, 80]    // Northeast coordinates - increased latitude range
+    [-179, -60], // Southwest coordinates
+    [179, 75]    // Northeast coordinates 
   ], {
     padding,
-    linear: true,  // Use linear easing for smoother transition
-    duration: 0    // No animation on initial load
+    linear: true,
+    duration: 0
   });
 }
