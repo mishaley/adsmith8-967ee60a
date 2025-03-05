@@ -11,8 +11,12 @@ const SummaryTable: React.FC = () => {
     selectedMessageIds,
     setSelectedMessageIds,
     personaOptions,
-    messageOptions
+    messageOptions,
+    isOfferingsDisabled
   } = useSummaryTableData();
+
+  // Determine if personas selection should be disabled
+  const isPersonasDisabled = isOfferingsDisabled || selectedPersonaIds.length === 0;
 
   return (
     <div className="my-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
@@ -23,7 +27,8 @@ const SummaryTable: React.FC = () => {
               options={personaOptions}
               value={selectedPersonaIds}
               onChange={setSelectedPersonaIds}
-              disabled={false}
+              disabled={isOfferingsDisabled}
+              placeholder="Select personas"
             />
           </TableRow>
           
@@ -32,7 +37,8 @@ const SummaryTable: React.FC = () => {
               options={messageOptions}
               value={selectedMessageIds}
               onChange={setSelectedMessageIds}
-              disabled={selectedPersonaIds.length === 0}
+              disabled={isPersonasDisabled}
+              placeholder="Select messages"
             />
           </TableRow>
         </tbody>

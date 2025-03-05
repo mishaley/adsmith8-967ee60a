@@ -27,6 +27,13 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     }
   }, [disabled]);
   
+  // Reset value when component becomes disabled
+  useEffect(() => {
+    if (disabled && value.length > 0) {
+      onChange([]);
+    }
+  }, [disabled, value, onChange]);
+  
   const handleValueChange = (itemValue: string) => {
     if (disabled) return;
     
@@ -62,7 +69,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         }`}
       >
         <span className="text-left w-full truncate">{displayValue()}</span>
-        <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
+        <ChevronDown className={`h-4 w-4 flex-shrink-0 ${disabled ? 'opacity-30' : 'opacity-50'}`} />
       </button>
       
       {open && !disabled && (

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,6 +113,10 @@ export const useSummaryTableData = () => {
   const handleOrgChange = (value: string) => {
     if (value === "clear-selection") {
       setSelectedOrgId("");
+      // Reset everything when organization is cleared
+      setSelectedOfferingIds([]);
+      setSelectedPersonaIds([]);
+      setSelectedMessageIds([]);
     } else {
       setSelectedOrgId(value);
       // When organization changes in this component, update localStorage 
@@ -138,6 +143,9 @@ export const useSummaryTableData = () => {
     label: message.message_name
   }));
 
+  // Determine if offerings selection should be disabled
+  const isOfferingsDisabled = !selectedOrgId || selectedOrgId === "";
+
   return {
     selectedOrgId,
     selectedOfferingIds,
@@ -150,6 +158,7 @@ export const useSummaryTableData = () => {
     offeringOptions,
     personaOptions,
     messageOptions,
-    handleOrgChange
+    handleOrgChange,
+    isOfferingsDisabled
   };
 };

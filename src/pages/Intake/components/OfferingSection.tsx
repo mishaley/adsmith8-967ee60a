@@ -32,11 +32,9 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     selectedOrgId,
     selectedOfferingIds,
     setSelectedOfferingIds,
-    offeringOptions
+    offeringOptions,
+    isOfferingsDisabled
   } = useSummaryTableData();
-
-  // Determine if the offering dropdown should be disabled
-  const isOfferingDisabled = !selectedOrgId || selectedOrgId === "";
 
   return (
     <CollapsibleSection title="OFFERING">
@@ -50,7 +48,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
                     options={offeringOptions}
                     value={selectedOfferingIds}
                     onChange={setSelectedOfferingIds}
-                    disabled={isOfferingDisabled}
+                    disabled={isOfferingsDisabled}
                     placeholder="Select offerings"
                   />
                 </div>
