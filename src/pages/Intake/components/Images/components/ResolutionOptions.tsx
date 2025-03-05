@@ -50,7 +50,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                   style={{ 
                     marginTop: '0',
                     marginBottom: '200px',
-                    maxHeight: 'calc(100% - 220px)' // 20px top padding + 200px bottom padding
+                    height: 'calc(100% - 220px)', // 20px top padding + 200px bottom padding
+                    maxHeight: 'calc(100% - 220px)' // Adding maxHeight as well for consistency
                   }}
                 />
               </div>
