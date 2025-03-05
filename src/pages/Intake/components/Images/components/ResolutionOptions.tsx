@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from "react";
 import { Check, X, Square, RectangleVertical, LayoutPanelTop, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -170,7 +171,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                               el.style.width = `${maxWidth}px`;
                               el.style.height = `${height}px`;
                               el.style.left = `${(parentWidth - maxWidth) / 2}px`;
-                              el.style.top = `${buttonsTop + buttonsHeight + 10}px`;
+                              // Remove gap by setting top position to button bottom
+                              el.style.top = `${buttonsTop + buttonsHeight}px`;
                             }
                           }
                         }
@@ -420,6 +422,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                           el.style.width = `${maxWidth}px`;
                           el.style.height = `${height}px`;
                           el.style.left = `${(parentWidth - maxWidth) / 2}px`;
+                          // Remove gap by setting top position to button bottom
                           el.style.top = `${buttonsTop + buttonsHeight}px`;
                         }
                       }
