@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from "react";
 import { Check, X, Square, RectangleVertical, LayoutPanelTop, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ interface ResolutionOptionsProps {
   adPlatform: string;
 }
 
-// Define aspect ratio configuration types
 type AspectRatioConfig = {
   label: string;
   ratio: string;
@@ -18,7 +16,6 @@ type AspectRatioConfig = {
   icon: React.ReactNode;
 };
 
-// Create aspect ratio configurations
 const aspectRatioConfigs: AspectRatioConfig[] = [
   { 
     label: "1:1", 
@@ -82,7 +79,6 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     setSelectedRatio(ratio);
   };
 
-  // Get current ratio config
   const currentRatioConfig = aspectRatioConfigs.find(config => config.ratio === selectedRatio) || aspectRatioConfigs[0];
 
   const gridItemStyle = {
@@ -101,7 +97,6 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
       className="w-full"
       style={{ height: `${containerWidth * 4/3}px` }}
     >
-      {/* Aspect Ratio Selector */}
       <div className="flex justify-center gap-2 mb-4 p-3 bg-white border-b">
         {aspectRatioConfigs.map((config) => (
           <Button
@@ -126,66 +121,121 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
             style={gridItemStyle}
           >
             {isTopRow(index) && (
-              <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
+              <div className="w-full h-full flex flex-col justify-center items-center relative" style={{ paddingTop: '20px' }}>
                 <div className="absolute top-0 left-0 bg-blue-100 text-blue-800 text-xs font-medium p-1 rounded">
                   {currentRatioConfig.ratio}
                 </div>
                 
-                <div 
-                  className="flex w-full absolute"
-                  style={{ 
-                    height: '60px',
-                    top: '20px',
-                  }}
-                  ref={(el) => {
-                    if (el) {
-                      const height = el.parentElement?.clientHeight 
-                        ? el.parentElement.clientHeight - 20 - 60 
-                        : 0;
-                      const width = height * (currentRatioConfig.width / currentRatioConfig.height);
-                      
-                      el.style.width = `${width}px`;
-                      el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - width / 2}px`;
-                    }
-                  }}
-                >
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <X size={24} color="#990000" />
-                  </div>
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <Check size={24} color="#0c343d" />
-                  </div>
-                </div>
-                
-                <div 
-                  className="bg-gray-400 absolute"
-                  style={{ 
-                    top: 'auto',
-                    height: 'auto',
-                    width: 'auto',
-                    bottom: 0,
-                  }}
-                  ref={(el) => {
-                    if (el) {
-                      const parentEl = el.parentElement;
-                      if (parentEl) {
-                        const buttons = parentEl.querySelector('.flex.w-full.absolute') as HTMLElement;
-                        if (buttons) {
-                          const buttonsHeight = buttons.offsetHeight;
-                          const buttonsTop = parseInt(buttons.style.top, 10);
-                          const totalHeight = parentEl.clientHeight;
-                          const height = totalHeight - (buttonsTop + buttonsHeight);
+                {currentRatioConfig.ratio === "21:11" ? (
+                  <>
+                    <div 
+                      className="flex absolute"
+                      style={{ 
+                        height: '60px',
+                        top: '40px',
+                      }}
+                      ref={(el) => {
+                        if (el) {
+                          const parentWidth = el.parentElement?.clientWidth ?? 0;
+                          const maxWidth = parentWidth * 0.9; // Use 90% of parent width
+                          
+                          el.style.width = `${maxWidth}px`;
+                          el.style.left = `${(parentWidth - maxWidth) / 2}px`;
+                        }
+                      }}
+                    >
+                      <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                        <X size={24} color="#990000" />
+                      </div>
+                      <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                        <Check size={24} color="#0c343d" />
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className="bg-gray-400 absolute"
+                      ref={(el) => {
+                        if (el) {
+                          const parentEl = el.parentElement;
+                          if (parentEl) {
+                            const buttons = parentEl.querySelector('.flex.absolute') as HTMLElement;
+                            if (buttons) {
+                              const buttonsHeight = buttons.offsetHeight;
+                              const buttonsTop = parseInt(buttons.style.top, 10);
+                              const parentWidth = parentEl.clientWidth;
+                              
+                              const maxWidth = parentWidth * 0.9; // Use 90% of available width
+                              const height = maxWidth * (11/21); // Apply aspect ratio
+                              
+                              el.style.width = `${maxWidth}px`;
+                              el.style.height = `${height}px`;
+                              el.style.left = `${(parentWidth - maxWidth) / 2}px`;
+                              el.style.top = `${buttonsTop + buttonsHeight + 10}px`;
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div 
+                      className="flex w-full absolute"
+                      style={{ 
+                        height: '60px',
+                        top: '20px',
+                      }}
+                      ref={(el) => {
+                        if (el) {
+                          const height = el.parentElement?.clientHeight 
+                            ? el.parentElement.clientHeight - 20 - 60 
+                            : 0;
                           const width = height * (currentRatioConfig.width / currentRatioConfig.height);
                           
-                          el.style.height = `${height}px`;
                           el.style.width = `${width}px`;
-                          el.style.left = `${(parentEl.offsetWidth - width) / 2}px`;
-                          el.style.top = `${buttonsTop + buttonsHeight}px`;
+                          el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - width / 2}px`;
                         }
-                      }
-                    }
-                  }}
-                />
+                      }}
+                    >
+                      <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                        <X size={24} color="#990000" />
+                      </div>
+                      <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                        <Check size={24} color="#0c343d" />
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className="bg-gray-400 absolute"
+                      style={{ 
+                        top: 'auto',
+                        height: 'auto',
+                        width: 'auto',
+                        bottom: 0,
+                      }}
+                      ref={(el) => {
+                        if (el) {
+                          const parentEl = el.parentElement;
+                          if (parentEl) {
+                            const buttons = parentEl.querySelector('.flex.w-full.absolute') as HTMLElement;
+                            if (buttons) {
+                              const buttonsHeight = buttons.offsetHeight;
+                              const buttonsTop = parseInt(buttons.style.top, 10);
+                              const totalHeight = parentEl.clientHeight;
+                              const height = totalHeight - (buttonsTop + buttonsHeight);
+                              const width = height * (currentRatioConfig.width / currentRatioConfig.height);
+                              
+                              el.style.height = `${height}px`;
+                              el.style.width = `${width}px`;
+                              el.style.left = `${(parentEl.offsetWidth - width) / 2}px`;
+                              el.style.top = `${buttonsTop + buttonsHeight}px`;
+                            }
+                          }
+                        }
+                      }}
+                    />
+                  </>
+                )}
               </div>
             )}
 
@@ -331,7 +381,6 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                   }}
                   ref={(el) => {
                     if (el) {
-                      // Calculate width based on the 21:11 aspect ratio
                       const parentWidth = el.parentElement?.clientWidth ?? 0;
                       const maxWidth = parentWidth * 0.9; // Use 90% of parent width
                       
@@ -365,7 +414,6 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                           const buttonsTop = parseInt(buttons.style.top, 10);
                           const parentWidth = parentEl.clientWidth;
                           
-                          // Calculate dimensions using 21:11 aspect ratio
                           const maxWidth = parentWidth * 0.9; // Use 90% of available width
                           const height = maxWidth * (11/21); // Apply aspect ratio
                           
