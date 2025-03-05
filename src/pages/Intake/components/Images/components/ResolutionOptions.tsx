@@ -46,12 +46,10 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
             {isTopRow(index) && (
               <div className="w-full h-full p-5">
                 <div 
-                  className="bg-gray-400 aspect-square w-full mx-auto"
+                  className="bg-gray-400 w-full h-full"
                   style={{ 
                     marginTop: '0',
-                    marginBottom: '200px',
-                    height: 'calc(100% - 220px)', // 20px top padding + 200px bottom padding
-                    maxHeight: 'calc(100% - 220px)' // Adding maxHeight as well for consistency
+                    marginBottom: '200px'
                   }}
                 />
               </div>
