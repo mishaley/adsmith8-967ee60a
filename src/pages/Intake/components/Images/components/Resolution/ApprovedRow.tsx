@@ -19,13 +19,13 @@ const ApprovedRow: React.FC<ApprovedRowProps> = ({
   const rowHeight = cellHeight * 0.25;
   
   return (
-    <div className="grid grid-cols-3 w-full">
+    <div className="grid grid-cols-3 w-full bg-transparent">
       <div 
-        className="col-span-3 bg-green-50 border border-green-200 flex items-center pl-4 py-[10px]" 
+        className="col-span-3 bg-transparent border border-green-200 flex items-center pl-4 py-[10px]" 
         style={{ height: `${rowHeight}px` }}
       >
         <Check size={20} color="#0c343d" />
-        <div className="flex ml-4 gap-1 h-full items-center flex-1 pr-4">
+        <div className="flex ml-4 gap-1 h-full items-center flex-1 pr-4 bg-transparent">
           {Array.from({ length: 10 }).map((_, index) => (
             <div 
               key={index}
