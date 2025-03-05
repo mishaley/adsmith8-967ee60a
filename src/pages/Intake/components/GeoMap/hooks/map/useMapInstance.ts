@@ -150,30 +150,31 @@ export const useMapInstance = ({
 function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
-  // For narrow screens, use a lower zoom level
-  let zoom = 0.8;
+  // Base zoom level, adjusted to be slightly lower for better vertical fit
+  let zoom = 0.7;
   if (width >= 400 && width < 600) {
-    zoom = 1.0;
+    zoom = 0.9;
   } else if (width >= 600 && width < 800) {
-    zoom = 1.2;
+    zoom = 1.0;
   } else if (width >= 800) {
-    zoom = 1.3;
+    zoom = 1.1;
   }
   
   map.setZoom(zoom);
   
-  // Calculate padding based on container width
+  // Calculate padding with more top/bottom padding for better vertical fit
   const padding = {
-    top: 20,
-    bottom: 20,
+    top: 50,  // Increased top padding
+    bottom: 50, // Increased bottom padding
     left: width > 600 ? 40 : 20,
     right: width > 600 ? 40 : 20
   };
   
   // Ensure the world map is visible with appropriate padding
+  // Adjusted the bounds to show more of the poles
   map.fitBounds([
-    [-170, -60], // Southwest coordinates
-    [170, 75]    // Northeast coordinates
+    [-170, -70], // Southwest coordinates - increased latitude range
+    [170, 80]    // Northeast coordinates - increased latitude range
   ], {
     padding,
     linear: true,  // Use linear easing for smoother transition
