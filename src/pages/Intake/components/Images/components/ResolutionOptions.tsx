@@ -74,6 +74,9 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
         ))}
       </div>
       
+      {/* Transparent spacer row - 20px height */}
+      <div className="w-full h-[20px] bg-transparent"></div>
+      
       <ApprovedRow 
         cellHeight={cellHeight} 
         containerWidth={containerWidth}
