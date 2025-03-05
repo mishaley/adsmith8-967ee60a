@@ -47,16 +47,17 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
           if (parentEl) {
             const buttonContainer = buttonsRef.querySelector('.flex.absolute') as HTMLElement;
             if (buttonContainer) {
+              const buttonsWidth = parseFloat(buttonContainer.style.width);
               const buttonsHeight = buttonContainer.offsetHeight;
               const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-              const parentWidth = parentEl.clientWidth;
-              const maxHeight = parentEl.clientHeight - (buttonsTop + buttonsHeight) - 10; // 10px bottom margin
+              const parentHeight = parentEl.clientHeight;
+              const maxHeight = parentHeight - (buttonsTop + buttonsHeight) - 10; // 10px bottom margin
               
               let width, height;
               
               if (currentRatioConfig.ratio === "1:1") {
                 // For square aspect ratio (1:1)
-                width = parentWidth * 0.8;
+                width = buttonsWidth;
                 height = width;
                 
                 // Check if height exceeds available space
@@ -66,7 +67,7 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
                 }
               } else if (currentRatioConfig.ratio === "4:5") {
                 // For portrait aspect ratio (4:5)
-                width = parentWidth * 0.7;
+                width = buttonsWidth;
                 height = width * (5/4);
                 
                 // Check if height exceeds available space
@@ -76,7 +77,7 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
                 }
               } else if (currentRatioConfig.ratio === "9:16") {
                 // For vertical aspect ratio (9:16)
-                width = parentWidth * 0.6;
+                width = buttonsWidth;
                 height = width * (16/9);
                 
                 // Check if height exceeds available space
@@ -92,7 +93,7 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
               
               el.style.width = `${width}px`;
               el.style.height = `${height}px`;
-              el.style.left = `${(parentWidth - width) / 2}px`;
+              el.style.left = `${(parentEl.clientWidth - width) / 2}px`;
               el.style.top = `${buttonsTop + buttonsHeight}px`;
             }
           }

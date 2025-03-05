@@ -47,12 +47,13 @@ const MiddleRowCell: React.FC = () => {
             if (parentEl) {
               const buttonContainer = buttonsRef.current.querySelector('.flex.absolute') as HTMLElement;
               if (buttonContainer) {
-                const buttonsHeight = buttonContainer.offsetHeight;
+                const buttonsWidth = parseFloat(buttonContainer.style.width);
                 const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-                const parentWidth = parentEl.clientWidth;
+                const buttonsHeight = buttonContainer.offsetHeight;
                 const parentHeight = parentEl.clientHeight;
                 
-                const width = parentWidth * 0.7;
+                // Use the exact same width as the buttons
+                const width = buttonsWidth;
                 const height = width * (5/4);
                 
                 // Calculate maximum available height
@@ -64,7 +65,7 @@ const MiddleRowCell: React.FC = () => {
                 
                 el.style.height = `${finalHeight}px`;
                 el.style.width = `${finalWidth}px`;
-                el.style.left = `${(parentWidth - finalWidth) / 2}px`;
+                el.style.left = `${(parentEl.clientWidth - finalWidth) / 2}px`;
                 el.style.top = `${buttonsTop + buttonsHeight}px`;
               }
             }
