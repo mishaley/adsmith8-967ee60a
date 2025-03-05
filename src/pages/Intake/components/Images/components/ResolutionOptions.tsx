@@ -55,9 +55,9 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     aspectRatio: '1/1'
                   }}
                 />
-                <div className="flex w-full mt-0">
-                  <div className="bg-gray-200 h-[30px] w-1/2"></div>
-                  <div className="bg-gray-300 h-[30px] w-1/2"></div>
+                <div className="flex w-3/4 mt-0">
+                  <div className="bg-gray-200 h-[60px] w-1/2"></div>
+                  <div className="bg-gray-300 h-[60px] w-1/2"></div>
                 </div>
               </div>
             )}
