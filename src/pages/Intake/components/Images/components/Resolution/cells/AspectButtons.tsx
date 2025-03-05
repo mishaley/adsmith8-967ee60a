@@ -23,7 +23,7 @@ export const WideAspectButtons: React.FC<AspectButtonsProps> = ({
       style={{ 
         width: `${buttonsWidth}px`,
         height: `${buttonHeight}px`,
-        top: '10px',
+        top: '0',
         left: `${(containerWidth - buttonsWidth) / 2}px`
       }}
     >
@@ -44,16 +44,28 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({
   // Fixed height for buttons
   const buttonHeight = 60;
   
-  // Determine width based on aspect ratio
+  // Determine width based on aspect ratio - match display widths
   let buttonsWidth;
+  
   if (currentRatioConfig.ratio === "1:1") {
-    buttonsWidth = containerWidth * 0.8; // Square ratio
-  } else if (currentRatioConfig.ratio === "4:5") {
-    buttonsWidth = containerWidth * 0.7; // Portrait ratio
-  } else if (currentRatioConfig.ratio === "9:16") {
-    buttonsWidth = containerWidth * 0.6; // Vertical ratio
-  } else {
-    buttonsWidth = containerWidth * 0.8; // Default fallback
+    // For 1:1, use the maximum available width based on available height
+    const availableHeight = containerWidth;
+    buttonsWidth = Math.min(availableHeight, containerWidth * 0.95);
+  } 
+  else if (currentRatioConfig.ratio === "4:5") {
+    // For 4:5, determine button width based on available height
+    const availableHeight = containerWidth;
+    const displayHeight = availableHeight - buttonHeight;
+    const displayWidth = displayHeight * (4/5);
+    buttonsWidth = Math.min(displayWidth, containerWidth * 0.95);
+  } 
+  else if (currentRatioConfig.ratio === "9:16") {
+    // For 9:16, use 60% of container width for buttons to match display
+    buttonsWidth = containerWidth * 0.6;
+  } 
+  else {
+    // Default fallback
+    buttonsWidth = containerWidth * 0.8;
   }
 
   return (
@@ -62,7 +74,7 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({
       style={{ 
         width: `${buttonsWidth}px`,
         height: `${buttonHeight}px`,
-        top: '10px',
+        top: '0',
         left: `${(containerWidth - buttonsWidth) / 2}px`
       }}
     >

@@ -43,34 +43,58 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
   currentRatioConfig,
   containerWidth,
   buttonHeight,
-  availableHeight
+  availableHeight,
+  containerHeight
 }) => {
-  // Calculate display width based on aspect ratio
+  // For 1:1 and 4:5, we want to maximize the height to reach the bottom of the cell
+  // while still maintaining the aspect ratio
   let displayWidth;
-  if (currentRatioConfig.ratio === "1:1") {
-    displayWidth = containerWidth * 0.8; // Square ratio
-  } else if (currentRatioConfig.ratio === "4:5") {
-    displayWidth = containerWidth * 0.7; // Portrait ratio
-  } else if (currentRatioConfig.ratio === "9:16") {
-    displayWidth = containerWidth * 0.6; // Vertical ratio
-  } else {
-    displayWidth = containerWidth * 0.8; // Default fallback
-  }
+  let displayHeight;
   
-  // Calculate height based on aspect ratio
-  let aspectHeight;
   if (currentRatioConfig.ratio === "1:1") {
-    aspectHeight = displayWidth; // 1:1 ratio
-  } else if (currentRatioConfig.ratio === "4:5") {
-    aspectHeight = displayWidth * (5/4); // 4:5 ratio
-  } else if (currentRatioConfig.ratio === "9:16") {
-    aspectHeight = displayWidth * (16/9); // 9:16 ratio
-  } else {
-    aspectHeight = displayWidth; // Default fallback
+    // For 1:1 (square), height = width, so we set height to available height
+    // and calculate the width to maintain aspect ratio
+    displayHeight = availableHeight;
+    displayWidth = displayHeight; // Because it's a 1:1 square
+    
+    // Make sure width doesn't exceed container width
+    if (displayWidth > containerWidth * 0.95) {
+      displayWidth = containerWidth * 0.95;
+      displayHeight = displayWidth; // Maintain 1:1 ratio
+    }
+  } 
+  else if (currentRatioConfig.ratio === "4:5") {
+    // For 4:5, height is greater than width
+    displayHeight = availableHeight;
+    displayWidth = displayHeight * (4/5); // Calculate width based on 4:5 ratio
+    
+    // Make sure width doesn't exceed container width
+    if (displayWidth > containerWidth * 0.95) {
+      displayWidth = containerWidth * 0.95;
+      displayHeight = displayWidth * (5/4); // Maintain 4:5 ratio
+    }
+  } 
+  else if (currentRatioConfig.ratio === "9:16") {
+    // For 9:16, much taller than wide
+    displayWidth = containerWidth * 0.6; // Narrower to accommodate the tall height
+    displayHeight = displayWidth * (16/9); // Calculate height based on 9:16 ratio
+    
+    // Make sure height doesn't exceed available height
+    if (displayHeight > availableHeight) {
+      displayHeight = availableHeight;
+      displayWidth = displayHeight * (9/16); // Maintain 9:16 ratio
+    }
+  } 
+  else {
+    // Default fallback (shouldn't reach here with our current config)
+    displayWidth = containerWidth * 0.8;
+    displayHeight = displayWidth;
+    
+    if (displayHeight > availableHeight) {
+      displayHeight = availableHeight;
+      displayWidth = displayHeight;
+    }
   }
-  
-  // Make sure the display doesn't exceed the available height
-  const displayHeight = Math.min(aspectHeight, availableHeight);
   
   return (
     <div 
@@ -79,7 +103,6 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
         width: `${displayWidth}px`,
         height: `${displayHeight}px`,
         left: `${(containerWidth - displayWidth) / 2}px`,
-        // Remove the 20px spacing that was creating the gap
         top: `${buttonHeight}px`,
       }}
     />
