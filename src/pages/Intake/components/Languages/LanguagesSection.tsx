@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import CollapsibleSection from "../CollapsibleSection";
 import { useLanguages } from "./hooks/useLanguages";
 
@@ -39,17 +40,19 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
-                    {error && (
-                      <div className="p-2 text-red-500 text-sm">Error loading languages</div>
-                    )}
-                    {!error && languages.length === 0 && !isLoading && (
-                      <div className="p-2 text-gray-500 text-sm">No languages available</div>
-                    )}
-                    {languages.map(language => (
-                      <SelectItem key={language.code} value={language.code}>
-                        {language.display}
-                      </SelectItem>
-                    ))}
+                    <ScrollArea className="h-[200px] w-full">
+                      {error && (
+                        <div className="p-2 text-red-500 text-sm">Error loading languages</div>
+                      )}
+                      {!error && languages.length === 0 && !isLoading && (
+                        <div className="p-2 text-gray-500 text-sm">No languages available</div>
+                      )}
+                      {languages.map(language => (
+                        <SelectItem key={language.code} value={language.code}>
+                          {language.display}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
                   </SelectContent>
                 </Select>
               </div>
