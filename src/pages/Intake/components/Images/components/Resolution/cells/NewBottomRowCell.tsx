@@ -6,7 +6,7 @@ const NewBottomRowCell: React.FC = () => {
   const buttonsRef = useRef<HTMLDivElement | null>(null);
   
   return (
-    <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
+    <div className="w-full h-full flex flex-col justify-end relative bg-transparent" style={{ paddingTop: '20px' }}>
       <div ref={buttonsRef} className="w-full">
         <div 
           className="flex absolute"
