@@ -17,12 +17,14 @@ export const WideAspectButtons: React.FC<AspectButtonsProps> = ({ currentRatioCo
       }}
       ref={(el) => {
         if (el) {
-          const parentWidth = el.parentElement?.clientWidth ?? 0;
-          // Use 95% of parent width for 10px padding on each side
-          const maxWidth = parentWidth * 0.95;
-          
-          el.style.width = `${maxWidth}px`;
-          el.style.left = `${(parentWidth - maxWidth) / 2}px`;
+          const parentEl = el.parentElement?.parentElement;
+          if (parentEl) {
+            // Use 95% of parent width for wide aspect ratio (21:11)
+            const maxWidth = parentEl.clientWidth * 0.95;
+            
+            el.style.width = `${maxWidth}px`;
+            el.style.left = `${(parentEl.clientWidth - maxWidth) / 2}px`;
+          }
         }
       }}
     >
@@ -46,22 +48,20 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({ currentRat
       }}
       ref={(el) => {
         if (el) {
-          const parentEl = el.parentElement;
+          const parentEl = el.parentElement?.parentElement;
           if (parentEl) {
-            // Calculate dimensions based on aspect ratio
-            const maxWidth = parentEl.clientWidth * 0.9; // 90% of parent width
             let width;
             
             // Determine width based on aspect ratio
             if (currentRatioConfig.ratio === "1:1") {
-              width = maxWidth * 0.8; // Square ratio
+              width = parentEl.clientWidth * 0.8; // Square ratio
             } else if (currentRatioConfig.ratio === "4:5") {
-              width = maxWidth * 0.7; // Portrait
+              width = parentEl.clientWidth * 0.7; // Portrait
             } else if (currentRatioConfig.ratio === "9:16") {
-              width = maxWidth * 0.6; // Vertical
+              width = parentEl.clientWidth * 0.6; // Vertical
             } else {
               // Default fallback
-              width = maxWidth * 0.8;
+              width = parentEl.clientWidth * 0.8;
             }
             
             el.style.width = `${width}px`;

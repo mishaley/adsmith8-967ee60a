@@ -25,7 +25,7 @@ const TopRowCell: React.FC<TopRowCellProps> = ({ currentRatioConfig }) => {
             buttonsRef.current = el;
             // Force reflow to ensure the ref is updated before AspectDisplay tries to use it
             if (el) el.getBoundingClientRect();
-          }}>
+          }} className="w-full">
             <WideAspectButtons currentRatioConfig={currentRatioConfig} />
           </div>
           <WideAspectDisplay 
@@ -39,7 +39,7 @@ const TopRowCell: React.FC<TopRowCellProps> = ({ currentRatioConfig }) => {
             buttonsRef.current = el;
             // Force reflow to ensure the ref is updated before AspectDisplay tries to use it
             if (el) el.getBoundingClientRect();
-          }}>
+          }} className="w-full">
             <StandardAspectButtons currentRatioConfig={currentRatioConfig} />
           </div>
           <StandardAspectDisplay 

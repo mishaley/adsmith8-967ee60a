@@ -17,6 +17,7 @@ const MiddleRowCell: React.FC = () => {
           // Force reflow to ensure the ref is updated
           if (el) el.getBoundingClientRect();
         }}
+        className="w-full"
       >
         <div 
           className="flex absolute"
@@ -54,15 +55,20 @@ const MiddleRowCell: React.FC = () => {
               const buttons = buttonsRef.current.querySelector('.flex.absolute') as HTMLElement;
               if (buttons) {
                 const buttonsHeight = buttons.offsetHeight;
-                const buttonsTop = parseInt(buttons.style.top, 10);
-                const totalHeight = parentEl.clientHeight;
-                // Calculate dimensions
-                const height = totalHeight - (buttonsTop + buttonsHeight) - 10; // 10px bottom margin
-                const width = height * (4/5);
+                const buttonsTop = parseInt(getComputedStyle(buttons).top, 10);
+                const parentWidth = parentEl.clientWidth;
                 
-                el.style.height = `${height}px`;
-                el.style.width = `${width}px`;
-                el.style.left = `${(parentEl.clientWidth - width) / 2}px`;
+                const width = parentWidth * 0.7;
+                const height = width * (5/4);
+                const maxHeight = parentEl.clientHeight - (buttonsTop + buttonsHeight) - 10;
+                
+                // Adjust if height exceeds available space
+                const finalHeight = Math.min(height, maxHeight);
+                const finalWidth = finalHeight * (4/5);
+                
+                el.style.height = `${finalHeight}px`;
+                el.style.width = `${finalWidth}px`;
+                el.style.left = `${(parentWidth - finalWidth) / 2}px`;
                 el.style.top = `${buttonsTop + buttonsHeight}px`;
               }
             }

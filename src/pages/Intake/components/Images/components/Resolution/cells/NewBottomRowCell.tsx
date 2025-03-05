@@ -17,6 +17,7 @@ const NewBottomRowCell: React.FC = () => {
           // Force reflow to ensure the ref is updated
           if (el) el.getBoundingClientRect();
         }}
+        className="w-full"
       >
         <div 
           className="flex absolute"
@@ -54,7 +55,7 @@ const NewBottomRowCell: React.FC = () => {
               const buttons = buttonsRef.current.querySelector('.flex.absolute') as HTMLElement;
               if (buttons) {
                 const buttonsHeight = buttons.offsetHeight;
-                const buttonsTop = parseInt(buttons.style.top, 10);
+                const buttonsTop = parseInt(getComputedStyle(buttons).top, 10);
                 const parentWidth = parentEl.clientWidth;
                 
                 // Use 95% of available width for 10px padding on each side
