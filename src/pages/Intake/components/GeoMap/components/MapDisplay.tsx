@@ -1,5 +1,7 @@
+
 import React from "react";
 import { Loader, AlertCircle } from "lucide-react";
+
 interface MapDisplayProps {
   loading: boolean;
   error: string | null;
@@ -7,6 +9,7 @@ interface MapDisplayProps {
   selectedCountry: string;
   setSelectedCountry: (country: string) => void;
 }
+
 const MapDisplay: React.FC<MapDisplayProps> = ({
   loading,
   error,
@@ -20,6 +23,7 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         <div className="ml-2">Loading map...</div>
       </div>;
   }
+  
   if (error) {
     return <div className="h-[400px] flex flex-col items-center justify-center bg-gray-100 rounded text-red-500 p-4">
         <AlertCircle className="h-8 w-8 mb-2" />
@@ -30,11 +34,12 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
         </div>
       </div>;
   }
+  
   return <div className="w-full">
-      <div className="h-[400px] rounded overflow-hidden border border-gray-300 relative">
+      <div className="h-[400px] rounded overflow-hidden relative">
         <div ref={mapContainerRef} className="absolute inset-0" />
       </div>
-      
     </div>;
 };
+
 export default MapDisplay;
