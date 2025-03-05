@@ -39,11 +39,24 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse" style={{ tableLayout: "auto" }}>
+      <table className="w-full border-collapse" style={{ tableLayout: "fixed" }}>
+        <colgroup>
+          {/* This column for personas adapts to content width */}
+          <col style={{ width: "auto" }} />
+          
+          {/* All message columns get equal remaining width */}
+          {messageColumns.map((col) => (
+            <col key={`col-${col.id}`} style={{ width: `${70 / Math.max(messageColumns.length, 1)}%` }} />
+          ))}
+          
+          {/* Fixed width for add button column */}
+          <col style={{ width: "50px" }} />
+        </colgroup>
+        
         <thead>
           <tr className="bg-gray-50">
-            {/* Persona header cell with width that fits content */}
-            <th className="border p-2 text-left" style={{ width: "1%", whiteSpace: "nowrap" }}>
+            {/* Persona header cell */}
+            <th className="border p-2 text-left">
               Persona
             </th>
             

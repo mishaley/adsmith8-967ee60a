@@ -15,20 +15,25 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index = 0 }) => {
   const secondInterest = interests.length > 1 ? interests[1] : null;
 
   return (
-    <td className="border p-2 align-top" style={{ width: "1%", whiteSpace: "nowrap" }}>
-      <div className="flex items-start">
-        {persona.portraitUrl ? (
-          <img 
-            src={persona.portraitUrl} 
-            alt={`Portrait`}
-            className="w-20 h-20 rounded-md object-cover mr-2"
-          />
-        ) : (
-          <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center mr-2">
-            <User className="h-6 w-6 text-gray-500" />
-          </div>
-        )}
-        <div className="flex flex-col">
+    <td className="border p-2 align-top">
+      <div className="flex items-start space-x-2 w-auto">
+        {/* Portrait container with fixed width */}
+        <div className="flex-shrink-0" style={{ width: "80px" }}>
+          {persona.portraitUrl ? (
+            <img 
+              src={persona.portraitUrl} 
+              alt={`Portrait`}
+              className="w-20 h-20 rounded-md object-cover"
+            />
+          ) : (
+            <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center">
+              <User className="h-6 w-6 text-gray-500" />
+            </div>
+          )}
+        </div>
+        
+        {/* Text content with natural width */}
+        <div className="flex flex-col min-w-fit">
           <div className="text-sm whitespace-nowrap">{persona.gender}</div>
           <div className="text-sm whitespace-nowrap">Age {persona.ageMin}-{persona.ageMax}</div>
           {firstInterest && (
