@@ -70,7 +70,7 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 8], // Updated center point to 8
+        center: [0, 8], // Center point at latitude 8
         projection: {
           name: 'mercator',
           center: [0, 8], // Matching center point with the map center
@@ -79,8 +79,8 @@ export const useMapInstance = ({
         minZoom: 0.5,
         maxZoom: 8,
         maxBounds: [
-          [-180, -85],
-          [180, 85]
+          [-180, -56], // Updated Southwest corner
+          [180, 81]    // Updated Northeast corner
         ],
         renderWorldCopies: false,
         attributionControl: false,
@@ -155,8 +155,8 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   };
   
   map.fitBounds([
-    [-180, -55], // Southwest - showing less of the south
-    [180, 85]    // Northeast - showing more of the north
+    [-180, -56], // Updated Southwest corner - showing less of the south
+    [180, 81]    // Updated Northeast corner - showing less of the north
   ], {
     padding,
     linear: true,
