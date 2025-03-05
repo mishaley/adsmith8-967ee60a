@@ -1,5 +1,6 @@
+
 import React, { useRef, useEffect, useState } from "react";
-import { Check, X, Square, Rectangle, LayoutPanelTop, MonitorLandscape } from "lucide-react";
+import { Check, X, Square, RectangleVertical, LayoutPanelTop, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../../../utils/localStorageUtils";
 
@@ -33,7 +34,7 @@ const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 4, 
     height: 5, 
     description: "Portrait format - taller than wide",
-    icon: <Rectangle className="h-4 w-4" />
+    icon: <RectangleVertical className="h-4 w-4" />
   },
   { 
     label: "9:16", 
@@ -49,7 +50,7 @@ const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 21, 
     height: 11, 
     description: "Landscape format - wider than tall",
-    icon: <MonitorLandscape className="h-4 w-4" />
+    icon: <Monitor className="h-4 w-4" />
   },
 ];
 
