@@ -121,7 +121,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     }
     
     return (
-      <div className="bg-white rounded-md overflow-hidden border border-gray-200">
+      <div className="bg-white rounded-md overflow-hidden border border-gray-200 shadow-none">
         <table className="w-full border-collapse">
           <tbody>
             {rows}
@@ -134,7 +134,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   return (
     <CollapsibleSection title="CAPTIONS">
       {totalPairs > 0 ? (
-        <div className="rounded-md overflow-hidden bg-white">
+        <div className="rounded-md overflow-hidden bg-white shadow-none">
           <div className="p-4 border-b">
             <PersonaDisplay 
               currentPersona={currentPersona}
@@ -161,7 +161,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500 bg-white rounded-md">
+        <div className="p-4 text-center text-gray-500 bg-white rounded-md shadow-none">
           No personas available to display
         </div>
       )}
