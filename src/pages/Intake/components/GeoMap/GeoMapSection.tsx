@@ -1,12 +1,15 @@
+
 import React, { useRef } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from "./hooks/useMapboxToken";
 import { useMapInitialization } from "./hooks/useMapInitialization";
 import MapDisplay from "./components/MapDisplay";
+
 interface GeoMapSectionProps {
   selectedCountry: string;
   setSelectedCountry: (country: string) => void;
 }
+
 const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   selectedCountry,
   setSelectedCountry
@@ -38,22 +41,33 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     error,
     initialized
   });
-  return <table className="w-full border-collapse">
-      <tbody>
-        <tr>
-          <td className="p-2 w-1/2 align-top">
-            <MapDisplay loading={loading} error={error} mapContainerRef={mapContainer} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
-          </td>
-          <td className="p-2 w-1/2 align-top">
-            <div className="font-bold text-lg mb-4">Selections</div>
-            {selectedCountry && <div className="p-2 bg-[#f5f9ff] rounded">
-                <p className="font-medium">Selected Country:</p>
-                <p className="text-[#154851] font-bold">{selectedCountry}</p>
-              </div>}
-            {!selectedCountry}
-          </td>
-        </tr>
-      </tbody>
-    </table>;
+
+  return (
+    <div className="flex flex-col md:flex-row gap-4">
+      <div className="w-full md:w-2/3">
+        <MapDisplay 
+          loading={loading} 
+          error={error} 
+          mapContainerRef={mapContainer} 
+          selectedCountry={selectedCountry} 
+          setSelectedCountry={setSelectedCountry} 
+        />
+      </div>
+      <div className="w-full md:w-1/3">
+        <div className="font-bold text-lg mb-4">Selections</div>
+        {selectedCountry ? (
+          <div className="p-3 bg-[#f5f9ff] rounded border border-[#d0e1f9]">
+            <p className="font-medium">Selected Country:</p>
+            <p className="text-[#154851] font-bold">{selectedCountry}</p>
+          </div>
+        ) : (
+          <div className="p-3 bg-gray-50 rounded border border-gray-200 text-gray-500">
+            No country selected. Click on the map to select a country.
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
+
 export default GeoMapSection;

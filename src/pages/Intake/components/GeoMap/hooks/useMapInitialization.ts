@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from 'mapbox-gl';
 
@@ -46,14 +47,22 @@ export const useMapInitialization = ({
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1.2,
-        center: [0, 20],
-        projection: 'mercator'
+        zoom: 1.5,  // Adjusted zoom level to better fit the map
+        center: [0, 20],  // Centered to show more landmass
+        projection: 'mercator',
+        minZoom: 1,  // Prevent zooming out too far
+        attributionControl: false  // Hide attribution for cleaner look
       });
+
+      // Add attribution control in a more discrete position
+      map.current.addControl(
+        new mapboxgl.AttributionControl({ compact: true }),
+        'bottom-right'
+      );
 
       // Add navigation controls
       map.current.addControl(
-        new mapboxgl.NavigationControl(),
+        new mapboxgl.NavigationControl({ showCompass: false }),
         'top-right'
       );
 
@@ -165,6 +174,12 @@ export const useMapInitialization = ({
               ]);
             }
           });
+          
+          // Add a subtle border around the map
+          if (mapContainer.current) {
+            mapContainer.current.style.border = '1px solid #e2e8f0';
+            mapContainer.current.style.borderRadius = '0.375rem';
+          }
           
           setInitialized(true);
           console.log("Map fully initialized and configured");
