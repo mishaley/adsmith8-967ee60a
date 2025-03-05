@@ -53,7 +53,8 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }
                   <Trash2 size={18} />
                 </button>
               )}
-              <div className="text-sm">{personas[index].gender}, age {personas[index].ageMin}-{personas[index].ageMax}</div>
+              <div className="text-sm">{personas[index].gender}</div>
+              <div className="text-sm">Age {personas[index].ageMin}-{personas[index].ageMax}</div>
               {formatInterests(personas[index].interests)}
             </div>
           ) : (
