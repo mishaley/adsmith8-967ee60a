@@ -47,25 +47,17 @@ const NewBottomRowCell: React.FC = () => {
             if (parentEl) {
               const buttonContainer = buttonsRef.current.querySelector('.flex.absolute') as HTMLElement;
               if (buttonContainer) {
-                const buttonsHeight = buttonContainer.offsetHeight;
+                const buttonsWidth = parseFloat(buttonContainer.style.width);
                 const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-                const parentWidth = parentEl.clientWidth;
-                const parentHeight = parentEl.clientHeight;
+                const buttonsHeight = buttonContainer.offsetHeight;
                 
-                // Use 95% of available width for 21:11 aspect ratio
-                const maxWidth = parentWidth * 0.95;
-                const height = maxWidth * (11/21); // Apply aspect ratio for 21:11
+                // Use the exact same width as the buttons
+                const width = buttonsWidth;
+                const height = width * (11/21); // Apply aspect ratio for 21:11
                 
-                // Calculate maximum available height
-                const maxHeight = parentHeight - (buttonsTop + buttonsHeight) - 10;
-                
-                // Adjust if height exceeds available space
-                const finalHeight = Math.min(height, maxHeight);
-                const finalWidth = finalHeight * (21/11);
-                
-                el.style.width = `${finalWidth}px`;
-                el.style.height = `${finalHeight}px`;
-                el.style.left = `${(parentWidth - finalWidth) / 2}px`;
+                el.style.width = `${width}px`;
+                el.style.height = `${height}px`;
+                el.style.left = buttonContainer.style.left;
                 el.style.top = `${buttonsTop + buttonsHeight}px`;
               }
             }

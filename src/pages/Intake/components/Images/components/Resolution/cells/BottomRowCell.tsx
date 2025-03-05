@@ -50,22 +50,15 @@ const BottomRowCell: React.FC = () => {
                 const buttonsWidth = parseFloat(buttonContainer.style.width);
                 const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
                 const buttonsHeight = buttonContainer.offsetHeight;
-                const parentHeight = parentEl.clientHeight;
                 
                 // Use the exact same width as the buttons
                 const width = buttonsWidth;
                 const height = width * (16/9);
                 
-                // Calculate maximum available height
-                const maxHeight = parentHeight - (buttonsTop + buttonsHeight) - 10;
-                
-                // Adjust if height exceeds available space
-                const finalHeight = Math.min(height, maxHeight);
-                const finalWidth = finalHeight * (9/16);
-                
-                el.style.height = `${finalHeight}px`;
-                el.style.width = `${finalWidth}px`;
-                el.style.left = `${(parentEl.clientWidth - finalWidth) / 2}px`;
+                // Position directly under the buttons with the same width
+                el.style.width = `${width}px`;
+                el.style.height = `${height}px`;
+                el.style.left = `${(parentEl.clientWidth - width) / 2}px`;
                 el.style.top = `${buttonsTop + buttonsHeight}px`;
               }
             }

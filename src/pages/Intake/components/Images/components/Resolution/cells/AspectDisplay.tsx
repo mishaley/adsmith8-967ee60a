@@ -17,17 +17,16 @@ export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRatioCo
           if (parentEl) {
             const buttonContainer = buttonsRef.querySelector('.flex.absolute') as HTMLElement;
             if (buttonContainer) {
+              // Make sure to use the exact same width as the buttons
+              const buttonsWidth = parseFloat(buttonContainer.style.width);
               const buttonsHeight = buttonContainer.offsetHeight;
               const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-              const parentWidth = parentEl.clientWidth;
               
-              // Use 95% of available width for 21:11 aspect ratio
-              const maxWidth = parentWidth * 0.95;
-              const height = maxWidth * (11/21); // Apply aspect ratio for 21:11
+              const height = buttonsWidth * (11/21); // Apply aspect ratio for 21:11
               
-              el.style.width = `${maxWidth}px`;
+              el.style.width = `${buttonsWidth}px`;
               el.style.height = `${height}px`;
-              el.style.left = `${(parentWidth - maxWidth) / 2}px`;
+              el.style.left = buttonContainer.style.left;
               el.style.top = `${buttonsTop + buttonsHeight}px`;
             }
           }
@@ -50,8 +49,6 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
               const buttonsWidth = parseFloat(buttonContainer.style.width);
               const buttonsHeight = buttonContainer.offsetHeight;
               const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-              const parentHeight = parentEl.clientHeight;
-              const maxHeight = parentHeight - (buttonsTop + buttonsHeight) - 10; // 10px bottom margin
               
               let width, height;
               
@@ -59,41 +56,23 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
                 // For square aspect ratio (1:1)
                 width = buttonsWidth;
                 height = width;
-                
-                // Check if height exceeds available space
-                if (height > maxHeight) {
-                  height = maxHeight;
-                  width = height;
-                }
               } else if (currentRatioConfig.ratio === "4:5") {
                 // For portrait aspect ratio (4:5)
                 width = buttonsWidth;
                 height = width * (5/4);
-                
-                // Check if height exceeds available space
-                if (height > maxHeight) {
-                  height = maxHeight;
-                  width = height * (4/5);
-                }
               } else if (currentRatioConfig.ratio === "9:16") {
                 // For vertical aspect ratio (9:16)
                 width = buttonsWidth;
                 height = width * (16/9);
-                
-                // Check if height exceeds available space
-                if (height > maxHeight) {
-                  height = maxHeight;
-                  width = height * (9/16);
-                }
               } else {
                 // Default fallback
-                height = maxHeight;
-                width = height;
+                width = buttonsWidth;
+                height = width;
               }
               
               el.style.width = `${width}px`;
               el.style.height = `${height}px`;
-              el.style.left = `${(parentEl.clientWidth - width) / 2}px`;
+              el.style.left = buttonContainer.style.left;
               el.style.top = `${buttonsTop + buttonsHeight}px`;
             }
           }
