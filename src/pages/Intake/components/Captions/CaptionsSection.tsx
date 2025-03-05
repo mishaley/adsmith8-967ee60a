@@ -4,9 +4,6 @@ import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "../Images/components/PersonaDisplay";
 import CollapsibleSection from "../CollapsibleSection";
-import { Button } from "@/components/ui/button";
-import { Wand2 } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 
 interface CaptionsSectionProps {
   personas: Persona[];
@@ -32,9 +29,6 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   
   // State for tracking the current index
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
-  // State for caption text
-  const [caption, setCaption] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState<boolean>(false);
   
   // Reset the index when personas or message types change
   useEffect(() => {
@@ -71,15 +65,6 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
 
-  const handleGenerateCaption = () => {
-    setIsGenerating(true);
-    // Simulate generation - in a real app, this would call an API
-    setTimeout(() => {
-      setCaption("This is a sample auto-generated caption for your advertisement. It highlights your product's key features and benefits.");
-      setIsGenerating(false);
-    }, 1000);
-  };
-  
   // Generate 11 rows for the table
   const renderTableRows = () => {
     const rows = [];
@@ -87,16 +72,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
           <td className="p-2 border-r border-gray-200">
-            {i === 0 ? (
-              <Textarea
-                placeholder="Enter or generate a caption for your advertisement"
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                className="min-h-[60px]"
-              />
-            ) : (
-              <div className="h-[60px]"></div>
-            )}
+            <div className="h-[60px]"></div>
           </td>
           <td className="p-2 border-r border-gray-200">
             <div className="h-[60px]"></div>
@@ -126,17 +102,6 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
             />
           </div>
           <div className="p-4">
-            <div className="mb-4 flex justify-end">
-              <Button
-                onClick={handleGenerateCaption}
-                disabled={isGenerating}
-                size="sm"
-                className="flex items-center gap-1"
-              >
-                <Wand2 className="h-4 w-4" />
-                {isGenerating ? "Generating..." : "Generate Caption"}
-              </Button>
-            </div>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-gray-200">
                 <tbody>
