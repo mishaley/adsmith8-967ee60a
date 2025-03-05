@@ -41,8 +41,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
           ref={mapContainerRef} 
           className="absolute inset-0 w-full" 
           style={{ 
-            marginLeft: "-1px", 
-            width: "calc(100% + 6px)" 
+            marginLeft: "-2px", 
+            width: "calc(100% + 8px)" 
           }} 
         />
       </div>

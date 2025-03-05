@@ -70,17 +70,17 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 8], // Center point at latitude 8
+        center: [-2, 8], // Slightly shifted center point to eliminate left edge gap
         projection: {
           name: 'mercator',
-          center: [0, 8], // Matching center point with the map center
+          center: [-2, 8], // Matching center point with the map center
           parallels: [0, 60]
         },
         minZoom: 0.5,
         maxZoom: 8,
         maxBounds: [
-          [-182, -56], // Updated Southwest corner - extended by 2 degrees
-          [182, 81]    // Updated Northeast corner - extended by 2 degrees
+          [-184, -56], // Extended Southwest corner by 2 more degrees
+          [184, 81]    // Extended Northeast corner by 2 more degrees
         ],
         renderWorldCopies: false,
         attributionControl: false,
@@ -155,8 +155,8 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   };
   
   map.fitBounds([
-    [-182, -56], // Updated Southwest corner - showing less of the south, extended by 2 degrees
-    [182, 81]    // Updated Northeast corner - showing less of the north, extended by 2 degrees
+    [-184, -56], // Extended Southwest corner
+    [184, 81]    // Extended Northeast corner
   ], {
     padding,
     linear: true,
