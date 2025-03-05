@@ -21,11 +21,11 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index = 0 }) => {
           <img 
             src={persona.portraitUrl} 
             alt={`Portrait`}
-            className="w-12 h-16 rounded-md object-cover mr-2"
+            className="w-20 h-20 rounded-md object-cover mr-2"
           />
         ) : (
-          <div className="w-12 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2">
-            <User className="h-5 w-5 text-gray-500" />
+          <div className="w-20 h-20 bg-gray-200 rounded-md flex items-center justify-center mr-2">
+            <User className="h-6 w-6 text-gray-500" />
           </div>
         )}
         <div className="flex flex-col">
