@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "../Images/components/PersonaDisplay";
 import CollapsibleSection from "../CollapsibleSection";
+import { CheckSquare, XSquare } from "lucide-react";
 
 interface CaptionsSectionProps {
   personas: Persona[];
@@ -90,6 +90,24 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
 
   const { columnHeaders, rowCounts } = getTableConfig();
   
+  // State for review status of each row in each table
+  const [reviewStatus, setReviewStatus] = useState<Record<number, Record<number, boolean | null>>>({
+    0: {}, // First table
+    1: {}, // Second table
+    2: {}  // Third table
+  });
+  
+  // Handle review click
+  const handleReviewClick = (tableIndex: number, rowIndex: number, isApproved: boolean) => {
+    setReviewStatus(prev => ({
+      ...prev,
+      [tableIndex]: {
+        ...prev[tableIndex],
+        [rowIndex]: isApproved
+      }
+    }));
+  };
+  
   // Render a single table for one column
   const renderSingleTable = (columnIndex: number) => {
     const rows = [];
@@ -107,12 +125,32 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
       );
     }
     
-    // Add empty data rows
+    // Add data rows with review squares
     for (let i = 0; i < rowCount; i++) {
+      const rowStatus = reviewStatus[columnIndex]?.[i];
+      
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
           <td className="w-full">
-            <div className="h-[60px]"></div>
+            <div className="h-[60px] flex items-center justify-between px-3">
+              <div className="flex-grow"></div>
+              <div className="flex items-center gap-2 ml-auto">
+                <button 
+                  onClick={() => handleReviewClick(columnIndex, i, true)}
+                  className={`p-1 rounded ${rowStatus === true ? 'bg-green-100' : 'hover:bg-gray-100'}`}
+                  aria-label="Approve"
+                >
+                  <CheckSquare className={`h-5 w-5 ${rowStatus === true ? 'text-green-500' : 'text-gray-400'}`} />
+                </button>
+                <button 
+                  onClick={() => handleReviewClick(columnIndex, i, false)}
+                  className={`p-1 rounded ${rowStatus === false ? 'bg-red-100' : 'hover:bg-gray-100'}`}
+                  aria-label="Reject"
+                >
+                  <XSquare className={`h-5 w-5 ${rowStatus === false ? 'text-red-500' : 'text-gray-400'}`} />
+                </button>
+              </div>
+            </div>
           </td>
         </tr>
       );
