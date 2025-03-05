@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorageUtils";
 import { Message } from "../components/Messages/hooks/useMessagesFetching";
@@ -26,12 +25,12 @@ export const useIntakeForm = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(() => loadFromLocalStorage(`${STORAGE_KEYS.LANGUAGE}_selected`, "en"));
   
   // Add state for personas and messages data for the captions section
-  const [personas, setPersonas] = useState<Persona[]>(() => loadFromLocalStorage(`${STORAGE_KEYS.PERSONAS}`, []));
+  const [personas, setPersonas] = useState<Persona[]>(() => loadFromLocalStorage(`${STORAGE_KEYS.PERSONAS}_data`, []));
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>(() => 
-    loadFromLocalStorage(`${STORAGE_KEYS.MESSAGES}`, {})
+    loadFromLocalStorage(`${STORAGE_KEYS.MESSAGES}_generated`, {})
   );
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(() => 
-    loadFromLocalStorage(`${STORAGE_KEYS.MESSAGES}_selectedTypes`, ["tagline"])
+    loadFromLocalStorage(`${STORAGE_KEYS.MESSAGES}_types`, ["tagline"])
   );
 
   // Save changes to localStorage
@@ -50,9 +49,9 @@ export const useIntakeForm = () => {
     saveToLocalStorage(`${STORAGE_KEYS.LANGUAGE}_selected`, selectedLanguage);
     
     // Save personas and messages state
-    saveToLocalStorage(`${STORAGE_KEYS.PERSONAS}`, personas);
-    saveToLocalStorage(`${STORAGE_KEYS.MESSAGES}`, generatedMessages);
-    saveToLocalStorage(`${STORAGE_KEYS.MESSAGES}_selectedTypes`, selectedMessageTypes);
+    saveToLocalStorage(`${STORAGE_KEYS.PERSONAS}_data`, personas);
+    saveToLocalStorage(`${STORAGE_KEYS.MESSAGES}_generated`, generatedMessages);
+    saveToLocalStorage(`${STORAGE_KEYS.MESSAGES}_types`, selectedMessageTypes);
   }, [
     brandName, industry, businessDescription, 
     offering, sellingPoints, problemSolved, uniqueOffering,
@@ -77,7 +76,9 @@ export const useIntakeForm = () => {
     selectedCountry, setSelectedCountry,
     adPlatform, setAdPlatform,
     selectedLanguage, setSelectedLanguage,
-    personas, generatedMessages, selectedMessageTypes,
+    personas, 
+    generatedMessages, 
+    selectedMessageTypes,
     handleSave
   };
 };

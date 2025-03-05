@@ -38,13 +38,6 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   
   // Reset the index when personas or message types change
   useEffect(() => {
-    console.log("CaptionsSection: Data changed", {
-      validPersonas: validPersonas.length,
-      validMessageTypes,
-      totalPairs
-    });
-    
-    // Only reset to 0 if current index is now out of bounds
     if (currentPairIndex >= totalPairs && totalPairs > 0) {
       setCurrentPairIndex(0);
     }
@@ -89,7 +82,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   
   return (
     <CollapsibleSection title="CAPTIONS">
-      {currentPersona ? (
+      {totalPairs > 0 ? (
         <div className="border rounded-md overflow-hidden bg-white">
           <div className="p-4 border-b">
             <PersonaDisplay 
@@ -103,7 +96,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
             />
           </div>
           <div className="grid grid-cols-3 gap-4 p-4">
-            {/* Three-column structure placeholder */}
+            {/* First column */}
             <div className="bg-gray-50 border rounded-md p-4">
               <div className="mb-4">
                 <Textarea
@@ -125,9 +118,11 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
                 </Button>
               </div>
             </div>
+            {/* Second column */}
             <div className="bg-gray-50 border rounded-md p-4">
               {/* Empty column */}
             </div>
+            {/* Third column */}
             <div className="bg-gray-50 border rounded-md p-4">
               {/* Empty column */}
             </div>
