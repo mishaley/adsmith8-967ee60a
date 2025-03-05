@@ -54,3 +54,10 @@ export const clearAllLocalStorage = (): void => {
     console.error('Error clearing all localStorage items:', error);
   }
 };
+
+// Clear form and refresh the page
+export const clearFormAndRefresh = (): void => {
+  clearAllLocalStorage();
+  // Refresh the page to reset all state
+  window.location.reload();
+};

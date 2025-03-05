@@ -16,8 +16,25 @@ import { ImagesSection } from "./components/Images";
 import { CaptionsSection } from "./components/Captions";
 import { ParametersSection } from "./components/Parameters";
 import { Message } from "./components/Messages/hooks/useMessagesFetching";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { clearFormAndRefresh } from "./utils/localStorageUtils";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const IntakeForm = () => {
+  const { toast } = useToast();
+  
   const {
     brandName,
     setBrandName,
@@ -67,9 +84,37 @@ const IntakeForm = () => {
     setSelectedMessageTypes(types);
   };
 
+  const handleClearForm = () => {
+    clearFormAndRefresh();
+  };
+
   return <QuadrantLayout>
       {{
-      q4: <div className="p-[18px] pl-0 pt-0">
+      q4: <div className="p-[18px] pl-0 pt-0 relative">
+            {/* Clear Form Button */}
+            <div className="absolute top-0 right-0 z-10 mr-6 mt-6">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-1">
+                    <RefreshCw className="h-4 w-4" />
+                    Clear Form
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear Form Data</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will clear all your form data and reset the form. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClearForm}>Clear Data</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            
             <div className="mb-6 text-center">
               <p className="mb-4 text-2xl">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
               <p className="mb-4 text-2xl">
