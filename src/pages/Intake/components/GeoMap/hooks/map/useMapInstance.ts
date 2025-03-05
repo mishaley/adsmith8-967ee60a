@@ -77,10 +77,10 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 20],
+        center: [0, 5], // Adjusted to position the map slightly downward
         projection: {
-          name: 'mercator',  // Restored to mercator projection
-          center: [0, 20],
+          name: 'mercator',
+          center: [0, 5], // Adjusted to position the map slightly downward
           parallels: [0, 60]
         },
         minZoom: 0.5,
@@ -89,7 +89,7 @@ export const useMapInstance = ({
           [-180, -85],  // Southwest coordinates (exact world bounds)
           [180, 85]     // Northeast coordinates (exact world bounds)
         ],
-        renderWorldCopies: false,  // Keep this setting to prevent duplicated landmasses
+        renderWorldCopies: false,
         attributionControl: false,
         preserveDrawingBuffer: true
       });
@@ -165,20 +165,19 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   
   // Calculate padding
   const padding = {
-    top: 40,
-    bottom: 40,
+    top: 20,
+    bottom: 20,
     left: 20,
     right: 20
   };
   
-  // Ensure the world map is visible without repeating by using exact world bounds
+  // Adjusted bounds to show more of the southern hemisphere
   map.fitBounds([
-    [-180, -65], // Southwest coordinates (exact world bounds)
-    [180, 80]    // Northeast coordinates (exact world bounds)
+    [-180, -75], // Showing more southern regions
+    [180, 65]    // Showing less of the extreme north
   ], {
     padding,
     linear: true,
     duration: 0
   });
 }
-
