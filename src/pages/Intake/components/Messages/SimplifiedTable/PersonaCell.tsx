@@ -27,7 +27,9 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona }) => {
           {persona.gender}, age {persona.ageMin}-{persona.ageMax}
         </div>
         <div className="text-sm">
-          {persona.interests.join(", ")}
+          {persona.interests.map((interest, index) => (
+            <div key={index}>{interest}</div>
+          ))}
         </div>
       </div>
     </div>
