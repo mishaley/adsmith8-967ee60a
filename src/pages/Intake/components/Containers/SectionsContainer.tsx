@@ -145,6 +145,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
       <LanguagesContainer
         selectedLanguage={selectedLanguage}
         setSelectedLanguage={setSelectedLanguage}
+        selectedCountry={selectedCountry}
       />
       
       <MessagesContainer

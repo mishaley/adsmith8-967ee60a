@@ -304,6 +304,44 @@ export type Database = {
         }
         Relationships: []
       }
+      y3countries: {
+        Row: {
+          country_flag: string
+          country_id: string
+          country_languageprimary: string
+          country_languagesecondary: string | null
+          country_name: string
+          country_region: string
+          created_at: string
+        }
+        Insert: {
+          country_flag: string
+          country_id?: string
+          country_languageprimary: string
+          country_languagesecondary?: string | null
+          country_name: string
+          country_region: string
+          created_at?: string
+        }
+        Update: {
+          country_flag?: string
+          country_id?: string
+          country_languageprimary?: string
+          country_languagesecondary?: string | null
+          country_name?: string
+          country_region?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "y3countries_country_languageprimary_fkey"
+            columns: ["country_languageprimary"]
+            isOneToOne: false
+            referencedRelation: "y2languages"
+            referencedColumns: ["language_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -5,17 +5,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import CollapsibleSection from "../CollapsibleSection";
 import { useLanguages } from "./hooks/useLanguages";
+import { useCountryLanguage } from "./hooks/useCountryLanguage";
 
 interface LanguagesSectionProps {
   selectedLanguage: string;
   setSelectedLanguage: (language: string) => void;
+  selectedCountry: string;
 }
 
 const LanguagesSection: React.FC<LanguagesSectionProps> = ({
   selectedLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  selectedCountry
 }) => {
-  const { languages, isLoading, error } = useLanguages();
+  const { languages, isLoading: isLoadingLanguages, error: languagesError } = useLanguages();
+  const { primaryLanguageId, isLoading: isLoadingCountry, error: countryError } = useCountryLanguage(selectedCountry);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -40,6 +44,16 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
       }, 0);
     }
   }, [isOpen]);
+
+  // Update selected language when primary language from country changes
+  useEffect(() => {
+    if (primaryLanguageId && !isLoadingCountry) {
+      setSelectedLanguage(primaryLanguageId);
+    } else if (!selectedCountry) {
+      // Clear language selection if no country is selected
+      setSelectedLanguage("");
+    }
+  }, [primaryLanguageId, isLoadingCountry, selectedCountry, setSelectedLanguage]);
 
   // Prevent default behavior for keydown events to avoid losing focus
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -68,7 +82,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                 <Select 
                   value={selectedLanguage} 
                   onValueChange={value => setSelectedLanguage(value)}
-                  disabled={isLoading}
+                  disabled={isLoadingLanguages || isLoadingCountry}
                   onOpenChange={(open) => {
                     setIsOpen(open);
                     if (!open) {
@@ -78,7 +92,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                 >
                   <SelectTrigger className="w-full bg-white">
                     <SelectValue>
-                      {isLoading ? "Loading languages..." : getDisplayValue()}
+                      {isLoadingLanguages || isLoadingCountry ? "Loading languages..." : getDisplayValue()}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
@@ -94,10 +108,10 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                       />
                     </div>
                     <ScrollArea className="h-[200px] w-full">
-                      {error && (
-                        <div className="p-2 text-red-500 text-sm">Error loading languages</div>
+                      {(languagesError || countryError) && (
+                        <div className="p-2 text-red-500 text-sm">Error loading data</div>
                       )}
-                      {!error && filteredLanguages.length === 0 && !isLoading && (
+                      {!languagesError && filteredLanguages.length === 0 && !isLoadingLanguages && (
                         <div className="p-2 text-gray-500 text-sm">
                           {languages.length === 0 ? "No languages available" : "No matching languages found"}
                         </div>
