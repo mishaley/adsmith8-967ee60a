@@ -28,17 +28,17 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index = 0 }) => {
             <User className="h-6 w-6 text-gray-500" />
           </div>
         )}
-        <div className="flex flex-col">
-          <div className="text-sm">{persona.gender}</div>
-          <div className="text-sm">Age {persona.ageMin}-{persona.ageMax}</div>
+        <div className="flex flex-col min-w-[100px]">
+          <div className="text-sm whitespace-nowrap">{persona.gender}</div>
+          <div className="text-sm whitespace-nowrap">Age {persona.ageMin}-{persona.ageMax}</div>
           {firstInterest && (
-            <div className="text-sm">{firstInterest}</div>
+            <div className="text-sm whitespace-nowrap">{firstInterest}</div>
           )}
           {secondInterest && (
-            <div className="text-sm">{secondInterest}</div>
+            <div className="text-sm whitespace-nowrap">{secondInterest}</div>
           )}
           {!firstInterest && !secondInterest && (
-            <div className="text-sm text-gray-500">No interests</div>
+            <div className="text-sm text-gray-500 whitespace-nowrap">No interests</div>
           )}
         </div>
       </div>
