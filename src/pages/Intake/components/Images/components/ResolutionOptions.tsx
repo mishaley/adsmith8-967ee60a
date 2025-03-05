@@ -51,10 +51,16 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     style={{ 
                       top: '20px',
                       bottom: '60px',  // Make bottom flush with the top of the two boxes
-                      width: 'auto',
-                      left: '12.5%',
-                      right: '12.5%',
-                      aspectRatio: '1/1'
+                      height: 'auto',
+                      width: 'auto',  // Will be calculated dynamically with JS
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        // Calculate and set width to match height
+                        const height = el.parentElement?.clientHeight ? el.parentElement.clientHeight - 20 - 60 : 0;
+                        el.style.width = `${height}px`;
+                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - height / 2}px`;
+                      }
                     }}
                   />
                 </div>
