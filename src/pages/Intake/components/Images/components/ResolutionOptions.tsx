@@ -45,11 +45,11 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
           >
             {isTopRow(index) && (
               <>
-                <div className="w-full h-full p-5 flex items-center justify-center">
+                <div className="w-full h-full flex items-start justify-center" style={{ paddingTop: '20px' }}>
                   <div 
                     className="bg-gray-400"
                     style={{ 
-                      height: '75%',
+                      height: 'calc(100% - 80px)',
                       width: '75%',
                       aspectRatio: '1/1'
                     }}
