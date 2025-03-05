@@ -46,11 +46,12 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
             {isTopRow(index) && (
               <div className="w-full h-full p-5">
                 <div 
-                  className="bg-gray-400 w-full"
+                  className="bg-gray-400"
                   style={{ 
                     marginTop: '0',
                     marginBottom: '200px',
                     height: '75%',        // Set height to 75% of parent
+                    width: '75%',         // Set width to match height (75% of parent)
                     aspectRatio: '1/1'    // Maintain square aspect ratio
                   }}
                 />
