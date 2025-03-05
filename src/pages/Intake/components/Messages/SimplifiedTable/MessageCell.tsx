@@ -24,7 +24,10 @@ const MessageCell: React.FC<MessageCellProps> = ({ column, onContentChange }) =>
             padding: "0",
             margin: "0",
             background: "transparent",
-            textAlign: "center"
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
           }}
           onInput={(e) => onContentChange(
             column.id, 
