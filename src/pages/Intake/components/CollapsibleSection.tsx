@@ -15,11 +15,13 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   className = "bg-[#e9f2fe] p-4 mb-6 rounded-lg"
 }) => {
   // Create a unique key for this section in localStorage
-  const storageKey = `${STORAGE_KEYS.PARAMETERS}_section_${title.toLowerCase().replace(/\s+/g, '_')}`;
+  const storageKey = `${STORAGE_KEYS.SECTION_STATES}_${title.toLowerCase().replace(/\s+/g, '_')}`;
   
   // Initialize state from localStorage or default to not collapsed
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    return loadFromLocalStorage(storageKey, false);
+    const savedState = loadFromLocalStorage<boolean | null>(storageKey, null);
+    // Only return the saved state if it's a boolean
+    return typeof savedState === 'boolean' ? savedState : false;
   });
 
   // Update localStorage when state changes

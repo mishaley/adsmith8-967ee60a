@@ -10,8 +10,8 @@ export const STORAGE_KEYS = {
   IMAGES: 'adsmith_images',
   CAPTIONS: 'adsmith_captions',
   PARAMETERS: 'adsmith_parameters',
-  LAST_ROUTE: 'adsmith_last_route',  // Added for route tracking
-  SECTION_STATES: 'adsmith_section_states' // Added for section collapse states
+  LAST_ROUTE: 'adsmith_last_route',
+  SECTION_STATES: 'adsmith_section_states'
 };
 
 // Generic save function
