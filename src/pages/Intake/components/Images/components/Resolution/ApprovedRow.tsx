@@ -21,7 +21,7 @@ const ApprovedRow: React.FC<ApprovedRowProps> = ({
   return (
     <div className="grid grid-cols-3 w-full">
       <div 
-        className="col-span-3 bg-green-50 border border-green-200 flex items-center pl-4" 
+        className="col-span-3 bg-green-50 border border-green-200 flex items-center pl-4 py-[10px]" 
         style={{ height: `${rowHeight}px` }}
       >
         <Check size={20} color="#0c343d" />
@@ -31,7 +31,7 @@ const ApprovedRow: React.FC<ApprovedRowProps> = ({
               key={index}
               className={cn(
                 "bg-gray-200 rounded-sm flex-shrink-0",
-                "aspect-square h-[60%]"
+                "aspect-square h-[80%]"
               )}
             />
           ))}

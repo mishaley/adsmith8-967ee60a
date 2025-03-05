@@ -21,7 +21,7 @@ const RejectedRow: React.FC<RejectedRowProps> = ({
   return (
     <div className="grid grid-cols-3 w-full">
       <div 
-        className="col-span-3 bg-red-50 border border-red-200 flex items-center pl-4" 
+        className="col-span-3 bg-red-50 border border-red-200 flex items-center pl-4 py-[10px]" 
         style={{ height: `${rowHeight}px` }}
       >
         <X size={20} color="#990000" />
@@ -31,7 +31,7 @@ const RejectedRow: React.FC<RejectedRowProps> = ({
               key={index}
               className={cn(
                 "bg-gray-200 rounded-sm flex-shrink-0",
-                "aspect-square h-[60%]"
+                "aspect-square h-[80%]"
               )}
             />
           ))}
