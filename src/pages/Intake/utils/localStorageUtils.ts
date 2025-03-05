@@ -46,10 +46,22 @@ export const clearLocalStorageItem = (key: string): void => {
 // Clear all cache
 export const clearAllLocalStorage = (): void => {
   try {
-    // Only clear our app-specific items, not everything in localStorage
-    Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
+    // Clear all keys and their sub-keys
+    Object.values(STORAGE_KEYS).forEach(baseKey => {
+      // Clear the base key itself
+      localStorage.removeItem(baseKey);
+      
+      // Find and clear all keys that start with the base key followed by underscore
+      // This catches keys like ORGANIZATION_brandName, ORGANIZATION_industry, etc.
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`${baseKey}_`)) {
+          localStorage.removeItem(key);
+        }
+      }
     });
+    
+    console.log("All localStorage items cleared successfully");
   } catch (error) {
     console.error('Error clearing all localStorage items:', error);
   }

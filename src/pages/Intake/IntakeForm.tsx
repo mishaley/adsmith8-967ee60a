@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import IntakeFormContainer from "./components/IntakeFormContainer";
@@ -73,11 +72,9 @@ const IntakeForm = () => {
     setPersonaCount
   } = usePersonasManager(offering, selectedCountry);
 
-  // State for messages data to share between components
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
 
-  // Handler for receiving updated messages from MessagesContainer
   const handleUpdateMessages = (messages: Record<string, Record<string, Message>>, types: string[]) => {
     console.log("IntakeForm: Messages updated", { messageTypesCount: types.length, personasCount: personas.length });
     setGeneratedMessages(messages);
@@ -86,12 +83,15 @@ const IntakeForm = () => {
 
   const handleClearForm = () => {
     clearFormAndRefresh();
+    toast({
+      title: "Form cleared",
+      description: "All form data has been cleared from storage.",
+    });
   };
 
   return <QuadrantLayout>
       {{
       q4: <div className="p-[18px] pl-0 pt-0 relative">
-            {/* Clear Form Button */}
             <div className="absolute top-0 right-0 z-10 mr-6 mt-6">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
