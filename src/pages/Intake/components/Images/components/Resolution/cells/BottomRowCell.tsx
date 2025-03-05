@@ -7,10 +7,6 @@ const BottomRowCell: React.FC = () => {
   
   return (
     <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
-      <div className="absolute top-0 left-0 bg-green-100 text-green-800 text-xs font-medium p-1 rounded">
-        9:16
-      </div>
-      
       <div ref={buttonsRef} className="w-full">
         <div 
           className="flex absolute"

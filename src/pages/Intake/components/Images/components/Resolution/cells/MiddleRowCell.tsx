@@ -7,10 +7,6 @@ const MiddleRowCell: React.FC = () => {
   
   return (
     <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
-      <div className="absolute top-0 left-0 bg-purple-100 text-purple-800 text-xs font-medium p-1 rounded">
-        4:5
-      </div>
-      
       <div ref={buttonsRef} className="w-full">
         <div 
           className="flex absolute"

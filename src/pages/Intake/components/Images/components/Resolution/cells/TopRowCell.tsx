@@ -15,10 +15,6 @@ const TopRowCell: React.FC<TopRowCellProps> = ({ currentRatioConfig }) => {
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center relative" style={{ paddingTop: '20px' }}>
-      <div className="absolute top-0 left-0 bg-blue-100 text-blue-800 text-xs font-medium p-1 rounded">
-        {currentRatioConfig.ratio}
-      </div>
-      
       <div 
         ref={buttonsRef} 
         className="w-full"
