@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -156,12 +157,6 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         {isLoadingCountry && selectedCountry && (
           <div className="mt-2 text-sm text-gray-500">
             Loading language for selected country...
-          </div>
-        )}
-        
-        {countryName && primaryLanguageId && (
-          <div className="mt-2 text-sm text-gray-500">
-            Primary language for {countryName} selected
           </div>
         )}
       </div>
