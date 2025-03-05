@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useMessageColumns } from "./hooks/useMessageColumns";
 import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
@@ -69,6 +70,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
                     <MessageCell 
                       column={column}
                       onContentChange={handleContentChange}
+                      personaId={persona ? persona.id?.toString() : `persona-${index}`}
                     />
                   </td>
                 ))}
@@ -90,6 +92,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
                   <MessageCell 
                     column={column}
                     onContentChange={handleContentChange}
+                    personaId="default"
                   />
                 </td>
               ))}

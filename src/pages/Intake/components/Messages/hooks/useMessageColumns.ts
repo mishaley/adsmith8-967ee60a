@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../../utils/localStorageUtils";
@@ -5,7 +6,7 @@ import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../..
 export interface MessageColumn {
   id: string;
   type: string;
-  content?: string;
+  content?: Record<string, string>; // Changed from string to Record<string, string>
 }
 
 export function useMessageColumns() {
@@ -96,11 +97,23 @@ export function useMessageColumns() {
     }
   };
 
-  // Handle user-provided content changes
-  const handleContentChange = (columnId: string, newContent: string) => {
-    setMessageColumns(messageColumns.map(column => 
-      column.id === columnId ? { ...column, content: newContent } : column
-    ));
+  // Handle content changes for a specific column and persona
+  const handleContentChange = (columnId: string, personaId: string, newContent: string) => {
+    setMessageColumns(messageColumns.map(column => {
+      if (column.id === columnId) {
+        // Initialize content object if it doesn't exist
+        const currentContent = column.content || {};
+        // Update content for the specific persona
+        return { 
+          ...column, 
+          content: { 
+            ...currentContent, 
+            [personaId]: newContent 
+          } 
+        };
+      }
+      return column;
+    }));
   };
 
   return {
