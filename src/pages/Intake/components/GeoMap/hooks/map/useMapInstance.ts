@@ -43,14 +43,14 @@ export const useMapInstance = ({
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1.5,  // Adjusted zoom level to match desired appearance
+        zoom: 1,  // Lower zoom level to show entire world
         center: [0, 20],  // Centered more on populated areas
         projection: 'mercator',
         minZoom: 0.8,  // Allow zooming out further
         maxZoom: 8,    // Limit how far users can zoom in
         maxBounds: [
-          [-190, -85], // Southwest coordinates (expanded slightly)
-          [190, 85]    // Northeast coordinates (expanded slightly)
+          [-180, -85], // Southwest coordinates
+          [180, 85]    // Northeast coordinates
         ],
         attributionControl: false  // Hide attribution for cleaner look
       });
@@ -71,6 +71,12 @@ export const useMapInstance = ({
       map.current.on('load', () => {
         console.log("Map loaded event fired");
         setInitialized(true);
+
+        // Ensure the map fits to the container width
+        if (map.current && mapContainer.current) {
+          map.current.resize();
+          fitMapToContainer(map.current, mapContainer.current);
+        }
       });
       
       // Error handling for map load
@@ -96,3 +102,26 @@ export const useMapInstance = ({
 
   return { map, mapError, initialized, setMapError };
 };
+
+// Helper function to ensure the map fits within the container width
+function fitMapToContainer(map: mapboxgl.Map, container: HTMLDivElement) {
+  // Get the container dimensions
+  const containerWidth = container.offsetWidth;
+  
+  // Calculate the appropriate zoom level based on container width
+  // Adjust these values based on testing
+  const idealZoom = containerWidth < 400 ? 0.8 : 
+                     containerWidth < 600 ? 0.9 : 
+                     containerWidth < 800 ? 1.0 : 1.1;
+  
+  map.setZoom(idealZoom);
+  
+  // Make sure the entire world is visible
+  map.fitBounds([
+    [-180, -65], // Southwest coordinates
+    [180, 75]    // Northeast coordinates
+  ], {
+    padding: { top: 10, bottom: 10, left: 10, right: 10 },
+    animate: false
+  });
+}

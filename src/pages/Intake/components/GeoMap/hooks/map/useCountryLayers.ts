@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import mapboxgl from 'mapbox-gl';
 
@@ -80,7 +79,7 @@ export const useCountryLayers = ({
       setupClickHandler(map.current, selectedCountry, setSelectedCountry);
       
       // Make sure we fit to bounds to show the entire world
-      fitMapToBounds(map.current);
+      // fitMapToBounds(map.current);
       
       // Mark layers as initialized to prevent duplicate initialization
       layersInitialized.current = true;
@@ -168,7 +167,8 @@ function setupClickHandler(map: mapboxgl.Map, selectedCountry: string, setSelect
   });
 }
 
-// Helper function to fit map to bounds
+// Helper function to fit map to bounds - commented out as we're handling this in useMapInstance now
+/*
 function fitMapToBounds(map: mapboxgl.Map) {
   map.fitBounds([
     [-170, -65], // Southwest coordinates (expanded)
@@ -178,3 +178,4 @@ function fitMapToBounds(map: mapboxgl.Map) {
     animate: false
   });
 }
+*/
