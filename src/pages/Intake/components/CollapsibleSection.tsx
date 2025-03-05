@@ -1,6 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorageUtils";
 
 interface CollapsibleSectionProps {
   title: string;
@@ -13,7 +14,18 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   children,
   className = "bg-[#e9f2fe] p-4 mb-6 rounded-lg"
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Create a unique key for this section in localStorage
+  const storageKey = `${STORAGE_KEYS.PARAMETERS}_section_${title.toLowerCase().replace(/\s+/g, '_')}`;
+  
+  // Initialize state from localStorage or default to not collapsed
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    return loadFromLocalStorage(storageKey, false);
+  });
+
+  // Update localStorage when state changes
+  useEffect(() => {
+    saveToLocalStorage(storageKey, isCollapsed);
+  }, [isCollapsed, storageKey]);
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);

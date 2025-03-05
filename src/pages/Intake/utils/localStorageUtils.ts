@@ -1,4 +1,3 @@
-
 // Constants for storage keys to avoid typos
 export const STORAGE_KEYS = {
   ORGANIZATION: 'adsmith_organization',
@@ -11,7 +10,8 @@ export const STORAGE_KEYS = {
   IMAGES: 'adsmith_images',
   CAPTIONS: 'adsmith_captions',
   PARAMETERS: 'adsmith_parameters',
-  LAST_ROUTE: 'adsmith_last_route'  // Added for route tracking
+  LAST_ROUTE: 'adsmith_last_route',  // Added for route tracking
+  SECTION_STATES: 'adsmith_section_states' // Added for section collapse states
 };
 
 // Generic save function
@@ -48,6 +48,11 @@ export const clearAllLocalStorage = (): void => {
   try {
     // Clear all keys and their sub-keys
     Object.values(STORAGE_KEYS).forEach(baseKey => {
+      // Skip clearing section states when clearing form data
+      if (baseKey === STORAGE_KEYS.SECTION_STATES) {
+        return;
+      }
+      
       // Clear the base key itself
       localStorage.removeItem(baseKey);
       
