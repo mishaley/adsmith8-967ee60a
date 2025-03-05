@@ -79,8 +79,9 @@ export const useMapInstance = ({
         zoom: 1,
         center: [0, 20],
         projection: {
-          name: 'equirectangular',  // Changed to equirectangular to prevent world repetition
+          name: 'mercator',  // Restored to mercator projection
           center: [0, 20],
+          parallels: [0, 60]
         },
         minZoom: 0.5,
         maxZoom: 8,
@@ -88,7 +89,7 @@ export const useMapInstance = ({
           [-180, -85],  // Southwest coordinates (exact world bounds)
           [180, 85]     // Northeast coordinates (exact world bounds)
         ],
-        renderWorldCopies: false,  // Important: prevent world copies from rendering
+        renderWorldCopies: false,  // Keep this setting to prevent duplicated landmasses
         attributionControl: false,
         preserveDrawingBuffer: true
       });
@@ -151,14 +152,13 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
   // Calculate optimal zoom level based on container width
-  // This ensures the entire world fits without duplicating
-  let zoom = 0.5;
+  let zoom = 0.6;
   if (width >= 400 && width < 600) {
-    zoom = 0.6;
-  } else if (width >= 600 && width < 800) {
     zoom = 0.7;
-  } else if (width >= 800) {
+  } else if (width >= 600 && width < 800) {
     zoom = 0.8;
+  } else if (width >= 800) {
+    zoom = 0.9;
   }
   
   map.setZoom(zoom);
@@ -171,13 +171,14 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
     right: 20
   };
   
-  // Ensure the world map is visible without repeating
+  // Ensure the world map is visible without repeating by using exact world bounds
   map.fitBounds([
-    [-179, -60], // Southwest coordinates
-    [179, 75]    // Northeast coordinates 
+    [-180, -65], // Southwest coordinates (exact world bounds)
+    [180, 80]    // Northeast coordinates (exact world bounds)
   ], {
     padding,
     linear: true,
     duration: 0
   });
 }
+
