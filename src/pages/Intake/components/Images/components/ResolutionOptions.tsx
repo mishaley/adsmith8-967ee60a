@@ -11,12 +11,15 @@ interface ResolutionOptionsProps {
 type AspectRatioConfig = {
   label: string;
   ratio: string;
+  width: number;
+  height: number;
   description?: string;
 };
 
 // Create aspect ratio configurations
 const aspectRatioConfigs: AspectRatioConfig[] = [
-  { label: "1:1", ratio: "1:1", description: "Square format - equal width and height" },
+  { label: "1:1", ratio: "1:1", width: 1, height: 1, description: "Square format - equal width and height" },
+  { label: "4:5", ratio: "4:5", width: 4, height: 5, description: "Portrait format - taller than wide" },
   // We'll add more configurations later
 ];
 
@@ -50,8 +53,18 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     border: '1px solid #e0e0e0',
   };
 
+  // Function to determine which aspect ratio to use for a specific row
+  const getAspectRatioForRow = (rowIndex: number): AspectRatioConfig => {
+    if (rowIndex === 0) return aspectRatioConfigs[0]; // 1:1 for first row
+    if (rowIndex === 1) return aspectRatioConfigs[1]; // 4:5 for second row
+    return aspectRatioConfigs[0]; // Default to 1:1 for other rows
+  };
+
   // Function to determine if this is a top row cell (index 0, 1, or 2)
   const isTopRow = (index: number) => index < 3;
+
+  // Function to determine if this is a middle row cell (index 3, 4, or 5)
+  const isMiddleRow = (index: number) => index >= 3 && index < 6;
 
   return (
     <div 
@@ -79,7 +92,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     }}
                     ref={(el) => {
                       if (el) {
-                        // Calculate and set width to match height
+                        // Calculate and set width to match height for 1:1 ratio
                         const height = el.parentElement?.clientHeight ? el.parentElement.clientHeight - 20 - 60 : 0;
                         el.style.width = `${height}px`;
                         el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - height / 2}px`;
@@ -97,7 +110,68 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                   className="flex absolute bottom-0 w-full"
                   style={{ 
                     height: '60px', 
-                    left: '0', // Start from left edge of the cell
+                    left: '0',
+                  }}
+                  ref={(el) => {
+                    if (el) {
+                      const parentEl = el.parentElement;
+                      if (parentEl) {
+                        const grayBox = parentEl.querySelector('.bg-gray-400') as HTMLElement;
+                        if (grayBox && grayBox.offsetWidth) {
+                          // Set the width of the boxes container to exactly match the gray box width
+                          const grayBoxWidth = grayBox.offsetWidth;
+                          el.style.width = `${grayBoxWidth}px`;
+                          // Center this element to match the gray box positioning
+                          el.style.left = `${(parentEl.offsetWidth - grayBoxWidth) / 2}px`;
+                        }
+                      }
+                    }
+                  }}
+                >
+                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                    <X size={24} color="#990000" />
+                  </div>
+                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                    <Check size={24} color="#0c343d" />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {isMiddleRow(index) && (
+              <>
+                <div className="w-full h-full flex items-start justify-center relative" style={{ paddingTop: '20px' }}>
+                  <div 
+                    className="bg-gray-400 absolute"
+                    style={{ 
+                      top: '20px',
+                      bottom: '60px',
+                      height: 'auto',
+                      width: 'auto',
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        // Calculate height first
+                        const height = el.parentElement?.clientHeight ? el.parentElement.clientHeight - 20 - 60 : 0;
+                        // For 4:5 ratio, width = height * (4/5)
+                        const widthFor4to5 = height * (4/5);
+                        el.style.width = `${widthFor4to5}px`;
+                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - widthFor4to5 / 2}px`;
+                      }
+                    }}
+                  />
+                  {/* Add ratio label */}
+                  <div className="absolute top-0 left-0 bg-purple-100 text-purple-800 text-xs font-medium p-1 rounded">
+                    4:5
+                  </div>
+                </div>
+                
+                {/* Bottom boxes container - aligned with 4:5 gray box */}
+                <div 
+                  className="flex absolute bottom-0 w-full"
+                  style={{ 
+                    height: '60px', 
+                    left: '0',
                   }}
                   ref={(el) => {
                     if (el) {
