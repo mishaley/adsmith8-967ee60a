@@ -2,19 +2,21 @@
 import React from "react";
 import { CaptionsSection } from "../Captions";
 import { ParametersSection } from "../Parameters";
+import { useIntakeForm } from "../../hooks/useIntakeForm";
 
-// The component doesn't need to receive any props, but we need to explicitly accept and ignore them
-// to prevent the TypeScript error
-interface ParametersCaptionsContainerProps {
-  // This empty interface allows any props to be passed to the component
-  [key: string]: any;
-}
-
-const ParametersCaptionsContainer: React.FC<ParametersCaptionsContainerProps> = () => {
+// This needs to be created to match what's in IntakeFormContent.tsx
+const ParametersCaptionsContainer: React.FC<any> = () => {
+  const { personas = [], generatedMessages = {}, selectedMessageTypes = [], adPlatform = "" } = useIntakeForm();
+  
   return (
     <>
-      <CaptionsSection />
       <ParametersSection />
+      <CaptionsSection 
+        personas={personas}
+        generatedMessages={generatedMessages}
+        selectedMessageTypes={selectedMessageTypes}
+        adPlatform={adPlatform}
+      />
     </>
   );
 };
