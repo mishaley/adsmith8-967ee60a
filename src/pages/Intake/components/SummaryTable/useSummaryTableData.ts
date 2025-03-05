@@ -11,8 +11,10 @@ export const useSummaryTableData = () => {
     return storedOrgId || "";
   });
   
+  // Single select for offering instead of multi-select
+  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
+  
   // Multi-select state (arrays instead of single string values)
-  const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
   const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
 
@@ -37,16 +39,16 @@ export const useSummaryTableData = () => {
   // Reset dependent selections when organization changes
   useEffect(() => {
     console.log("Organization changed to:", selectedOrgId);
-    // When organization is empty or changes, clear all dependent selections
-    setSelectedOfferingIds([]);
+    // When organization is empty or changes, clear offering selection
+    setSelectedOfferingId("");
   }, [selectedOrgId]);
 
-  // Reset persona selection when offerings change
+  // Reset persona selection when offering changes
   useEffect(() => {
-    console.log("Offerings changed to:", selectedOfferingIds);
-    // When offerings change or are cleared, reset personas
+    console.log("Offering changed to:", selectedOfferingId);
+    // When offering changes or is cleared, reset personas
     setSelectedPersonaIds([]);
-  }, [selectedOfferingIds]);
+  }, [selectedOfferingId]);
 
   // Reset message selection when personas change
   useEffect(() => {
@@ -84,21 +86,21 @@ export const useSummaryTableData = () => {
     enabled: !!selectedOrgId, // Only run query if an organization is selected
   });
 
-  // Query personas based on selected offerings
+  // Query personas based on selected offering
   const { data: personas = [] } = useQuery({
-    queryKey: ["personas", selectedOfferingIds],
+    queryKey: ["personas", selectedOfferingId],
     queryFn: async () => {
-      if (selectedOfferingIds.length === 0) return [];
+      if (!selectedOfferingId) return [];
       
       const { data, error } = await supabase
         .from("c1personas")
         .select("persona_id, persona_name")
-        .in("offering_id", selectedOfferingIds);
+        .eq("offering_id", selectedOfferingId);
       
       if (error) throw error;
       return data || [];
     },
-    enabled: selectedOfferingIds.length > 0, // Only run query if offerings are selected
+    enabled: !!selectedOfferingId, // Only run query if offering is selected
   });
 
   // Query messages based on selected personas
@@ -136,7 +138,7 @@ export const useSummaryTableData = () => {
     window.dispatchEvent(new Event('storage'));
   };
 
-  // Format options for the multi-select component
+  // Format options for the select component
   const offeringOptions = offerings.map(offering => ({
     value: offering.offering_id,
     label: offering.offering_name
@@ -154,13 +156,13 @@ export const useSummaryTableData = () => {
 
   // Determine disabled states
   const isOfferingsDisabled = !selectedOrgId;
-  const isPersonasDisabled = isOfferingsDisabled || selectedOfferingIds.length === 0;
+  const isPersonasDisabled = isOfferingsDisabled || !selectedOfferingId;
   const isMessagesDisabled = isPersonasDisabled || selectedPersonaIds.length === 0;
 
   return {
     selectedOrgId,
-    selectedOfferingIds,
-    setSelectedOfferingIds,
+    selectedOfferingId,
+    setSelectedOfferingId,
     selectedPersonaIds,
     setSelectedPersonaIds,
     selectedMessageIds,

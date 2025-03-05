@@ -4,6 +4,7 @@ import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import MultiSelectField from "./SummaryTable/components/MultiSelectField";
+import SingleSelectField from "./SummaryTable/components/SingleSelectField";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 
 interface OfferingSectionProps {
@@ -29,8 +30,8 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
 }) => {
   // Get offering dropdown data and functionality
   const {
-    selectedOfferingIds,
-    setSelectedOfferingIds,
+    selectedOfferingId,
+    setSelectedOfferingId,
     offeringOptions,
     isOfferingsDisabled
   } = useSummaryTableData();
@@ -45,12 +46,12 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
             <tr className="border-transparent">
               <td colSpan={2} className="py-4 text-center">
                 <div className="w-72 mx-auto">
-                  <MultiSelectField
+                  <SingleSelectField
                     options={offeringOptions}
-                    value={selectedOfferingIds}
-                    onChange={setSelectedOfferingIds}
+                    value={selectedOfferingId}
+                    onChange={setSelectedOfferingId}
                     disabled={isOfferingsDisabled}
-                    placeholder="Select offerings"
+                    placeholder="Select an offering"
                   />
                 </div>
               </td>
