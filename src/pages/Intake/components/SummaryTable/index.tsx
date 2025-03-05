@@ -1,7 +1,6 @@
 
 import React from "react";
 import TableRow from "./components/TableRow";
-import OrganizationSelect from "./components/OrganizationSelect";
 import MultiSelectField from "./components/MultiSelectField";
 import { useSummaryTableData } from "./useSummaryTableData";
 
@@ -25,18 +24,6 @@ const SummaryTable: React.FC = () => {
     <div className="my-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
       <table className="w-full border-collapse">
         <tbody>
-          <TableRow 
-            label="Organization" 
-            contentPosition="below" 
-            centerContent={true}
-          >
-            <OrganizationSelect 
-              selectedOrgId={selectedOrgId}
-              organizations={organizations}
-              onValueChange={handleOrgChange}
-            />
-          </TableRow>
-          
           <TableRow label="Offering">
             <MultiSelectField
               options={offeringOptions}

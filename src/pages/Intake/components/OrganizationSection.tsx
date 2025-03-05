@@ -3,6 +3,8 @@ import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
+import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
+import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -23,11 +25,26 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   setBusinessDescription,
   handleSave
 }) => {
+  // Get organization dropdown data and functionality
+  const { selectedOrgId, organizations, handleOrgChange } = useSummaryTableData();
+
   return (
     <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
           <tbody>
+            <tr className="border-transparent">
+              <td colSpan={2} className="py-4 text-center">
+                <div className="mb-2">Select Organization</div>
+                <div className="w-72 mx-auto">
+                  <OrganizationSelect 
+                    selectedOrgId={selectedOrgId}
+                    organizations={organizations}
+                    onValueChange={handleOrgChange}
+                  />
+                </div>
+              </td>
+            </tr>
             <tr className="border-transparent">
               <td className="py-4 pr-4 text-lg">
                 <div>What's your brand name?</div>
