@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -113,6 +114,8 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
     generatedMessages,
     selectedMessageTypes,
     handleUpdateMessages,
+    
+    handleClearForm
   } = props;
 
   return (
