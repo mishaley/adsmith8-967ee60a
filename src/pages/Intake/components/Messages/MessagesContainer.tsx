@@ -12,8 +12,8 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   personas = [], 
   onUpdateMessages 
 }) => {
-  // Ensure personas is always an array, even if it's undefined or null
-  const safePersonas = Array.isArray(personas) ? personas : [];
+  // Ensure personas is always an array and filter out any null values
+  const safePersonas = Array.isArray(personas) ? personas.filter(Boolean) : [];
   
   return (
     <div className="rounded-lg border mb-8">
