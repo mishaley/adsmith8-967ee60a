@@ -26,11 +26,17 @@ const LayoutCell: React.FC<LayoutCellProps> = ({
     }
   }, [gridItemStyle]);
 
+  // Create a modified style with transparent borders
+  const modifiedStyle = {
+    ...gridItemStyle,
+    border: '1px solid transparent',
+  };
+
   return (
     <div 
       ref={cellRef}
       className="flex items-center justify-center bg-transparent hover:bg-gray-50 transition-colors relative overflow-hidden" 
-      style={gridItemStyle}
+      style={modifiedStyle}
     >
       {isTopRow(index) && cellWidth > 0 && cellHeight > 0 && (
         <TopRowCell 

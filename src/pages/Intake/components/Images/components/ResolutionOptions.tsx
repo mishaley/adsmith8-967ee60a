@@ -49,7 +49,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   const gridItemStyle = {
     height: `${cellHeight}px`,
     width: `${containerWidth / 3}px`,
-    border: '1px solid #e0e0e0',
+    border: '1px solid transparent',
   };
 
   return (
@@ -61,7 +61,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
       />
 
       <div 
-        className="grid grid-cols-3 w-full bg-transparent"
+        className="grid grid-cols-3 w-full bg-transparent border-transparent"
         style={{ height: `${cellHeight}px` }}
       >
         {[...Array(3)].map((_, index) => (

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -76,8 +77,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   return (
     <CollapsibleSection title="IMAGES">
       {currentPersona ? (
-        <div className="border rounded-md overflow-hidden bg-transparent">
-          <div className="p-4 border-b bg-transparent">
+        <div className="border-transparent rounded-md overflow-hidden bg-transparent">
+          <div className="p-4 border-transparent bg-transparent">
             <PersonaDisplay 
               currentPersona={currentPersona}
               currentMessageType={currentMessageType}
@@ -88,10 +89,10 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="border-t bg-transparent">
+          <div className="border-transparent bg-transparent">
             <ResolutionOptions adPlatform={adPlatform} />
           </div>
-          <div className="border-t p-5 bg-white">
+          <div className="border-transparent p-5 bg-white">
             <ImageGenerator 
               currentPersona={currentPersona} 
               adPlatform={adPlatform} 
