@@ -108,7 +108,7 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
 
       <div className="mt-8 max-w-md mx-auto">
         
-        <Input id="locationGroup" type="text" placeholder="Enter a name for this location group" value={locationGroupName} onChange={e => setLocationGroupName(e.target.value)} className="w-full" />
+        
         
       </div>
     </CollapsibleSection>;
