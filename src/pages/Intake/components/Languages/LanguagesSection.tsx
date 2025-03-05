@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import CollapsibleSection from "../CollapsibleSection";
 import { useLanguages } from "./hooks/useLanguages";
 
@@ -15,12 +16,30 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
   setSelectedLanguage
 }) => {
   const { languages, isLoading, error } = useLanguages();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  // Filter languages based on search query
+  const filteredLanguages = languages.filter(language => 
+    language.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    language.native.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   
   // Find the display value with emoji for the selected language
   const getDisplayValue = () => {
     const language = languages.find(lang => lang.code === selectedLanguage);
     return language ? language.display : "Select language";
   };
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 0);
+    }
+  }, [isOpen]);
 
   return (
     <CollapsibleSection title="LANGUAGES">
@@ -33,6 +52,12 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                   value={selectedLanguage} 
                   onValueChange={value => setSelectedLanguage(value)}
                   disabled={isLoading}
+                  onOpenChange={(open) => {
+                    setIsOpen(open);
+                    if (!open) {
+                      setSearchQuery(""); // Clear search when dropdown closes
+                    }
+                  }}
                 >
                   <SelectTrigger className="w-full bg-white">
                     <SelectValue>
@@ -40,14 +65,25 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+                    <div className="p-2 sticky top-0 bg-white z-10 border-b">
+                      <Input
+                        ref={searchInputRef}
+                        placeholder="Search languages..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="h-8"
+                      />
+                    </div>
                     <ScrollArea className="h-[200px] w-full">
                       {error && (
                         <div className="p-2 text-red-500 text-sm">Error loading languages</div>
                       )}
-                      {!error && languages.length === 0 && !isLoading && (
-                        <div className="p-2 text-gray-500 text-sm">No languages available</div>
+                      {!error && filteredLanguages.length === 0 && !isLoading && (
+                        <div className="p-2 text-gray-500 text-sm">
+                          {languages.length === 0 ? "No languages available" : "No matching languages found"}
+                        </div>
                       )}
-                      {languages.map(language => (
+                      {filteredLanguages.map(language => (
                         <SelectItem key={language.code} value={language.code}>
                           {language.display}
                         </SelectItem>
