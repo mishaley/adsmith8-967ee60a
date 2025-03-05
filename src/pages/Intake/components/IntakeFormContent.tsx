@@ -82,7 +82,54 @@ interface IntakeFormContentProps {
 
 const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
   const {
-    // Props to extract for use in this component
+    // Organization props
+    brandName,
+    setBrandName,
+    industry,
+    setIndustry,
+    businessDescription,
+    setBusinessDescription,
+    handleSave,
+    
+    // Offering props
+    offering,
+    setOffering,
+    sellingPoints,
+    setSellingPoints,
+    problemSolved,
+    setProblemSolved,
+    uniqueOffering,
+    setUniqueOffering,
+    
+    // Location and platform props
+    selectedCountry,
+    setSelectedCountry,
+    adPlatform,
+    setAdPlatform,
+    
+    // Language props
+    selectedLanguage,
+    setSelectedLanguage,
+    
+    // Personas props
+    personas,
+    summary,
+    isGeneratingPersonas,
+    isGeneratingPortraits,
+    generatePersonas,
+    updatePersona,
+    loadingPortraitIndices,
+    retryPortraitGeneration,
+    removePersona,
+    personaCount,
+    setPersonaCount,
+    
+    // Messages props
+    generatedMessages,
+    selectedMessageTypes,
+    handleUpdateMessages,
+    
+    // Form management
     handleClearForm,
   } = props;
 
@@ -118,15 +165,71 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         </p>
       </div>
       
-      <OrganizationContainer {...props} />
-      <OfferingContainer {...props} />
-      <LocationsContainer {...props} />
-      <PersonasContainer {...props} />
-      <LanguagesContainer {...props} />
-      <MessagesContainer {...props} />
-      <PlatformsContainer {...props} />
-      <ImagesContainer {...props} />
-      <ParametersCaptionsContainer {...props} />
+      <OrganizationContainer
+        brandName={brandName}
+        setBrandName={setBrandName}
+        industry={industry}
+        setIndustry={setIndustry}
+        businessDescription={businessDescription}
+        setBusinessDescription={setBusinessDescription}
+        handleSave={handleSave}
+      />
+      
+      <OfferingContainer
+        offering={offering}
+        setOffering={setOffering}
+        sellingPoints={sellingPoints}
+        setSellingPoints={setSellingPoints}
+        problemSolved={problemSolved}
+        setProblemSolved={setProblemSolved}
+        uniqueOffering={uniqueOffering}
+        setUniqueOffering={setUniqueOffering}
+      />
+      
+      <LocationsContainer
+        selectedCountry={selectedCountry}
+        setSelectedCountry={setSelectedCountry}
+      />
+      
+      <PersonasContainer
+        personas={personas}
+        summary={summary}
+        isGeneratingPersonas={isGeneratingPersonas}
+        isGeneratingPortraits={isGeneratingPortraits}
+        generatePersonas={generatePersonas}
+        updatePersona={updatePersona}
+        loadingPortraitIndices={loadingPortraitIndices}
+        retryPortraitGeneration={retryPortraitGeneration}
+        removePersona={removePersona}
+        personaCount={personaCount}
+        setPersonaCount={setPersonaCount}
+      />
+      
+      <LanguagesContainer
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
+      />
+      
+      <MessagesContainer
+        personas={personas}
+        generatedMessages={generatedMessages}
+        selectedMessageTypes={selectedMessageTypes}
+        handleUpdateMessages={handleUpdateMessages}
+      />
+      
+      <PlatformsContainer
+        adPlatform={adPlatform}
+        setAdPlatform={setAdPlatform}
+      />
+      
+      <ImagesContainer
+        personas={personas}
+        generatedMessages={generatedMessages}
+        selectedMessageTypes={selectedMessageTypes}
+        adPlatform={adPlatform}
+      />
+      
+      <ParametersCaptionsContainer />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />

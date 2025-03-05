@@ -13,6 +13,8 @@ interface MessagesContainerProps {
 
 const MessagesContainer: React.FC<MessagesContainerProps> = ({
   personas,
+  generatedMessages,
+  selectedMessageTypes,
   handleUpdateMessages
 }) => {
   return (
