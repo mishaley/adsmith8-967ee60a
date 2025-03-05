@@ -1,6 +1,6 @@
 
 import React, { useRef, useEffect, useState } from "react";
-import { Check, X, Square, RectangleVertical, LayoutPanelTop, Monitor } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../../../utils/localStorageUtils";
 
@@ -24,7 +24,7 @@ const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 1, 
     height: 1, 
     description: "Square format - equal width and height",
-    icon: <Square className="h-4 w-4" />
+    icon: <div className="w-4 h-4 border border-current flex-shrink-0"></div>
   },
   { 
     label: "4:5", 
@@ -32,7 +32,7 @@ const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 4, 
     height: 5, 
     description: "Portrait format - taller than wide",
-    icon: <RectangleVertical className="h-4 w-4" />
+    icon: <div className="w-3 h-4 border border-current flex-shrink-0"></div>
   },
   { 
     label: "9:16", 
@@ -40,7 +40,7 @@ const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 9, 
     height: 16, 
     description: "Vertical format - much taller than wide",
-    icon: <LayoutPanelTop className="h-4 w-4" />
+    icon: <div className="w-2.5 h-4 border border-current flex-shrink-0"></div>
   },
   { 
     label: "21:11", 
@@ -48,7 +48,7 @@ const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 21, 
     height: 11, 
     description: "Landscape format - wider than tall",
-    icon: <Monitor className="h-4 w-4" />
+    icon: <div className="w-4 h-2.5 border border-current flex-shrink-0"></div>
   },
 ];
 
