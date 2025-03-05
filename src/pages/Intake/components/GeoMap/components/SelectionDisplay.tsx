@@ -11,13 +11,15 @@ interface SelectionDisplayProps {
   setSelectedCountry: (country: string) => void;
   selectedLanguage: string;
   setSelectedLanguage: (language: string) => void;
+  setSelectedCountryId?: ((id: string) => void) | null;
 }
 
 const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   selectedCountry,
   setSelectedCountry,
   selectedLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  setSelectedCountryId
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -62,7 +64,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
       {selectedCountry ? (
         <div className="p-3 bg-[#f5f9ff] rounded border border-[#d0e1f9]">
           <p className="font-medium">Selected Country from Map:</p>
-          <p className="text-[#154851] font-bold">{selectedCountry}</p>
+          <p className="text-[#0c343d] font-bold">{selectedCountry}</p>
         </div>
       ) : (
         <div className="p-3 bg-gray-50 rounded border border-gray-200 text-gray-500">
@@ -75,7 +77,12 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setSelectedCountry('')}
+            onClick={() => {
+              setSelectedCountry('');
+              if (setSelectedCountryId) {
+                setSelectedCountryId('');
+              }
+            }}
           >
             Clear Selection
           </Button>
@@ -86,7 +93,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
       <div className="mt-6">
         <CountryDropdown 
           selectedCountry={selectedCountry} 
-          setSelectedCountry={setSelectedCountry} 
+          setSelectedCountry={setSelectedCountry}
+          setSelectedCountryId={setSelectedCountryId}
         />
       </div>
 

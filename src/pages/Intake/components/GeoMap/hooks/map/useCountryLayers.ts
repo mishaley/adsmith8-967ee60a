@@ -33,7 +33,7 @@ export const useCountryLayers = ({
           'fill-color': [
             'case',
             ['boolean', ['feature-state', 'selected'], false],
-            '#154851', // Selected color
+            '#0c343d', // Selected color updated to #0c343d
             ['boolean', ['feature-state', 'hover'], false],
             '#76adb3', // Hover color
             'transparent' // Default color - transparent
@@ -58,7 +58,7 @@ export const useCountryLayers = ({
         source: 'countries',
         'source-layer': 'country_boundaries',
         paint: {
-          'line-color': '#154851',
+          'line-color': '#0c343d', // Updated border color to match highlight
           'line-width': [
             'case',
             ['boolean', ['feature-state', 'selected'], false],

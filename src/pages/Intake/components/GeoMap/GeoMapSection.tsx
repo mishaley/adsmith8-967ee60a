@@ -72,6 +72,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
           setSelectedCountry={setSelectedCountry}
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
+          setSelectedCountryId={setSelectedCountryId}
         />
       </div>
     </div>

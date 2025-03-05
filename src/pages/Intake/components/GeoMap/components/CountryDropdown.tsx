@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCountries } from "../hooks/useCountries";
@@ -7,11 +7,13 @@ import { useCountries } from "../hooks/useCountries";
 interface CountryDropdownProps {
   selectedCountry: string;
   setSelectedCountry: (country: string) => void;
+  setSelectedCountryId?: ((id: string) => void) | null;
 }
 
 const CountryDropdown: React.FC<CountryDropdownProps> = ({
   selectedCountry,
-  setSelectedCountry
+  setSelectedCountry,
+  setSelectedCountryId
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -30,6 +32,18 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
     setSearchTerm(e.target.value);
     if (!isDropdownOpen) {
       setIsDropdownOpen(true);
+    }
+  };
+
+  // Handle country selection
+  const handleCountrySelect = (countryId: string) => {
+    setSelectedCountry(countryId);
+    setSearchTerm("");
+    setIsDropdownOpen(false);
+    
+    // Also highlight on map if the function is available
+    if (setSelectedCountryId) {
+      setSelectedCountryId(countryId);
     }
   };
 
@@ -72,11 +86,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
                   type="button" 
                   variant="ghost" 
                   className={`w-full flex items-center justify-between px-4 py-2 text-left ${selectedCountry === country.country_id ? "bg-gray-100" : ""}`} 
-                  onClick={() => {
-                    setSelectedCountry(country.country_id);
-                    setSearchTerm("");
-                    setIsDropdownOpen(false);
-                  }}
+                  onClick={() => handleCountrySelect(country.country_id)}
                 >
                   <div className="flex items-center gap-2">
                     <span>{country.country_flag}</span>
