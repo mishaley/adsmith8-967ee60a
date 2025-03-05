@@ -22,7 +22,7 @@ const BottomRowCell: React.FC = () => {
             if (el) {
               const parentEl = el.parentElement?.parentElement;
               if (parentEl) {
-                const maxWidth = parentWidth = parentEl.clientWidth * 0.6; // 60% of parent width
+                const maxWidth = parentEl.clientWidth * 0.6; // 60% of parent width
                 
                 el.style.width = `${maxWidth}px`;
                 el.style.left = `${(parentEl.clientWidth - maxWidth) / 2}px`;
