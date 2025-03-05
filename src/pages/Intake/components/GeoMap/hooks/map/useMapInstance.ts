@@ -180,4 +180,3 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
     duration: 0    // No animation on initial load
   });
 }
-
