@@ -44,9 +44,10 @@ const PersonaDisplay: React.FC<PersonaDisplayProps> = ({
           </svg>
         </button>
         
-        {/* Index counter box */}
-        <div className="bg-gray-100 border border-gray-300 rounded-md px-2 py-1 mx-1 flex items-center justify-center">
-          <span className="text-xs font-medium whitespace-nowrap">{displayIndex}/{totalPairs}</span>
+        {/* Index counter box - now in numerator/denominator format */}
+        <div className="bg-gray-100 border border-gray-300 rounded-md px-2 py-1 mx-1 flex flex-col items-center justify-center">
+          <span className="text-xs font-medium border-b border-gray-400 pb-[2px]">{displayIndex}</span>
+          <span className="text-xs font-medium pt-[2px]">{totalPairs}</span>
         </div>
         
         <button 
