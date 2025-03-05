@@ -1,18 +1,8 @@
 
 import React from "react";
 import { AspectRatioConfig } from "../../utils/aspectRatioConfig";
-import { 
-  TopRowCell, 
-  MiddleRowCell, 
-  BottomRowCell, 
-  NewBottomRowCell 
-} from "./cells";
-import { 
-  isTopRow, 
-  isMiddleRow, 
-  isBottomRow, 
-  isNewBottomRow 
-} from "./utils/rowHelpers";
+import { TopRowCell } from "./cells";
+import { isTopRow } from "./utils/rowHelpers";
 
 interface LayoutCellProps {
   index: number;
@@ -32,18 +22,6 @@ const LayoutCell: React.FC<LayoutCellProps> = ({
     >
       {isTopRow(index) && (
         <TopRowCell currentRatioConfig={currentRatioConfig} />
-      )}
-
-      {isMiddleRow(index) && (
-        <MiddleRowCell />
-      )}
-
-      {isBottomRow(index) && (
-        <BottomRowCell />
-      )}
-
-      {isNewBottomRow(index) && (
-        <NewBottomRowCell />
       )}
     </div>
   );

@@ -48,7 +48,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     <div 
       ref={containerRef} 
       className="w-full"
-      style={{ height: `${containerWidth * 4/3}px` }}
+      style={{ height: `${containerWidth / 3}px` }} // Updated height to match a single row
     >
       <AspectRatioSelector 
         aspectRatioConfigs={aspectRatioConfigs}
@@ -57,7 +57,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
       />
 
       <div className="grid grid-cols-3 w-full h-full">
-        {[...Array(12)].map((_, index) => (
+        {/* Only render the first 3 cells (top row) */}
+        {[...Array(3)].map((_, index) => (
           <LayoutCell 
             key={index}
             index={index}
