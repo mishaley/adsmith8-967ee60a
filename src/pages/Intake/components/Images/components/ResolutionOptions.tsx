@@ -77,181 +77,212 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
           >
             {isTopRow(index) && (
               <>
-                <div className="w-full h-full flex items-start justify-center relative" style={{ paddingTop: '20px' }}>
+                <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
+                  {/* Add ratio label */}
+                  <div className="absolute top-0 left-0 bg-blue-100 text-blue-800 text-xs font-medium p-1 rounded">
+                    1:1
+                  </div>
+                  
+                  {/* Buttons - Now positioned at the top (20px from top) */}
                   <div 
-                    className="bg-gray-400 absolute"
+                    className="flex w-full absolute"
                     style={{ 
+                      height: '60px',
                       top: '20px',
-                      bottom: '60px',
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        const height = el.parentElement?.clientHeight 
+                          ? el.parentElement.clientHeight - 20 - 60 
+                          : 0;
+                        const width = height;
+                        
+                        el.style.width = `${width}px`;
+                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - width / 2}px`;
+                      }
+                    }}
+                  >
+                    <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                      <X size={24} color="#990000" />
+                    </div>
+                    <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                      <Check size={24} color="#0c343d" />
+                    </div>
+                  </div>
+                  
+                  {/* Gray box - Now positioned below the buttons */}
+                  <div 
+                    className="bg-gray-400 absolute bottom-0"
+                    style={{ 
+                      top: 'auto',
                       height: 'auto',
                       width: 'auto',
                     }}
                     ref={(el) => {
                       if (el) {
-                        // Calculate and set width to match height for 1:1 ratio
-                        const height = el.parentElement?.clientHeight ? el.parentElement.clientHeight - 20 - 60 : 0;
-                        el.style.width = `${height}px`;
-                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - height / 2}px`;
+                        const parentEl = el.parentElement;
+                        if (parentEl) {
+                          const buttons = parentEl.querySelector('.flex.w-full.absolute') as HTMLElement;
+                          if (buttons) {
+                            const buttonsHeight = buttons.offsetHeight;
+                            const totalHeight = parentEl.clientHeight;
+                            // Height calculation: total height - (20px top padding + buttons height)
+                            const height = totalHeight - (20 + buttonsHeight);
+                            el.style.height = `${height}px`;
+                            el.style.width = `${height}px`;
+                            el.style.left = `${(parentEl.offsetWidth - height) / 2}px`;
+                            
+                            // Position below buttons
+                            el.style.top = `${20 + buttonsHeight}px`;
+                          }
+                        }
                       }
                     }}
                   />
-                  {/* Add ratio label */}
-                  <div className="absolute top-0 left-0 bg-blue-100 text-blue-800 text-xs font-medium p-1 rounded">
-                    1:1
-                  </div>
-                </div>
-                
-                {/* Bottom boxes container - made perfectly aligned with gray box */}
-                <div 
-                  className="flex absolute bottom-0 w-full"
-                  style={{ 
-                    height: '60px', 
-                    left: '0',
-                  }}
-                  ref={(el) => {
-                    if (el) {
-                      const parentEl = el.parentElement;
-                      if (parentEl) {
-                        const grayBox = parentEl.querySelector('.bg-gray-400') as HTMLElement;
-                        if (grayBox && grayBox.offsetWidth) {
-                          // Set the width of the boxes container to exactly match the gray box width
-                          const grayBoxWidth = grayBox.offsetWidth;
-                          el.style.width = `${grayBoxWidth}px`;
-                          // Center this element to match the gray box positioning
-                          el.style.left = `${(parentEl.offsetWidth - grayBoxWidth) / 2}px`;
-                        }
-                      }
-                    }
-                  }}
-                >
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <X size={24} color="#990000" />
-                  </div>
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <Check size={24} color="#0c343d" />
-                  </div>
                 </div>
               </>
             )}
 
             {isMiddleRow(index) && (
               <>
-                <div className="w-full h-full flex items-start justify-center relative" style={{ paddingTop: '20px' }}>
+                <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
+                  {/* Add ratio label */}
+                  <div className="absolute top-0 left-0 bg-purple-100 text-purple-800 text-xs font-medium p-1 rounded">
+                    4:5
+                  </div>
+                  
+                  {/* Buttons - Now positioned at the top (20px from top) */}
                   <div 
-                    className="bg-gray-400 absolute"
+                    className="flex w-full absolute"
                     style={{ 
+                      height: '60px',
                       top: '20px',
-                      bottom: '60px',
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        const height = el.parentElement?.clientHeight 
+                          ? el.parentElement.clientHeight - 20 - 60 
+                          : 0;
+                        // For 4:5 ratio
+                        const width = height * (4/5);
+                        
+                        el.style.width = `${width}px`;
+                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - width / 2}px`;
+                      }
+                    }}
+                  >
+                    <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                      <X size={24} color="#990000" />
+                    </div>
+                    <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                      <Check size={24} color="#0c343d" />
+                    </div>
+                  </div>
+                  
+                  {/* Gray box - Now positioned below the buttons */}
+                  <div 
+                    className="bg-gray-400 absolute bottom-0"
+                    style={{ 
+                      top: 'auto',
                       height: 'auto',
                       width: 'auto',
                     }}
                     ref={(el) => {
                       if (el) {
-                        // Calculate height first
-                        const height = el.parentElement?.clientHeight ? el.parentElement.clientHeight - 20 - 60 : 0;
-                        // For 4:5 ratio, width = height * (4/5)
-                        const widthFor4to5 = height * (4/5);
-                        el.style.width = `${widthFor4to5}px`;
-                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - widthFor4to5 / 2}px`;
+                        const parentEl = el.parentElement;
+                        if (parentEl) {
+                          const buttons = parentEl.querySelector('.flex.w-full.absolute') as HTMLElement;
+                          if (buttons) {
+                            const buttonsHeight = buttons.offsetHeight;
+                            const totalHeight = parentEl.clientHeight;
+                            // Height calculation: total height - (20px top padding + buttons height)
+                            const height = totalHeight - (20 + buttonsHeight);
+                            // Width for 4:5 ratio
+                            const width = height * (4/5);
+                            
+                            el.style.height = `${height}px`;
+                            el.style.width = `${width}px`;
+                            el.style.left = `${(parentEl.offsetWidth - width) / 2}px`;
+                            
+                            // Position below buttons
+                            el.style.top = `${20 + buttonsHeight}px`;
+                          }
+                        }
                       }
                     }}
                   />
-                  {/* Add ratio label */}
-                  <div className="absolute top-0 left-0 bg-purple-100 text-purple-800 text-xs font-medium p-1 rounded">
-                    4:5
-                  </div>
-                </div>
-                
-                {/* Bottom boxes container - aligned with 4:5 gray box */}
-                <div 
-                  className="flex absolute bottom-0 w-full"
-                  style={{ 
-                    height: '60px', 
-                    left: '0',
-                  }}
-                  ref={(el) => {
-                    if (el) {
-                      const parentEl = el.parentElement;
-                      if (parentEl) {
-                        const grayBox = parentEl.querySelector('.bg-gray-400') as HTMLElement;
-                        if (grayBox && grayBox.offsetWidth) {
-                          // Set the width of the boxes container to exactly match the gray box width
-                          const grayBoxWidth = grayBox.offsetWidth;
-                          el.style.width = `${grayBoxWidth}px`;
-                          // Center this element to match the gray box positioning
-                          el.style.left = `${(parentEl.offsetWidth - grayBoxWidth) / 2}px`;
-                        }
-                      }
-                    }
-                  }}
-                >
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <X size={24} color="#990000" />
-                  </div>
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <Check size={24} color="#0c343d" />
-                  </div>
                 </div>
               </>
             )}
 
             {isBottomRow(index) && (
               <>
-                <div className="w-full h-full flex items-start justify-center relative" style={{ paddingTop: '20px' }}>
+                <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
+                  {/* Add ratio label */}
+                  <div className="absolute top-0 left-0 bg-green-100 text-green-800 text-xs font-medium p-1 rounded">
+                    9:16
+                  </div>
+                  
+                  {/* Buttons - Now positioned at the top (20px from top) */}
                   <div 
-                    className="bg-gray-400 absolute"
+                    className="flex w-full absolute"
                     style={{ 
+                      height: '60px',
                       top: '20px',
-                      bottom: '60px',
+                    }}
+                    ref={(el) => {
+                      if (el) {
+                        const height = el.parentElement?.clientHeight 
+                          ? el.parentElement.clientHeight - 20 - 60 
+                          : 0;
+                        // For 9:16 ratio
+                        const width = height * (9/16);
+                        
+                        el.style.width = `${width}px`;
+                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - width / 2}px`;
+                      }
+                    }}
+                  >
+                    <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                      <X size={24} color="#990000" />
+                    </div>
+                    <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
+                      <Check size={24} color="#0c343d" />
+                    </div>
+                  </div>
+                  
+                  {/* Gray box - Now positioned below the buttons */}
+                  <div 
+                    className="bg-gray-400 absolute bottom-0"
+                    style={{ 
+                      top: 'auto',
                       height: 'auto',
                       width: 'auto',
                     }}
                     ref={(el) => {
                       if (el) {
-                        // Calculate height first
-                        const height = el.parentElement?.clientHeight ? el.parentElement.clientHeight - 20 - 60 : 0;
-                        // For 9:16 ratio, width = height * (9/16)
-                        const widthFor9to16 = height * (9/16);
-                        el.style.width = `${widthFor9to16}px`;
-                        el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - widthFor9to16 / 2}px`;
+                        const parentEl = el.parentElement;
+                        if (parentEl) {
+                          const buttons = parentEl.querySelector('.flex.w-full.absolute') as HTMLElement;
+                          if (buttons) {
+                            const buttonsHeight = buttons.offsetHeight;
+                            const totalHeight = parentEl.clientHeight;
+                            // Height calculation: total height - (20px top padding + buttons height)
+                            const height = totalHeight - (20 + buttonsHeight);
+                            // Width for 9:16 ratio
+                            const width = height * (9/16);
+                            
+                            el.style.height = `${height}px`;
+                            el.style.width = `${width}px`;
+                            el.style.left = `${(parentEl.offsetWidth - width) / 2}px`;
+                            
+                            // Position below buttons
+                            el.style.top = `${20 + buttonsHeight}px`;
+                          }
+                        }
                       }
                     }}
                   />
-                  {/* Add ratio label */}
-                  <div className="absolute top-0 left-0 bg-green-100 text-green-800 text-xs font-medium p-1 rounded">
-                    9:16
-                  </div>
-                </div>
-                
-                {/* Bottom boxes container - aligned with 9:16 gray box */}
-                <div 
-                  className="flex absolute bottom-0 w-full"
-                  style={{ 
-                    height: '60px', 
-                    left: '0',
-                  }}
-                  ref={(el) => {
-                    if (el) {
-                      const parentEl = el.parentElement;
-                      if (parentEl) {
-                        const grayBox = parentEl.querySelector('.bg-gray-400') as HTMLElement;
-                        if (grayBox && grayBox.offsetWidth) {
-                          // Set the width of the boxes container to exactly match the gray box width
-                          const grayBoxWidth = grayBox.offsetWidth;
-                          el.style.width = `${grayBoxWidth}px`;
-                          // Center this element to match the gray box positioning
-                          el.style.left = `${(parentEl.offsetWidth - grayBoxWidth) / 2}px`;
-                        }
-                      }
-                    }
-                  }}
-                >
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <X size={24} color="#990000" />
-                  </div>
-                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
-                    <Check size={24} color="#0c343d" />
-                  </div>
                 </div>
               </>
             )}
