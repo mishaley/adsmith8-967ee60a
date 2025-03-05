@@ -69,10 +69,10 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 12], // Updated center point to 12 (moved up)
+        center: [0, 11], // Updated center point to 11 (slightly lower than 12)
         projection: {
           name: 'mercator',
-          center: [0, 12], // Matching center point with the map center
+          center: [0, 11], // Matching center point with the map center
           parallels: [0, 60]
         },
         minZoom: 0.5,
