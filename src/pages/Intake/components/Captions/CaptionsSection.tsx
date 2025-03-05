@@ -71,13 +71,13 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     for (let i = 0; i < 11; i++) {
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
-          <td className="p-2 border-r border-gray-200">
+          <td className="border-r border-gray-200 w-1/3">
             <div className="h-[60px]"></div>
           </td>
-          <td className="p-2 border-r border-gray-200">
+          <td className="border-r border-gray-200 w-1/3">
             <div className="h-[60px]"></div>
           </td>
-          <td className="p-2">
+          <td className="w-1/3">
             <div className="h-[60px]"></div>
           </td>
         </tr>
@@ -101,7 +101,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="p-4">
+          <div>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-gray-200">
                 <tbody>
