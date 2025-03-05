@@ -28,7 +28,7 @@ const ParametersSection: React.FC = () => {
 
   return (
     <CollapsibleSection title="PARAMETERS">
-      <div className="p-4 bg-white rounded-md space-y-6">
+      <div className="p-4 bg-transparent rounded-md space-y-6">
         <table className="w-full border-collapse">
           <tbody>
             <tr>
