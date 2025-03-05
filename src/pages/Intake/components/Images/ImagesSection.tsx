@@ -77,13 +77,13 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   return (
     <CollapsibleSection title="IMAGES">
-      <div className="mb-4 text-center bg-transparent">
+      <div className="mb-4 text-center">
         <RandomStyleButton />
       </div>
 
       {currentPersona ? (
-        <div className="border rounded-md overflow-hidden bg-transparent">
-          <div className="p-4 border-b border-transparent bg-transparent">
+        <div className="border rounded-md overflow-hidden bg-white">
+          <div className="p-4 border-b">
             <PersonaDisplay 
               currentPersona={currentPersona}
               currentMessageType={currentMessageType}
@@ -94,10 +94,10 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="border-t border-transparent bg-transparent">
+          <div className="border-t">
             <ResolutionOptions adPlatform={adPlatform} />
           </div>
-          <div className="border-t border-transparent p-5 bg-transparent">
+          <div className="border-t p-5">
             <ImageGenerator 
               currentPersona={currentPersona} 
               adPlatform={adPlatform} 
@@ -105,7 +105,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500 bg-transparent rounded-md">
+        <div className="p-4 text-center text-gray-500 bg-white rounded-md">
           No personas available to display
         </div>
       )}

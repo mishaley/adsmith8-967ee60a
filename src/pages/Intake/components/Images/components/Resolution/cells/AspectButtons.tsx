@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Check, X } from "lucide-react";
 import { AspectRatioConfig } from "../../../utils/aspectRatioConfig";
@@ -11,12 +12,14 @@ export const WideAspectButtons: React.FC<AspectButtonsProps> = ({
   currentRatioConfig, 
   containerWidth 
 }) => {
+  // Fixed height for buttons
   const buttonHeight = 60;
+  // Wide aspect buttons should take up about 95% of the cell width
   const buttonsWidth = containerWidth * 0.95;
 
   return (
     <div 
-      className="flex absolute bg-transparent"
+      className="flex absolute"
       style={{ 
         width: `${buttonsWidth}px`,
         height: `${buttonHeight}px`,
@@ -38,32 +41,41 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({
   currentRatioConfig, 
   containerWidth 
 }) => {
+  // Fixed height for buttons
   const buttonHeight = 60;
-
+  
+  // Determine width based on aspect ratio to match the display width exactly
   let buttonsWidth;
   
   if (currentRatioConfig.ratio === "1:1") {
+    // For 1:1, buttons should be square (same as display)
+    // Calculate max available height (container width)
     const availableHeight = containerWidth - buttonHeight;
+    // For 1:1, display width equals display height
     buttonsWidth = availableHeight;
   } 
   else if (currentRatioConfig.ratio === "4:5") {
+    // For 4:5, determine button width based on available height to match display width
     const availableHeight = containerWidth - buttonHeight;
     buttonsWidth = availableHeight * (4/5);
   } 
   else if (currentRatioConfig.ratio === "9:16") {
+    // For 9:16, calculate the width to match the display (narrower to accommodate height)
     const availableHeight = containerWidth - buttonHeight;
     const displayHeight = Math.min(availableHeight, containerWidth * 0.9);
     buttonsWidth = displayHeight * (9/16);
   } 
   else {
+    // Default fallback
     buttonsWidth = containerWidth * 0.8;
   }
   
+  // Make sure buttons width doesn't exceed 95% of container
   buttonsWidth = Math.min(buttonsWidth, containerWidth * 0.95);
 
   return (
     <div 
-      className="flex absolute bg-transparent"
+      className="flex absolute"
       style={{ 
         width: `${buttonsWidth}px`,
         height: `${buttonHeight}px`,

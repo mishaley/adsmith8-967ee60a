@@ -18,14 +18,12 @@ const ImagesContainer: React.FC<ImagesContainerProps> = ({
   adPlatform
 }) => {
   return (
-    <div className="bg-transparent">
-      <ImagesSection
-        personas={personas}
-        generatedMessages={generatedMessages}
-        selectedMessageTypes={selectedMessageTypes}
-        adPlatform={adPlatform}
-      />
-    </div>
+    <ImagesSection
+      personas={personas}
+      generatedMessages={generatedMessages}
+      selectedMessageTypes={selectedMessageTypes}
+      adPlatform={adPlatform}
+    />
   );
 };
 

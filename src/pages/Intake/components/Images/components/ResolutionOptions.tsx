@@ -53,7 +53,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   };
 
   return (
-    <div ref={containerRef} className="w-full bg-transparent">
+    <div ref={containerRef} className="w-full">
       <AspectRatioSelector 
         aspectRatioConfigs={aspectRatioConfigs}
         selectedRatio={selectedRatio}
@@ -62,7 +62,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
 
       {/* Removed extra div wrapper to eliminate gap */}
       <div 
-        className="grid grid-cols-3 w-full bg-transparent"
+        className="grid grid-cols-3 w-full"
         style={{ height: `${cellHeight}px` }}
       >
         {/* Only render the first 3 cells (top row) */}
