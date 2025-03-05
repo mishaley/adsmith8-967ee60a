@@ -64,7 +64,24 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     }}
                   />
                 </div>
-                <div className="flex w-3/4 absolute bottom-0 left-1/2 transform -translate-x-1/2">
+                <div 
+                  className="flex absolute bottom-0 w-full"
+                  ref={(el) => {
+                    if (el) {
+                      // Get the width of the gray box above
+                      const parentEl = el.parentElement;
+                      if (parentEl) {
+                        const grayBox = parentEl.querySelector('.bg-gray-400') as HTMLElement;
+                        if (grayBox && grayBox.offsetWidth) {
+                          // Set the width of this container to match the gray box width
+                          el.style.width = `${grayBox.offsetWidth}px`;
+                          // Center this element
+                          el.style.left = `${(parentEl.offsetWidth - grayBox.offsetWidth) / 2}px`;
+                        }
+                      }
+                    }
+                  }}
+                >
                   <div className="bg-gray-200 h-[60px] w-1/2"></div>
                   <div className="bg-gray-300 h-[60px] w-1/2"></div>
                 </div>
