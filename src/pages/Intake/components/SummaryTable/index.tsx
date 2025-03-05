@@ -25,7 +25,11 @@ const SummaryTable: React.FC = () => {
     <div className="my-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
       <table className="w-full border-collapse">
         <tbody>
-          <TableRow label="Organization">
+          <TableRow 
+            label="Organization" 
+            contentPosition="below" 
+            centerContent={true}
+          >
             <OrganizationSelect 
               selectedOrgId={selectedOrgId}
               organizations={organizations}
