@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -64,24 +65,39 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
 
-  // Get column headers based on platform
-  const getColumnHeaders = () => {
-    if (adPlatform && adPlatform.toLowerCase() === "meta") {
-      return ["PRIMARY TEXT", "HEADLINES", "DESCRIPTIONS"];
+  // Get table configuration based on platform
+  const getTableConfig = () => {
+    const platform = adPlatform?.toLowerCase() || "";
+    
+    if (platform === "meta") {
+      return {
+        columnHeaders: ["PRIMARY TEXT", "HEADLINES", "DESCRIPTIONS"],
+        rowCounts: [5, 5, 5]
+      };
+    } else if (platform === "google") {
+      return {
+        columnHeaders: ["HEADLINES", "LONG HEADLINES", "DESCRIPTIONS"],
+        rowCounts: [15, 5, 5]
+      };
     }
-    return ["", "", ""];
+    
+    // Default configuration
+    return {
+      columnHeaders: ["", "", ""],
+      rowCounts: [5, 5, 5]
+    };
   };
 
-  const columnHeaders = getColumnHeaders();
-  const rowCount = adPlatform && adPlatform.toLowerCase() === "meta" ? 5 : 11;
-
+  const { columnHeaders, rowCounts } = getTableConfig();
+  
   // Render a single table for one column
   const renderSingleTable = (columnIndex: number) => {
     const rows = [];
     const header = columnHeaders[columnIndex];
+    const rowCount = rowCounts[columnIndex];
     
     // Add header row if we have a header
-    if (adPlatform && adPlatform.toLowerCase() === "meta") {
+    if (header) {
       rows.push(
         <tr key="header-row" className="border-b border-gray-200 bg-gray-50">
           <td className="w-full font-bold text-center py-2">
