@@ -20,8 +20,8 @@ import PersonasContainer from "./Containers/PersonasContainer";
 import LanguagesContainer from "./Containers/LanguagesContainer";
 import MessagesContainer from "./Containers/MessagesContainer";
 import PlatformsContainer from "./Containers/PlatformsContainer";
-import ImagesContainer from "./Containers/ImagesContainer";
 import ParametersCaptionsContainer from "./Containers/ParametersCaptionsContainer";
+import ImagesContainer from "./Containers/ImagesContainer";
 import IntakeTop from "./IntakeTop";
 import IntakeFormContainer from "./IntakeFormContainer";
 import { Persona } from "./Personas/types";
@@ -222,14 +222,14 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         setAdPlatform={setAdPlatform}
       />
       
+      <ParametersCaptionsContainer />
+      
       <ImagesContainer
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
-      
-      <ParametersCaptionsContainer />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />
