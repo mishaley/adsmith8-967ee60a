@@ -67,7 +67,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   // Get column headers based on platform
   const getColumnHeaders = () => {
     if (adPlatform && adPlatform.toLowerCase() === "meta") {
-      return ["PRIMARY TEXT", "HEADLINE", "DESCRIPTION"];
+      return ["PRIMARY TEXT", "HEADLINES", "DESCRIPTIONS"];
     }
     return ["", "", ""];
   };
