@@ -79,8 +79,8 @@ export const useMapInstance = ({
         minZoom: 0.5,
         maxZoom: 8,
         maxBounds: [
-          [-180, -56], // Updated Southwest corner
-          [180, 81]    // Updated Northeast corner
+          [-182, -56], // Updated Southwest corner - extended by 2 degrees
+          [182, 81]    // Updated Northeast corner - extended by 2 degrees
         ],
         renderWorldCopies: false,
         attributionControl: false,
@@ -136,13 +136,13 @@ export const useMapInstance = ({
 function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
-  let zoom = 0.6;
-  if (width >= 400 && width < 600) {
+  let zoom = 0.5;
+  if (width >= 300 && width < 400) {
+    zoom = 0.6;
+  } else if (width >= 400 && width < 600) {
     zoom = 0.7;
-  } else if (width >= 600 && width < 800) {
+  } else if (width >= 600) {
     zoom = 0.8;
-  } else if (width >= 800) {
-    zoom = 0.9;
   }
   
   map.setZoom(zoom);
@@ -155,8 +155,8 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   };
   
   map.fitBounds([
-    [-180, -56], // Updated Southwest corner - showing less of the south
-    [180, 81]    // Updated Northeast corner - showing less of the north
+    [-182, -56], // Updated Southwest corner - showing less of the south, extended by 2 degrees
+    [182, 81]    // Updated Northeast corner - showing less of the north, extended by 2 degrees
   ], {
     padding,
     linear: true,
