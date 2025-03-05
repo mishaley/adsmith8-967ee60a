@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown } from "lucide-react";
 
@@ -20,7 +20,16 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   
+  // Close dropdown when component becomes disabled
+  useEffect(() => {
+    if (disabled) {
+      setOpen(false);
+    }
+  }, [disabled]);
+  
   const handleValueChange = (itemValue: string) => {
+    if (disabled) return;
+    
     const newValue = [...value];
     const index = newValue.indexOf(itemValue);
     
@@ -34,7 +43,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   };
   
   const displayValue = () => {
-    if (value.length === 0) return "";
+    if (value.length === 0 || disabled) return placeholder;
     if (value.length === 1) {
       const selectedOption = options.find(option => option.value === value[0]);
       return selectedOption ? selectedOption.label : "";

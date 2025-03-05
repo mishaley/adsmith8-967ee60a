@@ -7,20 +7,22 @@ interface MultiSelectFieldProps {
   value: string[];
   onChange: (value: string[]) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
 const MultiSelectField: React.FC<MultiSelectFieldProps> = ({
   options,
   value,
   onChange,
-  disabled = false
+  disabled = false,
+  placeholder = ""
 }) => {
   return (
     <MultiSelect
       options={options}
       value={value}
       onChange={onChange}
-      placeholder=""
+      placeholder={placeholder}
       disabled={disabled}
     />
   );
