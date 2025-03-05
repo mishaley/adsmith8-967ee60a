@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -64,61 +65,51 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
 
-  // Generate rows for the table based on platform
-  const renderTableRows = () => {
+  // Get column headers based on platform
+  const getColumnHeaders = () => {
+    if (adPlatform && adPlatform.toLowerCase() === "meta") {
+      return ["PRIMARY TEXT", "HEADLINE", "DESCRIPTION"];
+    }
+    return ["", "", ""];
+  };
+
+  const columnHeaders = getColumnHeaders();
+  const rowCount = adPlatform && adPlatform.toLowerCase() === "meta" ? 5 : 11;
+
+  // Render a single table for one column
+  const renderSingleTable = (columnIndex: number) => {
     const rows = [];
+    const header = columnHeaders[columnIndex];
     
-    // Add header row based on ad platform
+    // Add header row if we have a header
     if (adPlatform && adPlatform.toLowerCase() === "meta") {
       rows.push(
         <tr key="header-row" className="border-b border-gray-200 bg-gray-50">
-          <td className="border-r border-gray-200 w-1/3 font-bold text-center py-2">
-            PRIMARY TEXT
-          </td>
-          <td className="border-r border-gray-200 w-1/3 font-bold text-center py-2">
-            HEADLINE
-          </td>
-          <td className="w-1/3 font-bold text-center py-2">
-            DESCRIPTION
+          <td className="w-full font-bold text-center py-2">
+            {header}
           </td>
         </tr>
       );
-      
-      // For Meta platform, add 5 empty rows after the header
-      for (let i = 0; i < 5; i++) {
-        rows.push(
-          <tr key={`row-${i}`} className="border-b border-gray-200">
-            <td className="border-r border-gray-200 w-1/3">
-              <div className="h-[60px]"></div>
-            </td>
-            <td className="border-r border-gray-200 w-1/3">
-              <div className="h-[60px]"></div>
-            </td>
-            <td className="w-1/3">
-              <div className="h-[60px]"></div>
-            </td>
-          </tr>
-        );
-      }
-    } else {
-      // For other platforms (e.g., Google), show 11 rows without a header
-      for (let i = 0; i < 11; i++) {
-        rows.push(
-          <tr key={`row-${i}`} className="border-b border-gray-200">
-            <td className="border-r border-gray-200 w-1/3">
-              <div className="h-[60px]"></div>
-            </td>
-            <td className="border-r border-gray-200 w-1/3">
-              <div className="h-[60px]"></div>
-            </td>
-            <td className="w-1/3">
-              <div className="h-[60px]"></div>
-            </td>
-          </tr>
-        );
-      }
     }
-    return rows;
+    
+    // Add empty data rows
+    for (let i = 0; i < rowCount; i++) {
+      rows.push(
+        <tr key={`row-${i}`} className="border-b border-gray-200">
+          <td className="w-full">
+            <div className="h-[60px]"></div>
+          </td>
+        </tr>
+      );
+    }
+    
+    return (
+      <table className="w-full border-collapse border border-gray-200">
+        <tbody>
+          {rows}
+        </tbody>
+      </table>
+    );
   };
   
   return (
@@ -137,12 +128,16 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
             />
           </div>
           <div>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-200">
-                <tbody>
-                  {renderTableRows()}
-                </tbody>
-              </table>
+            <div className="flex">
+              <div className="w-1/3">
+                {renderSingleTable(0)}
+              </div>
+              <div className="w-1/3 px-[10px]">
+                {renderSingleTable(1)}
+              </div>
+              <div className="w-1/3">
+                {renderSingleTable(2)}
+              </div>
             </div>
           </div>
         </div>
