@@ -77,10 +77,10 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 15], // Positioning the map to show both northern and southern extremes
+        center: [0, 10], // Center point moved to better show South America's tip
         projection: {
           name: 'mercator',
-          center: [0, 15], // Matching center point with the map center
+          center: [0, 10], // Matching center point with the map center
           parallels: [0, 60]
         },
         minZoom: 0.5,
@@ -165,16 +165,16 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   
   // Calculate padding
   const padding = {
-    top: 10,
-    bottom: 10,
-    left: 20,
-    right: 20
+    top: 5,
+    bottom: 5,
+    left: 10,
+    right: 10
   };
   
-  // Adjusted bounds to show both northern and southern extremes
+  // Adjusted bounds to show both the tip of South America and Svalbard
   map.fitBounds([
-    [-180, -60], // Southwest - showing more of South America
-    [180, 85]    // Northeast - keeping Svalbard and northern areas visible
+    [-180, -65], // Southwest - showing the tip of South America
+    [180, 80]    // Northeast - showing Svalbard but not extreme north
   ], {
     padding,
     linear: true,
