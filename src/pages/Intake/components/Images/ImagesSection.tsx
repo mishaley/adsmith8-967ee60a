@@ -94,10 +94,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="border-t p-3">
-            <div className="flex justify-center items-center">
-              <ResolutionOptions adPlatform={adPlatform} />
-            </div>
+          <div className="border-t">
+            <ResolutionOptions adPlatform={adPlatform} />
           </div>
           <div className="border-t p-5">
             <ImageGenerator 
