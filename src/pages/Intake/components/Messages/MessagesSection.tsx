@@ -70,7 +70,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
 
   return (
     <CollapsibleSection title="MESSAGES">
-      <div className="bg-white p-4 rounded-md">
+      <div className="bg-transparent">
         <SimplifiedMessagesTable 
           personas={safePersonas}
           selectedMessageTypes={selectedMessageTypes}
