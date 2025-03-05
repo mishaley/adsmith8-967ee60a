@@ -43,7 +43,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
         <thead>
           <tr className="bg-gray-50">
             {/* Persona header cell */}
-            <th className="border p-2 text-left min-w-[160px]">
+            <th className="border p-2 text-left w-40">
               Persona
             </th>
             

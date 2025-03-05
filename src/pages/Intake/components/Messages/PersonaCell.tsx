@@ -28,7 +28,7 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index = 0 }) => {
             <User className="h-6 w-6 text-gray-500" />
           </div>
         )}
-        <div className="flex flex-col min-w-[100px]">
+        <div className="flex flex-col">
           <div className="text-sm whitespace-nowrap">{persona.gender}</div>
           <div className="text-sm whitespace-nowrap">Age {persona.ageMin}-{persona.ageMax}</div>
           {firstInterest && (
