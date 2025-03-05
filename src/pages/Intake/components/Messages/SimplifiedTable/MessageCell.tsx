@@ -39,8 +39,8 @@ const MessageCell: React.FC<MessageCellProps> = ({
         value={content}
         onChange={handleChange}
         placeholder={`Add ${column.type} here...`}
-        className="w-full resize-none border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
-        style={{ minHeight: "80px", maxHeight: "120px" }}
+        className="w-full min-h-[60px] resize-none border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
+        rows={2}
       />
     </td>
   );

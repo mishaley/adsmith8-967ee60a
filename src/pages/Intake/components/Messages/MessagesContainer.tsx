@@ -16,16 +16,11 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   const safePersonas = Array.isArray(personas) ? personas.filter(Boolean) : [];
   
   return (
-    <div className="rounded-lg border mb-8">
-      <div className="border-b bg-gray-50 p-3 rounded-t-lg">
-        <h2 className="text-lg font-semibold text-center">Campaign Messages</h2>
-      </div>
-      <div className="p-5">
-        <MessagesSection 
-          personas={safePersonas} 
-          onUpdateMessages={onUpdateMessages} 
-        />
-      </div>
+    <div>
+      <MessagesSection 
+        personas={safePersonas} 
+        onUpdateMessages={onUpdateMessages} 
+      />
     </div>
   );
 };

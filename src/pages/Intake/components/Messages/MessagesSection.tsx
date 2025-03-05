@@ -68,9 +68,10 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     }
   };
 
-  return <>
-      <div className="mt-8 mb-4">
-        <h3 className="text-center text-gray-700 mb-3 font-bold">Messages</h3>
+  return (
+    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
+      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">MESSAGES</h2>
+      <div className="bg-white p-4 rounded-md">
         <SimplifiedMessagesTable 
           personas={safePersonas}
           selectedMessageTypes={selectedMessageTypes}
@@ -79,7 +80,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
           }}
         />
       </div>
-    </>;
+    </div>
+  );
 };
 
 export default MessagesSection;
