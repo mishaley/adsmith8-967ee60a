@@ -4,6 +4,7 @@ import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "../Images/components/PersonaDisplay";
 import CollapsibleSection from "../CollapsibleSection";
 import { cn } from "@/lib/utils";
+import { Check, X } from "lucide-react";
 
 interface CaptionsSectionProps {
   personas: Persona[];
@@ -102,7 +103,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
           <td className="p-0 w-[60px]">
             <div className="h-[60px] w-[60px] border-l border-gray-200 relative">
               <div className="absolute inset-0">
-                <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
                   <div 
                     className="absolute w-[85px] border-b border-gray-300"
                     style={{ 
@@ -112,6 +113,12 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
                       left: '0'
                     }}
                   ></div>
+                  <div className="absolute top-[10px] left-[10px]">
+                    <X size={20} color="#990000" />
+                  </div>
+                </div>
+                <div className="absolute bottom-[10px] right-[10px]">
+                  <Check size={20} color="#0c343d" />
                 </div>
               </div>
             </div>
