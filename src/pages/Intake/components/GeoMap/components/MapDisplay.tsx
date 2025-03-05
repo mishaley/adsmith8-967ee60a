@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Loader, AlertCircle } from "lucide-react";
 
 interface MapDisplayProps {
@@ -44,17 +43,6 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
     <div className="w-full">
       <div className="h-[600px] rounded overflow-hidden border border-gray-300 relative">
         <div ref={mapContainerRef} className="absolute inset-0" />
-        {selectedCountry && (
-          <div className="absolute bottom-4 right-4 bg-white p-2 rounded shadow">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setSelectedCountry('')}
-            >
-              Clear Selection
-            </Button>
-          </div>
-        )}
       </div>
       <div className="mt-2 text-sm text-gray-500">
         Click on a country to select it as your geo boundary

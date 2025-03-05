@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from "./hooks/useMapboxToken";
 import { useMapInitialization } from "./hooks/useMapInitialization";
 import MapDisplay from "./components/MapDisplay";
+import SelectionDisplay from "./components/SelectionDisplay";
 
 interface GeoMapSectionProps {
   selectedCountry: string;
@@ -53,19 +54,10 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
           setSelectedCountry={setSelectedCountry} 
         />
       </div>
-      <div className="w-full bg-[#f5f9ff] rounded-lg p-4 border border-[#d0e1f9]">
-        <div className="font-bold text-lg mb-4">Selections</div>
-        {selectedCountry ? (
-          <div className="p-3 bg-[#f5f9ff] rounded border border-[#d0e1f9]">
-            <p className="font-medium">Selected Country:</p>
-            <p className="text-[#154851] font-bold">{selectedCountry}</p>
-          </div>
-        ) : (
-          <div className="p-3 bg-gray-50 rounded border border-gray-200 text-gray-500">
-            No country selected. Click on the map to select a country.
-          </div>
-        )}
-      </div>
+      <SelectionDisplay 
+        selectedCountry={selectedCountry}
+        setSelectedCountry={setSelectedCountry}
+      />
     </div>
   );
 };
