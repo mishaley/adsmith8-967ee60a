@@ -11,9 +11,9 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona }) => {
     return (
       <div className="flex items-center">
         <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2 overflow-hidden">
-          <div className="text-gray-400 text-xs">No persona</div>
+          {/* Empty state without any text */}
         </div>
-        <div className="text-gray-400">Not available</div>
+        <div>{/* No "Not available" text */}</div>
       </div>
     );
   }

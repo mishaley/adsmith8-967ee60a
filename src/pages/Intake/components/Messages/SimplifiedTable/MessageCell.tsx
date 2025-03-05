@@ -21,6 +21,11 @@ const MessageCell: React.FC<MessageCellProps> = ({
 }) => {
   const content = column.content?.[personaId] || "";
   
+  // If the message type is empty or "remove", don't render the textarea
+  if (!column.type || column.type === "remove") {
+    return <div className="h-[100px]"></div>;
+  }
+  
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (onContentChange) {
       onContentChange(column.id, personaId, e.target.value);
