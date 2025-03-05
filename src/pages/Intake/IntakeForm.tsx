@@ -1,7 +1,5 @@
+
 import React, { useState } from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import IntakeFormContainer from "./components/IntakeFormContainer";
 import IntakeTop from "./components/IntakeTop";
@@ -18,7 +16,6 @@ import { ImagesSection } from "./components/Images";
 import { CaptionsSection } from "./components/Captions";
 import { ParametersSection } from "./components/Parameters";
 import { Message } from "./components/Messages/hooks/useMessagesFetching";
-import { clearFormAndRefresh } from "./utils/localStorageUtils";
 
 const IntakeForm = () => {
   const {
@@ -59,35 +56,20 @@ const IntakeForm = () => {
     setPersonaCount
   } = usePersonasManager(offering, selectedCountry);
 
+  // State for messages data to share between components
   const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
   const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
 
+  // Handler for receiving updated messages from MessagesContainer
   const handleUpdateMessages = (messages: Record<string, Record<string, Message>>, types: string[]) => {
     console.log("IntakeForm: Messages updated", { messageTypesCount: types.length, personasCount: personas.length });
     setGeneratedMessages(messages);
     setSelectedMessageTypes(types);
   };
 
-  const handleClearForm = () => {
-    if (confirm("This will clear all form data and reset the page. Continue?")) {
-      toast.success("Clearing all form data...");
-      clearFormAndRefresh();
-    }
-  };
-
   return <QuadrantLayout>
       {{
-      q4: <div className="p-[18px] pl-0 pt-0 relative">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="absolute top-0 right-0 z-10 text-red-600 hover:text-red-800 hover:bg-red-100"
-              onClick={handleClearForm}
-            >
-              <X className="mr-1" size={16} />
-              Clear Form
-            </Button>
-            
+      q4: <div className="p-[18px] pl-0 pt-0">
             <div className="mb-6 text-center">
               <p className="mb-4 text-2xl">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
               <p className="mb-4 text-2xl">

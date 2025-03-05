@@ -6,16 +6,9 @@ import { AspectRatioConfig } from "./AspectRatioConfig";
 interface AspectRatioRowProps {
   config: AspectRatioConfig;
   cellHeight: number;
-  selectedRatio: string;
-  onSelectRatio: (ratio: string) => void;
 }
 
-export const AspectRatioRow: React.FC<AspectRatioRowProps> = ({ 
-  config, 
-  cellHeight, 
-  selectedRatio,
-  onSelectRatio
-}) => {
+export const AspectRatioRow: React.FC<AspectRatioRowProps> = ({ config, cellHeight }) => {
   return (
     <>
       {[0, 1, 2].map((cellIndex) => (
@@ -26,8 +19,6 @@ export const AspectRatioRow: React.FC<AspectRatioRowProps> = ({
           height={config.height}
           label={config.label}
           colorScheme={config.colorScheme}
-          selected={selectedRatio === config.ratio}
-          onSelect={() => onSelectRatio(config.ratio)}
         />
       ))}
     </>

@@ -54,20 +54,3 @@ export const clearAllLocalStorage = (): void => {
     console.error('Error clearing all localStorage items:', error);
   }
 };
-
-// Clear all form data and refresh page
-export const clearFormAndRefresh = (): void => {
-  clearAllLocalStorage();
-  // Add additional cleanup for any complex storage keys with subkeys
-  for (const baseKey of Object.values(STORAGE_KEYS)) {
-    // Clear any keys that start with our base keys (like MESSAGES_columns, etc.)
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(baseKey)) {
-        localStorage.removeItem(key);
-      }
-    }
-  }
-  // Refresh the page to reset all in-memory state
-  window.location.reload();
-};
