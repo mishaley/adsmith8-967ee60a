@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -127,6 +126,17 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
         </tr>
       );
     }
+    
+    rows.push(
+      <tr key="footer-row" className="bg-gray-50">
+        <td colSpan={2} className="text-center py-2 text-sm">
+          <div className="flex items-center justify-center gap-2">
+            <Check size={16} color="#0c343d" />
+            <span>Add another for each one rejected</span>
+          </div>
+        </td>
+      </tr>
+    );
     
     return (
       <div className="bg-white rounded-md overflow-hidden border border-gray-200 shadow-none">
