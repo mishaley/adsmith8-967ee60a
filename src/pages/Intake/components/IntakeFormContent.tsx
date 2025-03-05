@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -25,6 +26,7 @@ import IntakeTop from "./IntakeTop";
 import IntakeFormContainer from "./IntakeFormContainer";
 import { Persona } from "./Personas/types";
 import { Message } from "./Messages/hooks/useMessagesFetching";
+import { ParametersSection } from "./Parameters";
 
 interface IntakeFormContentProps {
   brandName: string;
@@ -219,6 +221,8 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
+      
+      <ParametersSection />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />
