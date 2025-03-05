@@ -3,11 +3,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Language {
-  code: string;
-  name: string;
-  native: string;
-  flag: string;
-  display: string;
+  language_id: string;
+  language_name: string;
+  language_native: string;
+  language_flag: string;
 }
 
 export const useLanguages = () => {
@@ -30,15 +29,7 @@ export const useLanguages = () => {
         }
         
         if (data) {
-          // Transform data to match the component's expected format
-          const formattedLanguages = data.map(lang => ({
-            code: lang.language_id,
-            name: lang.language_name,
-            native: lang.language_native,
-            flag: lang.language_flag,
-            display: `${lang.language_flag} ${lang.language_name} (${lang.language_native})`
-          }));
-          setLanguages(formattedLanguages);
+          setLanguages(data as Language[]);
         }
       } catch (err) {
         console.error("Error fetching languages:", err);
