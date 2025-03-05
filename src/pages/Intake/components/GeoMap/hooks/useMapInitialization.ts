@@ -47,10 +47,14 @@ export const useMapInitialization = ({
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1.5,  // Adjusted zoom level to better fit the map
+        zoom: 1.2,  // Lower zoom level to show more of the world
         center: [0, 20],  // Centered to show more landmass
         projection: 'mercator',
         minZoom: 1,  // Prevent zooming out too far
+        maxBounds: [
+          [-180, -85], // Southwest coordinates
+          [180, 85]    // Northeast coordinates
+        ],
         attributionControl: false  // Hide attribution for cleaner look
       });
 
@@ -175,11 +179,14 @@ export const useMapInitialization = ({
             }
           });
           
-          // Add a subtle border around the map
-          if (mapContainer.current) {
-            mapContainer.current.style.border = '1px solid #e2e8f0';
-            mapContainer.current.style.borderRadius = '0.375rem';
-          }
+          // Make sure we fit to bounds
+          map.current.fitBounds([
+            [-160, -60], // Southwest coordinates
+            [160, 70]    // Northeast coordinates
+          ], {
+            padding: { top: 20, bottom: 20, left: 20, right: 20 },
+            animate: false
+          });
           
           setInitialized(true);
           console.log("Map fully initialized and configured");

@@ -43,8 +43,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   });
 
   return (
-    <div className="flex flex-col md:flex-row gap-4">
-      <div className="w-full md:w-2/3">
+    <div className="flex flex-col gap-6">
+      <div className="w-full">
         <MapDisplay 
           loading={loading} 
           error={error} 
@@ -53,7 +53,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
           setSelectedCountry={setSelectedCountry} 
         />
       </div>
-      <div className="w-full md:w-1/3">
+      <div className="w-full bg-[#f5f9ff] rounded-lg p-4 border border-[#d0e1f9]">
         <div className="font-bold text-lg mb-4">Selections</div>
         {selectedCountry ? (
           <div className="p-3 bg-[#f5f9ff] rounded border border-[#d0e1f9]">
