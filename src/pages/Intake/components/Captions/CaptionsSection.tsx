@@ -3,6 +3,7 @@ import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "../Images/components/PersonaDisplay";
 import CollapsibleSection from "../CollapsibleSection";
+import { cn } from "@/lib/utils";
 
 interface CaptionsSectionProps {
   personas: Persona[];
@@ -99,7 +100,17 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
             <div className="h-[60px] p-3"></div>
           </td>
           <td className="p-0 w-[60px]">
-            <div className="h-[60px] w-[60px] border-l border-gray-200"></div>
+            <div className="h-[60px] w-[60px] border-l border-gray-200 relative">
+              <div className="absolute inset-0">
+                <div className="w-full h-full overflow-hidden">
+                  <div className="absolute top-0 right-0 bottom-0 left-0">
+                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[60px] border-r-[60px] border-t-transparent"></div>
+                    <div className="absolute bottom-0 left-0 w-0 h-0 border-b-[60px] border-l-[60px] border-b-transparent"></div>
+                    <div className="absolute inset-0 transform rotate-45 origin-center w-[85px] border-b border-gray-400" style={{ top: '50%', left: '-12px' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </td>
         </tr>
       );
