@@ -20,19 +20,16 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   
-  // Close dropdown when component becomes disabled
+  // Force close dropdown and clear value when component becomes disabled
   useEffect(() => {
     if (disabled) {
       setOpen(false);
+      // Reset value when disabled
+      if (value.length > 0) {
+        onChange([]);
+      }
     }
-  }, [disabled]);
-  
-  // Reset value when component becomes disabled
-  useEffect(() => {
-    if (disabled && value.length > 0) {
-      onChange([]);
-    }
-  }, [disabled, value, onChange]);
+  }, [disabled, value.length, onChange]);
   
   const handleValueChange = (itemValue: string) => {
     if (disabled) return;
@@ -67,6 +64,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         className={`flex h-9 w-full items-center justify-between px-3 text-sm border border-gray-300 rounded-md ${
           disabled ? 'bg-gray-100 opacity-50 cursor-not-allowed' : 'bg-white'
         }`}
+        aria-expanded={open}
       >
         <span className="text-left w-full truncate">{displayValue()}</span>
         <ChevronDown className={`h-4 w-4 flex-shrink-0 ${disabled ? 'opacity-30' : 'opacity-50'}`} />

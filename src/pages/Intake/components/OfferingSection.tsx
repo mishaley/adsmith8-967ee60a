@@ -29,7 +29,6 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
 }) => {
   // Get offering dropdown data and functionality
   const {
-    selectedOrgId,
     selectedOfferingIds,
     setSelectedOfferingIds,
     offeringOptions,

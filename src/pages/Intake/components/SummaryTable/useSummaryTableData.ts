@@ -31,6 +31,22 @@ export const useSummaryTableData = () => {
     };
   }, []);
 
+  // Reset dependent selections when organization changes
+  useEffect(() => {
+    // Clear offerings when org changes or is empty
+    setSelectedOfferingIds([]);
+  }, [selectedOrgId]);
+
+  // Reset persona selection when offerings change
+  useEffect(() => {
+    setSelectedPersonaIds([]);
+  }, [selectedOfferingIds]);
+
+  // Reset message selection when personas change
+  useEffect(() => {
+    setSelectedMessageIds([]);
+  }, [selectedPersonaIds]);
+
   const { data: organizations = [] } = useQuery({
     queryKey: ["organizations"],
     queryFn: async () => {
@@ -94,33 +110,23 @@ export const useSummaryTableData = () => {
     enabled: selectedPersonaIds.length > 0, // Only run query if personas are selected
   });
 
-  // Reset offerings selection when organization changes
-  useEffect(() => {
-    setSelectedOfferingIds([]);
-  }, [selectedOrgId]);
-
-  // Reset persona selection when offerings change
-  useEffect(() => {
-    setSelectedPersonaIds([]);
-  }, [selectedOfferingIds]);
-
-  // Reset message selection when personas change
-  useEffect(() => {
-    setSelectedMessageIds([]);
-  }, [selectedPersonaIds]);
-
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
     if (value === "clear-selection") {
       setSelectedOrgId("");
-      // Reset everything when organization is cleared
+      // Reset all dependent selections
       setSelectedOfferingIds([]);
       setSelectedPersonaIds([]);
       setSelectedMessageIds([]);
+      
+      // When organization is cleared, also clear it from localStorage
+      localStorage.removeItem(STORAGE_KEY);
+      
+      // Dispatch storage event for other components to sync
+      window.dispatchEvent(new Event('storage'));
     } else {
       setSelectedOrgId(value);
       // When organization changes in this component, update localStorage 
-      // to keep it in sync with the Q1 selector
       localStorage.setItem(STORAGE_KEY, value);
       // Dispatch storage event for other components to sync
       window.dispatchEvent(new Event('storage'));
@@ -143,8 +149,10 @@ export const useSummaryTableData = () => {
     label: message.message_name
   }));
 
-  // Determine if offerings selection should be disabled
+  // Determine disabled states
   const isOfferingsDisabled = !selectedOrgId || selectedOrgId === "";
+  const isPersonasDisabled = isOfferingsDisabled || selectedOfferingIds.length === 0;
+  const isMessagesDisabled = isPersonasDisabled || selectedPersonaIds.length === 0;
 
   return {
     selectedOrgId,
@@ -159,6 +167,8 @@ export const useSummaryTableData = () => {
     personaOptions,
     messageOptions,
     handleOrgChange,
-    isOfferingsDisabled
+    isOfferingsDisabled,
+    isPersonasDisabled,
+    isMessagesDisabled
   };
 };
