@@ -21,7 +21,7 @@ const MessageCell: React.FC<MessageCellProps> = ({
 }) => {
   // Safeguard against invalid or empty columns
   if (!column || !column.type || column.type === "remove") {
-    return <div className="h-[100px]"></div>;
+    return <td className="border p-1"></td>;
   }
   
   // Safely access content with null checks
@@ -34,12 +34,15 @@ const MessageCell: React.FC<MessageCellProps> = ({
   };
   
   return (
-    <Textarea
-      value={content}
-      onChange={handleChange}
-      placeholder={`Add ${column.type} here...`}
-      className="w-full min-h-[100px] resize-none border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
-    />
+    <td className="border p-1 align-top">
+      <Textarea
+        value={content}
+        onChange={handleChange}
+        placeholder={`Add ${column.type} here...`}
+        className="w-full resize-none border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
+        style={{ minHeight: "80px", maxHeight: "120px" }}
+      />
+    </td>
   );
 };
 

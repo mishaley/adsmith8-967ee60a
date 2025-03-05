@@ -41,7 +41,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
-          <tr>
+          <tr className="bg-gray-50">
             {/* Persona header cell */}
             <th className="border p-2 text-left w-48">
               Persona
@@ -72,18 +72,19 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
             const personaId = persona.id ? String(persona.id) : `persona-${personaIndex}`;
             
             return (
-              <tr key={personaId}>
+              <tr key={personaId} className="align-top">
                 {/* Persona cell */}
-                <PersonaCell persona={persona} />
+                <PersonaCell 
+                  persona={persona} 
+                  index={personaIndex}
+                />
                 
                 {/* Message cells */}
                 {messageColumns.map(column => (
                   <MessageCell
-                    key={column.id}
-                    columnId={column.id}
-                    columnType={column.type}
+                    key={`${personaId}-${column.id}`}
+                    column={column}
                     personaId={personaId}
-                    content={column.content?.[personaId] || ""}
                     onContentChange={handleContentChange}
                   />
                 ))}
