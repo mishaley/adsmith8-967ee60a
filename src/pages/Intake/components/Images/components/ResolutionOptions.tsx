@@ -51,7 +51,10 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     style={{ 
                       top: '20px',
                       bottom: '60px',  // Make bottom flush with the top of the two boxes
-                      width: '75%',
+                      width: 'auto',
+                      left: '12.5%',
+                      right: '12.5%',
+                      aspectRatio: '1/1'
                     }}
                   />
                 </div>
