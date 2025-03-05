@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import mapboxgl from 'mapbox-gl';
 
@@ -76,7 +77,7 @@ export const useCountryLayers = ({
       setupHoverHandlers(map.current, hoveredPolygonId);
       
       // Handle country selection on click
-      setupClickHandler(map.current, setSelectedCountry);
+      setupClickHandler(map.current, selectedCountry, setSelectedCountry);
       
       // Make sure we fit to bounds to show the entire world
       fitMapToBounds(map.current);
@@ -151,13 +152,18 @@ function setupHoverHandlers(map: mapboxgl.Map, hoveredPolygonId: string | number
 }
 
 // Helper function to set up click handler
-function setupClickHandler(map: mapboxgl.Map, setSelectedCountry: (country: string) => void) {
+function setupClickHandler(map: mapboxgl.Map, selectedCountry: string, setSelectedCountry: (country: string) => void) {
   map.on('click', 'countries-fills', (e) => {
     if (!map || !e.features || e.features.length === 0) return;
     
     const countryName = e.features[0].properties?.name_en;
     if (countryName) {
-      setSelectedCountry(countryName);
+      // Toggle selection: if already selected, clear selection, otherwise select it
+      if (countryName === selectedCountry) {
+        setSelectedCountry('');
+      } else {
+        setSelectedCountry(countryName);
+      }
     }
   });
 }
