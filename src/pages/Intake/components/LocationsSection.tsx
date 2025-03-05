@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import GeoMapSection from "./GeoMap/GeoMapSection";
 import { Input } from "@/components/ui/input";
@@ -7,32 +6,33 @@ import CollapsibleSection from "./CollapsibleSection";
 import { useLanguages } from "./Languages/hooks/useLanguages";
 import { useCountryLanguage } from "./Languages/hooks/useCountryLanguage";
 import { Button } from "@/components/ui/button";
-
 interface LocationsSectionProps {
   selectedCountry: string;
   setSelectedCountry: (value: string) => void;
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
 }
-
 const LocationsSection: React.FC<LocationsSectionProps> = ({
   selectedCountry,
   setSelectedCountry,
   selectedLanguage,
   setSelectedLanguage
 }) => {
-  const [locationGroupName, setLocationGroupName] = useState(() => 
-    loadFromLocalStorage<string>(STORAGE_KEYS.LOCATION + "_groupName", ""));
-  const { languages, isLoading: isLoadingLanguages } = useLanguages();
-  const { primaryLanguageId, countryName, isLoading: isLoadingCountry } = useCountryLanguage(selectedCountry);
+  const [locationGroupName, setLocationGroupName] = useState(() => loadFromLocalStorage<string>(STORAGE_KEYS.LOCATION + "_groupName", ""));
+  const {
+    languages,
+    isLoading: isLoadingLanguages
+  } = useLanguages();
+  const {
+    primaryLanguageId,
+    countryName,
+    isLoading: isLoadingCountry
+  } = useCountryLanguage(selectedCountry);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Filter languages based on search term
-  const filteredLanguages = languages.filter(lang =>
-    lang.language_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lang.language_native.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLanguages = languages.filter(lang => lang.language_name.toLowerCase().includes(searchTerm.toLowerCase()) || lang.language_native.toLowerCase().includes(searchTerm.toLowerCase()));
 
   // Effect to set the language based on the selected country
   useEffect(() => {
@@ -64,14 +64,9 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
   useEffect(() => {
     saveToLocalStorage(STORAGE_KEYS.LOCATION + "_groupName", locationGroupName);
   }, [locationGroupName]);
-
-  return (
-    <CollapsibleSection title="LOCATIONS">
+  return <CollapsibleSection title="LOCATIONS">
       <div className="max-w-full mx-auto">
-        <GeoMapSection
-          selectedCountry={selectedCountry}
-          setSelectedCountry={setSelectedCountry}
-        />
+        <GeoMapSection selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
       </div>
       
       <div className="w-full md:w-1/2 mt-6 ml-auto">
@@ -79,89 +74,43 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
           <div className="font-bold text-lg mb-4">Language</div>
           
           <div className="relative">
-            <Input
-              id="language"
-              type="text"
-              placeholder="Search languages..."
-              value={searchTerm}
-              onChange={handleInputChange}
-              onKeyDown={handleInputKeyDown}
-              onFocus={() => setIsDropdownOpen(true)}
-              onClick={() => setIsDropdownOpen(true)}
-              autoComplete="off"
-              className="w-full"
-            />
+            <Input id="language" type="text" placeholder="Search languages..." value={searchTerm} onChange={handleInputChange} onKeyDown={handleInputKeyDown} onFocus={() => setIsDropdownOpen(true)} onClick={() => setIsDropdownOpen(true)} autoComplete="off" className="w-full" />
             
-            {selectedLanguageObject && searchTerm === "" && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm text-gray-700 pointer-events-none">
+            {selectedLanguageObject && searchTerm === "" && <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm text-gray-700 pointer-events-none">
                 <span>{selectedLanguageObject.language_flag}</span>
                 <span>{selectedLanguageObject.language_name}</span>
-              </div>
-            )}
+              </div>}
             
-            {isDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
-                {isLoadingLanguages ? (
-                  <div className="p-2 text-center">Loading languages...</div>
-                ) : filteredLanguages.length > 0 ? (
-                  filteredLanguages.map(language => (
-                    <Button
-                      key={language.language_id}
-                      type="button"
-                      variant="ghost"
-                      className={`w-full flex items-center justify-between px-4 py-2 text-left ${
-                        selectedLanguage === language.language_id ? "bg-gray-100" : ""
-                      }`}
-                      onClick={() => {
-                        setSelectedLanguage(language.language_id);
-                        setSearchTerm("");
-                        setIsDropdownOpen(false);
-                      }}
-                    >
+            {isDropdownOpen && <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+                {isLoadingLanguages ? <div className="p-2 text-center">Loading languages...</div> : filteredLanguages.length > 0 ? filteredLanguages.map(language => <Button key={language.language_id} type="button" variant="ghost" className={`w-full flex items-center justify-between px-4 py-2 text-left ${selectedLanguage === language.language_id ? "bg-gray-100" : ""}`} onClick={() => {
+              setSelectedLanguage(language.language_id);
+              setSearchTerm("");
+              setIsDropdownOpen(false);
+            }}>
                       <div className="flex items-center gap-2">
                         <span>{language.language_flag}</span>
                         <span>{language.language_name}</span>
                       </div>
                       <span className="text-gray-500">{language.language_native}</span>
-                    </Button>
-                  ))
-                ) : (
-                  <div className="p-2 text-center">No languages found</div>
-                )}
-              </div>
-            )}
+                    </Button>) : <div className="p-2 text-center">No languages found</div>}
+              </div>}
           </div>
           
-          {isLoadingCountry && selectedCountry && (
-            <div className="mt-2 text-sm text-gray-500">
+          {isLoadingCountry && selectedCountry && <div className="mt-2 text-sm text-gray-500">
               Loading language for selected country...
-            </div>
-          )}
+            </div>}
           
-          {countryName && primaryLanguageId && (
-            <div className="mt-2 text-sm text-gray-500">
+          {countryName && primaryLanguageId && <div className="mt-2 text-sm text-gray-500">
               Primary language for {countryName} selected
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
       <div className="mt-8 max-w-md mx-auto">
-        <label htmlFor="locationGroup" className="block text-sm font-medium text-gray-700 mb-2">
-          Location Group Name
-        </label>
-        <Input
-          id="locationGroup"
-          type="text"
-          placeholder="Enter a name for this location group"
-          value={locationGroupName}
-          onChange={(e) => setLocationGroupName(e.target.value)}
-          className="w-full"
-        />
+        
+        <Input id="locationGroup" type="text" placeholder="Enter a name for this location group" value={locationGroupName} onChange={e => setLocationGroupName(e.target.value)} className="w-full" />
         <p className="text-sm text-gray-500 mt-1">Save this location group</p>
       </div>
-    </CollapsibleSection>
-  );
+    </CollapsibleSection>;
 };
-
 export default LocationsSection;
