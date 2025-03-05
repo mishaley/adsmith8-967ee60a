@@ -3,7 +3,7 @@ import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "../Images/components/PersonaDisplay";
 import CollapsibleSection from "../CollapsibleSection";
-import { CheckSquare, XSquare } from "lucide-react";
+import { Square } from "lucide-react";
 
 interface CaptionsSectionProps {
   personas: Persona[];
@@ -18,42 +18,33 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   selectedMessageTypes,
   adPlatform
 }) => {
-  // Filter out any null or undefined personas and messages
   const validPersonas = personas.filter(Boolean);
   const validMessageTypes = selectedMessageTypes.filter(Boolean);
   
-  // Calculate total number of persona-message pairs
   const totalPersonas = validPersonas.length;
   const totalMessageTypes = validMessageTypes.length;
   const totalPairs = totalPersonas * totalMessageTypes;
   
-  // State for tracking the current index
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   
-  // Reset the index when personas or message types change
   useEffect(() => {
     if (currentPairIndex >= totalPairs && totalPairs > 0) {
       setCurrentPairIndex(0);
     }
   }, [validPersonas, validMessageTypes, totalPairs, currentPairIndex]);
   
-  // Calculate which persona and message type to show based on the current index
   const personaIndex = Math.floor(currentPairIndex / Math.max(1, totalMessageTypes));
   const messageTypeIndex = currentPairIndex % Math.max(1, totalMessageTypes);
   
-  // Get the current persona and message type
   const currentPersona = validPersonas[personaIndex] || null;
   const currentMessageType = validMessageTypes[messageTypeIndex] || "";
   
-  // Get personaId for the current persona
   const personaId = currentPersona?.id ? String(currentPersona.id) : currentPersona ? "persona-0" : "";
   
-  // Get the message content (or fallback text)
   const messageContent = personaId && currentMessageType 
     ? generatedMessages[personaId]?.[currentMessageType]?.content || `Generated ${currentMessageType} Example`
     : "No message available";
   
-  // Navigation handlers
   const goToPrevious = () => {
     setCurrentPairIndex(prev => (prev > 0 ? prev - 1 : totalPairs - 1));
   };
@@ -62,10 +53,8 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     setCurrentPairIndex(prev => (prev < totalPairs - 1 ? prev + 1 : 0));
   };
   
-  // Display index starts from 1 for user-friendly numbering
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
 
-  // Get table configuration based on platform
   const getTableConfig = () => {
     const platform = adPlatform?.toLowerCase() || "";
     
@@ -81,7 +70,6 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
       };
     }
     
-    // Default configuration
     return {
       columnHeaders: ["", "", ""],
       rowCounts: [5, 5, 5]
@@ -90,14 +78,12 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
 
   const { columnHeaders, rowCounts } = getTableConfig();
   
-  // State for review status of each row in each table
   const [reviewStatus, setReviewStatus] = useState<Record<number, Record<number, boolean | null>>>({
     0: {}, // First table
     1: {}, // Second table
     2: {}  // Third table
   });
   
-  // Handle review click
   const handleReviewClick = (tableIndex: number, rowIndex: number, isApproved: boolean) => {
     setReviewStatus(prev => ({
       ...prev,
@@ -108,13 +94,11 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     }));
   };
   
-  // Render a single table for one column
   const renderSingleTable = (columnIndex: number) => {
     const rows = [];
     const header = columnHeaders[columnIndex];
     const rowCount = rowCounts[columnIndex];
     
-    // Add header row if we have a header
     if (header) {
       rows.push(
         <tr key="header-row" className="border-b border-gray-200 bg-gray-50">
@@ -125,30 +109,14 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
       );
     }
     
-    // Add data rows with review squares
     for (let i = 0; i < rowCount; i++) {
-      const rowStatus = reviewStatus[columnIndex]?.[i];
-      
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
           <td className="w-full">
             <div className="h-[60px] flex items-center justify-between px-3">
               <div className="flex-grow"></div>
-              <div className="flex items-center gap-2 ml-auto">
-                <button 
-                  onClick={() => handleReviewClick(columnIndex, i, true)}
-                  className={`p-1 rounded ${rowStatus === true ? 'bg-green-100' : 'hover:bg-gray-100'}`}
-                  aria-label="Approve"
-                >
-                  <CheckSquare className={`h-5 w-5 ${rowStatus === true ? 'text-green-500' : 'text-gray-400'}`} />
-                </button>
-                <button 
-                  onClick={() => handleReviewClick(columnIndex, i, false)}
-                  className={`p-1 rounded ${rowStatus === false ? 'bg-red-100' : 'hover:bg-gray-100'}`}
-                  aria-label="Reject"
-                >
-                  <XSquare className={`h-5 w-5 ${rowStatus === false ? 'text-red-500' : 'text-gray-400'}`} />
-                </button>
+              <div className="flex items-center ml-auto">
+                <Square className="h-5 w-5 text-gray-400" />
               </div>
             </div>
           </td>
