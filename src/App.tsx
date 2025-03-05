@@ -1,8 +1,9 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Campaigns from "./pages/Campaigns";
 import Organizations from "./pages/Organizations";
@@ -16,16 +17,32 @@ import New from "./pages/New";
 import Intake from "./pages/Intake";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "./pages/Intake/utils/localStorageUtils";
 
-// Initialize URL state before React renders
-if (window.location.pathname === '/' || window.location.pathname === '/index') {
-  window.history.replaceState({}, 'Images', '/images');
-}
+// List of valid routes for our app
+const VALID_ROUTES = [
+  '/home',
+  '/campaigns',
+  '/organizations',
+  '/offerings',
+  '/personas',
+  '/messages',
+  '/images',
+  '/captions',
+  '/settings',
+  '/new',
+  '/intake'
+];
 
 const TitleUpdater = () => {
   const location = useLocation();
   
   useEffect(() => {
+    // Save current route to localStorage whenever it changes
+    if (location.pathname !== '/') {
+      saveToLocalStorage(STORAGE_KEYS.LAST_ROUTE, location.pathname);
+    }
+
     const path = location.pathname.substring(1);
     if (!path) {
       document.title = 'Images';
@@ -40,22 +57,32 @@ const TitleUpdater = () => {
   return null;
 };
 
-const AppRoutes = () => {
+const RouteRestorer = () => {
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
+    // Only redirect if we're at the root path
     if (location.pathname === '/' || location.pathname === '/index') {
-      window.history.replaceState({}, 'Images', '/images');
-    } else {
-      const path = location.pathname.substring(1);
-      const title = path.charAt(0).toUpperCase() + path.slice(1);
-      window.history.replaceState({}, title, window.location.pathname);
+      // Load last route from localStorage
+      const lastRoute = loadFromLocalStorage<string>(STORAGE_KEYS.LAST_ROUTE, '/images');
+      
+      // Validate that the route exists in our app
+      const targetRoute = VALID_ROUTES.includes(lastRoute) ? lastRoute : '/images';
+      
+      // Navigate to the last route
+      navigate(targetRoute, { replace: true });
     }
-  }, [location]);
+  }, [location.pathname, navigate]);
 
+  return null;
+};
+
+const AppRoutes = () => {
   return (
     <>
       <TitleUpdater />
+      <RouteRestorer />
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/campaigns" element={<Campaigns />} />

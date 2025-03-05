@@ -10,7 +10,8 @@ export const STORAGE_KEYS = {
   PLATFORMS: 'adsmith_platforms',
   IMAGES: 'adsmith_images',
   CAPTIONS: 'adsmith_captions',
-  PARAMETERS: 'adsmith_parameters'
+  PARAMETERS: 'adsmith_parameters',
+  LAST_ROUTE: 'adsmith_last_route'  // Added for route tracking
 };
 
 // Generic save function
