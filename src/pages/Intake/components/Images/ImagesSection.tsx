@@ -82,7 +82,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
       </div>
 
       {currentPersona ? (
-        <div className="border rounded-md overflow-hidden">
+        <div className="border rounded-md overflow-hidden bg-transparent">
           <div className="p-4 border-b bg-transparent">
             <PersonaDisplay 
               currentPersona={currentPersona}
@@ -94,7 +94,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="border-t">
+          <div className="border-t bg-transparent">
             <ResolutionOptions adPlatform={adPlatform} />
           </div>
           <div className="border-t p-5 bg-white">

@@ -53,7 +53,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   };
 
   return (
-    <div ref={containerRef} className="w-full bg-white">
+    <div ref={containerRef} className="w-full bg-transparent">
       <AspectRatioSelector 
         aspectRatioConfigs={aspectRatioConfigs}
         selectedRatio={selectedRatio}
@@ -61,7 +61,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
       />
 
       <div 
-        className="grid grid-cols-3 w-full"
+        className="grid grid-cols-3 w-full bg-transparent"
         style={{ height: `${cellHeight}px` }}
       >
         {[...Array(3)].map((_, index) => (
