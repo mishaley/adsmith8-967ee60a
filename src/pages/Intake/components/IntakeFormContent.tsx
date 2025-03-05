@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ChevronDown } from "lucide-react";
@@ -99,7 +98,6 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         </p>
       </div>
       
-      {/* Add the summary table above the sections container */}
       <SummaryTable />
       
       <SectionsContainer {...props} />
