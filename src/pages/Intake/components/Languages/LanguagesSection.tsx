@@ -41,6 +41,23 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
     }
   }, [isOpen]);
 
+  // Prevent default behavior for keydown events to avoid losing focus
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Prevent propagation of keyboard events that might cause dropdown to close
+    if (e.key !== 'Escape' && e.key !== 'Tab') {
+      e.stopPropagation();
+    }
+  };
+
+  // Handle input change without losing focus
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    // Ensure input maintains focus
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
   return (
     <CollapsibleSection title="LANGUAGES">
       <table className="w-full border-collapse border-transparent">
@@ -70,8 +87,10 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
                         ref={searchInputRef}
                         placeholder="Search languages..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
                         className="h-8"
+                        autoComplete="off"
                       />
                     </div>
                     <ScrollArea className="h-[200px] w-full">
