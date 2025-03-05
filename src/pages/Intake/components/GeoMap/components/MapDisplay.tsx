@@ -37,10 +37,9 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   
   return <div className="w-full">
       <div className="h-[600px] overflow-hidden relative rounded">
-        <div ref={mapContainerRef} className="absolute inset-0 w-[calc(100%+2px)]" />
+        <div ref={mapContainerRef} className="absolute inset-0" />
       </div>
     </div>;
 };
 
 export default MapDisplay;
-
