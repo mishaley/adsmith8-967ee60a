@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -86,9 +85,9 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     if (header) {
       rows.push(
         <tr key="header-row" className="border-b border-gray-200 bg-gray-50">
-          <td colSpan={2} className="font-bold text-center py-2">
+          <th className="font-bold text-center py-2" colSpan={2}>
             {header}
-          </td>
+          </th>
         </tr>
       );
     }
@@ -96,12 +95,10 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     for (let i = 0; i < rowCount; i++) {
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
-          <td className="py-2 px-3">
-            <div className="h-[60px] flex items-center">
-              <div className="flex-grow"></div>
-            </div>
+          <td className="p-0 relative">
+            <div className="h-[60px] p-3"></div>
           </td>
-          <td className="p-0">
+          <td className="p-0 w-[60px] relative">
             <div className="h-[60px] w-[60px] border-l border-gray-200"></div>
           </td>
         </tr>
@@ -110,7 +107,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     
     return (
       <div className="bg-white rounded-md overflow-hidden border border-gray-200">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse table-fixed">
           <tbody>
             {rows}
           </tbody>
