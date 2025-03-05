@@ -3,16 +3,23 @@ import React from "react";
 import { useMessageColumns } from "./hooks/useMessageColumns";
 import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
 import MessageCell from "./SimplifiedTable/MessageCell";
-import PersonaPlaceholderCell from "./SimplifiedTable/PersonaPlaceholderCell";
+import PersonaCell from "./SimplifiedTable/PersonaCell";
 import AddColumnButton from "./SimplifiedTable/AddColumnButton";
+import { Persona } from "../Personas/types";
 
-const SimplifiedMessagesTable: React.FC = () => {
+interface SimplifiedMessagesTableProps {
+  personas?: Persona[];
+}
+
+const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ personas = [] }) => {
   const {
     messageColumns,
     handleAddColumn,
     handleMessageTypeChange,
     handleContentChange
   } = useMessageColumns();
+
+  const hasPersonas = personas && personas.length > 0;
 
   return (
     <div className="mt-6 border rounded overflow-auto">
@@ -47,7 +54,23 @@ const SimplifiedMessagesTable: React.FC = () => {
         <tbody>
           <tr className="border-b">
             <td className="border p-2">
-              <PersonaPlaceholderCell />
+              {hasPersonas ? (
+                <PersonaCell persona={personas[0]} />
+              ) : (
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2">
+                    {/* Empty gray placeholder box */}
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-300">
+                      Gender, Age Range
+                    </div>
+                    <div className="text-sm text-gray-300">
+                      Interests
+                    </div>
+                  </div>
+                </div>
+              )}
             </td>
             
             {/* Render message cells for each column */}
