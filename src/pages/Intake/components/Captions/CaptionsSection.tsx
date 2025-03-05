@@ -154,7 +154,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     <CollapsibleSection title="CAPTIONS">
       {totalPairs > 0 ? (
         <div className="rounded-md overflow-hidden bg-transparent shadow-none">
-          <div className="p-4 border-b bg-transparent">
+          <div className="p-4 border-transparent bg-transparent">
             <PersonaDisplay 
               currentPersona={currentPersona}
               currentMessageType={currentMessageType}
