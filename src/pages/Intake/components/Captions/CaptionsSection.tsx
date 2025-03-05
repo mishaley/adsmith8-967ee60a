@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -104,18 +103,20 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     }
     
     return (
-      <table className="w-full border-collapse border border-gray-200">
-        <tbody>
-          {rows}
-        </tbody>
-      </table>
+      <div className="bg-white rounded-md overflow-hidden">
+        <table className="w-full border-collapse">
+          <tbody>
+            {rows}
+          </tbody>
+        </table>
+      </div>
     );
   };
   
   return (
     <CollapsibleSection title="CAPTIONS">
       {totalPairs > 0 ? (
-        <div className="border rounded-md overflow-hidden bg-white">
+        <div className="rounded-md overflow-hidden bg-white">
           <div className="p-4 border-b">
             <PersonaDisplay 
               currentPersona={currentPersona}
@@ -127,12 +128,12 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div>
-            <div className="flex">
+          <div className="p-4">
+            <div className="flex gap-3">
               <div className="w-1/3">
                 {renderSingleTable(0)}
               </div>
-              <div className="w-1/3 px-[10px]">
+              <div className="w-1/3">
                 {renderSingleTable(1)}
               </div>
               <div className="w-1/3">
