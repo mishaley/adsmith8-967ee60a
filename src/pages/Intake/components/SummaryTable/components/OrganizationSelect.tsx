@@ -23,10 +23,19 @@ const OrganizationSelect: React.FC<OrganizationSelectProps> = ({
   organizations,
   onValueChange,
 }) => {
+  const handleSelectChange = (value: string) => {
+    // Clear selection if "clear-selection" is chosen
+    if (value === "clear-selection") {
+      onValueChange("");
+    } else {
+      onValueChange(value);
+    }
+  };
+
   return (
-    <Select value={selectedOrgId} onValueChange={onValueChange}>
+    <Select value={selectedOrgId || ""} onValueChange={handleSelectChange}>
       <SelectTrigger className="w-full bg-white">
-        <SelectValue placeholder="" />
+        <SelectValue placeholder="Select organization" />
       </SelectTrigger>
       <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
         {organizations.map((org) => (

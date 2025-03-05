@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { STORAGE_KEY, DEFAULT_ORG_ID } from "./constants";
 
 export const useSummaryTableData = () => {
-  // Initialize with the stored organization ID from localStorage
-  const [selectedOrgId, setSelectedOrgId] = useState<string>(
-    localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID
-  );
+  // Initialize with the stored organization ID from localStorage or empty string
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(() => {
+    const storedOrgId = localStorage.getItem(STORAGE_KEY);
+    return storedOrgId || "";
+  });
   
   // Multi-select state (arrays instead of single string values)
   const [selectedOfferingIds, setSelectedOfferingIds] = useState<string[]>([]);
@@ -18,8 +19,10 @@ export const useSummaryTableData = () => {
   // Watch for changes to the organization in localStorage
   useEffect(() => {
     const handleStorageChange = () => {
-      const newOrgId = localStorage.getItem(STORAGE_KEY) || DEFAULT_ORG_ID;
-      setSelectedOrgId(newOrgId);
+      const newOrgId = localStorage.getItem(STORAGE_KEY) || "";
+      if (newOrgId !== selectedOrgId) {
+        setSelectedOrgId(newOrgId);
+      }
     };
 
     // Set up event listener for localStorage changes
@@ -29,21 +32,26 @@ export const useSummaryTableData = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [selectedOrgId]);
 
   // Reset dependent selections when organization changes
   useEffect(() => {
-    // Clear offerings when org changes or is empty
+    console.log("Organization changed to:", selectedOrgId);
+    // When organization is empty or changes, clear all dependent selections
     setSelectedOfferingIds([]);
   }, [selectedOrgId]);
 
   // Reset persona selection when offerings change
   useEffect(() => {
+    console.log("Offerings changed to:", selectedOfferingIds);
+    // When offerings change or are cleared, reset personas
     setSelectedPersonaIds([]);
   }, [selectedOfferingIds]);
 
   // Reset message selection when personas change
   useEffect(() => {
+    console.log("Personas changed to:", selectedPersonaIds);
+    // When personas change or are cleared, reset messages
     setSelectedMessageIds([]);
   }, [selectedPersonaIds]);
 
@@ -112,25 +120,20 @@ export const useSummaryTableData = () => {
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
-    if (value === "clear-selection") {
-      setSelectedOrgId("");
-      // Reset all dependent selections
-      setSelectedOfferingIds([]);
-      setSelectedPersonaIds([]);
-      setSelectedMessageIds([]);
-      
-      // When organization is cleared, also clear it from localStorage
-      localStorage.removeItem(STORAGE_KEY);
-      
-      // Dispatch storage event for other components to sync
-      window.dispatchEvent(new Event('storage'));
-    } else {
-      setSelectedOrgId(value);
-      // When organization changes in this component, update localStorage 
+    console.log("Organization selection changed to:", value);
+    
+    // Update local state
+    setSelectedOrgId(value);
+    
+    // Update localStorage
+    if (value) {
       localStorage.setItem(STORAGE_KEY, value);
-      // Dispatch storage event for other components to sync
-      window.dispatchEvent(new Event('storage'));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
     }
+    
+    // Trigger storage event for other components to sync
+    window.dispatchEvent(new Event('storage'));
   };
 
   // Format options for the multi-select component
@@ -150,7 +153,7 @@ export const useSummaryTableData = () => {
   }));
 
   // Determine disabled states
-  const isOfferingsDisabled = !selectedOrgId || selectedOrgId === "";
+  const isOfferingsDisabled = !selectedOrgId;
   const isPersonasDisabled = isOfferingsDisabled || selectedOfferingIds.length === 0;
   const isMessagesDisabled = isPersonasDisabled || selectedPersonaIds.length === 0;
 

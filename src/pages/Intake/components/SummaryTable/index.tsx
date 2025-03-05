@@ -12,10 +12,16 @@ const SummaryTable: React.FC = () => {
     setSelectedMessageIds,
     personaOptions,
     messageOptions,
-    isOfferingsDisabled,
     isPersonasDisabled,
     isMessagesDisabled
   } = useSummaryTableData();
+
+  console.log("SummaryTable rendering", { 
+    isPersonasDisabled, 
+    isMessagesDisabled,
+    personaOptions: personaOptions.length,
+    messageOptions: messageOptions.length
+  });
 
   return (
     <div className="my-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">

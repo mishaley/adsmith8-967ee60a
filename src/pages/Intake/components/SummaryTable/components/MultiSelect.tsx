@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown } from "lucide-react";
 
@@ -19,17 +19,22 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   disabled = false 
 }) => {
   const [open, setOpen] = useState(false);
+  const firstRender = useRef(true);
   
-  // Force close dropdown and clear value when component becomes disabled
+  // Reset dropdown state and clear selection when disabled changes
   useEffect(() => {
+    // Skip first render to avoid clearing initial values
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+
     if (disabled) {
       setOpen(false);
-      // Reset value when disabled
-      if (value.length > 0) {
-        onChange([]);
-      }
+      // Clear values when component becomes disabled
+      onChange([]);
     }
-  }, [disabled, value.length, onChange]);
+  }, [disabled, onChange]);
   
   const handleValueChange = (itemValue: string) => {
     if (disabled) return;
@@ -47,7 +52,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   };
   
   const displayValue = () => {
-    if (value.length === 0 || disabled) return placeholder;
+    if (disabled || value.length === 0) return placeholder;
     if (value.length === 1) {
       const selectedOption = options.find(option => option.value === value[0]);
       return selectedOption ? selectedOption.label : "";

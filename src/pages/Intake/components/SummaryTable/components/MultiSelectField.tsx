@@ -17,14 +17,19 @@ const MultiSelectField: React.FC<MultiSelectFieldProps> = ({
   disabled = false,
   placeholder = ""
 }) => {
+  // Debug logging to track value and disabled state
+  console.log(`MultiSelectField: ${placeholder}`, { disabled, value, optionsCount: options.length });
+
   return (
-    <MultiSelect
-      options={options}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      disabled={disabled}
-    />
+    <div className="w-full">
+      <MultiSelect
+        options={options}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        placeholder={placeholder}
+      />
+    </div>
   );
 };
 
