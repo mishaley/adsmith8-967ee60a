@@ -83,7 +83,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
 
       {currentPersona ? (
         <div className="border rounded-md overflow-hidden bg-white">
-          <div className="p-4 border-b">
+          <div className="p-4 border-b bg-transparent">
             <PersonaDisplay 
               currentPersona={currentPersona}
               currentMessageType={currentMessageType}
