@@ -103,7 +103,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     }
     
     return (
-      <div className="bg-white rounded-md overflow-hidden">
+      <div className="bg-white rounded-md overflow-hidden border border-gray-200">
         <table className="w-full border-collapse">
           <tbody>
             {rows}
@@ -129,7 +129,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
             />
           </div>
           <div className="p-4">
-            <div className="flex gap-3">
+            <div className="flex space-x-3">
               <div className="w-1/3">
                 {renderSingleTable(0)}
               </div>
