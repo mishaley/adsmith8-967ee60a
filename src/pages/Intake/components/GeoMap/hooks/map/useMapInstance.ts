@@ -70,10 +70,10 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, -5], // Moved center point down (negative value)
+        center: [0, 10], // Moved center point up (positive value)
         projection: {
           name: 'mercator',
-          center: [0, -5], // Matching center point with the map center
+          center: [0, 10], // Matching center point with the map center
           parallels: [0, 60]
         },
         minZoom: 0.5,
@@ -155,8 +155,8 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   };
   
   map.fitBounds([
-    [-180, -80], // Southwest - moved further south to show more of Antarctica
-    [180, 65]    // Northeast - reduced to show less of the north
+    [-180, -60], // Southwest - showing less of the south
+    [180, 80]    // Northeast - showing more of the north
   ], {
     padding,
     linear: true,
