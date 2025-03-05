@@ -1,34 +1,19 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import OrganizationContainer from "./Containers/OrganizationContainer";
-import OfferingContainer from "./Containers/OfferingContainer";
-import LocationsContainer from "./Containers/LocationsContainer";
-import PersonasContainer from "./Containers/PersonasContainer";
-import LanguagesContainer from "./Containers/LanguagesContainer";
-import MessagesContainer from "./Containers/MessagesContainer";
-import PlatformsContainer from "./Containers/PlatformsContainer";
-import ImagesContainer from "./Containers/ImagesContainer";
-import ParametersCaptionsContainer from "./Containers/ParametersCaptionsContainer";
-import IntakeTop from "./IntakeTop";
-import IntakeFormContainer from "./IntakeFormContainer";
-import { Persona } from "./Personas/types";
-import { Message } from "./Messages/hooks/useMessagesFetching";
-import { ParametersSection } from "./Parameters";
+import { Persona } from "../Personas/types";
+import { Message } from "../Messages/hooks/useMessagesFetching";
+import OrganizationContainer from "./OrganizationContainer";
+import OfferingContainer from "./OfferingContainer";
+import LocationsContainer from "./LocationsContainer";
+import PersonasContainer from "./PersonasContainer";
+import LanguagesContainer from "./LanguagesContainer";
+import MessagesContainer from "./MessagesContainer";
+import PlatformsContainer from "./PlatformsContainer";
+import ImagesContainer from "./ImagesContainer";
+import ParametersCaptionsContainer from "./ParametersCaptionsContainer";
+import { ParametersSection } from "../Parameters";
 
-interface IntakeFormContentProps {
+interface SectionsContainerProps {
   brandName: string;
   setBrandName: (value: string) => void;
   industry: string;
@@ -69,11 +54,9 @@ interface IntakeFormContentProps {
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
-  
-  handleClearForm: () => void;
 }
 
-const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
+const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
   const {
     brandName,
     setBrandName,
@@ -114,43 +97,11 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
     
     generatedMessages,
     selectedMessageTypes,
-    handleUpdateMessages,
-    
-    handleClearForm
+    handleUpdateMessages
   } = props;
 
   return (
-    <div className="p-[18px] pl-0 pt-0 relative">
-      <div className="absolute top-0 right-0 z-10 mr-6 mt-6">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" size="sm" className="flex items-center gap-1">
-              <RefreshCw className="h-4 w-4" />
-              Clear Form
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Clear Form Data</AlertDialogTitle>
-              <AlertDialogDescription>
-                This will clear all your form data and reset the form. This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleClearForm}>Clear Data</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-      
-      <div className="mb-6 text-center">
-        <p className="mb-4 text-2xl">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
-        <p className="mb-4 text-2xl">
-          Let's get a demo campaign set up. It'll only take a few minutes.
-        </p>
-      </div>
-      
+    <>
       <OrganizationContainer
         brandName={brandName}
         setBrandName={setBrandName}
@@ -223,11 +174,8 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
       />
       
       <ParametersSection />
-      
-      <IntakeTop />
-      <IntakeFormContainer {...props} />
-    </div>
+    </>
   );
 };
 
-export default IntakeFormContent;
+export default SectionsContainer;
