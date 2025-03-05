@@ -39,20 +39,34 @@ export const WideAspectButtons: React.FC<AspectButtonsProps> = ({ currentRatioCo
 export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({ currentRatioConfig }) => {
   return (
     <div 
-      className="flex w-full absolute"
+      className="flex absolute"
       style={{ 
         height: '60px',
-        top: '20px',
+        top: '20px'
       }}
       ref={(el) => {
         if (el) {
-          const height = el.parentElement?.clientHeight 
-            ? el.parentElement.clientHeight - 20 - 60 
-            : 0;
-          const width = height * (currentRatioConfig.width / currentRatioConfig.height);
-          
-          el.style.width = `${width}px`;
-          el.style.left = `${(el.parentElement?.clientWidth ?? 0) / 2 - width / 2}px`;
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            // Calculate dimensions based on aspect ratio
+            const maxWidth = parentEl.clientWidth * 0.9; // 90% of parent width
+            let width;
+            
+            // Determine width based on aspect ratio
+            if (currentRatioConfig.ratio === "1:1") {
+              width = maxWidth * 0.8; // Square ratio
+            } else if (currentRatioConfig.ratio === "4:5") {
+              width = maxWidth * 0.7; // Portrait
+            } else if (currentRatioConfig.ratio === "9:16") {
+              width = maxWidth * 0.6; // Vertical
+            } else {
+              // Default fallback
+              width = maxWidth * 0.8;
+            }
+            
+            el.style.width = `${width}px`;
+            el.style.left = `${(parentEl.clientWidth - width) / 2}px`;
+          }
         }
       }}
     >

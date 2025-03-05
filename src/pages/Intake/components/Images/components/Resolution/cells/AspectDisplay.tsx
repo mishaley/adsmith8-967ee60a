@@ -39,25 +39,40 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRat
   return (
     <div 
       className="bg-gray-400 absolute"
-      style={{ 
-        top: 'auto',
-        height: 'auto',
-        width: 'auto',
-        bottom: 0,
-      }}
       ref={(el) => {
         if (el && buttonsRef) {
           const parentEl = el.parentElement;
           if (parentEl) {
             const buttonsHeight = buttonsRef.offsetHeight;
             const buttonsTop = parseInt(buttonsRef.style.top, 10);
-            const totalHeight = parentEl.clientHeight;
-            const height = totalHeight - (buttonsTop + buttonsHeight);
-            const width = height * (currentRatioConfig.width / currentRatioConfig.height);
+            const parentWidth = parentEl.clientWidth;
             
-            el.style.height = `${height}px`;
+            // Calculate appropriate sizes based on aspect ratio
+            let width, height;
+            const maxHeight = parentEl.clientHeight - (buttonsTop + buttonsHeight) - 10; // 10px bottom margin
+            const maxWidth = parentWidth * 0.9; // 90% of parent width
+            
+            if (currentRatioConfig.ratio === "1:1") {
+              // For square aspect ratio (1:1)
+              height = Math.min(maxHeight, maxWidth);
+              width = height;
+            } else if (currentRatioConfig.ratio === "4:5") {
+              // For portrait aspect ratio (4:5)
+              height = maxHeight;
+              width = height * (4/5);
+            } else if (currentRatioConfig.ratio === "9:16") {
+              // For vertical aspect ratio (9:16)
+              height = maxHeight;
+              width = height * (9/16);
+            } else {
+              // Default fallback
+              height = maxHeight;
+              width = height * (currentRatioConfig.width / currentRatioConfig.height);
+            }
+            
             el.style.width = `${width}px`;
-            el.style.left = `${(parentEl.offsetWidth - width) / 2}px`;
+            el.style.height = `${height}px`;
+            el.style.left = `${(parentWidth - width) / 2}px`;
             el.style.top = `${buttonsTop + buttonsHeight}px`;
           }
         }
