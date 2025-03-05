@@ -138,7 +138,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                       ref={(el) => {
                         if (el) {
                           const parentWidth = el.parentElement?.clientWidth ?? 0;
-                          const maxWidth = parentWidth * 0.9; // Use 90% of parent width
+                          // Updated: Use 95% of parent width to have 10px padding on each side (5% on each side)
+                          const maxWidth = parentWidth * 0.95;
                           
                           el.style.width = `${maxWidth}px`;
                           el.style.left = `${(parentWidth - maxWidth) / 2}px`;
@@ -165,7 +166,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                               const buttonsTop = parseInt(buttons.style.top, 10);
                               const parentWidth = parentEl.clientWidth;
                               
-                              const maxWidth = parentWidth * 0.9; // Use 90% of available width
+                              // Updated: Use 95% of available width for 10px padding on each side
+                              const maxWidth = parentWidth * 0.95;
                               const height = maxWidth * (11/21); // Apply aspect ratio
                               
                               el.style.width = `${maxWidth}px`;
@@ -384,7 +386,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                   ref={(el) => {
                     if (el) {
                       const parentWidth = el.parentElement?.clientWidth ?? 0;
-                      const maxWidth = parentWidth * 0.9; // Use 90% of parent width
+                      // Updated: Use 95% of parent width to have 10px padding on each side
+                      const maxWidth = parentWidth * 0.95;
                       
                       el.style.width = `${maxWidth}px`;
                       el.style.left = `${(parentWidth - maxWidth) / 2}px`;
@@ -416,7 +419,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                           const buttonsTop = parseInt(buttons.style.top, 10);
                           const parentWidth = parentEl.clientWidth;
                           
-                          const maxWidth = parentWidth * 0.9; // Use 90% of available width
+                          // Updated: Use 95% of available width for 10px padding on each side
+                          const maxWidth = parentWidth * 0.95;
                           const height = maxWidth * (11/21); // Apply aspect ratio
                           
                           el.style.width = `${maxWidth}px`;
