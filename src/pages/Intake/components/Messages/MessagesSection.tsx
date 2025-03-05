@@ -15,8 +15,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   personas,
   onUpdateMessages
 }) => {
-  // Filter out null personas for any operations that can't handle nulls
-  const validPersonas = personas.filter(persona => persona !== null);
+  // Make sure we handle null personas properly
+  const safePersonas = personas.filter(Boolean);
   
   const {
     selectedMessageTypes,
@@ -31,7 +31,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     setGeneratedMessages,
     setIsTableVisible,
     setSelectedMessageTypes
-  } = useMessagesState(personas);
+  } = useMessagesState(safePersonas);
 
   useEffect(() => {
     if (onUpdateMessages) {
@@ -48,7 +48,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   const {
     isGeneratingMessages,
     handleGenerateColumnMessages
-  } = useMessagesGeneration(validPersonas, selectedMessageTypes, userProvidedMessage, generatedMessages, setGeneratedMessages, setIsTableVisible);
+  } = useMessagesGeneration(safePersonas, selectedMessageTypes, userProvidedMessage, generatedMessages, setGeneratedMessages, setIsTableVisible);
 
   const handleColumnGeneration = async (messageType: string): Promise<void> => {
     console.log(`Starting generation for ${messageType}`);

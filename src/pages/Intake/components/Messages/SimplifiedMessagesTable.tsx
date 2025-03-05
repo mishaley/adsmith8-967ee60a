@@ -21,9 +21,10 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
 
   const hasPersonas = personas && personas.length > 0;
   
-  // Filter out null personas but keep track of their indices
-  const validPersonas = personas.map((persona, index) => ({ persona, index }))
-                              .filter(item => item.persona !== null);
+  // Create a safe version of personas array with proper null handling
+  const safePersonas = Array.from({ length: 5 }).map((_, index) => 
+    personas && index < personas.length ? personas[index] : null
+  );
 
   return (
     <div className="mt-6 border rounded overflow-auto">
@@ -57,8 +58,8 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
         </thead>
         <tbody>
           {hasPersonas ? (
-            // Map through valid personas (including null handling)
-            personas.map((persona, index) => (
+            // Map through the safe personas array
+            safePersonas.map((persona, index) => (
               <tr key={index} className="border-b">
                 <td className="border p-2">
                   <PersonaCell persona={persona} />
@@ -70,7 +71,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
                     <MessageCell 
                       column={column}
                       onContentChange={handleContentChange}
-                      personaId={persona ? persona.id?.toString() : `persona-${index}`}
+                      personaId={persona ? persona.id?.toString() || `persona-${index}` : `persona-${index}`}
                     />
                   </td>
                 ))}

@@ -24,7 +24,9 @@ export const useMessagesState = (personas: Persona[]) => {
   const [isTableVisible, setIsTableVisible] = useState<boolean>(() => 
     loadFromLocalStorage<boolean>(STORAGE_KEYS.MESSAGES + "_tableVisible", false));
   
-  const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
+  // Safely get the first valid persona ID with null checks
+  const selectedPersonaId = personas && personas.length > 0 && personas[0] ? 
+    (personas[0].id ? personas[0].id.toString() : `persona-0`) : "";
   
   // Save to localStorage when values change
   useEffect(() => {
@@ -50,6 +52,9 @@ export const useMessagesState = (personas: Persona[]) => {
       const initialMessages: GeneratedMessagesRecord = {};
       
       personas.forEach((persona, index) => {
+        // Add null check for persona
+        if (!persona) return;
+        
         const personaId = persona.id ? String(persona.id) : `persona-${index}`;
         initialMessages[personaId] = {};
         
