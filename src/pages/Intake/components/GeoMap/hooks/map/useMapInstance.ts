@@ -79,8 +79,8 @@ export const useMapInstance = ({
         minZoom: 0.5,
         maxZoom: 8,
         maxBounds: [
-          [-180, -56], // Updated Southwest corner
-          [180, 81]    // Updated Northeast corner
+          [-182, -56], // Extended Southwest corner by 2 degrees to show the edge
+          [182, 81]    // Extended Northeast corner by 2 degrees to show the edge
         ],
         renderWorldCopies: false,
         attributionControl: false,
@@ -155,8 +155,8 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   };
   
   map.fitBounds([
-    [-180, -56], // Updated Southwest corner - showing less of the south
-    [180, 81]    // Updated Northeast corner - showing less of the north
+    [-182, -56], // Extended Southwest corner by 2 degrees
+    [182, 81]    // Extended Northeast corner by 2 degrees
   ], {
     padding,
     linear: true,
