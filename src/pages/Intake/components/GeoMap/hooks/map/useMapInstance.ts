@@ -72,6 +72,12 @@ export const useMapInstance = ({
         console.log("Map loaded event fired");
         setInitialized(true);
 
+        // Set custom water color to #e9f2fe
+        if (map.current) {
+          map.current.setPaintProperty('water', 'fill-color', '#e9f2fe');
+          console.log("Water color updated to #e9f2fe");
+        }
+
         // Ensure the map fits to the container width
         if (map.current && mapContainer.current) {
           map.current.resize();
