@@ -20,9 +20,13 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   selectedMessageTypes,
   adPlatform
 }) => {
+  // Filter out any null or undefined personas and messages
+  const validPersonas = personas.filter(Boolean);
+  const validMessageTypes = selectedMessageTypes.filter(Boolean);
+  
   // Calculate total number of persona-message pairs
-  const totalPersonas = personas.length;
-  const totalMessageTypes = selectedMessageTypes.length;
+  const totalPersonas = validPersonas.length;
+  const totalMessageTypes = validMessageTypes.length;
   const totalPairs = totalPersonas * totalMessageTypes;
   
   // State for tracking the current index
@@ -31,15 +35,15 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   // Reset the index when personas or message types change
   useEffect(() => {
     setCurrentPairIndex(0);
-  }, [personas, selectedMessageTypes]);
+  }, [validPersonas, validMessageTypes]);
   
   // Calculate which persona and message type to show based on the current index
   const personaIndex = Math.floor(currentPairIndex / Math.max(1, totalMessageTypes));
   const messageTypeIndex = currentPairIndex % Math.max(1, totalMessageTypes);
   
   // Get the current persona and message type
-  const currentPersona = personas[personaIndex] || null;
-  const currentMessageType = selectedMessageTypes[messageTypeIndex] || "";
+  const currentPersona = validPersonas[personaIndex] || null;
+  const currentMessageType = validMessageTypes[messageTypeIndex] || "";
   
   // Get personaId for the current persona
   const personaId = currentPersona?.id ? String(currentPersona.id) : currentPersona ? "persona-0" : "";
