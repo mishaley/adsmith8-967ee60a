@@ -3,10 +3,22 @@ import React from "react";
 import { CaptionsSection } from "../Captions";
 import { ParametersSection } from "../Parameters";
 import { useIntakeForm } from "../../hooks/useIntakeForm";
+import { Persona } from "../Personas/types";
+import { Message } from "../Messages/hooks/useMessagesFetching";
 
-const ParametersCaptionsContainer: React.FC<any> = () => {
-  const { personas = [], generatedMessages = {}, selectedMessageTypes = [], adPlatform = "" } = useIntakeForm();
-  
+interface ParametersCaptionsContainerProps {
+  personas: Persona[];
+  generatedMessages: Record<string, Record<string, Message>>;
+  selectedMessageTypes: string[];
+  adPlatform: string;
+}
+
+const ParametersCaptionsContainer: React.FC<ParametersCaptionsContainerProps> = ({
+  personas,
+  generatedMessages,
+  selectedMessageTypes,
+  adPlatform
+}) => {
   return (
     <>
       <CaptionsSection 
@@ -15,7 +27,6 @@ const ParametersCaptionsContainer: React.FC<any> = () => {
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
-      <ParametersSection />
     </>
   );
 };

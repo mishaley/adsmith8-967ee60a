@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -207,14 +206,19 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         setAdPlatform={setAdPlatform}
       />
       
-      <ImagesContainer
+      <ParametersCaptionsContainer
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
       
-      <ParametersCaptionsContainer />
+      <ImagesContainer
+        personas={personas}
+        generatedMessages={generatedMessages}
+        selectedMessageTypes={selectedMessageTypes}
+        adPlatform={adPlatform}
+      />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />
