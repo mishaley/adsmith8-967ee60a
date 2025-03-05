@@ -11,7 +11,7 @@ interface ResolutionOptionsProps {
   adPlatform: string;
 }
 
-const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
+const ResolutionOptions: React.FC<ResolutionOptionsProps> = ({ adPlatform }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
   const [cellHeight, setCellHeight] = useState(0);
@@ -40,9 +40,30 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     saveToLocalStorage(STORAGE_KEYS.IMAGES + "_ratio", selectedRatio);
   }, [selectedRatio]);
 
+  // Filter aspect ratio configs based on platform
+  const filteredAspectRatios = React.useMemo(() => {
+    if (adPlatform === "Google") {
+      return aspectRatioConfigs.filter(config => 
+        ["1:1", "4:5", "21:11"].includes(config.ratio)
+      );
+    } else if (adPlatform === "Meta") {
+      return aspectRatioConfigs.filter(config => 
+        ["1:1", "4:5", "9:16"].includes(config.ratio)
+      );
+    }
+    return aspectRatioConfigs; // Default fallback
+  }, [adPlatform]);
+
   const handleSelectRatio = (ratio: string) => {
     setSelectedRatio(ratio);
   };
+
+  // Ensure selectedRatio is among the filtered options
+  useEffect(() => {
+    if (filteredAspectRatios.length > 0 && !filteredAspectRatios.some(config => config.ratio === selectedRatio)) {
+      setSelectedRatio(filteredAspectRatios[0].ratio);
+    }
+  }, [filteredAspectRatios, selectedRatio]);
 
   const currentRatioConfig = aspectRatioConfigs.find(config => config.ratio === selectedRatio) || aspectRatioConfigs[0];
 
@@ -55,7 +76,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   return (
     <div ref={containerRef} className="w-full bg-transparent">
       <AspectRatioSelector 
-        aspectRatioConfigs={aspectRatioConfigs}
+        aspectRatioConfigs={filteredAspectRatios}
         selectedRatio={selectedRatio}
         onSelectRatio={handleSelectRatio}
       />
