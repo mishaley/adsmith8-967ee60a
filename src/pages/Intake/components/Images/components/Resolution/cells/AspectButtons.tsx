@@ -12,7 +12,7 @@ export const WideAspectButtons: React.FC<AspectButtonsProps> = ({ currentRatioCo
     <div 
       className="flex absolute"
       style={{ 
-        height: '60px',
+        height: '60px', // Fixed height for buttons
         top: '20px'
       }}
       ref={(el) => {
@@ -43,7 +43,7 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({ currentRat
     <div 
       className="flex absolute"
       style={{ 
-        height: '60px',
+        height: '60px', // Fixed height for buttons
         top: '20px'
       }}
       ref={(el) => {

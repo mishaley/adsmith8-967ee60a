@@ -12,6 +12,7 @@ interface ResolutionOptionsProps {
 const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [selectedRatio, setSelectedRatio] = useState<string>(
     loadFromLocalStorage<string>(STORAGE_KEYS.IMAGES + "_ratio", "1:1")
   );
@@ -20,6 +21,26 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     const updateSize = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
+        // For proper sizing, set the container height based on the content needs
+        let height;
+        const currentRatioConfig = aspectRatioConfigs.find(config => config.ratio === selectedRatio);
+        
+        if (currentRatioConfig) {
+          if (currentRatioConfig.ratio === "21:11") {
+            // For wide ratio, we need less height
+            height = containerRef.current.offsetWidth / 2.5;
+          } else if (currentRatioConfig.ratio === "9:16") {
+            // For vertical ratio, we need more height
+            height = containerRef.current.offsetWidth / 2;
+          } else {
+            // Default height
+            height = containerRef.current.offsetWidth / 3;
+          }
+        } else {
+          height = containerRef.current.offsetWidth / 3;
+        }
+        
+        setContainerHeight(height);
       }
     };
 
@@ -27,7 +48,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     window.addEventListener('resize', updateSize);
     
     return () => window.removeEventListener('resize', updateSize);
-  }, []);
+  }, [selectedRatio]);
 
   useEffect(() => {
     saveToLocalStorage(STORAGE_KEYS.IMAGES + "_ratio", selectedRatio);
@@ -40,23 +61,22 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   const currentRatioConfig = aspectRatioConfigs.find(config => config.ratio === selectedRatio) || aspectRatioConfigs[0];
 
   const gridItemStyle = {
-    height: `${containerWidth / 3}px`,
+    height: `${containerHeight}px`,
     border: '1px solid #e0e0e0',
   };
 
   return (
-    <div 
-      ref={containerRef} 
-      className="w-full"
-      style={{ height: `${containerWidth / 3}px` }} // Updated height to match a single row
-    >
+    <div ref={containerRef} className="w-full">
       <AspectRatioSelector 
         aspectRatioConfigs={aspectRatioConfigs}
         selectedRatio={selectedRatio}
         onSelectRatio={handleSelectRatio}
       />
 
-      <div className="grid grid-cols-3 w-full h-full">
+      <div 
+        className="grid grid-cols-3 w-full"
+        style={{ height: `${containerHeight}px` }}
+      >
         {/* Only render the first 3 cells (top row) */}
         {[...Array(3)].map((_, index) => (
           <LayoutCell 
