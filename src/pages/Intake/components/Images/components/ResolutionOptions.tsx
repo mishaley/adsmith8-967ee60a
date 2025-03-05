@@ -318,7 +318,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
             )}
 
             {isNewBottomRow(index) && (
-              <div className="w-full h-full flex flex-col justify-start relative" style={{ paddingTop: '20px' }}>
+              <div className="w-full h-full flex flex-col justify-end relative" style={{ paddingTop: '20px' }}>
                 <div className="absolute top-0 left-0 bg-yellow-100 text-yellow-800 text-xs font-medium p-1 rounded">
                   21:11
                 </div>
@@ -331,10 +331,12 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                   }}
                   ref={(el) => {
                     if (el) {
-                      const width = el.parentElement?.clientWidth ? el.parentElement.clientWidth - 20 : 0;
+                      // Calculate width based on the 21:11 aspect ratio
+                      const parentWidth = el.parentElement?.clientWidth ?? 0;
+                      const maxWidth = parentWidth * 0.9; // Use 90% of parent width
                       
-                      el.style.width = `${width}px`;
-                      el.style.left = `10px`;
+                      el.style.width = `${maxWidth}px`;
+                      el.style.left = `${(parentWidth - maxWidth) / 2}px`;
                     }
                   }}
                 >
@@ -359,16 +361,17 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                       if (parentEl) {
                         const buttons = parentEl.querySelector('.flex.w-full.absolute') as HTMLElement;
                         if (buttons) {
-                          const buttonsHeight = 60;
+                          const buttonsHeight = buttons.offsetHeight;
                           const buttonsTop = parseInt(buttons.style.top, 10);
+                          const parentWidth = parentEl.clientWidth;
                           
-                          const width = parentEl.clientWidth - 20;
-                          const height = width * (11/21);
+                          // Calculate dimensions using 21:11 aspect ratio
+                          const maxWidth = parentWidth * 0.9; // Use 90% of available width
+                          const height = maxWidth * (11/21); // Apply aspect ratio
                           
-                          el.style.width = `${width}px`;
+                          el.style.width = `${maxWidth}px`;
                           el.style.height = `${height}px`;
-                          el.style.left = `10px`;
-                          
+                          el.style.left = `${(parentWidth - maxWidth) / 2}px`;
                           el.style.top = `${buttonsTop + buttonsHeight}px`;
                         }
                       }
