@@ -46,15 +46,17 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     <div className="relative">
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={() => !disabled && setOpen(!open)}
         disabled={disabled}
-        className={`flex h-9 w-full bg-white items-center justify-between px-3 text-sm border border-gray-300 rounded-md ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`flex h-9 w-full items-center justify-between px-3 text-sm border border-gray-300 rounded-md ${
+          disabled ? 'bg-gray-100 opacity-50 cursor-not-allowed' : 'bg-white'
+        }`}
       >
-        <span className="text-left w-full">{displayValue()}</span>
+        <span className="text-left w-full truncate">{displayValue()}</span>
         <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
       </button>
       
-      {open && (
+      {open && !disabled && (
         <div className="absolute z-50 mt-1 w-full overflow-visible bg-white border border-gray-200 rounded-md shadow-lg">
           <div className="p-1">
             {options.length === 0 ? (
@@ -115,7 +117,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         </div>
       )}
       
-      {open && (
+      {open && !disabled && (
         <div 
           className="fixed inset-0 z-40"
           onClick={() => setOpen(false)} 
