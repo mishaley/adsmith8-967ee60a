@@ -17,7 +17,7 @@ const LayoutCell: React.FC<LayoutCellProps> = ({
 }) => {
   return (
     <div 
-      className="flex items-center justify-center bg-white hover:bg-gray-50 transition-colors relative" 
+      className="flex items-center justify-center bg-white hover:bg-gray-50 transition-colors relative overflow-hidden" 
       style={gridItemStyle}
     >
       {isTopRow(index) && (

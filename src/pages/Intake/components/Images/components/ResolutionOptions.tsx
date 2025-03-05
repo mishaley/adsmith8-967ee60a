@@ -21,25 +21,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     const updateSize = () => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
-        // For proper sizing, set the container height based on the content needs
-        let height;
-        const currentRatioConfig = aspectRatioConfigs.find(config => config.ratio === selectedRatio);
-        
-        if (currentRatioConfig) {
-          if (currentRatioConfig.ratio === "21:11") {
-            // For wide ratio, we need less height
-            height = containerRef.current.offsetWidth / 2.5;
-          } else if (currentRatioConfig.ratio === "9:16") {
-            // For vertical ratio, we need more height
-            height = containerRef.current.offsetWidth / 2;
-          } else {
-            // Default height
-            height = containerRef.current.offsetWidth / 3;
-          }
-        } else {
-          height = containerRef.current.offsetWidth / 3;
-        }
-        
+        // Set a fixed consistent height for all ratio options
+        const height = containerRef.current.offsetWidth / 3;
         setContainerHeight(height);
       }
     };

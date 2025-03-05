@@ -1,81 +1,85 @@
+
 import React from "react";
 import { AspectRatioConfig } from "../../../utils/aspectRatioConfig";
 
 interface AspectDisplayProps {
   currentRatioConfig: AspectRatioConfig;
-  buttonsRef: HTMLDivElement | null;
+  containerWidth: number;
+  containerHeight: number;
+  buttonHeight: number;
+  buttonsWidth: number;
 }
 
-export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRatioConfig, buttonsRef }) => {
+export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({
+  currentRatioConfig,
+  containerWidth,
+  containerHeight,
+  buttonHeight,
+  buttonsWidth
+}) => {
+  // Calculate the display width (same as buttons width)
+  const displayWidth = buttonsWidth;
+  
+  // Calculate height based on aspect ratio (21:11)
+  const displayHeight = displayWidth * (11/21);
+  
+  // Calculate total component height (buttons + display)
+  const totalHeight = buttonHeight + displayHeight + 40; // 40px for spacing
+  
+  // Scale if too large for container
+  const scale = totalHeight > containerHeight - 30 ? (containerHeight - 30) / totalHeight : 1;
+  const scaledDisplayHeight = displayHeight * scale;
+  
   return (
     <div 
       className="bg-gray-400 absolute"
-      ref={(el) => {
-        if (el && buttonsRef) {
-          const parentEl = el.parentElement;
-          if (parentEl) {
-            const buttonContainer = buttonsRef.querySelector('.flex.absolute') as HTMLElement;
-            if (buttonContainer) {
-              // Make sure to use the exact same width as the buttons
-              const buttonsWidth = parseFloat(buttonContainer.style.width);
-              const buttonsHeight = buttonContainer.offsetHeight;
-              const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-              
-              const height = buttonsWidth * (11/21); // Apply aspect ratio for 21:11
-              
-              el.style.width = `${buttonsWidth}px`;
-              el.style.height = `${height}px`;
-              el.style.left = buttonContainer.style.left;
-              el.style.top = `${buttonsTop + buttonsHeight}px`;
-            }
-          }
-        }
+      style={{
+        width: `${displayWidth}px`,
+        height: `${scaledDisplayHeight}px`,
+        left: `${(containerWidth - displayWidth) / 2}px`,
+        top: `${buttonHeight + 20}px`,
       }}
     />
   );
 };
 
-export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({ currentRatioConfig, buttonsRef }) => {
+export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
+  currentRatioConfig,
+  containerWidth,
+  containerHeight,
+  buttonHeight,
+  buttonsWidth
+}) => {
+  // Calculate display width (same as buttons width)
+  const displayWidth = buttonsWidth;
+  
+  // Calculate height based on aspect ratio
+  let displayHeight;
+  if (currentRatioConfig.ratio === "1:1") {
+    displayHeight = displayWidth; // 1:1 ratio
+  } else if (currentRatioConfig.ratio === "4:5") {
+    displayHeight = displayWidth * (5/4); // 4:5 ratio
+  } else if (currentRatioConfig.ratio === "9:16") {
+    displayHeight = displayWidth * (16/9); // 9:16 ratio
+  } else {
+    displayHeight = displayWidth; // Default fallback
+  }
+  
+  // Calculate total component height (buttons + display)
+  const totalHeight = buttonHeight + displayHeight + 40; // 40px for spacing
+  
+  // Scale if too large for container
+  const scale = totalHeight > containerHeight - 30 ? (containerHeight - 30) / totalHeight : 1;
+  const scaledDisplayHeight = displayHeight * scale;
+  
   return (
     <div 
       className="bg-gray-400 absolute"
-      ref={(el) => {
-        if (el && buttonsRef) {
-          const parentEl = el.parentElement;
-          if (parentEl) {
-            const buttonContainer = buttonsRef.querySelector('.flex.absolute') as HTMLElement;
-            if (buttonContainer) {
-              const buttonsWidth = parseFloat(buttonContainer.style.width);
-              const buttonsHeight = buttonContainer.offsetHeight;
-              const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
-              
-              let width, height;
-              
-              if (currentRatioConfig.ratio === "1:1") {
-                // For square aspect ratio (1:1)
-                width = buttonsWidth;
-                height = width;
-              } else if (currentRatioConfig.ratio === "4:5") {
-                // For portrait aspect ratio (4:5)
-                width = buttonsWidth;
-                height = width * (5/4);
-              } else if (currentRatioConfig.ratio === "9:16") {
-                // For vertical aspect ratio (9:16)
-                width = buttonsWidth;
-                height = width * (16/9);
-              } else {
-                // Default fallback
-                width = buttonsWidth;
-                height = width;
-              }
-              
-              el.style.width = `${width}px`;
-              el.style.height = `${height}px`;
-              el.style.left = buttonContainer.style.left;
-              el.style.top = `${buttonsTop + buttonsHeight}px`;
-            }
-          }
-        }
+      style={{
+        width: `${displayWidth}px`,
+        height: `${scaledDisplayHeight}px`,
+        left: `${(containerWidth - displayWidth) / 2}px`,
+        top: `${buttonHeight + 20}px`,
       }}
     />
   );
