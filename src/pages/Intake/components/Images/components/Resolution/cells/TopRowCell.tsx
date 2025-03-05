@@ -23,7 +23,7 @@ const TopRowCell: React.FC<TopRowCellProps> = ({
   const availableHeight = cellHeight - buttonHeight;
   
   return (
-    <div className="w-full h-full flex flex-col relative">
+    <div className="w-full h-full flex flex-col relative bg-transparent">
       {/* Buttons */}
       {isWideAspect ? (
         <WideAspectButtons 
