@@ -45,13 +45,13 @@ const TitleUpdater = () => {
 
     const path = location.pathname.substring(1);
     if (!path) {
-      document.title = 'Intake';
-      window.history.replaceState({}, 'Intake', '/intake');
+      document.title = 'Adsmith: Intake';
+      window.history.replaceState({}, 'Adsmith: Intake', '/intake');
       return;
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
-    document.title = title;
-    window.history.replaceState({}, title, window.location.pathname);
+    document.title = `Adsmith: ${title}`;
+    window.history.replaceState({}, `Adsmith: ${title}`, window.location.pathname);
   }, [location]);
 
   return null;
