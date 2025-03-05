@@ -2,6 +2,7 @@
 import React from "react";
 import { AspectRatioConfig } from "../../utils/aspectRatioConfig";
 import { Check } from "lucide-react";
+import { cn } from "../../../../../../lib/utils";
 
 interface ApprovedRowProps {
   cellHeight: number;
@@ -24,6 +25,17 @@ const ApprovedRow: React.FC<ApprovedRowProps> = ({
         style={{ height: `${rowHeight}px` }}
       >
         <Check size={20} color="#0c343d" />
+        <div className="flex ml-4 gap-1 h-full items-center flex-1 pr-4">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <div 
+              key={index}
+              className={cn(
+                "bg-gray-200 rounded-sm flex-shrink-0",
+                "aspect-square h-[60%]"
+              )}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
