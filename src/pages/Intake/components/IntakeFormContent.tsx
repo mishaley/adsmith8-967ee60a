@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -28,8 +27,6 @@ import { Persona } from "./Personas/types";
 import { Message } from "./Messages/hooks/useMessagesFetching";
 
 interface IntakeFormContentProps {
-  // All the original props
-  // Organization props
   brandName: string;
   setBrandName: (value: string) => void;
   industry: string;
@@ -38,7 +35,6 @@ interface IntakeFormContentProps {
   setBusinessDescription: (value: string) => void;
   handleSave: () => void;
   
-  // Offering props
   offering: string;
   setOffering: (value: string) => void;
   sellingPoints: string;
@@ -48,17 +44,14 @@ interface IntakeFormContentProps {
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
   
-  // Location and platform props
   selectedCountry: string;
   setSelectedCountry: (value: string) => void;
   adPlatform: string;
   setAdPlatform: (value: string) => void;
   
-  // Language props
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
   
-  // Personas props
   personas: Persona[];
   summary: string;
   isGeneratingPersonas: boolean;
@@ -71,18 +64,15 @@ interface IntakeFormContentProps {
   personaCount: number;
   setPersonaCount: (count: number) => void;
   
-  // Messages props
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
   
-  // Form management
   handleClearForm: () => void;
 }
 
 const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
   const {
-    // Organization props
     brandName,
     setBrandName,
     industry,
@@ -91,7 +81,6 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
     setBusinessDescription,
     handleSave,
     
-    // Offering props
     offering,
     setOffering,
     sellingPoints,
@@ -101,17 +90,14 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
     uniqueOffering,
     setUniqueOffering,
     
-    // Location and platform props
     selectedCountry,
     setSelectedCountry,
     adPlatform,
     setAdPlatform,
     
-    // Language props
     selectedLanguage,
     setSelectedLanguage,
     
-    // Personas props
     personas,
     summary,
     isGeneratingPersonas,
@@ -124,13 +110,9 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
     personaCount,
     setPersonaCount,
     
-    // Messages props
     generatedMessages,
     selectedMessageTypes,
     handleUpdateMessages,
-    
-    // Form management
-    handleClearForm,
   } = props;
 
   return (
@@ -222,14 +204,14 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         setAdPlatform={setAdPlatform}
       />
       
-      <ParametersCaptionsContainer />
-      
       <ImagesContainer
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
+      
+      <ParametersCaptionsContainer />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />

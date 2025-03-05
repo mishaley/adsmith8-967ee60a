@@ -9,13 +9,13 @@ const ParametersCaptionsContainer: React.FC<any> = () => {
   
   return (
     <>
-      <ParametersSection />
       <CaptionsSection 
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
+      <ParametersSection />
     </>
   );
 };
