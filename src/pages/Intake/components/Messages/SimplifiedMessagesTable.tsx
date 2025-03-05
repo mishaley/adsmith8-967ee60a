@@ -39,11 +39,11 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse table-auto">
+      <table className="w-full border-collapse" style={{ tableLayout: "auto" }}>
         <thead>
           <tr className="bg-gray-50">
-            {/* Persona header cell with auto width */}
-            <th className="border p-2 text-left w-max">
+            {/* Persona header cell with width that fits content */}
+            <th className="border p-2 text-left" style={{ width: "1%", whiteSpace: "nowrap" }}>
               Persona
             </th>
             

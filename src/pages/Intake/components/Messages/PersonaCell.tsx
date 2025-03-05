@@ -15,7 +15,7 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona, index = 0 }) => {
   const secondInterest = interests.length > 1 ? interests[1] : null;
 
   return (
-    <td className="border p-2 align-top w-max">
+    <td className="border p-2 align-top" style={{ width: "1%", whiteSpace: "nowrap" }}>
       <div className="flex items-start">
         {persona.portraitUrl ? (
           <img 
