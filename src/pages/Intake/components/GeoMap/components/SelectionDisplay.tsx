@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useLanguages } from "../../Languages/hooks/useLanguages";
 import { useCountryLanguage } from "../../Languages/hooks/useCountryLanguage";
 import CountryDropdown from "./CountryDropdown";
+import { ChevronDown } from "lucide-react";
 
 interface SelectionDisplayProps {
   selectedCountry: string;
@@ -22,7 +23,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   setSelectedCountryId
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
   
   const {
     languages,
@@ -44,6 +46,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   // Get the selected language object from the languages array
   const selectedLanguageObject = languages.find(lang => lang.language_id === selectedLanguage);
 
+  // Get the country object for the selected country
+  const selectedCountryObject = selectedCountry ? { country_id: selectedCountry, country_name: countryName } : null;
+
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -52,7 +57,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   // Handle input key events
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
-      setIsDropdownOpen(false);
+      setIsLanguageDropdownOpen(false);
     }
   };
 
@@ -89,13 +94,69 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         </div>
       )}
 
-      {/* Country Dropdown - Added here */}
+      {/* Country Dropdown */}
       <div className="mt-6">
-        <CountryDropdown 
-          selectedCountry={selectedCountry} 
-          setSelectedCountry={setSelectedCountry}
-          setSelectedCountryId={setSelectedCountryId}
-        />
+        <div className="font-bold text-lg mb-4">Country</div>
+        
+        <div className="relative">
+          {/* If a country is selected, show the selection instead of the search input */}
+          {selectedCountryObject && !isCountryDropdownOpen ? (
+            <Button
+              variant="outline"
+              className="w-full justify-between font-normal"
+              onClick={() => setIsCountryDropdownOpen(true)}
+            >
+              <span className="flex items-center gap-2 text-left">
+                {selectedCountryObject.country_name}
+              </span>
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Input 
+              type="text" 
+              placeholder="Search countries..." 
+              value={searchTerm} 
+              onChange={handleInputChange} 
+              onFocus={() => setIsCountryDropdownOpen(true)} 
+              onClick={() => setIsCountryDropdownOpen(true)} 
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setIsCountryDropdownOpen(false);
+                }
+              }}
+              autoComplete="off" 
+              className="w-full" 
+            />
+          )}
+          
+          {isCountryDropdownOpen && (
+            <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full text-left text-gray-500 border-b" 
+                onClick={() => {
+                  setIsCountryDropdownOpen(false);
+                  setSearchTerm("");
+                }}
+              >
+                Close
+              </Button>
+              
+              <CountryDropdown 
+                selectedCountry={selectedCountry} 
+                setSelectedCountry={(country) => {
+                  setSelectedCountry(country);
+                  setIsCountryDropdownOpen(false);
+                  if (setSelectedCountryId) {
+                    setSelectedCountryId(country);
+                  }
+                }}
+                setSelectedCountryId={null}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Language Selection */}
@@ -103,28 +164,48 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         <div className="font-bold text-lg mb-4">Language</div>
         
         <div className="relative">
-          <Input 
-            id="language" 
-            type="text" 
-            placeholder="Search languages..." 
-            value={searchTerm} 
-            onChange={handleInputChange} 
-            onKeyDown={handleInputKeyDown} 
-            onFocus={() => setIsDropdownOpen(true)} 
-            onClick={() => setIsDropdownOpen(true)} 
-            autoComplete="off" 
-            className="w-full" 
-          />
-          
-          {selectedLanguageObject && searchTerm === "" && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm text-gray-700 pointer-events-none">
-              <span>{selectedLanguageObject.language_flag}</span>
-              <span>{selectedLanguageObject.language_name}</span>
-            </div>
+          {/* If a language is selected, show the selection instead of the search input */}
+          {selectedLanguageObject && !isLanguageDropdownOpen ? (
+            <Button
+              variant="outline"
+              className="w-full justify-between font-normal"
+              onClick={() => setIsLanguageDropdownOpen(true)}
+            >
+              <span className="flex items-center gap-2 text-left">
+                <span>{selectedLanguageObject.language_flag}</span>
+                <span>{selectedLanguageObject.language_name}</span>
+              </span>
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Input 
+              id="language" 
+              type="text" 
+              placeholder="Search languages..." 
+              value={searchTerm} 
+              onChange={handleInputChange} 
+              onKeyDown={handleInputKeyDown} 
+              onFocus={() => setIsLanguageDropdownOpen(true)} 
+              onClick={() => setIsLanguageDropdownOpen(true)} 
+              autoComplete="off" 
+              className="w-full" 
+            />
           )}
           
-          {isDropdownOpen && (
+          {isLanguageDropdownOpen && (
             <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full text-left text-gray-500 border-b" 
+                onClick={() => {
+                  setIsLanguageDropdownOpen(false);
+                  setSearchTerm("");
+                }}
+              >
+                Close
+              </Button>
+              
               {isLoadingLanguages ? (
                 <div className="p-2 text-center">Loading languages...</div>
               ) : filteredLanguages.length > 0 ? (
@@ -137,7 +218,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
                     onClick={() => {
                       setSelectedLanguage(language.language_id);
                       setSearchTerm("");
-                      setIsDropdownOpen(false);
+                      setIsLanguageDropdownOpen(false);
                     }}
                   >
                     <div className="flex items-center gap-2">
