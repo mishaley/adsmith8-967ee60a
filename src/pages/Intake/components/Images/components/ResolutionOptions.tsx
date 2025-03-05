@@ -55,9 +55,9 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     }}
                   />
                 </div>
-                <div className="flex w-3/4 absolute bottom-0 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-gray-200 h-[60px] w-1/2"></div>
-                  <div className="bg-gray-300 h-[60px] w-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-full h-[60px] flex">
+                  <div className="bg-gray-200 h-full w-1/2"></div>
+                  <div className="bg-gray-300 h-full w-1/2"></div>
                 </div>
               </>
             )}
