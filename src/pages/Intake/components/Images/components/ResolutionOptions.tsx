@@ -44,7 +44,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
             style={gridItemStyle}
           >
             {isTopRow(index) && (
-              <div className="w-full h-full p-5">
+              <div className="w-full h-full p-5 flex justify-center">
                 <div 
                   className="bg-gray-400"
                   style={{ 
