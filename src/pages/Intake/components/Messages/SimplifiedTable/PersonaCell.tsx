@@ -18,6 +18,9 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona }) => {
     );
   }
 
+  // Ensure interests is always an array
+  const interests = Array.isArray(persona.interests) ? persona.interests : [];
+
   return (
     <div className="flex items-center">
       <div className="w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center mr-2 overflow-hidden">
@@ -38,7 +41,7 @@ const PersonaCell: React.FC<PersonaCellProps> = ({ persona }) => {
           {persona.gender}, age {persona.ageMin}-{persona.ageMax}
         </div>
         <div className="text-sm">
-          {persona.interests && persona.interests.map((interest, index) => (
+          {interests.map((interest, index) => (
             <div key={index}>{interest}</div>
           ))}
         </div>

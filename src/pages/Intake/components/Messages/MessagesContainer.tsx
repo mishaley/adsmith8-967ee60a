@@ -1,25 +1,31 @@
 
 import React from "react";
-import { Persona } from "../Personas/types";
 import MessagesSection from "./MessagesSection";
-import { Message } from "./hooks/useMessagesFetching";
+import { Persona } from "../Personas/types";
 
 interface MessagesContainerProps {
   personas: Persona[];
-  onUpdateMessages?: (generatedMessages: Record<string, Record<string, Message>>, selectedTypes: string[]) => void;
+  onUpdateMessages?: (generatedMessages: Record<string, Record<string, any>>, selectedTypes: string[]) => void;
 }
 
 const MessagesContainer: React.FC<MessagesContainerProps> = ({ 
-  personas,
-  onUpdateMessages
+  personas = [], 
+  onUpdateMessages 
 }) => {
+  // Ensure personas is always an array, even if it's undefined or null
+  const safePersonas = Array.isArray(personas) ? personas : [];
+  
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">MESSAGES</h2>
-      <MessagesSection 
-        personas={personas}
-        onUpdateMessages={onUpdateMessages}
-      />
+    <div className="rounded-lg border mb-8">
+      <div className="border-b bg-gray-50 p-3 rounded-t-lg">
+        <h2 className="text-lg font-semibold text-center">Campaign Messages</h2>
+      </div>
+      <div className="p-5">
+        <MessagesSection 
+          personas={safePersonas} 
+          onUpdateMessages={onUpdateMessages} 
+        />
+      </div>
     </div>
   );
 };

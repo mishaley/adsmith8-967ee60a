@@ -1,58 +1,39 @@
 
 import React from "react";
-import { MessageColumn } from "../hooks/useMessageColumns";
+import { Textarea } from "@/components/ui/textarea";
+
+interface MessageColumn {
+  id: string;
+  type: string;
+  content?: Record<string, string>;
+}
 
 interface MessageCellProps {
   column: MessageColumn;
-  onContentChange: (columnId: string, newContent: string) => void;
+  onContentChange?: (columnId: string, personaId: string, content: string) => void;
+  personaId?: string;
 }
 
-const MessageCell: React.FC<MessageCellProps> = ({ column, onContentChange }) => {
-  if (column.type === "user-provided") {
-    return (
-      <div 
-        className="min-h-[60px] w-full h-full"
-        style={{ position: "relative" }}
-      >
-        <div
-          contentEditable
-          data-column-id={column.id}
-          className="absolute inset-0 overflow-auto flex items-center justify-center"
-          style={{ 
-            outline: "none",
-            resize: "none",
-            padding: "0",
-            margin: "0",
-            background: "transparent",
-            textAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-          onInput={(e) => onContentChange(
-            column.id, 
-            (e.target as HTMLDivElement).textContent || ""
-          )}
-          suppressContentEditableWarning={true}
-        >
-          {column.content}
-        </div>
-      </div>
-    );
-  } 
-
+const MessageCell: React.FC<MessageCellProps> = ({ 
+  column, 
+  onContentChange,
+  personaId = "default" // Use a default value if personaId is not provided
+}) => {
+  const content = column.content?.[personaId] || "";
+  
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (onContentChange) {
+      onContentChange(column.id, personaId, e.target.value);
+    }
+  };
+  
   return (
-    <div className="min-h-[60px] flex items-center justify-center">
-      {column.type ? (
-        <div className="text-gray-400 text-center">
-          Select a message type to generate content
-        </div>
-      ) : (
-        <div className="text-gray-400 text-center">
-          No message selected
-        </div>
-      )}
-    </div>
+    <Textarea
+      value={content}
+      onChange={handleChange}
+      placeholder={`Add ${column.type} here...`}
+      className="w-full min-h-[100px] resize-none border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
+    />
   );
 };
 
