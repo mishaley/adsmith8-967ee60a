@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useMessageColumns } from "./hooks/useMessageColumns";
 import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
@@ -20,6 +19,10 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
   } = useMessageColumns();
 
   const hasPersonas = personas && personas.length > 0;
+  
+  // Filter out null personas but keep track of their indices
+  const validPersonas = personas.map((persona, index) => ({ persona, index }))
+                              .filter(item => item.persona !== null);
 
   return (
     <div className="mt-6 border rounded overflow-auto">
@@ -53,7 +56,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
         </thead>
         <tbody>
           {hasPersonas ? (
-            // Map through all available personas
+            // Map through valid personas (including null handling)
             personas.map((persona, index) => (
               <tr key={index} className="border-b">
                 <td className="border p-2">
@@ -78,19 +81,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
             // Show placeholder when no personas are available
             <tr className="border-b">
               <td className="border p-2">
-                <div className="flex items-center">
-                  <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2">
-                    {/* Empty gray placeholder box */}
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-300">
-                      Gender, Age Range
-                    </div>
-                    <div className="text-sm text-gray-300">
-                      Interests
-                    </div>
-                  </div>
-                </div>
+                <PersonaCell persona={null} />
               </td>
               
               {/* Render message cells for each column */}
