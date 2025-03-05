@@ -60,37 +60,35 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
         onSelectRatio={handleSelectRatio}
       />
 
-      <div className="w-full">
-        {/* Review Row (existing row) */}
-        <div 
-          className="grid grid-cols-3 w-full"
-          style={{ height: `${cellHeight}px` }}
-        >
-          {/* Only render the first 3 cells (top row) */}
-          {[...Array(3)].map((_, index) => (
-            <LayoutCell 
-              key={index}
-              index={index}
-              gridItemStyle={gridItemStyle}
-              currentRatioConfig={currentRatioConfig}
-            />
-          ))}
-        </div>
-        
-        {/* Approved Row */}
-        <ApprovedRow 
-          cellHeight={cellHeight} 
-          containerWidth={containerWidth}
-          currentRatioConfig={currentRatioConfig}
-        />
-        
-        {/* Rejected Row */}
-        <RejectedRow 
-          cellHeight={cellHeight} 
-          containerWidth={containerWidth}
-          currentRatioConfig={currentRatioConfig}
-        />
+      {/* Removed extra div wrapper to eliminate gap */}
+      <div 
+        className="grid grid-cols-3 w-full"
+        style={{ height: `${cellHeight}px` }}
+      >
+        {/* Only render the first 3 cells (top row) */}
+        {[...Array(3)].map((_, index) => (
+          <LayoutCell 
+            key={index}
+            index={index}
+            gridItemStyle={gridItemStyle}
+            currentRatioConfig={currentRatioConfig}
+          />
+        ))}
       </div>
+      
+      {/* Approved Row */}
+      <ApprovedRow 
+        cellHeight={cellHeight} 
+        containerWidth={containerWidth}
+        currentRatioConfig={currentRatioConfig}
+      />
+      
+      {/* Rejected Row */}
+      <RejectedRow 
+        cellHeight={cellHeight} 
+        containerWidth={containerWidth}
+        currentRatioConfig={currentRatioConfig}
+      />
     </div>
   );
 };

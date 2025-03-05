@@ -15,7 +15,7 @@ const AspectRatioSelector: React.FC<AspectRatioSelectorProps> = ({
   onSelectRatio
 }) => {
   return (
-    <div className="flex justify-center gap-2 mb-4 p-3 bg-white border-b">
+    <div className="flex justify-center gap-2 p-3 bg-white border-b">
       {aspectRatioConfigs.map((config) => (
         <Button
           key={config.ratio}
