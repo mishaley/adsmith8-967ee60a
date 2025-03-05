@@ -80,6 +80,36 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
     }, 1000);
   };
   
+  // Generate 11 rows for the table
+  const renderTableRows = () => {
+    const rows = [];
+    for (let i = 0; i < 11; i++) {
+      rows.push(
+        <tr key={`row-${i}`} className="border-b border-gray-200">
+          <td className="p-2 border-r border-gray-200">
+            {i === 0 ? (
+              <Textarea
+                placeholder="Enter or generate a caption for your advertisement"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                className="min-h-[60px]"
+              />
+            ) : (
+              <div className="h-[60px]"></div>
+            )}
+          </td>
+          <td className="p-2 border-r border-gray-200">
+            <div className="h-[60px]"></div>
+          </td>
+          <td className="p-2">
+            <div className="h-[60px]"></div>
+          </td>
+        </tr>
+      );
+    }
+    return rows;
+  };
+  
   return (
     <CollapsibleSection title="CAPTIONS">
       {totalPairs > 0 ? (
@@ -95,36 +125,24 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="grid grid-cols-3 gap-4 p-4">
-            {/* First column */}
-            <div className="bg-gray-50 border rounded-md p-4">
-              <div className="mb-4">
-                <Textarea
-                  placeholder="Enter or generate a caption for your advertisement"
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                  className="min-h-[100px]"
-                />
-              </div>
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleGenerateCaption}
-                  disabled={isGenerating}
-                  size="sm"
-                  className="flex items-center gap-1"
-                >
-                  <Wand2 className="h-4 w-4" />
-                  {isGenerating ? "Generating..." : "Generate Caption"}
-                </Button>
-              </div>
+          <div className="p-4">
+            <div className="mb-4 flex justify-end">
+              <Button
+                onClick={handleGenerateCaption}
+                disabled={isGenerating}
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                <Wand2 className="h-4 w-4" />
+                {isGenerating ? "Generating..." : "Generate Caption"}
+              </Button>
             </div>
-            {/* Second column */}
-            <div className="bg-gray-50 border rounded-md p-4">
-              {/* Empty column */}
-            </div>
-            {/* Third column */}
-            <div className="bg-gray-50 border rounded-md p-4">
-              {/* Empty column */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-200">
+                <tbody>
+                  {renderTableRows()}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
