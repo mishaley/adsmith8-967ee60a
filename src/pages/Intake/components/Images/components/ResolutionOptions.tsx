@@ -1,14 +1,31 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { Check, X } from "lucide-react";
+import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../../../utils/localStorageUtils";
 
 interface ResolutionOptionsProps {
   adPlatform: string;
 }
 
+// Define aspect ratio configuration types
+type AspectRatioConfig = {
+  label: string;
+  ratio: string;
+  description?: string;
+};
+
+// Create aspect ratio configurations
+const aspectRatioConfigs: AspectRatioConfig[] = [
+  { label: "1:1", ratio: "1:1", description: "Square format - equal width and height" },
+  // We'll add more configurations later
+];
+
 const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [selectedRatio, setSelectedRatio] = useState<string>(
+    loadFromLocalStorage<string>(STORAGE_KEYS.IMAGES + "_ratio", "1:1")
+  );
 
   useEffect(() => {
     const updateSize = () => {
@@ -22,6 +39,11 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     
     return () => window.removeEventListener('resize', updateSize);
   }, []);
+
+  // Save selected ratio to local storage when it changes
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.IMAGES + "_ratio", selectedRatio);
+  }, [selectedRatio]);
 
   const gridItemStyle = {
     height: `${containerWidth / 3}px`,
@@ -64,6 +86,10 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                       }
                     }}
                   />
+                  {/* Add ratio label */}
+                  <div className="absolute top-0 left-0 bg-blue-100 text-blue-800 text-xs font-medium p-1 rounded">
+                    1:1
+                  </div>
                 </div>
                 
                 {/* Bottom boxes container - made perfectly aligned with gray box */}
