@@ -43,8 +43,8 @@ export const useMapInstance = ({
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1.0,  // Even lower zoom level to show more of the world
-        center: [0, 10],  // Adjusted center to show more of the world
+        zoom: 1.5,  // Adjusted zoom level to match desired appearance
+        center: [0, 20],  // Centered more on populated areas
         projection: 'mercator',
         minZoom: 0.8,  // Allow zooming out further
         maxZoom: 8,    // Limit how far users can zoom in

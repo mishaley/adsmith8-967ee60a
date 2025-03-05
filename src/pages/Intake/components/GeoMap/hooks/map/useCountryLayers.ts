@@ -1,5 +1,4 @@
-
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from 'mapbox-gl';
 
 interface UseCountryLayersProps {
@@ -17,54 +16,61 @@ export const useCountryLayers = ({
   setSelectedCountry,
   setMapError
 }: UseCountryLayersProps) => {
+  // Keep track of whether layers have been initialized
+  const layersInitialized = useRef(false);
   
+  // Set up country layers when map is initialized
   useEffect(() => {
-    if (!map.current || !initialized) return;
+    if (!map.current || !initialized || layersInitialized.current) return;
     
     try {
+      console.log("Setting up country layers");
       let hoveredPolygonId: string | number | null = null;
       
-      // Add country boundaries source and layer
-      map.current.addSource('countries', {
-        type: 'vector',
-        url: 'mapbox://mapbox.country-boundaries-v1'
-      });
-      
-      // Add fill layer for countries
-      map.current.addLayer({
-        id: 'countries-fills',
-        type: 'fill',
-        source: 'countries',
-        'source-layer': 'country_boundaries',
-        paint: {
-          'fill-color': [
-            'case',
-            ['==', ['get', 'name_en'], selectedCountry],
-            '#154851', // Selected country color (matches app theme)
-            '#EAEAEA'  // Default color
-          ],
-          'fill-opacity': [
-            'case',
-            ['==', ['get', 'name_en'], selectedCountry],
-            0.8,
-            ['boolean', ['feature-state', 'hover'], false],
-            0.5,
-            0.2
-          ]
-        }
-      });
-      
-      // Add border layer for countries
-      map.current.addLayer({
-        id: 'countries-borders',
-        type: 'line',
-        source: 'countries',
-        'source-layer': 'country_boundaries',
-        paint: {
-          'line-color': '#666666',
-          'line-width': 0.5
-        }
-      });
+      // Check if source already exists before adding it
+      if (!map.current.getSource('countries')) {
+        // Add country boundaries source
+        map.current.addSource('countries', {
+          type: 'vector',
+          url: 'mapbox://mapbox.country-boundaries-v1'
+        });
+        
+        // Add fill layer for countries
+        map.current.addLayer({
+          id: 'countries-fills',
+          type: 'fill',
+          source: 'countries',
+          'source-layer': 'country_boundaries',
+          paint: {
+            'fill-color': [
+              'case',
+              ['==', ['get', 'name_en'], selectedCountry],
+              '#154851', // Selected country color (matches app theme)
+              '#EAEAEA'  // Default color
+            ],
+            'fill-opacity': [
+              'case',
+              ['==', ['get', 'name_en'], selectedCountry],
+              0.8,
+              ['boolean', ['feature-state', 'hover'], false],
+              0.5,
+              0.2
+            ]
+          }
+        });
+        
+        // Add border layer for countries
+        map.current.addLayer({
+          id: 'countries-borders',
+          type: 'line',
+          source: 'countries',
+          'source-layer': 'country_boundaries',
+          paint: {
+            'line-color': '#666666',
+            'line-width': 0.5
+          }
+        });
+      }
       
       // Setup event handlers for hover states
       setupHoverHandlers(map.current, hoveredPolygonId);
@@ -72,18 +78,21 @@ export const useCountryLayers = ({
       // Handle country selection on click
       setupClickHandler(map.current, setSelectedCountry);
       
-      // Make sure we fit to bounds with more padding to show the entire world
+      // Make sure we fit to bounds to show the entire world
       fitMapToBounds(map.current);
+      
+      // Mark layers as initialized to prevent duplicate initialization
+      layersInitialized.current = true;
       
     } catch (layerErr) {
       console.error("Error setting up map layers:", layerErr);
       setMapError(`Error setting up map layers: ${layerErr instanceof Error ? layerErr.message : String(layerErr)}`);
     }
-  }, [initialized, selectedCountry, setSelectedCountry, setMapError, map]);
+  }, [initialized, setSelectedCountry, setMapError, map]);
 
   // Update the fill color based on selection when selectedCountry changes
   useEffect(() => {
-    if (!map.current || !initialized) return;
+    if (!map.current || !initialized || !layersInitialized.current) return;
     
     map.current.setPaintProperty('countries-fills', 'fill-color', [
       'case',
