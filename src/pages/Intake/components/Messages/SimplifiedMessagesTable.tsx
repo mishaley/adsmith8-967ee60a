@@ -19,13 +19,10 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
     handleContentChange
   } = useMessageColumns();
 
-  const hasPersonas = personas && personas.length > 0;
+  // Filter out any null personas and create a clean array
+  const validPersonas = personas.filter(persona => persona !== null && persona !== undefined);
+  const hasPersonas = validPersonas.length > 0;
   
-  // Create a safe version of personas array with proper null handling
-  const safePersonas = Array.from({ length: 5 }).map((_, index) => 
-    personas && index < personas.length ? personas[index] : null
-  );
-
   return (
     <div className="mt-6 border rounded overflow-auto">
       <table className="w-full table-fixed border-collapse">
@@ -58,20 +55,20 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
         </thead>
         <tbody>
           {hasPersonas ? (
-            // Map through the safe personas array
-            safePersonas.map((persona, index) => (
-              <tr key={index} className="border-b">
+            // Only map through valid personas
+            validPersonas.map((persona, index) => (
+              <tr key={`persona-row-${index}`} className="border-b">
                 <td className="border p-2">
                   <PersonaCell persona={persona} />
                 </td>
                 
                 {/* Render message cells for each column */}
                 {messageColumns.map(column => (
-                  <td key={column.id} className="border p-2 align-top">
+                  <td key={`cell-${column.id}-${index}`} className="border p-2 align-top">
                     <MessageCell 
                       column={column}
                       onContentChange={handleContentChange}
-                      personaId={persona ? persona.id?.toString() || `persona-${index}` : `persona-${index}`}
+                      personaId={persona?.id?.toString() || `persona-${index}`}
                     />
                   </td>
                 ))}
@@ -81,7 +78,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
               </tr>
             ))
           ) : (
-            // Show placeholder when no personas are available
+            // Show a single placeholder row when no personas are available
             <tr className="border-b">
               <td className="border p-2">
                 <PersonaCell persona={null} />
@@ -89,7 +86,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
               
               {/* Render message cells for each column */}
               {messageColumns.map(column => (
-                <td key={column.id} className="border p-2 align-top">
+                <td key={`default-cell-${column.id}`} className="border p-2 align-top">
                   <MessageCell 
                     column={column}
                     onContentChange={handleContentChange}

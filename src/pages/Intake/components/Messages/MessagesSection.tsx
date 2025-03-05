@@ -64,7 +64,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   return <>
       <div className="mt-8 mb-4">
         <h3 className="text-center text-gray-700 mb-3 font-bold">Messages</h3>
-        <SimplifiedMessagesTable personas={personas} />
+        <SimplifiedMessagesTable personas={safePersonas} />
       </div>
     </>;
 };
