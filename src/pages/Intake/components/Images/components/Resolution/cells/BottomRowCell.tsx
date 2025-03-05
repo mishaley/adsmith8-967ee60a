@@ -11,14 +11,7 @@ const BottomRowCell: React.FC = () => {
         9:16
       </div>
       
-      <div 
-        ref={el => {
-          buttonsRef.current = el;
-          // Force reflow to ensure the ref is updated
-          if (el) el.getBoundingClientRect();
-        }}
-        className="w-full"
-      >
+      <div ref={buttonsRef} className="w-full">
         <div 
           className="flex absolute"
           style={{ 
@@ -29,7 +22,7 @@ const BottomRowCell: React.FC = () => {
             if (el) {
               const parentEl = el.parentElement?.parentElement;
               if (parentEl) {
-                const maxWidth = parentEl.clientWidth * 0.6; // 60% of parent width
+                const maxWidth = parentWidth = parentEl.clientWidth * 0.6; // 60% of parent width
                 
                 el.style.width = `${maxWidth}px`;
                 el.style.left = `${(parentEl.clientWidth - maxWidth) / 2}px`;
@@ -52,15 +45,18 @@ const BottomRowCell: React.FC = () => {
           if (el && buttonsRef.current) {
             const parentEl = el.parentElement;
             if (parentEl) {
-              const buttons = buttonsRef.current.querySelector('.flex.absolute') as HTMLElement;
-              if (buttons) {
-                const buttonsHeight = buttons.offsetHeight;
-                const buttonsTop = parseInt(getComputedStyle(buttons).top, 10);
+              const buttonContainer = buttonsRef.current.querySelector('.flex.absolute') as HTMLElement;
+              if (buttonContainer) {
+                const buttonsHeight = buttonContainer.offsetHeight;
+                const buttonsTop = parseInt(getComputedStyle(buttonContainer).top, 10);
                 const parentWidth = parentEl.clientWidth;
+                const parentHeight = parentEl.clientHeight;
                 
                 const width = parentWidth * 0.6;
                 const height = width * (16/9);
-                const maxHeight = parentEl.clientHeight - (buttonsTop + buttonsHeight) - 10;
+                
+                // Calculate maximum available height
+                const maxHeight = parentHeight - (buttonsTop + buttonsHeight) - 10;
                 
                 // Adjust if height exceeds available space
                 const finalHeight = Math.min(height, maxHeight);
