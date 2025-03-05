@@ -5,18 +5,52 @@ import { usePersonaRegeneration } from "./usePersonaRegeneration";
 import { usePersonaPortraits } from "./usePersonaPortraits";
 import { Persona } from "../../components/Personas/types";
 import { useCallback, useState, useEffect } from "react";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../utils/localStorageUtils";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
-  const [personaCount, setPersonaCount] = useState<number>(1);
+  // Load personaCount from localStorage with default of 1
+  const [personaCount, setPersonaCount] = useState<number>(() => 
+    loadFromLocalStorage<number>(STORAGE_KEYS.PERSONAS + "_count", 1));
   
   const {
-    personas,
+    personas: loadedPersonas,
     summary,
     isGeneratingPersonas,
     generatePersonas: generatePersonasBase,
-    updatePersona,
-    regenerateSinglePersona
+    updatePersona: updatePersonaBase,
+    regenerateSinglePersona,
+    setPersonas // Expose this from usePersonaGeneration
   } = usePersonaGeneration();
+
+  // On initial load, attempt to load personas from localStorage
+  useEffect(() => {
+    const savedPersonas = loadFromLocalStorage<Persona[]>(STORAGE_KEYS.PERSONAS + "_data", []);
+    const savedSummary = loadFromLocalStorage<string>(STORAGE_KEYS.PERSONAS + "_summary", "");
+    
+    // Only set if we have saved personas
+    if (savedPersonas.length > 0) {
+      setPersonas(savedPersonas);
+    }
+  }, [setPersonas]);
+
+  // Persist personas whenever they change
+  useEffect(() => {
+    if (loadedPersonas.length > 0) {
+      saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_data", loadedPersonas);
+      saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_summary", summary);
+    }
+  }, [loadedPersonas, summary]);
+
+  // Persist personaCount whenever it changes
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_count", personaCount);
+  }, [personaCount]);
+
+  // Wrap the updatePersona function to also persist changes
+  const updatePersona = (index: number, updatedPersona: Persona) => {
+    updatePersonaBase(index, updatedPersona);
+    // Persistence happens in the useEffect above when loadedPersonas changes
+  };
 
   const {
     isGeneratingPortraits,
@@ -29,7 +63,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     generatePortraitsForAll, 
     retryPortraitGeneration 
   } = usePersonaPortraits(
-    personas, 
+    loadedPersonas, 
     retryPortraitBase, 
     updatePersona
   );
@@ -38,7 +72,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     regeneratePersona, 
     removePersona 
   } = usePersonaRegeneration(
-    personas, 
+    loadedPersonas, 
     offering, 
     selectedCountry,
     regenerateSinglePersona,
@@ -65,18 +99,9 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     });
   }, [offering, selectedCountry, personaCount, generatePersonasBase, generatePortraitsForAll, generatePortraitsForAllPersonas]);
 
-  // Add an effect to limit the displayed personas to match personaCount
-  useEffect(() => {
-    if (personas.length > personaCount) {
-      console.log(`Limiting displayed personas from ${personas.length} to ${personaCount} based on user selection`);
-      // We don't modify the actual personas array, but we can limit what we display in the UI
-      // This ensures we're only showing the number of personas the user selected
-    }
-  }, [personas.length, personaCount]);
-
   return {
     // Only return the first `personaCount` personas to ensure UI matches the selected count
-    personas: personas.slice(0, personaCount),
+    personas: loadedPersonas.slice(0, personaCount),
     summary,
     isGeneratingPersonas,
     isGeneratingPortraits,

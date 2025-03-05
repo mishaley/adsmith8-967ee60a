@@ -1,19 +1,47 @@
+
 import { useState, useEffect } from "react";
 import { Persona } from "../../Personas/types";
 import { Message } from "./useMessagesFetching";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../../utils/localStorageUtils";
 
 // Use a simpler type for the generated messages record
 export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
 
 export const useMessagesState = (personas: Persona[]) => {
-  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>([]);
+  // Load initial values from localStorage
+  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(() => 
+    loadFromLocalStorage<string[]>(STORAGE_KEYS.MESSAGES + "_types", []));
+    
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(true); // Initialize to true so buttons are enabled by default
-  const [userProvidedMessage, setUserProvidedMessage] = useState("");
-  const [generatedMessages, setGeneratedMessages] = useState<GeneratedMessagesRecord>({});
-  const [isTableVisible, setIsTableVisible] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
+  
+  const [userProvidedMessage, setUserProvidedMessage] = useState<string>(() => 
+    loadFromLocalStorage<string>(STORAGE_KEYS.MESSAGES + "_userProvided", ""));
+    
+  const [generatedMessages, setGeneratedMessages] = useState<GeneratedMessagesRecord>(() => 
+    loadFromLocalStorage<GeneratedMessagesRecord>(STORAGE_KEYS.MESSAGES + "_generated", {}));
+    
+  const [isTableVisible, setIsTableVisible] = useState<boolean>(() => 
+    loadFromLocalStorage<boolean>(STORAGE_KEYS.MESSAGES + "_tableVisible", false));
   
   const selectedPersonaId = personas.length > 0 && personas[0]?.id ? personas[0].id : "";
+  
+  // Save to localStorage when values change
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_types", selectedMessageTypes);
+  }, [selectedMessageTypes]);
+  
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_userProvided", userProvidedMessage);
+  }, [userProvidedMessage]);
+  
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_generated", generatedMessages);
+  }, [generatedMessages]);
+  
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_tableVisible", isTableVisible);
+  }, [isTableVisible]);
   
   // Initialize empty messages structure when personas or message types change
   useEffect(() => {

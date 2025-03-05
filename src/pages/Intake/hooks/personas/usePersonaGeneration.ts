@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { Persona } from "../../components/Personas/types";
@@ -114,6 +115,7 @@ export const usePersonaGeneration = () => {
     isGeneratingPersonas,
     generatePersonas,
     updatePersona,
-    regenerateSinglePersona
+    regenerateSinglePersona,
+    setPersonas // Export this to allow setting personas from saved data
   };
 };

@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GeoMapSection from "./GeoMap/GeoMapSection";
 import { Input } from "@/components/ui/input";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../utils/localStorageUtils";
 
 interface LocationsSectionProps {
   selectedCountry: string;
@@ -12,7 +13,13 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
   selectedCountry,
   setSelectedCountry
 }) => {
-  const [locationGroupName, setLocationGroupName] = useState("");
+  const [locationGroupName, setLocationGroupName] = useState(() => 
+    loadFromLocalStorage<string>(STORAGE_KEYS.LOCATION + "_groupName", ""));
+
+  // Save location group name when it changes
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.LOCATION + "_groupName", locationGroupName);
+  }, [locationGroupName]);
 
   return (
     <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">

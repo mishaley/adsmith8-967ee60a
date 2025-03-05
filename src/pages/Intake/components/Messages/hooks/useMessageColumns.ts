@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../../utils/localStorageUtils";
 
 export interface MessageColumn {
   id: string;
@@ -11,13 +12,36 @@ export function useMessageColumns() {
   // Use a counter for unique column IDs
   const nextColumnIdRef = useRef(1);
   
-  // Track active message columns - initialize with one column
-  const [messageColumns, setMessageColumns] = useState<MessageColumn[]>([
-    { id: `column-${nextColumnIdRef.current}`, type: "" }
-  ]);
+  // Track active message columns - initialize with one column or from localStorage
+  const [messageColumns, setMessageColumns] = useState<MessageColumn[]>(() => {
+    const savedColumns = loadFromLocalStorage<MessageColumn[]>(STORAGE_KEYS.MESSAGES + "_columns", [
+      { id: `column-${nextColumnIdRef.current}`, type: "" }
+    ]);
+    
+    // Find the highest column ID number to set nextColumnIdRef properly
+    if (savedColumns.length > 0) {
+      const columnIds = savedColumns
+        .map(col => {
+          const match = col.id.match(/column-(\d+)/);
+          return match ? parseInt(match[1], 10) : 0;
+        })
+        .filter(num => !isNaN(num));
+      
+      if (columnIds.length > 0) {
+        nextColumnIdRef.current = Math.max(...columnIds) + 1;
+      }
+    }
+    
+    return savedColumns;
+  });
   
   // Keep a reference to any newly created user-provided cell that needs focus
   const [columnToFocus, setColumnToFocus] = useState<string | null>(null);
+
+  // Save message columns to localStorage when they change
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_columns", messageColumns);
+  }, [messageColumns]);
 
   // Effect to handle auto-focusing on newly selected user-provided cells
   useEffect(() => {
