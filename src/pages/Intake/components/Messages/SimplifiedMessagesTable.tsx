@@ -42,8 +42,8 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-gray-50">
-            {/* Persona header cell - let the column width be determined by content */}
-            <th className="border p-2 text-left">
+            {/* Persona header cell - width will adjust to content */}
+            <th className="border p-2 text-left whitespace-nowrap">
               Persona
             </th>
             
