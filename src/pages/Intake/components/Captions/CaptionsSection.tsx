@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -113,11 +114,11 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
                       left: '0'
                     }}
                   ></div>
-                  <div className="absolute top-[10px] left-[10px]">
+                  <div className="absolute top-[10px] left-[7px]">
                     <X size={20} color="#990000" />
                   </div>
                 </div>
-                <div className="absolute bottom-[10px] right-[10px]">
+                <div className="absolute bottom-[10px] right-[7px]">
                   <Check size={20} color="#0c343d" />
                 </div>
               </div>
