@@ -6,39 +6,24 @@ import { useSummaryTableData } from "./useSummaryTableData";
 
 const SummaryTable: React.FC = () => {
   const {
-    selectedOrgId,
-    selectedOfferingIds,
-    setSelectedOfferingIds,
     selectedPersonaIds,
     setSelectedPersonaIds,
     selectedMessageIds,
     setSelectedMessageIds,
-    organizations,
-    offeringOptions,
     personaOptions,
-    messageOptions,
-    handleOrgChange
+    messageOptions
   } = useSummaryTableData();
 
   return (
     <div className="my-6 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
       <table className="w-full border-collapse">
         <tbody>
-          <TableRow label="Offering">
-            <MultiSelectField
-              options={offeringOptions}
-              value={selectedOfferingIds}
-              onChange={setSelectedOfferingIds}
-              disabled={!selectedOrgId}
-            />
-          </TableRow>
-          
           <TableRow label="Persona">
             <MultiSelectField
               options={personaOptions}
               value={selectedPersonaIds}
               onChange={setSelectedPersonaIds}
-              disabled={selectedOfferingIds.length === 0}
+              disabled={false}
             />
           </TableRow>
           
