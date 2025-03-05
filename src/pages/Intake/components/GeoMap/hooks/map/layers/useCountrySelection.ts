@@ -1,6 +1,7 @@
 
 import mapboxgl from 'mapbox-gl';
 import { useRef } from 'react';
+import { calculateFeatureBbox } from './utils/bboxUtils';
 
 export const useCountrySelection = (map: mapboxgl.Map, onCountryClick: (countryId: string) => void) => {
   const selectedCountryId = useRef<string | null>(null);
@@ -49,19 +50,8 @@ export const useCountrySelection = (map: mapboxgl.Map, onCountryClick: (countryI
           { selected: true }
         );
         
-        // Ensure the country is visible
-        const bbox = new mapboxgl.LngLatBounds();
-        if (feature.geometry.type === 'Polygon') {
-          (feature.geometry.coordinates[0] as [number, number][]).forEach(coord => {
-            bbox.extend(coord as mapboxgl.LngLatLike);
-          });
-        } else if (feature.geometry.type === 'MultiPolygon') {
-          feature.geometry.coordinates.forEach(polygon => {
-            (polygon[0] as [number, number][]).forEach(coord => {
-              bbox.extend(coord as mapboxgl.LngLatLike);
-            });
-          });
-        }
+        // Ensure the country is visible by fitting the map to the country's bounds
+        const bbox = calculateFeatureBbox(feature);
         
         if (!bbox.isEmpty()) {
           map.fitBounds(bbox, {
