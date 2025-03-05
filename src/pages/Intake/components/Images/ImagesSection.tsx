@@ -34,8 +34,17 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   // Reset the index when personas or message types change
   useEffect(() => {
-    setCurrentPairIndex(0);
-  }, [validPersonas, validMessageTypes]);
+    console.log("ImagesSection: Data changed", {
+      validPersonas: validPersonas.length,
+      validMessageTypes,
+      totalPairs
+    });
+    
+    // Only reset to 0 if current index is now out of bounds
+    if (currentPairIndex >= totalPairs && totalPairs > 0) {
+      setCurrentPairIndex(0);
+    }
+  }, [validPersonas, validMessageTypes, totalPairs, currentPairIndex]);
   
   // Calculate which persona and message type to show based on the current index
   const personaIndex = Math.floor(currentPairIndex / Math.max(1, totalMessageTypes));

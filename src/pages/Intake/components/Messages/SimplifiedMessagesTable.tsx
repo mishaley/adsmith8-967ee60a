@@ -1,17 +1,23 @@
 
-import React from "react";
-import { useMessageColumns } from "./hooks/useMessageColumns";
-import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
-import MessageCell from "./SimplifiedTable/MessageCell";
-import PersonaCell from "./SimplifiedTable/PersonaCell";
-import AddColumnButton from "./SimplifiedTable/AddColumnButton";
+import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
+import AddColumnButton from "./SimplifiedTable/AddColumnButton";
+import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
+import PersonaCell from "./PersonaCell";
+import MessageCell from "./SimplifiedTable/MessageCell";
+import { useMessageColumns } from "./hooks/useMessageColumns";
 
 interface SimplifiedMessagesTableProps {
-  personas?: Persona[];
+  personas: Persona[];
+  selectedMessageTypes?: string[];
+  onMessageTypeChange?: (messageTypes: string[]) => void;
 }
 
-const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ personas = [] }) => {
+const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
+  personas,
+  selectedMessageTypes = [],
+  onMessageTypeChange
+}) => {
   const {
     messageColumns,
     handleAddColumn,
@@ -19,25 +25,29 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
     handleContentChange
   } = useMessageColumns();
 
-  // Filter out any null personas and create a clean array
-  const validPersonas = personas.filter(persona => persona !== null && persona !== undefined);
-  const hasPersonas = validPersonas.length > 0;
-  
+  // Extract all selected message types from columns
+  useEffect(() => {
+    const types = messageColumns
+      .map(col => col.type)
+      .filter(type => type && type !== "user-provided" && type !== "remove");
+    
+    if (onMessageTypeChange) {
+      console.log("SimplifiedMessagesTable: Message types updated:", types);
+      onMessageTypeChange(types);
+    }
+  }, [messageColumns, onMessageTypeChange]);
+
   return (
-    <div className="mt-6 border rounded overflow-auto">
-      <table className="w-full table-fixed border-collapse">
-        <colgroup>
-          <col className="w-64" /> {/* Fixed width for persona column */}
-          {messageColumns.map(column => (
-            <col key={`col-${column.id}`} /> /* Auto width for message columns */
-          ))}
-          <col className="w-16" /> {/* Fixed width for add column button */}
-        </colgroup>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 text-left w-64">Persona</th>
+          <tr>
+            {/* Persona header cell */}
+            <th className="border p-2 text-left w-48">
+              Persona
+            </th>
             
-            {/* Render each message type column */}
+            {/* Message type header cells */}
             {messageColumns.map(column => (
               <MessageColumnHeader
                 key={column.id}
@@ -48,57 +58,41 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
             ))}
             
             {/* Add column button */}
-            <th className="border p-2 text-center w-16">
+            <th className="border p-1 w-12">
               <AddColumnButton onAddColumn={handleAddColumn} />
             </th>
           </tr>
         </thead>
         <tbody>
-          {hasPersonas ? (
-            // Only map through valid personas
-            validPersonas.map((persona, index) => (
-              <tr key={`persona-row-${index}`} className="border-b">
-                <td className="border p-2">
-                  <PersonaCell persona={persona} />
-                </td>
+          {personas.map((persona, personaIndex) => {
+            // Skip null personas
+            if (!persona) return null;
+            
+            // Get persona ID for referencing message content
+            const personaId = persona.id ? String(persona.id) : `persona-${personaIndex}`;
+            
+            return (
+              <tr key={personaId}>
+                {/* Persona cell */}
+                <PersonaCell persona={persona} />
                 
-                {/* Render message cells for each column */}
+                {/* Message cells */}
                 {messageColumns.map(column => (
-                  <td key={`cell-${column.id}-${index}`} className="border p-2 align-top">
-                    <MessageCell 
-                      column={column}
-                      onContentChange={handleContentChange}
-                      personaId={persona?.id?.toString() || `persona-${index}`}
-                    />
-                  </td>
+                  <MessageCell
+                    key={column.id}
+                    columnId={column.id}
+                    columnType={column.type}
+                    personaId={personaId}
+                    content={column.content?.[personaId] || ""}
+                    onContentChange={handleContentChange}
+                  />
                 ))}
                 
-                {/* Empty cell for "+" button column */}
-                <td className="border p-2"></td>
+                {/* Empty cell for add column button alignment */}
+                <td className="border p-1"></td>
               </tr>
-            ))
-          ) : (
-            // Show a single placeholder row when no personas are available
-            <tr className="border-b">
-              <td className="border p-2">
-                <PersonaCell persona={null} />
-              </td>
-              
-              {/* Render message cells for each column */}
-              {messageColumns.map(column => (
-                <td key={`default-cell-${column.id}`} className="border p-2 align-top">
-                  <MessageCell 
-                    column={column}
-                    onContentChange={handleContentChange}
-                    personaId="default"
-                  />
-                </td>
-              ))}
-              
-              {/* Empty cell for "+" button column */}
-              <td className="border p-2"></td>
-            </tr>
-          )}
+            );
+          })}
         </tbody>
       </table>
     </div>

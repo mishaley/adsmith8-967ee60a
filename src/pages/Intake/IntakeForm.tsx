@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import IntakeFormContainer from "./components/IntakeFormContainer";
 import IntakeTop from "./components/IntakeTop";
@@ -15,6 +15,7 @@ import PlatformsSection from "./components/Platforms/PlatformsSection";
 import { ImagesSection } from "./components/Images";
 import { CaptionsSection } from "./components/Captions";
 import { ParametersSection } from "./components/Parameters";
+import { Message } from "./components/Messages/hooks/useMessagesFetching";
 
 const IntakeForm = () => {
   const {
@@ -40,6 +41,7 @@ const IntakeForm = () => {
     setSelectedLanguage,
     handleSave
   } = useIntakeForm();
+  
   const {
     personas,
     summary,
@@ -53,6 +55,17 @@ const IntakeForm = () => {
     personaCount,
     setPersonaCount
   } = usePersonasManager(offering, selectedCountry);
+
+  // State for messages data to share between components
+  const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
+  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
+
+  // Handler for receiving updated messages from MessagesContainer
+  const handleUpdateMessages = (messages: Record<string, Record<string, Message>>, types: string[]) => {
+    console.log("IntakeForm: Messages updated", { messageTypesCount: types.length, personasCount: personas.length });
+    setGeneratedMessages(messages);
+    setSelectedMessageTypes(types);
+  };
 
   return <QuadrantLayout>
       {{
@@ -105,17 +118,7 @@ const IntakeForm = () => {
             />
             <MessagesContainer
               personas={personas}
-              onUpdateMessages={(messages, types) => {
-                // Store messages data for passing to IntakeFormContainer
-                const updatedMessages = messages;
-                const updatedTypes = types;
-                
-                // We pass this through to IntakeFormContainer for image generation
-                if (IntakeFormContainer) {
-                  IntakeFormContainer.generatedMessages = updatedMessages;
-                  IntakeFormContainer.selectedMessageTypes = updatedTypes;
-                }
-              }}
+              onUpdateMessages={handleUpdateMessages}
             />
             <PlatformsSection
               adPlatform={adPlatform}
@@ -123,8 +126,8 @@ const IntakeForm = () => {
             />
             <ImagesSection 
               personas={personas}
-              generatedMessages={IntakeFormContainer.generatedMessages || {}}
-              selectedMessageTypes={IntakeFormContainer.selectedMessageTypes || ["tagline"]}
+              generatedMessages={generatedMessages}
+              selectedMessageTypes={selectedMessageTypes}
               adPlatform={adPlatform}
             />
             <CaptionsSection />

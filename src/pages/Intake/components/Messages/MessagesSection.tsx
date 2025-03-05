@@ -33,11 +33,18 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     setSelectedMessageTypes
   } = useMessagesState(safePersonas);
 
+  // Call onUpdateMessages whenever generatedMessages or selectedMessageTypes change
   useEffect(() => {
     if (onUpdateMessages) {
+      console.log("MessagesSection: Updating parent with messages", {
+        messageTypes: selectedMessageTypes,
+        personaCount: safePersonas.length,
+        messageCount: Object.keys(generatedMessages).length,
+        totalPairs: safePersonas.length * selectedMessageTypes.length
+      });
       onUpdateMessages(generatedMessages, selectedMessageTypes);
     }
-  }, [generatedMessages, selectedMessageTypes, onUpdateMessages]);
+  }, [generatedMessages, selectedMessageTypes, onUpdateMessages, safePersonas.length]);
 
   const {
     data: messages = [],
@@ -64,7 +71,13 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   return <>
       <div className="mt-8 mb-4">
         <h3 className="text-center text-gray-700 mb-3 font-bold">Messages</h3>
-        <SimplifiedMessagesTable personas={safePersonas} />
+        <SimplifiedMessagesTable 
+          personas={safePersonas}
+          selectedMessageTypes={selectedMessageTypes}
+          onMessageTypeChange={(types) => {
+            setSelectedMessageTypes(types);
+          }}
+        />
       </div>
     </>;
 };
