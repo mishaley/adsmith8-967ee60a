@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguages } from "../../Languages/hooks/useLanguages";
 import { useCountryLanguage } from "../../Languages/hooks/useCountryLanguage";
+import CountryDropdown from "./CountryDropdown";
 
 interface SelectionDisplayProps {
   selectedCountry: string;
@@ -56,14 +57,16 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   return (
     <div className="w-full bg-[#f5f9ff] rounded-lg p-4 border border-[#d0e1f9]">
       <div className="font-bold text-lg mb-4">Selections</div>
+      
+      {/* Map Selection Status */}
       {selectedCountry ? (
         <div className="p-3 bg-[#f5f9ff] rounded border border-[#d0e1f9]">
-          <p className="font-medium">Selected Country:</p>
+          <p className="font-medium">Selected Country from Map:</p>
           <p className="text-[#154851] font-bold">{selectedCountry}</p>
         </div>
       ) : (
         <div className="p-3 bg-gray-50 rounded border border-gray-200 text-gray-500">
-          No country selected. Click on the map to select a country.
+          No country selected on map. Click on the map to select a country.
         </div>
       )}
       
@@ -78,6 +81,14 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           </Button>
         </div>
       )}
+
+      {/* Country Dropdown - Added here */}
+      <div className="mt-6">
+        <CountryDropdown 
+          selectedCountry={selectedCountry} 
+          setSelectedCountry={setSelectedCountry} 
+        />
+      </div>
 
       {/* Language Selection */}
       <div className="mt-6">

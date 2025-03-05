@@ -1,5 +1,5 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from "./hooks/useMapboxToken";
 import { useMapInitialization } from "./hooks/useMapInitialization";
@@ -27,13 +27,21 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   } = useMapboxToken();
   const {
     mapError,
-    initialized
+    initialized,
+    setSelectedCountryId
   } = useMapInitialization({
     mapboxToken,
     mapContainer,
     selectedCountry,
     setSelectedCountry
   });
+
+  // Sync map selection when selectedCountry changes (e.g., from dropdown)
+  useEffect(() => {
+    if (initialized && setSelectedCountryId) {
+      setSelectedCountryId(selectedCountry);
+    }
+  }, [selectedCountry, initialized, setSelectedCountryId]);
 
   // Combine errors from both hooks
   const error = tokenError || mapError;
