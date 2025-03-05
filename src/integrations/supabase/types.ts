@@ -280,6 +280,30 @@ export type Database = {
         }
         Relationships: []
       }
+      y2languages: {
+        Row: {
+          created_at: string
+          language_flag: string
+          language_id: string
+          language_name: string
+          language_native: string
+        }
+        Insert: {
+          created_at?: string
+          language_flag: string
+          language_id?: string
+          language_name: string
+          language_native: string
+        }
+        Update: {
+          created_at?: string
+          language_flag?: string
+          language_id?: string
+          language_name?: string
+          language_native?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
