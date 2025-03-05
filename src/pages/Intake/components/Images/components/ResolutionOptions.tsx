@@ -1,5 +1,6 @@
 
 import React, { useRef, useEffect, useState } from "react";
+import { Check, X } from "lucide-react";
 
 interface ResolutionOptionsProps {
   adPlatform: string;
@@ -82,8 +83,12 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     }
                   }}
                 >
-                  <div className="bg-gray-200 h-[60px] w-1/2"></div>
-                  <div className="bg-gray-300 h-[60px] w-1/2"></div>
+                  <div className="bg-white h-[60px] w-1/2 border border-gray-700 flex items-center justify-center">
+                    <X size={24} color="#990000" />
+                  </div>
+                  <div className="bg-white h-[60px] w-1/2 border border-gray-700 flex items-center justify-center">
+                    <Check size={24} color="#0c343d" />
+                  </div>
                 </div>
               </>
             )}
