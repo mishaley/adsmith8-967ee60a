@@ -6,6 +6,8 @@ import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import MultiSelectField from "../SummaryTable/components/MultiSelectField";
+import { useSummaryTableData } from "../SummaryTable/useSummaryTableData";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -36,6 +38,14 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
 }) => {
   console.log("PersonasSection rendering with personas:", personas, "and personaCount:", personaCount);
   const hasPersonas = personas && personas.length > 0;
+
+  // Get persona dropdown data from summary table hook
+  const {
+    selectedPersonaIds,
+    setSelectedPersonaIds,
+    personaOptions,
+    isPersonasDisabled
+  } = useSummaryTableData();
 
   // Monitor loading states for debugging
   useEffect(() => {
@@ -85,6 +95,22 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           </div>
         </td>
       </tr>
+
+      {/* Add persona dropdown here */}
+      <tr className="border-transparent">
+        <td colSpan={2} className="py-2 text-center">
+          <div className="w-72 mx-auto">
+            <MultiSelectField
+              options={personaOptions}
+              value={selectedPersonaIds}
+              onChange={setSelectedPersonaIds}
+              disabled={isPersonasDisabled}
+              placeholder="Select personas"
+            />
+          </div>
+        </td>
+      </tr>
+
       {isGeneratingPersonas && !hasPersonas ? <tr className="border-transparent">
           <td colSpan={2} className="py-8 text-center bg-transparent">
             <Loader className="h-8 w-8 animate-spin mx-auto" />

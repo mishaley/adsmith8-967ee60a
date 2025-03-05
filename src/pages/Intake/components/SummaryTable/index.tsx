@@ -9,24 +9,18 @@ const SummaryTable: React.FC = () => {
   const {
     selectedOfferingId,
     setSelectedOfferingId,
-    selectedPersonaIds,
-    setSelectedPersonaIds,
     selectedMessageIds,
     setSelectedMessageIds,
     offeringOptions,
-    personaOptions,
     messageOptions,
     isOfferingsDisabled,
-    isPersonasDisabled,
     isMessagesDisabled
   } = useSummaryTableData();
 
   console.log("SummaryTable rendering", { 
     isOfferingsDisabled, 
-    isPersonasDisabled,
     isMessagesDisabled,
     offeringOptions: offeringOptions.length,
-    personaOptions: personaOptions.length,
     messageOptions: messageOptions.length
   });
 
@@ -41,16 +35,6 @@ const SummaryTable: React.FC = () => {
               onChange={setSelectedOfferingId}
               disabled={isOfferingsDisabled}
               placeholder="Select an offering"
-            />
-          </TableRow>
-          
-          <TableRow label="Persona">
-            <MultiSelectField
-              options={personaOptions}
-              value={selectedPersonaIds}
-              onChange={setSelectedPersonaIds}
-              disabled={isPersonasDisabled}
-              placeholder="Select personas"
             />
           </TableRow>
           
