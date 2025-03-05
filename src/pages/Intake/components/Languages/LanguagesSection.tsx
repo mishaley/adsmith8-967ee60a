@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import CollapsibleSection from "../CollapsibleSection";
 
 interface LanguagesSectionProps {
   selectedLanguage: string;
@@ -42,8 +43,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
   };
 
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">LANGUAGES</h2>
+    <CollapsibleSection title="LANGUAGES">
       <table className="w-full border-collapse border-transparent">
         <tbody>
           <tr className="border-transparent">
@@ -71,7 +71,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({
           </tr>
         </tbody>
       </table>
-    </div>
+    </CollapsibleSection>
   );
 };
 

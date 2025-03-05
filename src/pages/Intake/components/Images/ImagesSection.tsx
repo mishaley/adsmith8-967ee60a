@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -5,6 +6,7 @@ import PersonaDisplay from "./components/PersonaDisplay";
 import ResolutionOptions from "./components/ResolutionOptions";
 import ImageGenerator from "./components/ImageGenerator";
 import RandomStyleButton from "./components/RandomStyleButton";
+import CollapsibleSection from "../CollapsibleSection";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -74,9 +76,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   const displayIndex = totalPairs > 0 ? currentPairIndex + 1 : 0;
   
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">IMAGES</h2>
-
+    <CollapsibleSection title="IMAGES">
       <div className="mb-4 text-center">
         <RandomStyleButton />
       </div>
@@ -109,7 +109,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           No personas available to display
         </div>
       )}
-    </div>
+    </CollapsibleSection>
   );
 };
 

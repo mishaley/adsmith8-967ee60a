@@ -1,10 +1,10 @@
-
 import React, { useEffect } from "react";
 import { Persona } from "../Personas/types";
 import SimplifiedMessagesTable from "./SimplifiedMessagesTable";
 import { useMessagesState } from "./hooks/useMessagesState";
 import { useMessagesFetching } from "./hooks/useMessagesFetching";
 import { useMessagesGeneration } from "./hooks/useMessagesGeneration";
+import CollapsibleSection from "../CollapsibleSection";
 
 interface MessagesSectionProps {
   personas: Persona[];
@@ -69,8 +69,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   };
 
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">MESSAGES</h2>
+    <CollapsibleSection title="MESSAGES">
       <div className="bg-white p-4 rounded-md">
         <SimplifiedMessagesTable 
           personas={safePersonas}
@@ -80,7 +79,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
           }}
         />
       </div>
-    </div>
+    </CollapsibleSection>
   );
 };
 

@@ -2,6 +2,7 @@
 import React from "react";
 import PersonasSection from "./Personas/PersonasSection";
 import { Persona } from "./Personas/types";
+import CollapsibleSection from "./CollapsibleSection";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -31,8 +32,7 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
   setPersonaCount
 }) => {
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">PERSONAS</h2>
+    <CollapsibleSection title="PERSONAS">
       <table className="w-full border-collapse border-transparent">
         <tbody>
           <PersonasSection
@@ -50,7 +50,7 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
           />
         </tbody>
       </table>
-    </div>
+    </CollapsibleSection>
   );
 };
 

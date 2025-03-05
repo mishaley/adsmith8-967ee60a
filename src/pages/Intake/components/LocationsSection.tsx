@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import GeoMapSection from "./GeoMap/GeoMapSection";
 import { Input } from "@/components/ui/input";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../utils/localStorageUtils";
+import CollapsibleSection from "./CollapsibleSection";
 
 interface LocationsSectionProps {
   selectedCountry: string;
@@ -22,9 +23,7 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
   }, [locationGroupName]);
 
   return (
-    <div className="bg-[#e9f2fe] p-6 mb-8 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-6 font-bold text-xl">LOCATIONS</h2>
-      
+    <CollapsibleSection title="LOCATIONS">
       <div className="max-w-full mx-auto">
         <GeoMapSection
           selectedCountry={selectedCountry}
@@ -46,7 +45,7 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
         />
         <p className="text-sm text-gray-500 mt-1">Save this location group</p>
       </div>
-    </div>
+    </CollapsibleSection>
   );
 };
 

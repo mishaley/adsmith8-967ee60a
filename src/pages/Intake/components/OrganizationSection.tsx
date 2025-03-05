@@ -2,7 +2,7 @@
 import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
-import { Button } from "@/components/ui/button";
+import CollapsibleSection from "./CollapsibleSection";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -24,8 +24,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   handleSave
 }) => {
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">ORGANIZATION</h2>
+    <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
           <tbody>
@@ -51,7 +50,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
           </tbody>
         </table>
       </div>
-    </div>
+    </CollapsibleSection>
   );
 };
 

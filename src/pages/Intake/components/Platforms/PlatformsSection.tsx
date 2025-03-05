@@ -1,6 +1,7 @@
 
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
+import CollapsibleSection from "../CollapsibleSection";
 
 interface PlatformsSectionProps {
   adPlatform: string;
@@ -25,8 +26,7 @@ const PlatformsSection: React.FC<PlatformsSectionProps> = ({
   }, [adPlatform, setAdPlatform]);
 
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-4 font-bold text-xl">PLATFORMS</h2>
+    <CollapsibleSection title="PLATFORMS">
       <table className="w-full border-collapse border-transparent">
         <tbody>
           <tr className="border-transparent">
@@ -66,7 +66,7 @@ const PlatformsSection: React.FC<PlatformsSectionProps> = ({
           </tr>
         </tbody>
       </table>
-    </div>
+    </CollapsibleSection>
   );
 };
 

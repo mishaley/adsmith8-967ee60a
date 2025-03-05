@@ -2,6 +2,7 @@
 import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
+import CollapsibleSection from "./CollapsibleSection";
 
 interface OfferingSectionProps {
   offering: string;
@@ -25,8 +26,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
   setUniqueOffering
 }) => {
   return (
-    <div className="bg-[#e9f2fe] p-4 mb-6 rounded-lg">
-      <h2 className="text-center text-gray-700 mb-2 font-bold text-xl">OFFERING</h2>
+    <CollapsibleSection title="OFFERING">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
           <tbody>
@@ -60,7 +60,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
           </tbody>
         </table>
       </div>
-    </div>
+    </CollapsibleSection>
   );
 };
 
