@@ -10,6 +10,13 @@ export type AspectRatioConfig = {
   icon: React.ReactNode;
 };
 
+// Create a function that returns the JSX element instead of using JSX directly
+const createIcon = (width: string, height: string): React.ReactNode => {
+  return React.createElement('div', {
+    className: `${width} ${height} border border-current flex-shrink-0`
+  });
+};
+
 export const aspectRatioConfigs: AspectRatioConfig[] = [
   { 
     label: "1:1", 
@@ -17,7 +24,7 @@ export const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 1, 
     height: 1, 
     description: "Square format - equal width and height",
-    icon: <div className="w-4 h-4 border border-current flex-shrink-0"></div>
+    icon: createIcon("w-4", "h-4")
   },
   { 
     label: "4:5", 
@@ -25,7 +32,7 @@ export const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 4, 
     height: 5, 
     description: "Portrait format - taller than wide",
-    icon: <div className="w-3 h-4 border border-current flex-shrink-0"></div>
+    icon: createIcon("w-3", "h-4")
   },
   { 
     label: "9:16", 
@@ -33,7 +40,7 @@ export const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 9, 
     height: 16, 
     description: "Vertical format - much taller than wide",
-    icon: <div className="w-2.5 h-4 border border-current flex-shrink-0"></div>
+    icon: createIcon("w-2.5", "h-4")
   },
   { 
     label: "21:11", 
@@ -41,6 +48,6 @@ export const aspectRatioConfigs: AspectRatioConfig[] = [
     width: 21, 
     height: 11, 
     description: "Landscape format - wider than tall",
-    icon: <div className="w-4 h-2.5 border border-current flex-shrink-0"></div>
+    icon: createIcon("w-4", "h-2.5")
   },
 ];
