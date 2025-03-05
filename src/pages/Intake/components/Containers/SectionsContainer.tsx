@@ -6,7 +6,6 @@ import OrganizationContainer from "./OrganizationContainer";
 import OfferingContainer from "./OfferingContainer";
 import LocationsContainer from "./LocationsContainer";
 import PersonasContainer from "./PersonasContainer";
-import LanguagesContainer from "./LanguagesContainer";
 import MessagesContainer from "./MessagesContainer";
 import PlatformsContainer from "./PlatformsContainer";
 import ImagesContainer from "./ImagesContainer";
@@ -126,6 +125,8 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
       <LocationsContainer
         selectedCountry={selectedCountry}
         setSelectedCountry={setSelectedCountry}
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
       />
       
       <PersonasContainer
@@ -140,12 +141,6 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         removePersona={removePersona}
         personaCount={personaCount}
         setPersonaCount={setPersonaCount}
-      />
-      
-      <LanguagesContainer
-        selectedLanguage={selectedLanguage}
-        setSelectedLanguage={setSelectedLanguage}
-        selectedCountry={selectedCountry}
       />
       
       <MessagesContainer
