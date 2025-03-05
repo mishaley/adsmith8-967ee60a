@@ -23,7 +23,7 @@ export const WideAspectButtons: React.FC<AspectButtonsProps> = ({
       style={{ 
         width: `${buttonsWidth}px`,
         height: `${buttonHeight}px`,
-        top: '20px',
+        top: '10px',
         left: `${(containerWidth - buttonsWidth) / 2}px`
       }}
     >
@@ -62,7 +62,7 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({
       style={{ 
         width: `${buttonsWidth}px`,
         height: `${buttonHeight}px`,
-        top: '20px',
+        top: '10px',
         left: `${(containerWidth - buttonsWidth) / 2}px`
       }}
     >

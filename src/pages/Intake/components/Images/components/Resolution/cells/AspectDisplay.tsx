@@ -7,35 +7,30 @@ interface AspectDisplayProps {
   containerWidth: number;
   containerHeight: number;
   buttonHeight: number;
-  buttonsWidth: number;
+  availableHeight: number;
 }
 
 export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({
   currentRatioConfig,
   containerWidth,
-  containerHeight,
   buttonHeight,
-  buttonsWidth
+  availableHeight
 }) => {
-  // Calculate the display width (same as buttons width)
-  const displayWidth = buttonsWidth;
+  // Calculate display width (same as buttons width for wide aspect)
+  const displayWidth = containerWidth * 0.95;
   
   // Calculate height based on aspect ratio (21:11)
-  const displayHeight = displayWidth * (11/21);
+  const aspectHeight = displayWidth * (11/21);
   
-  // Calculate total component height (buttons + display)
-  const totalHeight = buttonHeight + displayHeight + 40; // 40px for spacing
-  
-  // Scale if too large for container
-  const scale = totalHeight > containerHeight - 30 ? (containerHeight - 30) / totalHeight : 1;
-  const scaledDisplayHeight = displayHeight * scale;
+  // Make sure the display doesn't exceed the available height
+  const displayHeight = Math.min(aspectHeight, availableHeight);
   
   return (
     <div 
       className="bg-gray-400 absolute"
       style={{
         width: `${displayWidth}px`,
-        height: `${scaledDisplayHeight}px`,
+        height: `${displayHeight}px`,
         left: `${(containerWidth - displayWidth) / 2}px`,
         top: `${buttonHeight + 20}px`,
       }}
@@ -46,38 +41,42 @@ export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({
 export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
   currentRatioConfig,
   containerWidth,
-  containerHeight,
   buttonHeight,
-  buttonsWidth
+  availableHeight
 }) => {
-  // Calculate display width (same as buttons width)
-  const displayWidth = buttonsWidth;
-  
-  // Calculate height based on aspect ratio
-  let displayHeight;
+  // Calculate display width based on aspect ratio
+  let displayWidth;
   if (currentRatioConfig.ratio === "1:1") {
-    displayHeight = displayWidth; // 1:1 ratio
+    displayWidth = containerWidth * 0.8; // Square ratio
   } else if (currentRatioConfig.ratio === "4:5") {
-    displayHeight = displayWidth * (5/4); // 4:5 ratio
+    displayWidth = containerWidth * 0.7; // Portrait ratio
   } else if (currentRatioConfig.ratio === "9:16") {
-    displayHeight = displayWidth * (16/9); // 9:16 ratio
+    displayWidth = containerWidth * 0.6; // Vertical ratio
   } else {
-    displayHeight = displayWidth; // Default fallback
+    displayWidth = containerWidth * 0.8; // Default fallback
   }
   
-  // Calculate total component height (buttons + display)
-  const totalHeight = buttonHeight + displayHeight + 40; // 40px for spacing
+  // Calculate height based on aspect ratio
+  let aspectHeight;
+  if (currentRatioConfig.ratio === "1:1") {
+    aspectHeight = displayWidth; // 1:1 ratio
+  } else if (currentRatioConfig.ratio === "4:5") {
+    aspectHeight = displayWidth * (5/4); // 4:5 ratio
+  } else if (currentRatioConfig.ratio === "9:16") {
+    aspectHeight = displayWidth * (16/9); // 9:16 ratio
+  } else {
+    aspectHeight = displayWidth; // Default fallback
+  }
   
-  // Scale if too large for container
-  const scale = totalHeight > containerHeight - 30 ? (containerHeight - 30) / totalHeight : 1;
-  const scaledDisplayHeight = displayHeight * scale;
+  // Make sure the display doesn't exceed the available height
+  const displayHeight = Math.min(aspectHeight, availableHeight);
   
   return (
     <div 
       className="bg-gray-400 absolute"
       style={{
         width: `${displayWidth}px`,
-        height: `${scaledDisplayHeight}px`,
+        height: `${displayHeight}px`,
         left: `${(containerWidth - displayWidth) / 2}px`,
         top: `${buttonHeight + 20}px`,
       }}

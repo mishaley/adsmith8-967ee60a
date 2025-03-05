@@ -12,7 +12,7 @@ interface ResolutionOptionsProps {
 const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const [cellHeight, setCellHeight] = useState(0);
   const [selectedRatio, setSelectedRatio] = useState<string>(
     loadFromLocalStorage<string>(STORAGE_KEYS.IMAGES + "_ratio", "1:1")
   );
@@ -20,10 +20,11 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   useEffect(() => {
     const updateSize = () => {
       if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-        // Set a fixed consistent height for all ratio options
-        const height = containerRef.current.offsetWidth / 3;
-        setContainerHeight(height);
+        const width = containerRef.current.offsetWidth;
+        setContainerWidth(width);
+        // Make the cell height equal to 1/3 of width to ensure square cells
+        const height = width / 3;
+        setCellHeight(height);
       }
     };
 
@@ -31,7 +32,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     window.addEventListener('resize', updateSize);
     
     return () => window.removeEventListener('resize', updateSize);
-  }, [selectedRatio]);
+  }, []);
 
   useEffect(() => {
     saveToLocalStorage(STORAGE_KEYS.IMAGES + "_ratio", selectedRatio);
@@ -44,7 +45,8 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
   const currentRatioConfig = aspectRatioConfigs.find(config => config.ratio === selectedRatio) || aspectRatioConfigs[0];
 
   const gridItemStyle = {
-    height: `${containerHeight}px`,
+    height: `${cellHeight}px`,
+    width: `${containerWidth / 3}px`,
     border: '1px solid #e0e0e0',
   };
 
@@ -58,7 +60,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
 
       <div 
         className="grid grid-cols-3 w-full"
-        style={{ height: `${containerHeight}px` }}
+        style={{ height: `${cellHeight}px` }}
       >
         {/* Only render the first 3 cells (top row) */}
         {[...Array(3)].map((_, index) => (
