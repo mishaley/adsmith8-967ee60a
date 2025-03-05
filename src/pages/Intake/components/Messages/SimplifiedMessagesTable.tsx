@@ -52,11 +52,32 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
           </tr>
         </thead>
         <tbody>
-          <tr className="border-b">
-            <td className="border p-2">
-              {hasPersonas ? (
-                <PersonaCell persona={personas[0]} />
-              ) : (
+          {hasPersonas ? (
+            // Map through all available personas
+            personas.map((persona, index) => (
+              <tr key={index} className="border-b">
+                <td className="border p-2">
+                  <PersonaCell persona={persona} />
+                </td>
+                
+                {/* Render message cells for each column */}
+                {messageColumns.map(column => (
+                  <td key={column.id} className="border p-2 align-top">
+                    <MessageCell 
+                      column={column}
+                      onContentChange={handleContentChange}
+                    />
+                  </td>
+                ))}
+                
+                {/* Empty cell for "+" button column */}
+                <td className="border p-2"></td>
+              </tr>
+            ))
+          ) : (
+            // Show placeholder when no personas are available
+            <tr className="border-b">
+              <td className="border p-2">
                 <div className="flex items-center">
                   <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2">
                     {/* Empty gray placeholder box */}
@@ -70,22 +91,22 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ perso
                     </div>
                   </div>
                 </div>
-              )}
-            </td>
-            
-            {/* Render message cells for each column */}
-            {messageColumns.map(column => (
-              <td key={column.id} className="border p-2 align-top">
-                <MessageCell 
-                  column={column}
-                  onContentChange={handleContentChange}
-                />
               </td>
-            ))}
-            
-            {/* Empty cell for "+" button column */}
-            <td className="border p-2"></td>
-          </tr>
+              
+              {/* Render message cells for each column */}
+              {messageColumns.map(column => (
+                <td key={column.id} className="border p-2 align-top">
+                  <MessageCell 
+                    column={column}
+                    onContentChange={handleContentChange}
+                  />
+                </td>
+              ))}
+              
+              {/* Empty cell for "+" button column */}
+              <td className="border p-2"></td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
