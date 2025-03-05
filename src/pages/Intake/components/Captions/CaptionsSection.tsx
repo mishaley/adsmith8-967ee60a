@@ -102,12 +102,16 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
           <td className="p-0 w-[60px]">
             <div className="h-[60px] w-[60px] border-l border-gray-200 relative">
               <div className="absolute inset-0">
-                <div className="w-full h-full overflow-hidden">
-                  <div className="absolute top-0 right-0 bottom-0 left-0">
-                    <div className="absolute top-0 right-0 w-0 h-0 border-t-[60px] border-r-[60px] border-t-transparent"></div>
-                    <div className="absolute bottom-0 left-0 w-0 h-0 border-b-[60px] border-l-[60px] border-b-transparent"></div>
-                    <div className="absolute inset-0 transform rotate-45 origin-center w-[85px] border-b border-gray-400" style={{ top: '50%', left: '-12px' }}></div>
-                  </div>
+                <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden">
+                  <div 
+                    className="absolute w-[85px] border-b border-gray-300"
+                    style={{ 
+                      transform: 'rotate(-45deg)',
+                      transformOrigin: 'bottom left',
+                      bottom: '0',
+                      left: '0'
+                    }}
+                  ></div>
                 </div>
               </div>
             </div>
