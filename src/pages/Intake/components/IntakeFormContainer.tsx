@@ -85,7 +85,8 @@ const IntakeFormContainer: IntakeFormContainerType = ({
   personaCount,
   setPersonaCount
 }) => {
-  return <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
+  return (
+    <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
       <IntakeHeader />
       <IntakeFormFields 
         brandName={brandName} 
@@ -106,10 +107,11 @@ const IntakeFormContainer: IntakeFormContainerType = ({
         setAdPlatform={setAdPlatform} 
         handleSave={handleSave} 
       />
-    </div>;
+    </div>
+  );
 };
 
-// Initialize static properties
+// Initialize static properties with empty default values to prevent null errors
 IntakeFormContainer.generatedMessages = {};
 IntakeFormContainer.selectedMessageTypes = ["tagline"];
 

@@ -11,6 +11,23 @@ interface PersonasListProps {
 const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
+  // Format interests to display on two rows if needed
+  const formatInterests = (interests: string[]): React.ReactNode => {
+    if (!interests || interests.length === 0) return null;
+    
+    // Split interests into chunks of reasonable size for two rows
+    const midpoint = Math.ceil(interests.length / 2);
+    const firstRow = interests.slice(0, midpoint).join(", ");
+    const secondRow = interests.slice(midpoint).join(", ");
+    
+    return (
+      <>
+        <div className="text-sm mt-1">{firstRow}</div>
+        {secondRow && <div className="text-sm mt-1">{secondRow}</div>}
+      </>
+    );
+  };
+
   // Always render 5 columns, populated with personas data when available
   return (
     <tr className="border-transparent">
@@ -37,7 +54,7 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }
                 </button>
               )}
               <div className="text-sm">{personas[index].gender}, age {personas[index].ageMin}-{personas[index].ageMax}</div>
-              <div className="text-sm mt-1">{personas[index].interests.join(", ")}</div>
+              {formatInterests(personas[index].interests)}
             </div>
           ) : (
             <div className="text-gray-400"></div>

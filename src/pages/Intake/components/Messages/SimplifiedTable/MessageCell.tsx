@@ -19,15 +19,16 @@ const MessageCell: React.FC<MessageCellProps> = ({
   onContentChange,
   personaId = "default" // Use a default value if personaId is not provided
 }) => {
-  // If the message type is empty or "remove", don't render anything interactive
-  if (!column.type || column.type === "remove") {
+  // Safeguard against invalid or empty columns
+  if (!column || !column.type || column.type === "remove") {
     return <div className="h-[100px]"></div>;
   }
   
-  const content = column.content?.[personaId] || "";
+  // Safely access content with null checks
+  const content = column.content && personaId ? column.content[personaId] || "" : "";
   
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (onContentChange) {
+    if (onContentChange && personaId) {
       onContentChange(column.id, personaId, e.target.value);
     }
   };
