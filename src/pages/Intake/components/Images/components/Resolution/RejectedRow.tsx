@@ -20,9 +20,11 @@ const RejectedRow: React.FC<RejectedRowProps> = ({
   return (
     <div className="grid grid-cols-3 w-full">
       <div 
-        className="col-span-3 bg-red-50 border border-red-200" 
+        className="col-span-3 bg-red-50 border border-red-200 flex items-center pl-4" 
         style={{ height: `${rowHeight}px` }}
-      />
+      >
+        <X size={20} color="#990000" />
+      </div>
     </div>
   );
 };

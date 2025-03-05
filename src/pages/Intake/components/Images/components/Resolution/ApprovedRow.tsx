@@ -20,9 +20,11 @@ const ApprovedRow: React.FC<ApprovedRowProps> = ({
   return (
     <div className="grid grid-cols-3 w-full">
       <div 
-        className="col-span-3 bg-green-50 border border-green-200" 
+        className="col-span-3 bg-green-50 border border-green-200 flex items-center pl-4" 
         style={{ height: `${rowHeight}px` }}
-      />
+      >
+        <Check size={20} color="#0c343d" />
+      </div>
     </div>
   );
 };
