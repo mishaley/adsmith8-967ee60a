@@ -47,13 +47,14 @@ export const useMapInitialization = ({
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1.2,  // Lower zoom level to show more of the world
-        center: [0, 20],  // Centered to show more landmass
+        zoom: 1.0,  // Even lower zoom level to show more of the world
+        center: [0, 10],  // Adjusted center to show more of the world
         projection: 'mercator',
-        minZoom: 1,  // Prevent zooming out too far
+        minZoom: 0.8,  // Allow zooming out further
+        maxZoom: 8,    // Limit how far users can zoom in
         maxBounds: [
-          [-180, -85], // Southwest coordinates
-          [180, 85]    // Northeast coordinates
+          [-190, -85], // Southwest coordinates (expanded slightly)
+          [190, 85]    // Northeast coordinates (expanded slightly)
         ],
         attributionControl: false  // Hide attribution for cleaner look
       });
@@ -179,12 +180,12 @@ export const useMapInitialization = ({
             }
           });
           
-          // Make sure we fit to bounds
+          // Make sure we fit to bounds with more padding to show the entire world
           map.current.fitBounds([
-            [-160, -60], // Southwest coordinates
-            [160, 70]    // Northeast coordinates
+            [-170, -65], // Southwest coordinates (expanded)
+            [170, 75]    // Northeast coordinates (expanded)
           ], {
-            padding: { top: 20, bottom: 20, left: 20, right: 20 },
+            padding: { top: 40, bottom: 40, left: 40, right: 40 },
             animate: false
           });
           
