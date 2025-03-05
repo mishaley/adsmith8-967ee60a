@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Image, Loader } from "lucide-react";
+import RandomStyleButton from "../RandomStyleButton";
 
 interface PromptDisplayProps {
   generatedPrompt: string;
@@ -30,7 +31,7 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
           className="min-h-32 mb-2 font-mono text-sm"
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 mb-3">
         <Button 
           onClick={handleGeneratePrompt} 
           variant="outline"
@@ -66,6 +67,10 @@ export const PromptDisplay: React.FC<PromptDisplayProps> = ({
           )}
         </Button>
       </div>
+      <RandomStyleButton onStyleSelected={(style) => {
+        // We can optionally pass this to parent component in future if needed
+        console.log("Style selected:", style);
+      }} />
     </div>
   );
 };

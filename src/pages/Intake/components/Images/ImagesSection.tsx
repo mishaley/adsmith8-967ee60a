@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "./components/PersonaDisplay";
 import ResolutionOptions from "./components/ResolutionOptions";
 import ImageGenerator from "./components/ImageGenerator";
-import RandomStyleButton from "./components/RandomStyleButton";
 import CollapsibleSection from "../CollapsibleSection";
 
 interface ImagesSectionProps {
@@ -77,10 +75,6 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   
   return (
     <CollapsibleSection title="IMAGES">
-      <div className="mb-4 text-center">
-        <RandomStyleButton />
-      </div>
-
       {currentPersona ? (
         <div className="border rounded-md overflow-hidden bg-transparent">
           <div className="p-4 border-b bg-transparent">
