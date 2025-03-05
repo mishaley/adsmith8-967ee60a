@@ -39,19 +39,17 @@ const TitleUpdater = () => {
   
   useEffect(() => {
     // Save current route to localStorage whenever it changes
-    if (location.pathname !== '/') {
+    if (location.pathname !== '/' && location.pathname !== '/index') {
       saveToLocalStorage(STORAGE_KEYS.LAST_ROUTE, location.pathname);
     }
 
     const path = location.pathname.substring(1);
-    if (!path) {
+    if (!path || path === 'index') {
       document.title = 'Adsmith: Intake';
-      window.history.replaceState({}, 'Adsmith: Intake', '/intake');
       return;
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
     document.title = `Adsmith: ${title}`;
-    window.history.replaceState({}, `Adsmith: ${title}`, window.location.pathname);
   }, [location]);
 
   return null;
@@ -62,7 +60,7 @@ const RouteRestorer = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Only redirect if we're at the root path
+    // Only redirect if we're exactly at the root path or /index
     if (location.pathname === '/' || location.pathname === '/index') {
       // Load last route from localStorage
       const lastRoute = loadFromLocalStorage<string>(STORAGE_KEYS.LAST_ROUTE, '/intake');
@@ -70,9 +68,10 @@ const RouteRestorer = () => {
       // Validate that the route exists in our app
       const targetRoute = VALID_ROUTES.includes(lastRoute) ? lastRoute : '/intake';
       
-      // Navigate to the last route
+      // Navigate to the last route - using REPLACE to avoid adding to history
       navigate(targetRoute, { replace: true });
     }
+  // Only run this effect once on mount plus when location.pathname changes
   }, [location.pathname, navigate]);
 
   return null;
@@ -102,7 +101,14 @@ const AppRoutes = () => {
   );
 };
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Prevent refetching when window regains focus
+      retry: 1, // Limit retries on failed queries
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
