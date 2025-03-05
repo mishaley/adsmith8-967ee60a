@@ -1,8 +1,10 @@
+
 import React from "react";
 import TableRow from "./components/TableRow";
 import SingleSelectField from "./components/SingleSelectField";
 import MultiSelectField from "./components/MultiSelectField";
 import { useSummaryTableData } from "./useSummaryTableData";
+
 const SummaryTable: React.FC = () => {
   const {
     selectedOfferingId,
@@ -18,6 +20,7 @@ const SummaryTable: React.FC = () => {
     isPersonasDisabled,
     isMessagesDisabled
   } = useSummaryTableData();
+  
   console.log("SummaryTable rendering", {
     isOfferingsDisabled,
     isPersonasDisabled,
@@ -26,6 +29,12 @@ const SummaryTable: React.FC = () => {
     personaOptions: personaOptions.length,
     messageOptions: messageOptions.length
   });
-  return;
+  
+  return (
+    <div>
+      {/* Component content goes here */}
+    </div>
+  );
 };
+
 export default SummaryTable;

@@ -36,17 +36,19 @@ const ParametersSection: React.FC = () => {
                 Daily Budget
               </td>
               <td className="border border-transparent p-4">
-                <div className="relative min-w-[180px]">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500">$</span>
+                <div className="inline-block min-w-[180px]">
+                  <div className="relative w-full">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500">$</span>
+                    </div>
+                    <Input
+                      type="text"
+                      value={dailyBudget}
+                      onChange={handleDailyBudgetChange}
+                      className="pl-7 bg-white w-full"
+                      placeholder=""
+                    />
                   </div>
-                  <Input
-                    type="text"
-                    value={dailyBudget}
-                    onChange={handleDailyBudgetChange}
-                    className="pl-7 bg-white w-full"
-                    placeholder=""
-                  />
                 </div>
               </td>
             </tr>
