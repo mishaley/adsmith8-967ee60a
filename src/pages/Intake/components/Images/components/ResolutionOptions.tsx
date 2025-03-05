@@ -4,6 +4,8 @@ import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../../..
 import { aspectRatioConfigs } from "../utils/aspectRatioConfig";
 import AspectRatioSelector from "./Resolution/AspectRatioSelector";
 import LayoutCell from "./Resolution/LayoutCell";
+import ApprovedRow from "./Resolution/ApprovedRow";
+import RejectedRow from "./Resolution/RejectedRow";
 
 interface ResolutionOptionsProps {
   adPlatform: string;
@@ -58,19 +60,36 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
         onSelectRatio={handleSelectRatio}
       />
 
-      <div 
-        className="grid grid-cols-3 w-full"
-        style={{ height: `${cellHeight}px` }}
-      >
-        {/* Only render the first 3 cells (top row) */}
-        {[...Array(3)].map((_, index) => (
-          <LayoutCell 
-            key={index}
-            index={index}
-            gridItemStyle={gridItemStyle}
-            currentRatioConfig={currentRatioConfig}
-          />
-        ))}
+      <div className="w-full">
+        {/* Review Row (existing row) */}
+        <div 
+          className="grid grid-cols-3 w-full"
+          style={{ height: `${cellHeight}px` }}
+        >
+          {/* Only render the first 3 cells (top row) */}
+          {[...Array(3)].map((_, index) => (
+            <LayoutCell 
+              key={index}
+              index={index}
+              gridItemStyle={gridItemStyle}
+              currentRatioConfig={currentRatioConfig}
+            />
+          ))}
+        </div>
+        
+        {/* Approved Row */}
+        <ApprovedRow 
+          cellHeight={cellHeight} 
+          containerWidth={containerWidth}
+          currentRatioConfig={currentRatioConfig}
+        />
+        
+        {/* Rejected Row */}
+        <RejectedRow 
+          cellHeight={cellHeight} 
+          containerWidth={containerWidth}
+          currentRatioConfig={currentRatioConfig}
+        />
       </div>
     </div>
   );
