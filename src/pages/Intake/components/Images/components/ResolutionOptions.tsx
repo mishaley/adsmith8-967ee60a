@@ -27,6 +27,9 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
     border: '1px solid #e0e0e0',
   };
 
+  // Function to determine if this is a top row cell (index 0, 1, or 2)
+  const isTopRow = (index: number) => index < 3;
+
   return (
     <div 
       ref={containerRef} 
@@ -39,7 +42,11 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
             key={index} 
             className="flex items-center justify-center bg-white hover:bg-gray-50 transition-colors" 
             style={gridItemStyle}
-          ></div>
+          >
+            {isTopRow(index) && (
+              <div className="bg-gray-400 w-[calc(100%-40px)] h-[calc(100%-40px)]"></div>
+            )}
+          </div>
         ))}
       </div>
     </div>
