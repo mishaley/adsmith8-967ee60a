@@ -77,10 +77,10 @@ export const useMapInstance = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1,
-        center: [0, 5], // Adjusted to position the map slightly downward
+        center: [0, 15], // Positioning the map to show both northern and southern extremes
         projection: {
           name: 'mercator',
-          center: [0, 5], // Adjusted to position the map slightly downward
+          center: [0, 15], // Matching center point with the map center
           parallels: [0, 60]
         },
         minZoom: 0.5,
@@ -165,19 +165,20 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   
   // Calculate padding
   const padding = {
-    top: 20,
-    bottom: 20,
+    top: 10,
+    bottom: 10,
     left: 20,
     right: 20
   };
   
-  // Adjusted bounds to show more of the southern hemisphere
+  // Adjusted bounds to show both northern and southern extremes
   map.fitBounds([
-    [-180, -75], // Showing more southern regions
-    [180, 65]    // Showing less of the extreme north
+    [-180, -60], // Southwest - showing more of South America
+    [180, 85]    // Northeast - keeping Svalbard and northern areas visible
   ], {
     padding,
     linear: true,
     duration: 0
   });
 }
+
