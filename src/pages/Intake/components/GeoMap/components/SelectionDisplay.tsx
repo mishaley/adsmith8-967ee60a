@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguages } from "../../Languages/hooks/useLanguages";
@@ -25,6 +25,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const languageDropdownRef = useRef<HTMLDivElement>(null);
   
   const {
     languages,
@@ -61,6 +64,35 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     }
   };
 
+  // Effect for handling clicks outside of the dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Handle country dropdown
+      if (isCountryDropdownOpen && 
+          countryDropdownRef.current && 
+          !countryDropdownRef.current.contains(event.target as Node)) {
+        setIsCountryDropdownOpen(false);
+        setSearchTerm("");
+      }
+      
+      // Handle language dropdown
+      if (isLanguageDropdownOpen && 
+          languageDropdownRef.current && 
+          !languageDropdownRef.current.contains(event.target as Node)) {
+        setIsLanguageDropdownOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    
+    // Cleanup function
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCountryDropdownOpen, isLanguageDropdownOpen]);
+
   return (
     <div className="w-full bg-transparent rounded-lg p-4 border-transparent">
       <div className="font-bold text-lg mb-4">Selections</div>
@@ -95,7 +127,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
       )}
 
       {/* Country Dropdown */}
-      <div className="mt-6">
+      <div className="mt-6" ref={countryDropdownRef}>
         <div className="font-bold text-lg mb-4">Country</div>
         
         <div className="relative">
@@ -160,7 +192,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
       </div>
 
       {/* Language Selection */}
-      <div className="mt-6">
+      <div className="mt-6" ref={languageDropdownRef}>
         <div className="font-bold text-lg mb-4">Language</div>
         
         <div className="relative">
