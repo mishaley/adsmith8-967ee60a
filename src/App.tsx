@@ -45,8 +45,8 @@ const TitleUpdater = () => {
 
     const path = location.pathname.substring(1);
     if (!path) {
-      document.title = 'Images';
-      window.history.replaceState({}, 'Images', '/images');
+      document.title = 'Intake';
+      window.history.replaceState({}, 'Intake', '/intake');
       return;
     }
     const title = path.charAt(0).toUpperCase() + path.slice(1);
@@ -65,10 +65,10 @@ const RouteRestorer = () => {
     // Only redirect if we're at the root path
     if (location.pathname === '/' || location.pathname === '/index') {
       // Load last route from localStorage
-      const lastRoute = loadFromLocalStorage<string>(STORAGE_KEYS.LAST_ROUTE, '/images');
+      const lastRoute = loadFromLocalStorage<string>(STORAGE_KEYS.LAST_ROUTE, '/intake');
       
       // Validate that the route exists in our app
-      const targetRoute = VALID_ROUTES.includes(lastRoute) ? lastRoute : '/images';
+      const targetRoute = VALID_ROUTES.includes(lastRoute) ? lastRoute : '/intake';
       
       // Navigate to the last route
       navigate(targetRoute, { replace: true });
@@ -95,7 +95,7 @@ const AppRoutes = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/new" element={<New />} />
         <Route path="/intake" element={<Intake />} />
-        <Route path="/" element={<Navigate to="/images" replace />} />
+        <Route path="/" element={<Navigate to="/intake" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
