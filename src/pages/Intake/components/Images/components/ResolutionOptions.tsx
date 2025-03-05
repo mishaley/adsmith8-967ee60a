@@ -51,9 +51,9 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     className="bg-gray-400 absolute"
                     style={{ 
                       top: '20px',
-                      bottom: '60px',  // Make bottom flush with the top of the two boxes
+                      bottom: '60px',
                       height: 'auto',
-                      width: 'auto',  // Will be calculated dynamically with JS
+                      width: 'auto',
                     }}
                     ref={(el) => {
                       if (el) {
@@ -65,28 +65,34 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                     }}
                   />
                 </div>
+                
+                {/* Bottom boxes container - made perfectly aligned with gray box */}
                 <div 
                   className="flex absolute bottom-0 w-full"
+                  style={{ 
+                    height: '60px', 
+                    left: '0', // Start from left edge of the cell
+                  }}
                   ref={(el) => {
                     if (el) {
-                      // Get the width of the gray box above
                       const parentEl = el.parentElement;
                       if (parentEl) {
                         const grayBox = parentEl.querySelector('.bg-gray-400') as HTMLElement;
                         if (grayBox && grayBox.offsetWidth) {
-                          // Set the width of this container to match the gray box width
-                          el.style.width = `${grayBox.offsetWidth}px`;
-                          // Center this element
-                          el.style.left = `${(parentEl.offsetWidth - grayBox.offsetWidth) / 2}px`;
+                          // Set the width of the boxes container to exactly match the gray box width
+                          const grayBoxWidth = grayBox.offsetWidth;
+                          el.style.width = `${grayBoxWidth}px`;
+                          // Center this element to match the gray box positioning
+                          el.style.left = `${(parentEl.offsetWidth - grayBoxWidth) / 2}px`;
                         }
                       }
                     }
                   }}
                 >
-                  <div className="bg-white h-[60px] w-1/2 border border-gray-700 flex items-center justify-center">
+                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
                     <X size={24} color="#990000" />
                   </div>
-                  <div className="bg-white h-[60px] w-1/2 border border-gray-700 flex items-center justify-center">
+                  <div className="bg-white h-full w-1/2 border border-gray-700 flex items-center justify-center">
                     <Check size={24} color="#0c343d" />
                   </div>
                 </div>
