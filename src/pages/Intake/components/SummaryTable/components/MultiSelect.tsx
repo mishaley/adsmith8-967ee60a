@@ -50,20 +50,20 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         disabled={disabled}
         className={`flex h-9 w-full bg-white items-center justify-between px-3 text-sm border border-gray-300 rounded-md ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <span className="truncate">{displayValue()}</span>
-        <ChevronDown className="h-4 w-4 opacity-50" />
+        <span className="text-left w-full">{displayValue()}</span>
+        <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
       </button>
       
       {open && (
         <div className="absolute z-50 mt-1 w-full overflow-visible bg-white border border-gray-200 rounded-md shadow-lg">
           <div className="p-1">
             {options.length === 0 ? (
-              <div className="py-2 px-3 text-gray-400 italic">No options available</div>
+              <div className="py-2 px-3 text-gray-400 italic text-left">No options available</div>
             ) : (
               options.map(option => (
                 <div 
                   key={option.value} 
-                  className="relative flex items-center px-2 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="relative flex items-center px-2 py-2 hover:bg-gray-100 cursor-pointer text-left"
                   onClick={() => handleValueChange(option.value)}
                   role="button"
                   tabIndex={0}
@@ -79,12 +79,12 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                     checked={value.includes(option.value)} 
                     className="mr-2"
                     onCheckedChange={() => {}}
-                    onClick={(e) => e.stopPropagation()} // Prevent checkbox from triggering its own click event
+                    onClick={(e) => e.stopPropagation()}
                   />
                   <label 
                     htmlFor={`option-${option.value}`}
-                    className="flex-grow cursor-pointer"
-                    onClick={(e) => e.preventDefault()} // Prevent label click from triggering its own event
+                    className="flex-grow cursor-pointer text-left"
+                    onClick={(e) => e.preventDefault()}
                   >
                     {option.label}
                   </label>
@@ -96,7 +96,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
               <>
                 <div className="mx-1 my-1 h-px bg-gray-200" />
                 <div 
-                  className="px-2 py-2 text-gray-500 hover:bg-gray-100 cursor-pointer"
+                  className="px-2 py-2 text-gray-500 hover:bg-gray-100 cursor-pointer text-left"
                   onClick={() => onChange([])}
                   role="button"
                   tabIndex={0}
