@@ -40,26 +40,26 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
         {[...Array(9)].map((_, index) => (
           <div 
             key={index} 
-            className="flex items-center justify-center bg-white hover:bg-gray-50 transition-colors" 
+            className="flex items-center justify-center bg-white hover:bg-gray-50 transition-colors relative" 
             style={gridItemStyle}
           >
             {isTopRow(index) && (
-              <div className="w-full h-full p-5 flex flex-col items-center">
-                <div 
-                  className="bg-gray-400"
-                  style={{ 
-                    marginTop: '0',
-                    marginBottom: '0',
-                    height: '75%',
-                    width: '75%',
-                    aspectRatio: '1/1'
-                  }}
-                />
-                <div className="flex w-3/4 mt-0">
+              <>
+                <div className="w-full h-full p-5 flex items-center justify-center">
+                  <div 
+                    className="bg-gray-400"
+                    style={{ 
+                      height: '75%',
+                      width: '75%',
+                      aspectRatio: '1/1'
+                    }}
+                  />
+                </div>
+                <div className="flex w-3/4 absolute bottom-0 left-1/2 transform -translate-x-1/2">
                   <div className="bg-gray-200 h-[60px] w-1/2"></div>
                   <div className="bg-gray-300 h-[60px] w-1/2"></div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         ))}
