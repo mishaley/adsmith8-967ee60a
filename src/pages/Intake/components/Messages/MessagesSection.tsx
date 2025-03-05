@@ -1,12 +1,6 @@
-
 import React, { useEffect } from "react";
 import { Persona } from "../Personas/types";
-import MessagesList from "./MessagesList";
-import MessageTypeSelector from "./MessageTypeSelector";
-import UserProvidedInput from "./UserProvidedInput";
-import MessagesTable from "./MessagesTable";
 import SimplifiedMessagesTable from "./SimplifiedMessagesTable";
-import { getMessageTypeLabel } from "./messageUtils";
 import { useMessagesState } from "./hooks/useMessagesState";
 import { useMessagesFetching } from "./hooks/useMessagesFetching";
 import { useMessagesGeneration } from "./hooks/useMessagesGeneration";
@@ -41,14 +35,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     }
   }, [generatedMessages, selectedMessageTypes, onUpdateMessages]);
 
-  useEffect(() => {
-    if (selectedMessageTypes.length > 0 && personas.length > 0) {
-      setIsTableVisible(true);
-    } else {
-      setIsTableVisible(false);
-    }
-  }, [selectedMessageTypes, personas, setIsTableVisible]);
-
   const {
     data: messages = [],
     refetch,
@@ -67,8 +53,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     setIsTableVisible
   );
 
-  const isUserProvidedSelected = selectedMessageTypes.includes("user-provided");
-
   const handleColumnGeneration = async (messageType: string): Promise<void> => {
     console.log(`Starting generation for ${messageType}`);
     try {
@@ -82,39 +66,8 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
 
   return (
     <>
-      <div className="flex flex-col items-center mb-4">
-        <div className="flex flex-wrap justify-center items-start mb-2">
-          <MessageTypeSelector 
-            selectedMessageTypes={selectedMessageTypes}
-            toggleMessageType={toggleMessageType}
-            isLoaded={isLoaded}
-          />
-          
-          <UserProvidedInput
-            userProvidedMessage={userProvidedMessage}
-            setUserProvidedMessage={setUserProvidedMessage}
-            isUserProvidedSelected={isUserProvidedSelected}
-          />
-        </div>
-      </div>
-      
-      <MessagesTable
-        isTableVisible={isTableVisible}
-        personas={personas}
-        selectedMessageTypes={selectedMessageTypes}
-        generatedMessages={generatedMessages}
-        isGeneratingMessages={isGeneratingMessages || isGeneratingState}
-        getMessageTypeLabel={getMessageTypeLabel}
-        onGenerateColumnMessages={handleColumnGeneration}
-      />
-      
-      {selectedPersonaId && !isTableVisible && (
-        <MessagesList messages={messages} isLoading={isGeneratingMessages || isGeneratingState || isLoading} />
-      )}
-
-      {/* Add the simplified messages table below the regular table */}
       <div className="mt-8 mb-4">
-        <h3 className="text-center text-gray-700 mb-3 font-bold">Quick Message Preview</h3>
+        <h3 className="text-center text-gray-700 mb-3 font-bold">Messages</h3>
         <SimplifiedMessagesTable personas={personas} />
       </div>
     </>
