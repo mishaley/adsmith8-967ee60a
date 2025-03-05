@@ -24,10 +24,13 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
   return (
     <div className="bg-[#e9f2fe] p-6 mb-8 rounded-lg">
       <h2 className="text-center text-gray-700 mb-6 font-bold text-xl">LOCATIONS</h2>
-      <GeoMapSection
-        selectedCountry={selectedCountry}
-        setSelectedCountry={setSelectedCountry}
-      />
+      
+      <div className="max-w-full mx-auto">
+        <GeoMapSection
+          selectedCountry={selectedCountry}
+          setSelectedCountry={setSelectedCountry}
+        />
+      </div>
       
       <div className="mt-8 max-w-md mx-auto">
         <label htmlFor="locationGroup" className="block text-sm font-medium text-gray-700 mb-2">
