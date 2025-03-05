@@ -11,6 +11,8 @@ interface AspectRatioCellProps {
     bg: string;
     text: string;
   }
+  selected?: boolean;
+  onSelect?: () => void;
 }
 
 export const AspectRatioCell: React.FC<AspectRatioCellProps> = ({ 
@@ -18,14 +20,19 @@ export const AspectRatioCell: React.FC<AspectRatioCellProps> = ({
   width, 
   height,
   label,
-  colorScheme
+  colorScheme,
+  selected = false,
+  onSelect
 }) => {
   return (
-    <div className="flex items-center justify-center bg-white hover:bg-gray-50 transition-colors relative" 
-         style={{ 
-           height: "100%",
-           border: '1px solid #e0e0e0',
-         }}>
+    <div 
+      className={`flex items-center justify-center bg-white hover:bg-gray-50 transition-colors relative cursor-pointer ${selected ? 'ring-2 ring-blue-500' : ''}`}
+      style={{ 
+        height: "100%",
+        border: '1px solid #e0e0e0',
+      }}
+      onClick={onSelect}
+    >
       <div className="w-full h-full flex items-start justify-center relative" style={{ paddingTop: '20px' }}>
         <div 
           className="bg-gray-400 absolute"
