@@ -59,6 +59,9 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
         selectedRatio={selectedRatio}
         onSelectRatio={handleSelectRatio}
       />
+      
+      {/* Transparent spacer row above image review section - 20px height */}
+      <div className="w-full h-[20px] bg-transparent"></div>
 
       <div 
         className="grid grid-cols-3 w-full bg-transparent border-transparent"
