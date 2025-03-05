@@ -32,7 +32,6 @@ export const WideAspectDisplay: React.FC<AspectDisplayProps> = ({
         width: `${displayWidth}px`,
         height: `${displayHeight}px`,
         left: `${(containerWidth - displayWidth) / 2}px`,
-        // Remove the 20px spacing that was creating the gap
         top: `${buttonHeight}px`,
       }}
     />
@@ -43,17 +42,13 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
   currentRatioConfig,
   containerWidth,
   buttonHeight,
-  availableHeight,
-  containerHeight
+  availableHeight
 }) => {
-  // For 1:1 and 4:5, we want to maximize the height to reach the bottom of the cell
-  // while still maintaining the aspect ratio
   let displayWidth;
   let displayHeight;
   
   if (currentRatioConfig.ratio === "1:1") {
-    // For 1:1 (square), height = width, so we set height to available height
-    // and calculate the width to maintain aspect ratio
+    // For 1:1 (square), maximize height to fill the space
     displayHeight = availableHeight;
     displayWidth = displayHeight; // Because it's a 1:1 square
     
@@ -64,7 +59,7 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
     }
   } 
   else if (currentRatioConfig.ratio === "4:5") {
-    // For 4:5, height is greater than width
+    // For 4:5, maximize height to fill the space
     displayHeight = availableHeight;
     displayWidth = displayHeight * (4/5); // Calculate width based on 4:5 ratio
     
@@ -76,17 +71,18 @@ export const StandardAspectDisplay: React.FC<AspectDisplayProps> = ({
   } 
   else if (currentRatioConfig.ratio === "9:16") {
     // For 9:16, much taller than wide
-    displayWidth = containerWidth * 0.6; // Narrower to accommodate the tall height
-    displayHeight = displayWidth * (16/9); // Calculate height based on 9:16 ratio
+    // Calculate maximum height available
+    displayHeight = availableHeight;
+    displayWidth = displayHeight * (9/16); // Calculate width based on 9:16 ratio
     
-    // Make sure height doesn't exceed available height
-    if (displayHeight > availableHeight) {
-      displayHeight = availableHeight;
-      displayWidth = displayHeight * (9/16); // Maintain 9:16 ratio
+    // Make sure width doesn't exceed container width
+    if (displayWidth > containerWidth * 0.95) {
+      displayWidth = containerWidth * 0.95;
+      displayHeight = displayWidth * (16/9); // Maintain 9:16 ratio
     }
   } 
   else {
-    // Default fallback (shouldn't reach here with our current config)
+    // Default fallback
     displayWidth = containerWidth * 0.8;
     displayHeight = displayWidth;
     

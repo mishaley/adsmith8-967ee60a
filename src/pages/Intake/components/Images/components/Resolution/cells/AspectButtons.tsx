@@ -44,29 +44,34 @@ export const StandardAspectButtons: React.FC<AspectButtonsProps> = ({
   // Fixed height for buttons
   const buttonHeight = 60;
   
-  // Determine width based on aspect ratio - match display widths
+  // Determine width based on aspect ratio to match the display width exactly
   let buttonsWidth;
   
   if (currentRatioConfig.ratio === "1:1") {
-    // For 1:1, use the maximum available width based on available height
-    const availableHeight = containerWidth;
-    buttonsWidth = Math.min(availableHeight, containerWidth * 0.95);
+    // For 1:1, buttons should be square (same as display)
+    // Calculate max available height (container width)
+    const availableHeight = containerWidth - buttonHeight;
+    // For 1:1, display width equals display height
+    buttonsWidth = availableHeight;
   } 
   else if (currentRatioConfig.ratio === "4:5") {
-    // For 4:5, determine button width based on available height
-    const availableHeight = containerWidth;
-    const displayHeight = availableHeight - buttonHeight;
-    const displayWidth = displayHeight * (4/5);
-    buttonsWidth = Math.min(displayWidth, containerWidth * 0.95);
+    // For 4:5, determine button width based on available height to match display width
+    const availableHeight = containerWidth - buttonHeight;
+    buttonsWidth = availableHeight * (4/5);
   } 
   else if (currentRatioConfig.ratio === "9:16") {
-    // For 9:16, use 60% of container width for buttons to match display
-    buttonsWidth = containerWidth * 0.6;
+    // For 9:16, calculate the width to match the display (narrower to accommodate height)
+    const availableHeight = containerWidth - buttonHeight;
+    const displayHeight = Math.min(availableHeight, containerWidth * 0.9);
+    buttonsWidth = displayHeight * (9/16);
   } 
   else {
     // Default fallback
     buttonsWidth = containerWidth * 0.8;
   }
+  
+  // Make sure buttons width doesn't exceed 95% of container
+  buttonsWidth = Math.min(buttonsWidth, containerWidth * 0.95);
 
   return (
     <div 
