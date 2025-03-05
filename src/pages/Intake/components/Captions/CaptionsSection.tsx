@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -68,7 +67,28 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   // Generate 11 rows for the table
   const renderTableRows = () => {
     const rows = [];
-    for (let i = 0; i < 11; i++) {
+    
+    // Add header row based on ad platform
+    if (adPlatform && adPlatform.toLowerCase() === "meta") {
+      rows.push(
+        <tr key="header-row" className="border-b border-gray-200 bg-gray-50">
+          <td className="border-r border-gray-200 w-1/3 font-bold text-center py-2">
+            PRIMARY TEXT
+          </td>
+          <td className="border-r border-gray-200 w-1/3 font-bold text-center py-2">
+            HEADLINE
+          </td>
+          <td className="w-1/3 font-bold text-center py-2">
+            DESCRIPTION
+          </td>
+        </tr>
+      );
+    }
+    
+    // Calculate how many regular rows to add (if we have a header, add 10 more rows, otherwise 11)
+    const regularRowCount = (adPlatform && adPlatform.toLowerCase() === "meta") ? 10 : 11;
+    
+    for (let i = 0; i < regularRowCount; i++) {
       rows.push(
         <tr key={`row-${i}`} className="border-b border-gray-200">
           <td className="border-r border-gray-200 w-1/3">
