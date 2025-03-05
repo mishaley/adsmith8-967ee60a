@@ -152,33 +152,33 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
   // Calculate optimal zoom level based on container width
-  let zoom = 0.5;  // Decreased base zoom to show more vertical area
+  let zoom = 0.6;
   if (width >= 400 && width < 600) {
-    zoom = 0.6;
-  } else if (width >= 600 && width < 800) {
-    zoom = 0.65;
-  } else if (width >= 800) {
     zoom = 0.7;
+  } else if (width >= 600 && width < 800) {
+    zoom = 0.8;
+  } else if (width >= 800) {
+    zoom = 0.9;
   }
   
   map.setZoom(zoom);
   
   // Calculate padding
   const padding = {
-    top: 20,
-    bottom: 20,
+    top: 40,
+    bottom: 40,
     left: 20,
     right: 20
   };
   
   // Ensure the world map is visible without repeating by using exact world bounds
-  // Adjusted to show more vertical area
   map.fitBounds([
-    [-180, -75],  // Southwest coordinates - increased southern visibility
-    [180, 85]     // Northeast coordinates - maintained northern visibility
+    [-180, -65], // Southwest coordinates (exact world bounds)
+    [180, 80]    // Northeast coordinates (exact world bounds)
   ], {
     padding,
     linear: true,
     duration: 0
   });
 }
+
