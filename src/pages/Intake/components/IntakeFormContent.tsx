@@ -13,20 +13,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import OrganizationContainer from "./Containers/OrganizationContainer";
-import OfferingContainer from "./Containers/OfferingContainer";
-import LocationsContainer from "./Containers/LocationsContainer";
-import PersonasContainer from "./Containers/PersonasContainer";
-import LanguagesContainer from "./Containers/LanguagesContainer";
-import MessagesContainer from "./Containers/MessagesContainer";
-import PlatformsContainer from "./Containers/PlatformsContainer";
-import ImagesContainer from "./Containers/ImagesContainer";
-import ParametersCaptionsContainer from "./Containers/ParametersCaptionsContainer";
 import IntakeTop from "./IntakeTop";
 import IntakeFormContainer from "./IntakeFormContainer";
+import SectionsContainer from "./Containers/SectionsContainer";
 import { Persona } from "./Personas/types";
 import { Message } from "./Messages/hooks/useMessagesFetching";
-import { ParametersSection } from "./Parameters";
 
 interface IntakeFormContentProps {
   brandName: string;
@@ -74,51 +65,6 @@ interface IntakeFormContentProps {
 }
 
 const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
-  const {
-    brandName,
-    setBrandName,
-    industry,
-    setIndustry,
-    businessDescription,
-    setBusinessDescription,
-    handleSave,
-    
-    offering,
-    setOffering,
-    sellingPoints,
-    setSellingPoints,
-    problemSolved,
-    setProblemSolved,
-    uniqueOffering,
-    setUniqueOffering,
-    
-    selectedCountry,
-    setSelectedCountry,
-    adPlatform,
-    setAdPlatform,
-    
-    selectedLanguage,
-    setSelectedLanguage,
-    
-    personas,
-    summary,
-    isGeneratingPersonas,
-    isGeneratingPortraits,
-    generatePersonas,
-    updatePersona,
-    loadingPortraitIndices,
-    retryPortraitGeneration,
-    removePersona,
-    personaCount,
-    setPersonaCount,
-    
-    generatedMessages,
-    selectedMessageTypes,
-    handleUpdateMessages,
-    
-    handleClearForm
-  } = props;
-
   return (
     <div className="p-[18px] pl-0 pt-0 relative">
       <div className="absolute top-0 right-0 z-10 mr-6 mt-6">
@@ -138,7 +84,7 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleClearForm}>Clear Data</AlertDialogAction>
+              <AlertDialogAction onClick={props.handleClearForm}>Clear Data</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -151,78 +97,7 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         </p>
       </div>
       
-      <OrganizationContainer
-        brandName={brandName}
-        setBrandName={setBrandName}
-        industry={industry}
-        setIndustry={setIndustry}
-        businessDescription={businessDescription}
-        setBusinessDescription={setBusinessDescription}
-        handleSave={handleSave}
-      />
-      
-      <OfferingContainer
-        offering={offering}
-        setOffering={setOffering}
-        sellingPoints={sellingPoints}
-        setSellingPoints={setSellingPoints}
-        problemSolved={problemSolved}
-        setProblemSolved={setProblemSolved}
-        uniqueOffering={uniqueOffering}
-        setUniqueOffering={setUniqueOffering}
-      />
-      
-      <LocationsContainer
-        selectedCountry={selectedCountry}
-        setSelectedCountry={setSelectedCountry}
-      />
-      
-      <PersonasContainer
-        personas={personas}
-        summary={summary}
-        isGeneratingPersonas={isGeneratingPersonas}
-        isGeneratingPortraits={isGeneratingPortraits}
-        generatePersonas={generatePersonas}
-        updatePersona={updatePersona}
-        loadingPortraitIndices={loadingPortraitIndices}
-        retryPortraitGeneration={retryPortraitGeneration}
-        removePersona={removePersona}
-        personaCount={personaCount}
-        setPersonaCount={setPersonaCount}
-      />
-      
-      <LanguagesContainer
-        selectedLanguage={selectedLanguage}
-        setSelectedLanguage={setSelectedLanguage}
-      />
-      
-      <MessagesContainer
-        personas={personas}
-        generatedMessages={generatedMessages}
-        selectedMessageTypes={selectedMessageTypes}
-        handleUpdateMessages={handleUpdateMessages}
-      />
-      
-      <PlatformsContainer
-        adPlatform={adPlatform}
-        setAdPlatform={setAdPlatform}
-      />
-      
-      <ImagesContainer
-        personas={personas}
-        generatedMessages={generatedMessages}
-        selectedMessageTypes={selectedMessageTypes}
-        adPlatform={adPlatform}
-      />
-      
-      <ParametersCaptionsContainer
-        personas={personas}
-        generatedMessages={generatedMessages}
-        selectedMessageTypes={selectedMessageTypes}
-        adPlatform={adPlatform}
-      />
-      
-      <ParametersSection />
+      <SectionsContainer {...props} />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />
