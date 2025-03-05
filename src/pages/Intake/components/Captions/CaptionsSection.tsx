@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -152,8 +153,8 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
   return (
     <CollapsibleSection title="CAPTIONS">
       {totalPairs > 0 ? (
-        <div className="rounded-md overflow-hidden bg-white shadow-none">
-          <div className="p-4 border-b">
+        <div className="rounded-md overflow-hidden bg-transparent shadow-none">
+          <div className="p-4 border-b bg-transparent">
             <PersonaDisplay 
               currentPersona={currentPersona}
               currentMessageType={currentMessageType}
@@ -164,7 +165,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
               goToNext={goToNext}
             />
           </div>
-          <div className="p-4">
+          <div className="p-4 bg-transparent">
             <div className="flex space-x-3">
               <div className="w-1/3">
                 {renderSingleTable(0)}
@@ -179,7 +180,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500 bg-white rounded-md shadow-none">
+        <div className="p-4 text-center text-gray-500 bg-transparent rounded-md shadow-none">
           No personas available to display
         </div>
       )}
