@@ -16,7 +16,7 @@ import Settings from "./pages/Settings";
 import New from "./pages/New";
 import Intake from "./pages/Intake";
 import NotFound from "./pages/NotFound";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "./pages/Intake/utils/localStorageUtils";
 
 // List of valid routes for our app
@@ -58,10 +58,13 @@ const TitleUpdater = () => {
 const RouteRestorer = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
-    // Only redirect if we're exactly at the root path or /index
-    if (location.pathname === '/' || location.pathname === '/index') {
+    // Only redirect once on initial mount and only at root or index paths
+    if (!hasInitializedRef.current && (location.pathname === '/' || location.pathname === '/index')) {
+      hasInitializedRef.current = true;
+      
       // Load last route from localStorage
       const lastRoute = loadFromLocalStorage<string>(STORAGE_KEYS.LAST_ROUTE, '/intake');
       
@@ -71,7 +74,6 @@ const RouteRestorer = () => {
       // Navigate to the last route - using REPLACE to avoid adding to history
       navigate(targetRoute, { replace: true });
     }
-  // Only run this effect once on mount plus when location.pathname changes
   }, [location.pathname, navigate]);
 
   return null;
@@ -106,6 +108,8 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false, // Prevent refetching when window regains focus
       retry: 1, // Limit retries on failed queries
+      staleTime: 300000, // 5 minutes - data doesn't go stale for 5 minutes
+      cacheTime: 900000, // 15 minutes - keep data in cache for 15 minutes
     },
   },
 });

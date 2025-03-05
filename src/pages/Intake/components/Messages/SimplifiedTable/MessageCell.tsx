@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { Textarea } from "@/components/ui/textarea";
 
 interface MessageColumn {
@@ -19,12 +19,12 @@ const MessageCell: React.FC<MessageCellProps> = ({
   onContentChange,
   personaId = "default" // Use a default value if personaId is not provided
 }) => {
-  const content = column.content?.[personaId] || "";
-  
-  // If the message type is empty or "remove", don't render the textarea
+  // If the message type is empty or "remove", don't render anything interactive
   if (!column.type || column.type === "remove") {
     return <div className="h-[100px]"></div>;
   }
+  
+  const content = column.content?.[personaId] || "";
   
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (onContentChange) {
@@ -42,4 +42,5 @@ const MessageCell: React.FC<MessageCellProps> = ({
   );
 };
 
-export default MessageCell;
+// Memoize the component to prevent unnecessary re-renders
+export default memo(MessageCell);
