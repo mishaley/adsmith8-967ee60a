@@ -132,7 +132,7 @@ const ResolutionOptions: React.FC<ResolutionOptionsProps> = () => {
                       className="flex absolute"
                       style={{ 
                         height: '60px',
-                        top: '40px',
+                        top: '20px'
                       }}
                       ref={(el) => {
                         if (el) {
