@@ -1,6 +1,5 @@
 
 import React, { memo } from "react";
-import { Textarea } from "@/components/ui/textarea";
 
 interface MessageColumn {
   id: string;
@@ -27,22 +26,20 @@ const MessageCell: React.FC<MessageCellProps> = ({
   // Safely access content with null checks
   const content = column.content && personaId ? column.content[personaId] || "" : "";
   
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (onContentChange && personaId) {
-      onContentChange(column.id, personaId, e.target.value);
-    }
-  };
+  // If column has content for this persona, display it
+  if (content) {
+    return (
+      <td className="border p-1 align-top">
+        <div className="w-full min-h-[60px] p-2 bg-white">
+          {content}
+        </div>
+      </td>
+    );
+  }
   
+  // If no content, just show an empty cell
   return (
-    <td className="border p-1 align-top">
-      <Textarea
-        value={content}
-        onChange={handleChange}
-        placeholder={`Add ${column.type} here...`}
-        className="w-full min-h-[60px] resize-none border-gray-200 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-colors"
-        rows={2}
-      />
-    </td>
+    <td className="border p-1 align-top"></td>
   );
 };
 

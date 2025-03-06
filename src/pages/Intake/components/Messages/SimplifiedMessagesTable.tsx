@@ -6,6 +6,8 @@ import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
 import PersonaCell from "./PersonaCell";
 import MessageCell from "./SimplifiedTable/MessageCell";
 import { useMessageColumns } from "./hooks/useMessageColumns";
+import { useMessagesGeneration } from "./hooks/useMessagesGeneration";
+import { toast } from "sonner";
 
 interface SimplifiedMessagesTableProps {
   personas: Persona[];
@@ -24,6 +26,32 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     handleMessageTypeChange,
     handleContentChange
   } = useMessageColumns();
+
+  // Setup message generation functionality
+  const { handleGenerateColumnMessages } = useMessagesGeneration(
+    personas,
+    selectedMessageTypes, 
+    "", 
+    {}, 
+    () => {}, 
+    () => {}
+  );
+
+  // Handle generate button click
+  const handleGenerateClick = async (columnId: string, columnType: string) => {
+    if (!columnType) {
+      toast.error("Please select a message type first");
+      return;
+    }
+    
+    try {
+      await handleGenerateColumnMessages(columnType);
+      toast.success(`Generated ${columnType} messages`);
+    } catch (error) {
+      console.error("Error generating messages:", error);
+      toast.error("Failed to generate messages");
+    }
+  };
 
   // Extract all selected message types from columns
   useEffect(() => {
@@ -68,6 +96,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                 columnType={column.type}
                 isNewColumn={column.isNew}
                 onTypeChange={handleMessageTypeChange}
+                onGenerateClick={handleGenerateClick}
               />
             ))}
             
