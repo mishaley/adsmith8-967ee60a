@@ -84,7 +84,9 @@ export const useMapInstance = ({
         ],
         renderWorldCopies: false,
         attributionControl: false,
-        preserveDrawingBuffer: true
+        preserveDrawingBuffer: true,
+        interactive: true,         // Ensure map interaction is enabled
+        doubleClickZoom: false     // Disable double-click zoom to avoid conflicts with click selection
       });
 
       map.current.addControl(
@@ -120,6 +122,11 @@ export const useMapInstance = ({
       map.current.on('error', (e) => {
         console.error("Mapbox error:", e.error);
         setMapError(`Map error: ${e.error?.message || 'Unknown error'}`);
+      });
+      
+      // Add debugging for click events
+      map.current.on('click', (e) => {
+        console.log("Map click detected at coordinates:", e.lngLat);
       });
       
     } catch (err) {

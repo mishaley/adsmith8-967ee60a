@@ -16,17 +16,17 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
           '#154851',
           ['boolean', ['feature-state', 'hover'], false],
           '#8ebdc2',
-          'rgba(100, 100, 100, 0.7)'  // Darker, more visible border color
+          '#666666'  // Much darker border color for better visibility
         ],
         'line-width': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          2,
+          3,  // Thicker for selected
           ['boolean', ['feature-state', 'hover'], false],
-          1.5,
-          0.7  // Increased from 0.5 to make borders more visible
+          2,  // Thicker for hover
+          1   // Base thickness increased for better visibility
         ],
-        'line-opacity': 0.9  // Added to ensure visibility
+        'line-opacity': 1.0  // Full opacity for maximum visibility
       }
     });
   } else {

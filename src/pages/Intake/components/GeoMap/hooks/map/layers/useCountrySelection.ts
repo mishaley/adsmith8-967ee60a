@@ -1,3 +1,4 @@
+
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 import { supabase } from "@/integrations/supabase/client";
@@ -27,8 +28,15 @@ const getCountryIdFromIsoCode = async (isoCode: string): Promise<string | null> 
 };
 
 export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: string) => void) => {
+  console.log("Setting up map click events");
+  
+  // Remove any existing click event to prevent duplicates
+  map.off('click', 'countries-fill');
+  
   // On click
   map.on('click', 'countries-fill', async (e) => {
+    console.log("Map click detected on countries-fill layer");
+    
     if (e.features && e.features.length > 0) {
       const countryFeatureId = e.features[0].id as string;
       const isoCode = e.features[0].properties?.iso_3166_1 || '';
@@ -83,14 +91,16 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
     return;
   }
   
+  console.log(`Attempting to highlight country with code: ${countryCode}`);
+  
   // Clear previous selection first, regardless of new selection
   if (selectedCountryId) {
     try {
+      console.log(`Clearing previous highlight for country ID: ${selectedCountryId}`);
       map.setFeatureState(
         { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
         { selected: false }
       );
-      console.log(`Cleared previous highlight for country ID: ${selectedCountryId}`);
       selectedCountryId = null;
     } catch (error) {
       console.error("Error clearing previous country selection:", error);
@@ -106,7 +116,6 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   
   // Store the currently highlighted country code
   selectedCountryCode = countryCode;
-  console.log(`Attempting to highlight country with code: ${countryCode}`);
   
   // Convert country_id to ISO code if needed
   const findAndConvertToIso = async () => {
@@ -142,6 +151,8 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   const findAndHighlightCountry = async () => {
     // Get ISO code if needed
     const isoCode = await findAndConvertToIso();
+    
+    console.log(`Searching for country features with ISO code: ${isoCode}`);
     
     // Query features directly using ISO code filter
     const features = map.querySourceFeatures('countries', {

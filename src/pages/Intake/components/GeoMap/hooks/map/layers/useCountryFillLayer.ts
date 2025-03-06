@@ -16,9 +16,9 @@ export const addCountryFillLayer = (map: mapboxgl.Map) => {
           '#154851',
           ['boolean', ['feature-state', 'hover'], false],
           '#8ebdc2',
-          'rgba(200, 200, 200, 0.1)'  // Very light fill for non-selected countries
+          'rgba(200, 200, 200, 0.05)'  // Even lighter fill to make borders more visible
         ],
-        'fill-opacity': 0.6  // Reduced from 0.7 to make borders more visible
+        'fill-opacity': 0.5  // Reduced opacity to make borders stand out more
       }
     });
   } else {

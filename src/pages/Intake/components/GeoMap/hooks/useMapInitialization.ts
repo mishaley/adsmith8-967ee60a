@@ -76,6 +76,8 @@ export const useMapInitialization = ({
       // Wait for map style to be fully loaded before adding layers
       const initializeLayers = () => {
         if (map.current) {
+          console.log("Map style loaded, initializing country layers now");
+          
           // IMPORTANT: Ensure proper layer order - source first, then fill, then border on top
           // Add the source
           addCountrySource(map.current);
@@ -89,8 +91,12 @@ export const useMapInitialization = ({
           // Setup hover events
           setupHoverEvents(map.current);
           
-          // Setup click events
-          setupClickEvents(map.current, setSelectedCountry);
+          // Setup click events with debug logging
+          console.log("Setting up click events with selection handler");
+          setupClickEvents(map.current, (countryId) => {
+            console.log(`Map click detected, setting selected country to: ${countryId}`);
+            setSelectedCountry(countryId);
+          });
           
           // Mark layers as initialized
           setLayersInitialized(true);
@@ -138,6 +144,7 @@ export const useMapInitialization = ({
           addCountryFillLayer(currentMap);
           addCountryBorderLayer(currentMap);
           setupHoverEvents(currentMap);
+          console.log("Re-setting up click events after style load");
           setupClickEvents(currentMap, setSelectedCountry);
           setLayersInitialized(true);
           console.log("Country layers initialized on style.load");
