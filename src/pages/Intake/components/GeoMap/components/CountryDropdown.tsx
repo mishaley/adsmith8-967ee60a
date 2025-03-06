@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCountries } from "../hooks/useCountries";
+import { Search, X } from "lucide-react";
 
 interface CountryDropdownProps {
   selectedCountry: string;
@@ -16,30 +17,24 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   setSelectedCountryId
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { countries, isLoading } = useCountries();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Focus the search input when the dropdown is opened
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
 
   // Filter countries based on search term
   const filteredCountries = countries.filter(country => 
     country.country_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Find the selected country object
-  const selectedCountryObject = countries.find(country => country.country_id === selectedCountry);
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    if (!isDropdownOpen) {
-      setIsDropdownOpen(true);
-    }
-  };
-
   // Handle country selection
   const handleCountrySelect = (countryId: string) => {
     setSelectedCountry(countryId);
-    setSearchTerm("");
-    setIsDropdownOpen(false);
     
     // Also highlight on map if the function is available
     if (setSelectedCountryId) {
@@ -47,59 +42,65 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
     }
   };
 
+  // Clear search term
+  const clearSearch = () => {
+    setSearchTerm("");
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
   return (
-    <div className="w-full mb-6">
-      <div className="font-bold text-lg mb-4">Country</div>
-      
-      <div className="relative">
-        <Input 
-          type="text" 
-          placeholder="Search countries..." 
-          value={searchTerm} 
-          onChange={handleInputChange} 
-          onFocus={() => setIsDropdownOpen(true)} 
-          onClick={() => setIsDropdownOpen(true)} 
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              setIsDropdownOpen(false);
-            }
-          }}
-          autoComplete="off" 
-          className="w-full" 
-        />
-        
-        {selectedCountryObject && searchTerm === "" && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-sm text-gray-700 pointer-events-none">
-            <span>{selectedCountryObject.country_flag}</span>
-            <span>{selectedCountryObject.country_name}</span>
-          </div>
-        )}
-        
-        {isDropdownOpen && (
-          <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
-            {isLoading ? (
-              <div className="p-2 text-center">Loading countries...</div>
-            ) : filteredCountries.length > 0 ? (
-              filteredCountries.map(country => (
-                <Button 
-                  key={country.country_id} 
-                  type="button" 
-                  variant="ghost" 
-                  className={`w-full flex items-center justify-between px-4 py-2 text-left ${selectedCountry === country.country_id ? "bg-gray-100" : ""}`} 
-                  onClick={() => handleCountrySelect(country.country_id)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span>{country.country_flag}</span>
-                    <span>{country.country_name}</span>
-                  </div>
-                </Button>
-              ))
-            ) : (
-              <div className="p-2 text-center">No countries found</div>
-            )}
-          </div>
-        )}
+    <div className="w-full">
+      {/* Search bar */}
+      <div className="sticky top-0 bg-white z-10 p-2 border-b border-gray-100">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+          <Input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search countries..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 pr-8 w-full"
+            autoComplete="off"
+          />
+          {searchTerm && (
+            <button 
+              className="absolute right-2 top-2.5"
+              onClick={clearSearch}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+            </button>
+          )}
+        </div>
       </div>
+
+      {isLoading ? (
+        <div className="p-4 text-center text-gray-500">Loading countries...</div>
+      ) : filteredCountries.length > 0 ? (
+        <div className="max-h-60 overflow-y-auto">
+          {filteredCountries.map(country => (
+            <Button 
+              key={country.country_id} 
+              type="button" 
+              variant="ghost" 
+              className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
+                selectedCountry === country.country_id ? "bg-gray-100" : ""
+              }`} 
+              onClick={() => handleCountrySelect(country.country_id)}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{country.country_flag}</span>
+                <span className="truncate">{country.country_name}</span>
+              </div>
+            </Button>
+          ))}
+        </div>
+      ) : (
+        <div className="p-4 text-center text-gray-500">No countries found</div>
+      )}
     </div>
   );
 };

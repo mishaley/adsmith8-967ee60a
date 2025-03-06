@@ -1,7 +1,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ChevronDown } from "lucide-react";
 import CountryDropdown from "./CountryDropdown";
 
@@ -18,7 +17,6 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   setSelectedCountryId,
   countryName
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +30,6 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
           dropdownRef.current && 
           !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
-        setSearchTerm("");
       }
     };
 
@@ -56,55 +53,26 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       <div className="font-bold text-lg mb-4">Country</div>
       
       <div className="relative">
-        {/* If a country is selected, show the selection instead of the search input */}
-        {selectedCountryObject && !isDropdownOpen ? (
-          <Button
-            variant="outline"
-            className="w-full justify-between font-normal"
-            onClick={() => setIsDropdownOpen(true)}
-          >
-            <span className="flex items-center gap-2 text-left">
-              {selectedCountryObject.country_name}
-            </span>
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Input 
-            type="text" 
-            placeholder="Search countries..." 
-            value={searchTerm} 
-            onChange={(e) => setSearchTerm(e.target.value)} 
-            onFocus={() => setIsDropdownOpen(true)} 
-            onClick={() => setIsDropdownOpen(true)} 
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setIsDropdownOpen(false);
-              }
-            }}
-            autoComplete="off" 
-            className="w-full" 
-          />
-        )}
+        <Button
+          variant="outline"
+          className="w-full justify-between font-normal"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        >
+          <span className="flex items-center gap-2 text-left truncate">
+            {selectedCountryObject ? selectedCountryObject.country_name : "Select a country"}
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0" />
+        </Button>
         
         {isDropdownOpen && (
-          <div className="absolute z-10 w-full mt-1 max-h-60 overflow-auto bg-white border border-gray-300 rounded-md shadow-lg">
-            <Button 
-              type="button" 
-              variant="ghost" 
-              className="w-full text-left text-gray-500 border-b" 
-              onClick={() => {
-                setIsDropdownOpen(false);
-                setSearchTerm("");
-              }}
-            >
-              Close
-            </Button>
-            
-            <CountryDropdown 
-              selectedCountry={selectedCountry} 
-              setSelectedCountry={handleCountrySelect}
-              setSelectedCountryId={null}
-            />
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+            <div className="max-h-60 overflow-auto">
+              <CountryDropdown 
+                selectedCountry={selectedCountry} 
+                setSelectedCountry={handleCountrySelect}
+                setSelectedCountryId={null}
+              />
+            </div>
           </div>
         )}
       </div>
