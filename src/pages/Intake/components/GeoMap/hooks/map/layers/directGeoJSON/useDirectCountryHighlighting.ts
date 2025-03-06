@@ -149,18 +149,26 @@ export const useDirectCountryHighlighting = ({
             console.log("Using alternative approach for worldwide selection");
             const source = map.current.getSource('countries-geojson');
             if (source && 'setData' in source) {
-              const data = (source as mapboxgl.GeoJSONSource).getData();
-              if (data && 'features' in data) {
-                const geoData = data as GeoJSON.FeatureCollection;
-                console.log(`Source has ${geoData.features.length} features`);
-                
-                // Mark all features as selected in the data
-                geoData.features.forEach((feature, index) => {
-                  map.current!.setFeatureState(
-                    { source: 'countries-geojson', id: index },
-                    { selected: true, excluded: false }
-                  );
+              try {
+                // Instead of trying to getData (which doesn't exist),
+                // Mark all visible features as selected
+                const allVisibleFeatures = map.current.queryRenderedFeatures({
+                  layers: ['countries-fill']
                 });
+                
+                console.log(`Source has ${allVisibleFeatures.length} visible features`);
+                
+                // Mark all features as selected
+                allVisibleFeatures.forEach(feature => {
+                  if (feature.id !== undefined) {
+                    map.current!.setFeatureState(
+                      { source: 'countries-geojson', id: feature.id },
+                      { selected: true, excluded: false }
+                    );
+                  }
+                });
+              } catch (e) {
+                console.error("Error in alternative worldwide selection:", e);
               }
             }
           }

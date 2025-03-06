@@ -29,7 +29,11 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
 
   // Effect to set the language based on the selected country
   useEffect(() => {
-    if (primaryLanguageId) {
+    if (selectedCountry === "worldwide") {
+      // Set English as the default language for Worldwide
+      setSelectedLanguage("en");
+      console.log("Setting English as default language for Worldwide selection");
+    } else if (primaryLanguageId) {
       setSelectedLanguage(primaryLanguageId);
       console.log(`Auto-selecting language: ${primaryLanguageId} based on country: ${countryName}`);
     } else if (!selectedCountry) {
