@@ -1,101 +1,27 @@
 
 import mapboxgl from 'mapbox-gl';
-import { getCountryIdFromFeature } from './utils/countryIdUtils';
+import { setupLayerClickHandler, setupHoverHandler } from './utils/clickHandlers';
+import { getSelectedFeatureId, getSelectedCountryCode, setSelectedFeature } from './utils/selectionState';
 
-// Variables to track the currently selected feature
-let selectedFeatureId: string | null = null;
-let selectedCountryCode: string | null = null;
-
-/**
- * Gets the ID of the currently selected feature
- * @returns The feature ID or null if none selected
- */
-export const getSelectedFeatureId = (): string | null => {
-  return selectedFeatureId;
-};
-
-/**
- * Gets the country code of the currently selected country
- * @returns The country code or null if none selected
- */
-export const getSelectedCountryCode = (): string | null => {
-  return selectedCountryCode;
-};
-
-/**
- * Sets the selected feature information
- * @param featureId The feature ID or null to clear
- * @param countryCode The country code or null to clear
- */
-export const setSelectedFeature = (featureId: string | null, countryCode: string | null): void => {
-  selectedFeatureId = featureId;
-  selectedCountryCode = countryCode;
-  console.log(`Selected feature set to: ${featureId}, country code: ${countryCode}`);
-};
+// Re-export the selection state getters and setters for external use
+export { getSelectedFeatureId, getSelectedCountryCode, setSelectedFeature };
 
 /**
  * Sets up click event handlers for country selection
+ * @param map Mapbox GL map instance
+ * @param onCountrySelected Callback to set the selected country
  */
 export function setupClickEvents(
   map: mapboxgl.Map, 
   onCountrySelected: (countryId: string) => void
 ) {
-  // Add click behavior for country selection on fill layer
-  map.on('click', 'country-fills', (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
-    if (e.features && e.features.length > 0) {
-      const countryId = getCountryIdFromFeature(e.features[0]);
-      if (countryId) {
-        console.log(`Country clicked: ${countryId}`);
-        
-        // Check if clicked on the same country that's already selected
-        if (countryId === selectedCountryCode) {
-          console.log('Clicked on already selected country, deselecting it');
-          // Call with empty string to clear selection
-          onCountrySelected('');
-        } else {
-          // Select the new country
-          onCountrySelected(countryId);
-        }
-      }
-    }
-  });
-
+  // Set up click handlers for the fill layer
+  setupLayerClickHandler(map, 'country-fills', onCountrySelected);
+  
   // Also add click handlers to the border layer for better interaction
-  map.on('click', 'country-borders', (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
-    if (e.features && e.features.length > 0) {
-      const countryId = getCountryIdFromFeature(e.features[0]);
-      if (countryId) {
-        console.log(`Country border clicked: ${countryId}`);
-        
-        // Check if clicked on the same country that's already selected
-        if (countryId === selectedCountryCode) {
-          console.log('Clicked on already selected country border, deselecting it');
-          onCountrySelected('');
-        } else {
-          // Select the new country
-          onCountrySelected(countryId);
-        }
-      }
-    }
-  });
+  setupLayerClickHandler(map, 'country-borders', onCountrySelected);
 
-  // Change cursor to pointer when hovering over a country
-  map.on('mouseenter', 'country-fills', () => {
-    map.getCanvas().style.cursor = 'pointer';
-  });
-
-  // Also add pointer cursor to country borders
-  map.on('mouseenter', 'country-borders', () => {
-    map.getCanvas().style.cursor = 'pointer';
-  });
-
-  // Change cursor back when leaving a country
-  map.on('mouseleave', 'country-fills', () => {
-    map.getCanvas().style.cursor = '';
-  });
-
-  // Also for borders
-  map.on('mouseleave', 'country-borders', () => {
-    map.getCanvas().style.cursor = '';
-  });
+  // Set up hover handlers for cursor effects
+  setupHoverHandler(map, 'country-fills');
+  setupHoverHandler(map, 'country-borders');
 }

@@ -1,6 +1,6 @@
 
 import mapboxgl from 'mapbox-gl';
-import { getSelectedFeatureId, setSelectedFeature } from '../useCountryClickEvents';
+import { getSelectedFeatureId, setSelectedFeature } from './selectionState';
 
 /**
  * Attempts to find and highlight a country feature on the map
