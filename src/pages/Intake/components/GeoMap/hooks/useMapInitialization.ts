@@ -73,25 +73,40 @@ export const useMapInitialization = ({
       // Add source and layers
       console.log("Initializing country layers...");
       
-      // Add the source
-      addCountrySource(map.current);
+      // Wait for map style to be fully loaded before adding layers
+      const initializeLayers = () => {
+        if (map.current) {
+          // Add the source
+          addCountrySource(map.current);
+          
+          // Add the fill layer
+          addCountryFillLayer(map.current);
+          
+          // Add the border layer
+          addCountryBorderLayer(map.current);
+          
+          // Setup hover events
+          setupHoverEvents(map.current);
+          
+          // Setup click events
+          setupClickEvents(map.current, setSelectedCountry);
+          
+          // Mark layers as initialized
+          setLayersInitialized(true);
+          
+          console.log("Country layers initialized successfully");
+        }
+      };
       
-      // Add the fill layer
-      addCountryFillLayer(map.current);
-      
-      // Add the border layer
-      addCountryBorderLayer(map.current);
-      
-      // Setup hover events
-      setupHoverEvents(map.current);
-      
-      // Setup click events
-      setupClickEvents(map.current, setSelectedCountry);
-      
-      // Mark layers as initialized
-      setLayersInitialized(true);
-      
-      console.log("Country layers initialized successfully");
+      // Check if style is already loaded
+      if (map.current.isStyleLoaded()) {
+        console.log("Map style already loaded, initializing layers now");
+        initializeLayers();
+      } else {
+        // If not, wait for the style.load event
+        console.log("Waiting for map style to load before initializing layers");
+        map.current.on('style.load', initializeLayers);
+      }
     } catch (err) {
       console.error('Error initializing country layers:', err);
       setMapError(`Failed to initialize countries: ${err instanceof Error ? err.message : String(err)}`);

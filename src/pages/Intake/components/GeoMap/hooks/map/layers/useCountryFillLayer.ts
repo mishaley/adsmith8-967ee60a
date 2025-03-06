@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 
 export const addCountryFillLayer = (map: mapboxgl.Map) => {
   if (!map.getLayer('countries-fill')) {
+    console.log("Adding countries fill layer...");
     map.addLayer({
       id: 'countries-fill',
       type: 'fill',
@@ -15,10 +16,12 @@ export const addCountryFillLayer = (map: mapboxgl.Map) => {
           '#154851',
           ['boolean', ['feature-state', 'hover'], false],
           '#8ebdc2',
-          'transparent'
+          'rgba(200, 200, 200, 0.1)'  // Very light fill for non-selected countries
         ],
         'fill-opacity': 0.7
       }
     });
+  } else {
+    console.log("Countries fill layer already exists");
   }
 };

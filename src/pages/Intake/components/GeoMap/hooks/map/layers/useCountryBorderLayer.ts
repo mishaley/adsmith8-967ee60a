@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 
 export const addCountryBorderLayer = (map: mapboxgl.Map) => {
   if (!map.getLayer('countries-border')) {
+    console.log("Adding countries border layer...");
     map.addLayer({
       id: 'countries-border',
       type: 'line',
@@ -15,7 +16,7 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
           '#154851',
           ['boolean', ['feature-state', 'hover'], false],
           '#8ebdc2',
-          '#ccc'
+          '#999'  // Medium gray for non-selected country borders
         ],
         'line-width': [
           'case',
@@ -27,5 +28,7 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
         ]
       }
     });
+  } else {
+    console.log("Countries border layer already exists");
   }
 };
