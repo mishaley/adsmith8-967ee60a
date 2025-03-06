@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
@@ -23,7 +22,6 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { countries } = useCountries();
 
-  // Effect for handling clicks outside of the dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isDropdownOpen && 
@@ -40,7 +38,6 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     };
   }, [isDropdownOpen]);
 
-  // Effect to fetch and set the flag for the selected country
   useEffect(() => {
     if (selectedCountry && countries.length > 0) {
       const country = countries.find(c => c.country_id === selectedCountry);
@@ -48,7 +45,6 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
         setSelectedCountryFlag(country.country_flag);
       }
     } else {
-      // Clear the flag when no country is selected
       setSelectedCountryFlag(null);
     }
   }, [selectedCountry, countries]);
@@ -59,7 +55,6 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     if (flag) setSelectedCountryFlag(flag);
     setIsDropdownOpen(false);
     
-    // Update map selection
     if (setSelectedCountryId) {
       console.log(`CountrySelection: Updating map with country ${country}`);
       setSelectedCountryId(country);
@@ -67,7 +62,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   };
 
   return (
-    <div className="mt-6" ref={dropdownRef}>
+    <div>
       <div className="font-bold text-lg mb-4">Country</div>
       
       <div className="relative">
