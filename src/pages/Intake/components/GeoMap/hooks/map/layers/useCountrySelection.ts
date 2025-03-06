@@ -1,4 +1,3 @@
-
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 import { supabase } from "@/integrations/supabase/client";
@@ -84,26 +83,29 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
     return;
   }
   
-  // Store the currently highlighted country code
-  selectedCountryCode = countryCode;
-  
-  if (!countryCode) {
-    // Clear previous selection
-    if (selectedCountryId) {
-      try {
-        map.setFeatureState(
-          { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
-          { selected: false }
-        );
-        selectedCountryId = null;
-        console.log("Successfully cleared country selection on map");
-      } catch (error) {
-        console.error("Error clearing previous country selection:", error);
-      }
+  // Clear previous selection first, regardless of new selection
+  if (selectedCountryId) {
+    try {
+      map.setFeatureState(
+        { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+        { selected: false }
+      );
+      console.log(`Cleared previous highlight for country ID: ${selectedCountryId}`);
+      selectedCountryId = null;
+    } catch (error) {
+      console.error("Error clearing previous country selection:", error);
     }
+  }
+  
+  // If no country code provided or empty string, we're just clearing selection
+  if (!countryCode || countryCode === '') {
+    selectedCountryCode = null;
+    console.log("Country selection cleared, no new country to highlight");
     return;
   }
   
+  // Store the currently highlighted country code
+  selectedCountryCode = countryCode;
   console.log(`Attempting to highlight country with code: ${countryCode}`);
   
   // Convert country_id to ISO code if needed
@@ -135,18 +137,6 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
     
     return isoCode;
   };
-  
-  // Clear previous selection if any
-  if (selectedCountryId) {
-    try {
-      map.setFeatureState(
-        { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
-        { selected: false }
-      );
-    } catch (error) {
-      console.error("Error clearing previous country selection:", error);
-    }
-  }
   
   // Function to query and highlight the country
   const findAndHighlightCountry = async () => {

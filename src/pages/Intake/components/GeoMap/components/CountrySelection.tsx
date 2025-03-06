@@ -47,6 +47,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       if (country) {
         setSelectedCountryFlag(country.country_flag);
       }
+    } else {
+      // Clear the flag when no country is selected
+      setSelectedCountryFlag(null);
     }
   }, [selectedCountry, countries]);
 
