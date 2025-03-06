@@ -24,6 +24,9 @@ export const useMapSetup = ({
   setInitialized,
   setMapError
 }: UseMapSetupProps) => {
+  // Track initialization attempts
+  const [attemptCount, setAttemptCount] = useState(0);
+  
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken || map.current) {
       console.log("Map initialization skipped:", {
@@ -43,32 +46,26 @@ export const useMapSetup = ({
     try {
       setMapError(null);
       
+      // Validate token format before attempting to set it
+      if (!mapboxToken.match(/^pk\..+/)) {
+        throw new Error("Invalid Mapbox token format. Token should start with 'pk.'");
+      }
+      
       mapboxgl.accessToken = mapboxToken;
       
       console.log("Creating map instance");
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1,
-        center: [0, 8], // Center point at latitude 8
-        projection: {
-          name: 'mercator',
-          center: [0, 8], // Matching center point with the map center
-          parallels: [0, 60]
-        },
-        minZoom: 0.5,
-        maxZoom: 8,
-        maxBounds: [
-          [-180, -56], // Southwest corner
-          [180, 81]    // Northeast corner
-        ],
-        renderWorldCopies: false,
-        attributionControl: false,
+        zoom: 1.5,
+        center: [0, 20], // More centered view of the world
         preserveDrawingBuffer: true,
-        interactive: true,         // Ensure map interaction is enabled
-        doubleClickZoom: false,    // Disable double-click zoom to avoid conflicts with click selection
-        failIfMajorPerformanceCaveat: false, // Be more permissive about performance
-        localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif" // Improve font support
+        pitchWithRotate: false,
+        attributionControl: false,
+        minZoom: 1,
+        maxZoom: 8,
+        interactive: true,
+        doubleClickZoom: false
       });
 
       // Add controls
@@ -87,22 +84,18 @@ export const useMapSetup = ({
         console.log("Map loaded event fired");
         
         if (map.current) {
-          applyMapStyling(map.current);
-          
-          // Force a repaint to ensure everything renders
-          const center = map.current.getCenter();
-          map.current.setCenter([center.lng + 0.0001, center.lat]);
-          
+          // Apply styling after a short delay to ensure the style is fully loaded
           setTimeout(() => {
             if (map.current) {
-              map.current.setCenter(center);
-              setInitialized(true);
+              applyMapStyling(map.current);
               
-              if (mapContainer.current) {
-                adjustMapView(map.current, mapContainer.current.offsetWidth);
-              }
+              // Force a repaint to ensure everything renders
+              map.current.resize();
+              
+              setInitialized(true);
+              console.log("Map fully initialized via load event");
             }
-          }, 100);
+          }, 200);
         }
       });
 
@@ -115,20 +108,35 @@ export const useMapSetup = ({
           if (map.current) {
             applyMapStyling(map.current);
             setInitialized(true);
+            console.log("Map forcibly initialized via timeout");
             
             if (mapContainer.current) {
               adjustMapView(map.current, mapContainer.current.offsetWidth);
             }
           }
         }
-      }, 5000);
+      }, 4000);
 
+      // Error handling
       map.current.on('error', (e) => {
         console.error("Mapbox error:", e.error);
         setMapError(`Map error: ${e.error?.message || 'Unknown error'}`);
+        
+        // If we haven't tried too many times, attempt to reinitialize
+        if (attemptCount < 2) {
+          setAttemptCount(count => count + 1);
+          
+          // Clean up the current map instance
+          if (map.current) {
+            map.current.remove();
+            map.current = null;
+          }
+          
+          // Re-render will trigger a new initialization attempt
+        }
       });
       
-      // Add debugging for click events
+      // Debug clicks
       map.current.on('click', (e) => {
         console.log("Map click detected at coordinates:", e.lngLat);
       });
@@ -146,5 +154,5 @@ export const useMapSetup = ({
       console.error('Error initializing map:', err);
       setMapError(`Failed to initialize map: ${err instanceof Error ? err.message : String(err)}`);
     }
-  }, [mapboxToken, mapContainer, containerWidth, setInitialized, setMapError]);
+  }, [mapboxToken, mapContainer, containerWidth, setInitialized, setMapError, attemptCount]);
 };
