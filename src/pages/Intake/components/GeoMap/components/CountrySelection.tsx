@@ -84,7 +84,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
             {selectedCountryFlag && (
               <span className="inline-block w-6 text-center">{selectedCountryFlag}</span>
             )}
-            <span>{countryName ? countryName : "Select a country"}</span>
+            <span>{countryName || ""}</span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>

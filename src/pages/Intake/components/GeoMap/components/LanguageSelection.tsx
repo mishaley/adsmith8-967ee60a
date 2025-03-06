@@ -95,7 +95,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
           <Input 
             id="language" 
             type="text" 
-            placeholder="Search languages..." 
+            placeholder="" 
             value={searchTerm} 
             onChange={handleInputChange} 
             onKeyDown={handleInputKeyDown} 
