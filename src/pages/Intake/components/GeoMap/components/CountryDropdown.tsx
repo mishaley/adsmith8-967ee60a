@@ -9,12 +9,14 @@ interface CountryDropdownProps {
   selectedCountry: string;
   setSelectedCountry: (country: string, flag?: string) => void;
   setSelectedCountryId?: ((id: string) => void) | null;
+  isExcludeDropdown?: boolean;
 }
 
 const CountryDropdown: React.FC<CountryDropdownProps> = ({
   selectedCountry,
   setSelectedCountry,
-  setSelectedCountryId
+  setSelectedCountryId,
+  isExcludeDropdown = false
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const { countries, isLoading } = useCountries();
@@ -82,7 +84,11 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
 
   // Handle keyboard navigation
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    const allOptions = ["worldwide", ...filteredCountries.map(c => c.country_id)];
+    // For exclude dropdown, we don't include the worldwide option
+    const allOptions = isExcludeDropdown 
+      ? [...filteredCountries.map(c => c.country_id)]
+      : ["worldwide", ...filteredCountries.map(c => c.country_id)];
+      
     if (allOptions.length === 0) return;
     
     switch (e.key) {
@@ -104,12 +110,15 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
         break;
       case "Enter":
         e.preventDefault();
-        if (highlightedIndex === 0) {
-          // Select worldwide
+        if (!isExcludeDropdown && highlightedIndex === 0) {
+          // Select worldwide (only if not exclude dropdown)
           handleCountrySelect("worldwide", "🌐");
-        } else if (highlightedIndex > 0 && highlightedIndex <= filteredCountries.length) {
-          const country = filteredCountries[highlightedIndex - 1];
-          handleCountrySelect(country.country_id, country.country_flag);
+        } else {
+          const countryIndex = isExcludeDropdown ? highlightedIndex : highlightedIndex - 1;
+          if (countryIndex >= 0 && countryIndex < filteredCountries.length) {
+            const country = filteredCountries[countryIndex];
+            handleCountrySelect(country.country_id, country.country_flag);
+          }
         }
         break;
       case "Escape":
@@ -185,49 +194,58 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
         <div className="p-4 text-center text-gray-500">Loading countries...</div>
       ) : (
         <div ref={dropdownRef} className="max-h-60 overflow-y-auto">
-          {/* Worldwide option at the top */}
-          <Button 
-            key="worldwide" 
-            type="button" 
-            variant="ghost" 
-            className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
-              selectedCountry === "worldwide" ? "bg-gray-50" : ""
-            } ${
-              highlightedIndex === 0 ? "bg-gray-50" : ""
-            }`} 
-            onClick={handleWorldwideSelect}
-            onMouseEnter={() => setHighlightedIndex(0)}
-          >
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-6 text-center">🌐</span>
-              <span className="font-medium">Worldwide</span>
-            </div>
-          </Button>
-          
-          {/* Divider */}
-          <div className="border-t border-gray-100 my-1"></div>
-          
-          {/* Country list */}
-          {filteredCountries.length > 0 ? (
-            filteredCountries.map((country, index) => (
+          {/* Worldwide option at the top - only show for non-exclude dropdowns */}
+          {!isExcludeDropdown && (
+            <>
               <Button 
-                key={country.country_id} 
+                key="worldwide" 
                 type="button" 
                 variant="ghost" 
                 className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
-                  selectedCountry === country.country_id ? "bg-gray-50" : ""
+                  selectedCountry === "worldwide" ? "bg-gray-50" : ""
                 } ${
-                  highlightedIndex === index + 1 ? "bg-gray-50" : ""
+                  highlightedIndex === 0 ? "bg-gray-50" : ""
                 }`} 
-                onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
-                onMouseEnter={() => setHighlightedIndex(index + 1)}
+                onClick={handleWorldwideSelect}
+                onMouseEnter={() => setHighlightedIndex(0)}
               >
                 <div className="flex items-center gap-2">
-                  <span className="inline-block w-6 text-center">{country.country_flag}</span>
-                  <span className="truncate">{country.country_name}</span>
+                  <span className="inline-block w-6 text-center">🌐</span>
+                  <span className="font-medium">Worldwide</span>
                 </div>
               </Button>
-            ))
+              
+              {/* Divider */}
+              <div className="border-t border-gray-100 my-1"></div>
+            </>
+          )}
+          
+          {/* Country list */}
+          {filteredCountries.length > 0 ? (
+            filteredCountries.map((country, index) => {
+              // Calculate the correct highlight index based on dropdown type
+              const highlightIndex = isExcludeDropdown ? index : index + 1;
+              
+              return (
+                <Button 
+                  key={country.country_id} 
+                  type="button" 
+                  variant="ghost" 
+                  className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
+                    selectedCountry === country.country_id ? "bg-gray-50" : ""
+                  } ${
+                    highlightedIndex === highlightIndex ? "bg-gray-50" : ""
+                  }`} 
+                  onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
+                  onMouseEnter={() => setHighlightedIndex(highlightIndex)}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-6 text-center">{country.country_flag}</span>
+                    <span className="truncate">{country.country_name}</span>
+                  </div>
+                </Button>
+              );
+            })
           ) : (
             <div className="p-4 text-center text-gray-500">No countries found</div>
           )}

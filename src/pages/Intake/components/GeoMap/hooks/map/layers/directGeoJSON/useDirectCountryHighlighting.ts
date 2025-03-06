@@ -158,12 +158,23 @@ export const useDirectCountryHighlighting = ({
     
     console.log(`Programmatically highlighting country: ${countryId}, excluded: ${isExcluded}`);
     
-    // Clear any existing selection if this is a regular selection (not excluded)
-    if (!isExcluded) {
-      clearCountrySelection();
-    } else {
-      // If we're setting an excluded country, clear any previous excluded country
+    // If we're setting an excluded country
+    if (isExcluded) {
+      // Clear any previous excluded country
       clearExcludedCountry();
+      
+      // If this country was previously selected, clear that selection
+      if (selectedCountryId === countryId) {
+        clearCountrySelection();
+      }
+    } else {
+      // For regular selection, clear any existing selection
+      clearCountrySelection();
+      
+      // If this country was previously excluded, clear that exclusion
+      if (excludedCountryId === countryId) {
+        clearExcludedCountry();
+      }
     }
     
     try {
@@ -209,7 +220,7 @@ export const useDirectCountryHighlighting = ({
     } catch (error) {
       console.error(`Error highlighting country ${countryId}:`, error);
     }
-  }, [map, initialized, clearCountrySelection, clearExcludedCountry, retryHighlightWithFullScan, highlightAllCountries]);
+  }, [map, initialized, clearCountrySelection, clearExcludedCountry, retryHighlightWithFullScan, highlightAllCountries, selectedCountryId, excludedCountryId]);
 
   // Function to highlight a country as excluded
   const highlightExcludedCountry = useCallback((countryId: string) => {

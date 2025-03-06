@@ -94,6 +94,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
               selectedCountry={selectedCountry} 
               setSelectedCountry={handleCountrySelect}
               setSelectedCountryId={null}
+              isExcludeDropdown={true}
             />
           </div>
           <div className="sticky bottom-0 w-full border-t border-gray-100 bg-white">

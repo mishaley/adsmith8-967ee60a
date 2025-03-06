@@ -5,11 +5,17 @@ import mapboxgl from 'mapbox-gl';
  * Removes continent and country labels from the map
  */
 export function removeLabels(map: mapboxgl.Map) {
-  // Find and hide all continent and large region labels
+  // Find and hide all continent, country, and ocean labels
   const labelsToHide = [
     'continent-label',
     'country-label',
-    'state-label'
+    'state-label',
+    'water-point-label',
+    'water-line-label',
+    'water-polygon-label',
+    'marine-label',
+    'sea-label',
+    'ocean-label'
   ];
   
   labelsToHide.forEach(layerId => {
