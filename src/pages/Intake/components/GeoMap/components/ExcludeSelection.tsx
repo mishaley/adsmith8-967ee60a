@@ -1,10 +1,10 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import CountryDropdown from "./CountryDropdown";
 import { useCountries } from "../hooks/useCountries";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import SelectionHeader from "./selection/SelectionHeader";
+import SelectionButton from "./selection/SelectionButton";
 
 interface ExcludeSelectionProps {
   selectedCountry: string;
@@ -21,7 +21,6 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCountryFlag, setSelectedCountryFlag] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const { countries } = useCountries();
 
   useEffect(() => {
@@ -63,24 +62,19 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
     setIsDropdownOpen(false); // Close the dropdown after clearing
   };
 
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+
   return (
     <div>
-      <div className="font-bold text-lg mb-4">Exclude</div>
+      <SelectionHeader title="Exclude" />
       
       <Popover open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between font-normal bg-white"
-          >
-            <span className="flex items-center gap-2 text-left truncate">
-              {selectedCountryFlag && (
-                <span className="inline-block w-6 text-center">{selectedCountryFlag}</span>
-              )}
-              <span>{countryName || ""}</span>
-            </span>
-            <ChevronDown className="h-4 w-4 shrink-0" />
-          </Button>
+          <SelectionButton 
+            onClick={toggleDropdown}
+            selectedFlag={selectedCountryFlag}
+            displayName={countryName || ""}
+          />
         </PopoverTrigger>
         
         <PopoverContent 
@@ -96,18 +90,6 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
               setSelectedCountryId={null}
               isExcludeDropdown={true}
             />
-          </div>
-          <div className="sticky bottom-0 w-full border-t border-gray-100 bg-white">
-            <Button 
-              type="button" 
-              variant="ghost" 
-              className="w-full text-gray-500 flex items-center justify-center py-2"
-              onClick={handleClearSelection}
-              disabled={!selectedCountry}
-            >
-              <X className="h-4 w-4 mr-2" />
-              Clear selection
-            </Button>
           </div>
         </PopoverContent>
       </Popover>
