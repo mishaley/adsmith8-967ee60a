@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { supabaseClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Country {
   country_id: string;
@@ -22,7 +22,7 @@ export const useCountries = () => {
       
       try {
         console.log("Fetching countries from Supabase...");
-        const { data, error } = await supabaseClient
+        const { data, error } = await supabase
           .from("countries")
           .select("country_id, country_name, country_flag, country_iso2, country_iso3")
           .order("country_name");
