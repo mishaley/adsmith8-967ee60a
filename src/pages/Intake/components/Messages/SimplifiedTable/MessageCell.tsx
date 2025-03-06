@@ -1,5 +1,5 @@
 
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 
 interface MessageColumn {
   id: string;
@@ -18,19 +18,30 @@ const MessageCell: React.FC<MessageCellProps> = ({
   onContentChange,
   personaId = "default"
 }) => {
+  // Skip rendering for empty or removed columns
   if (!column || !column.type || column.type === "remove") {
     return <td className="border p-1"></td>;
   }
   
-  // Extract the message data for this persona
+  useEffect(() => {
+    console.log("MessageCell mounted/updated for:", {
+      columnId: column.id,
+      columnType: column.type,
+      personaId,
+      hasContent: column.content ? "yes" : "no",
+      contentKeys: column.content ? Object.keys(column.content) : [],
+    });
+  }, [column, personaId]);
+  
+  // Extract the message data for this persona from the column content
   const messageData = column.content?.[personaId];
   
-  console.log("MessageCell rendering for:", {
-    columnId: column.id,
-    columnType: column.type,
+  console.log("MessageCell data check:", {
     personaId,
-    messageData,
-    fullContent: column.content,
+    columnType: column.type,
+    messageData: messageData ? JSON.stringify(messageData).substring(0, 100) : "undefined",
+    hasMessageName: messageData?.message_name ? "yes" : "no",
+    messageNameValue: messageData?.message_name || "empty"
   });
   
   // Check if we have a valid message with a message_name that's not empty

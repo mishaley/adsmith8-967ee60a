@@ -79,7 +79,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   console.log("MessagesSection rendering with:", {
     personaCount: safePersonas.length,
     messageTypes: selectedMessageTypes,
-    generatedMessages
+    generatedMessages: Object.keys(generatedMessages)
   });
 
   return (

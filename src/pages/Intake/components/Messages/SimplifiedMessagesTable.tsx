@@ -68,12 +68,13 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     }
   }, [messageColumns, onMessageTypeChange]);
 
-  console.log("SimplifiedMessagesTable rendering with:", {
-    personas: personas.length,
-    columns: messageColumns.length,
-    columnTypes: messageColumns.map(col => col.type),
-    generatedMessages: generatedMessages
-  });
+  useEffect(() => {
+    console.log("SimplifiedMessagesTable generatedMessages updated:", {
+      personaCount: personas.length,
+      messageTypesCount: selectedMessageTypes.length, 
+      generatedMessagesKeys: Object.keys(generatedMessages)
+    });
+  }, [generatedMessages, personas.length, selectedMessageTypes.length]);
 
   return (
     <div className="overflow-x-auto">
@@ -139,20 +140,24 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                 
                 {/* Message cells */}
                 {messageColumns.map(column => {
-                  // Log the generated messages structure to debug
-                  console.log(`Cell data for ${personaId}/${column.type}:`, generatedMessages?.[personaId]?.[column.type]);
+                  const columnType = column.type;
                   
-                  // Create a content object for this column with the right message data
-                  const contentObj = generatedMessages?.[personaId]?.[column.type] 
-                    ? { [personaId]: generatedMessages[personaId][column.type] } 
+                  // Log data availability for debugging
+                  console.log(`Cell data for ${personaId}/${columnType}:`, 
+                    generatedMessages?.[personaId]?.[columnType] || "No data"
+                  );
+                  
+                  // Create content object with the message data for this cell
+                  const content = columnType && generatedMessages?.[personaId]?.[columnType] 
+                    ? { [personaId]: generatedMessages[personaId][columnType] }
                     : undefined;
-                    
+                  
                   return (
                     <MessageCell
                       key={`${personaId}-${column.id}`}
                       column={{
                         ...column,
-                        content: contentObj
+                        content
                       }}
                       personaId={personaId}
                       onContentChange={handleContentChange}

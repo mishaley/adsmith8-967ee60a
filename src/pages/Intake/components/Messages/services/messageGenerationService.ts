@@ -111,7 +111,7 @@ export const generateColumnMessages = async (
       const tagline = data?.tagline || `Generated ${messageType} Example`;
       console.log(`Generated tagline for ${personaId}: "${tagline}"`);
       
-      // Important: Ensure we're using the correct structure for the message content
+      // Create a new message object for this type and persona
       updatedMessages[personaId][messageType] = {
         message_id: `${personaId}-${messageType}`,
         message_name: tagline,

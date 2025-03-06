@@ -80,7 +80,7 @@ export const useMessagesGeneration = (
     }
   };
 
-  const handleGenerateColumnMessages = useCallback(async (messageType: string): Promise<void> => {
+  const handleGenerateColumnMessages = useCallback(async (messageType: string) => {
     console.log(`useMessagesGeneration: Generating column messages for type: ${messageType}`);
     
     // Log personas info for debugging
@@ -122,8 +122,6 @@ export const useMessagesGeneration = (
       } else {
         toast.success(`Generated ${messageType} messages`);
       }
-      
-      // Do not return anything - function should be void
       
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
