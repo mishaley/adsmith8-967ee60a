@@ -82,8 +82,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   if (loading) {
     return (
       <div className="h-[600px] flex items-center justify-center bg-gray-100 rounded">
-        <Loader className="h-8 w-8 animate-spin text-[#154851] mr-2" />
-        <div>Loading map...</div>
+        <Loader className="h-8 w-8 animate-spin text-[#154851]" />
+        <div className="ml-2">Loading map...</div>
       </div>
     );
   }
@@ -93,13 +93,13 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       <div className="h-[600px] flex flex-col items-center justify-center bg-gray-100 rounded text-red-500 p-4">
         <AlertCircle className="h-8 w-8 mb-2" />
         <div className="font-semibold mb-2">Error loading map</div>
-        <div className="text-sm text-center max-w-md mb-4">{displayError}</div>
-        <div className="text-xs text-gray-500 mb-4 text-center">
+        <div className="text-sm text-center max-w-md">{displayError}</div>
+        <div className="text-xs text-gray-500 mt-4 text-center">
           Please ensure the MAPBOX_TOKEN is correctly set in Supabase Edge Function Secrets
         </div>
         <Button 
           variant="outline" 
-          className="mt-2" 
+          className="mt-4" 
           onClick={handleRefresh}
         >
           <RefreshCw className="h-4 w-4 mr-2" />
@@ -115,12 +115,12 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       <div className="h-[600px] flex flex-col items-center justify-center bg-gray-100 rounded p-4">
         <AlertCircle className="h-8 w-8 mb-2 text-amber-500" />
         <div className="font-semibold mb-2">Map is not displaying correctly</div>
-        <div className="text-sm text-center max-w-md mb-4">
+        <div className="text-sm text-center max-w-md">
           The map appears to have loaded but isn't rendering properly.
         </div>
         <Button 
           variant="default" 
-          className="mt-2 bg-[#154851] hover:bg-[#0d2e33]" 
+          className="mt-4 bg-[#154851] hover:bg-[#0d2e33]" 
           onClick={handleRefresh}
         >
           <RefreshCw className="h-4 w-4 mr-2" />
@@ -132,19 +132,8 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   
   return (
     <div className="w-full">
-      <div className="h-[600px] overflow-hidden relative rounded border border-gray-200">
+      <div className="h-[600px] overflow-hidden relative rounded">
         <div ref={mapContainerRef} className="absolute inset-0" />
-        <div className="absolute bottom-2 right-2 z-10">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="bg-white/80 hover:bg-white" 
-            onClick={handleRefresh}
-          >
-            <RefreshCw className="h-3 w-3 mr-1" />
-            <span className="text-xs">Refresh</span>
-          </Button>
-        </div>
       </div>
     </div>
   );

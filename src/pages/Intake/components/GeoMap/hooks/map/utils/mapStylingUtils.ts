@@ -56,71 +56,33 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
       console.log("Added primary coastline layer");
     } catch (error) {
       console.error("Error adding primary coastline layer:", error);
-    }
-  } else {
-    console.log("Coastline layer already exists");
-  }
-}
-
-/**
- * Adds a basic world outline layer to ensure there's always something visible
- */
-export function addWorldOutlineLayer(map: mapboxgl.Map) {
-  if (!map.getLayer('world-outline')) {
-    try {
-      // Check available source layers for debugging
-      console.log("Available sources:", Object.keys(map.getStyle().sources || {}));
       
-      // Get all available source layers
-      const sources = map.getStyle().sources || {};
-      Object.entries(sources).forEach(([sourceId, source]) => {
-        console.log(`Source: ${sourceId}`, source);
-      });
-      
-      // Use country-boundaries source instead of land which doesn't exist
-      map.addLayer({
-        id: 'world-outline',
-        type: 'line',
-        source: 'composite',
-        'source-layer': 'admin', // Using admin layer instead of land which doesn't exist
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-          'visibility': 'visible'
-        },
-        paint: {
-          'line-color': '#c8c8c9',
-          'line-width': 1,
-          'line-opacity': 0.8
-        }
-      });
-      console.log("Added world outline layer using admin layer");
-    } catch (error) {
-      console.error("Error adding world outline layer:", error);
-      
-      // Fallback: Try with country-boundaries if admin doesn't work
+      // Fallback approach using ocean layer if available
       try {
         map.addLayer({
-          id: 'world-outline-fallback',
+          id: 'coastline-borders-fallback',
           type: 'line',
           source: 'composite',
-          'source-layer': 'country_boundaries', // Another possible layer
+          'source-layer': 'landuse', 
+          filter: ['==', 'class', 'national_park'],
           layout: {
             'line-join': 'round',
             'line-cap': 'round',
             'visibility': 'visible'
           },
           paint: {
-            'line-color': '#c8c8c9',
-            'line-width': 1,
-            'line-opacity': 0.8
+            'line-color': '#c8c8c9',  // Match country border color
+            'line-width': 0.8,        // Match default country border width
+            'line-opacity': 1.0       // Full opacity
           }
         });
-        console.log("Added fallback world outline layer");
-      } catch (fallbackError) {
-        console.error("Error adding fallback world outline layer:", fallbackError);
+        console.log("Added fallback coastline layer");
+      } catch (secondError) {
+        console.error("Failed to add fallback coastline layer:", secondError);
       }
     }
+  } else {
+    console.log("Coastline layer already exists");
   }
 }
 
@@ -130,23 +92,24 @@ export function addWorldOutlineLayer(map: mapboxgl.Map) {
 export function applyMapStyling(map: mapboxgl.Map) {
   console.log("Applying map styling...");
   
+  // Update water color
+  map.setPaintProperty('water', 'fill-color', '#e9f2fe');
+  
+  // Remove continent labels
+  removeLabels(map);
+  
+  // Add coastline borders
+  addCoastlineBorders(map);
+  
+  // Ensure country borders are visible by setting opacity
   try {
-    // Update water color
-    map.setPaintProperty('water', 'fill-color', '#e9f2fe');
-    
-    // Remove continent labels
-    removeLabels(map);
-    
-    // Add coastline borders
-    addCoastlineBorders(map);
-    
-    // Add world outline as a fallback
-    addWorldOutlineLayer(map);
-    
-    // Note: Removed setBrightness call as it's not a valid method on mapboxgl.Map
-    
-    console.log("Map styling applied successfully");
+    if (map.getLayer('countries-border')) {
+      map.setPaintProperty('countries-border', 'line-opacity', 1.0);
+      console.log("Updated existing country borders opacity");
+    }
   } catch (e) {
-    console.error("Error applying map styling:", e);
+    console.log("No countries-border layer found to update");
   }
+  
+  console.log("Map styling updated - removed labels and added coastlines");
 }

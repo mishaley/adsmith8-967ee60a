@@ -1,11 +1,10 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from "./hooks/useMapboxToken";
 import { useMapInitialization } from "./hooks/useMapInitialization";
 import MapDisplay from "./components/MapDisplay";
 import SelectionDisplay from "./components/SelectionDisplay";
-import { toast } from "sonner";
 
 interface GeoMapSectionProps {
   selectedCountry: string;
@@ -38,22 +37,6 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     selectedCountry,
     setSelectedCountry
   });
-
-  // Apply initial selection when map is ready
-  useEffect(() => {
-    if (initialized && selectedCountry && setSelectedCountryId) {
-      console.log(`Applying stored country selection: ${selectedCountry}`);
-      setSelectedCountryId(selectedCountry);
-    }
-  }, [initialized, selectedCountry, setSelectedCountryId]);
-
-  // Manual refresh function for debugging
-  const forceMapRefresh = () => {
-    toast.info("Manually refreshing map...", { duration: 2000 });
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
-  };
 
   // Combine errors from both hooks
   const error = tokenError || mapError;
