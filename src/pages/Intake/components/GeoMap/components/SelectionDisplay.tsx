@@ -1,11 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useCountryLanguage } from "../../Languages/hooks/useCountryLanguage";
-import CountryStatusDisplay from "./CountryStatusDisplay";
-import CountrySelection from "./CountrySelection";
-import LanguageSelection from "./LanguageSelection";
-import ExcludeSelection from "./ExcludeSelection";
-import { useCountries } from "../hooks/useCountries";
+import CountrySelection from "./selection/CountrySelection";
+import LanguageSelection from "./selection/LanguageSelection";
+import ExcludeSelection from "./selection/ExcludeSelection";
+import { useExcludedCountry } from "../hooks/useExcludedCountry";
 
 interface SelectionDisplayProps {
   selectedCountry: string;
@@ -24,14 +23,18 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   setSelectedCountryId,
   setExcludedCountryId
 }) => {
-  const { countries } = useCountries();
-  const [excludedCountry, setExcludedCountry] = useState<string>('');
-  
   const {
     primaryLanguageId,
     countryName,
     isLoading: isLoadingCountry
   } = useCountryLanguage(selectedCountry);
+  
+  const {
+    excludedCountry,
+    setExcludedCountry,
+    excludedCountryFlag,
+    handleClearExclusion
+  } = useExcludedCountry({ setExcludedCountryId });
   
   // Make sure if Worldwide is selected, English is set as the language
   useEffect(() => {
@@ -65,6 +68,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
             setSelectedCountry={setSelectedCountry} 
             setSelectedCountryId={setSelectedCountryId} 
             countryName={countryName} 
+            onClearSelection={handleClearSelection}
           />
         </div>
 
@@ -86,8 +90,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
       <div>
         <ExcludeSelection 
           selectedCountry={excludedCountry} 
-          setSelectedCountry={setExcludedCountry} 
-          countryName={countries.find(c => c.country_id === excludedCountry)?.country_name || null}
+          setSelectedCountry={setExcludedCountry}
+          selectedCountryFlag={excludedCountryFlag}
+          onClearSelection={handleClearExclusion}
           setExcludedCountryId={setExcludedCountryId}
         />
       </div>
