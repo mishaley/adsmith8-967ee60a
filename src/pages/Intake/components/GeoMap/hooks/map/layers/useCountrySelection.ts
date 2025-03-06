@@ -82,14 +82,7 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
               { selected: true }
             );
             
-            // Calculate and fit to the country's bounds
-            const bbox = calculateFeatureBbox(feature);
-            if (!bbox.isEmpty()) {
-              map.fitBounds(bbox, {
-                padding: 50,
-                maxZoom: 5
-              });
-            }
+            // Removed the map.fitBounds() call to prevent zooming/panning
             
             foundValidFeature = true;
             break; // Exit the loop once we've found and highlighted a feature
@@ -125,13 +118,7 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
                   { selected: true }
                 );
                 
-                const bbox = calculateFeatureBbox(feature);
-                if (!bbox.isEmpty()) {
-                  map.fitBounds(bbox, {
-                    padding: 50,
-                    maxZoom: 5
-                  });
-                }
+                // Removed the map.fitBounds() call to prevent zooming/panning
                 
                 break;
               } catch (error) {
@@ -163,13 +150,8 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
                   { selected: true }
                 );
                 
-                const bbox = calculateFeatureBbox(matchingFeatures[0]);
-                if (!bbox.isEmpty()) {
-                  map.fitBounds(bbox, {
-                    padding: 50,
-                    maxZoom: 5
-                  });
-                }
+                // Removed the map.fitBounds() call to prevent zooming/panning
+                
               } catch (error) {
                 console.error(`Error in final attempt for country ${isoCode}:`, error);
               }
