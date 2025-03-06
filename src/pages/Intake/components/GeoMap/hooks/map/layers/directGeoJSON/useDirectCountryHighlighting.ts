@@ -15,6 +15,34 @@ export const useDirectCountryHighlighting = ({
   const lastAttemptedCountry = useRef<string | null>(null);
   const retryCount = useRef(0);
 
+  // Function to clear current country selection - needs to be defined before it's used
+  const clearCountrySelection = useCallback(() => {
+    if (!map.current) return;
+    
+    try {
+      if (selectedCountryId) {
+        console.log(`Clearing selection for country: ${selectedCountryId}`);
+      }
+      
+      // Find all features that might be selected
+      const features = map.current.querySourceFeatures('countries-geojson');
+      
+      // Clear selection state from all features
+      features.forEach(feature => {
+        if (feature.id !== undefined) {
+          map.current!.setFeatureState(
+            { source: 'countries-geojson', id: feature.id },
+            { selected: false }
+          );
+        }
+      });
+      
+      setSelectedCountryId(null);
+    } catch (error) {
+      console.error("Error clearing country selection:", error);
+    }
+  }, [map, selectedCountryId]);
+
   // Helper function to scan all features and find a matching country
   const findFeatureByCountryCode = useCallback((countryId: string): number | null => {
     if (!map.current) return null;
@@ -103,34 +131,6 @@ export const useDirectCountryHighlighting = ({
       console.error(`Error highlighting country ${countryId}:`, error);
     }
   }, [map, clearCountrySelection, findFeatureByCountryCode]);
-  
-  // Function to clear current country selection
-  const clearCountrySelection = useCallback(() => {
-    if (!map.current) return;
-    
-    try {
-      if (selectedCountryId) {
-        console.log(`Clearing selection for country: ${selectedCountryId}`);
-      }
-      
-      // Find all features that might be selected
-      const features = map.current.querySourceFeatures('countries-geojson');
-      
-      // Clear selection state from all features
-      features.forEach(feature => {
-        if (feature.id !== undefined) {
-          map.current!.setFeatureState(
-            { source: 'countries-geojson', id: feature.id },
-            { selected: false }
-          );
-        }
-      });
-      
-      setSelectedCountryId(null);
-    } catch (error) {
-      console.error("Error clearing country selection:", error);
-    }
-  }, [map, selectedCountryId]);
 
   // Automatic retry mechanism for selection
   useEffect(() => {

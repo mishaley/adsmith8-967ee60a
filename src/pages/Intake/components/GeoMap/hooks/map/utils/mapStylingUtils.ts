@@ -111,8 +111,7 @@ export function applyMapStyling(map: mapboxgl.Map) {
     // Add world outline as a fallback
     addWorldOutlineLayer(map);
     
-    // Increase brightness slightly
-    map.setBrightness(0.05);
+    // Note: Removed setBrightness call as it's not a valid method on mapboxgl.Map
     
     console.log("Map styling applied successfully");
   } catch (e) {
