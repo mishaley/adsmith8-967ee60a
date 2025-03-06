@@ -92,7 +92,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
               onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
             >
               <div className="flex items-center gap-2">
-                <span className="text-lg">{country.country_flag}</span>
+                <span className="inline-block w-6 text-center">{country.country_flag}</span>
                 <span className="truncate">{country.country_name}</span>
               </div>
             </Button>

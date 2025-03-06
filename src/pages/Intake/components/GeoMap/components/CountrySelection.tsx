@@ -58,8 +58,10 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <span className="flex items-center gap-2 text-left truncate">
-            {selectedCountryFlag && <span className="text-lg mr-2">{selectedCountryFlag}</span>}
-            {countryName ? countryName : "Select a country"}
+            {selectedCountryFlag && (
+              <span className="inline-block w-6 text-center">{selectedCountryFlag}</span>
+            )}
+            <span>{countryName ? countryName : "Select a country"}</span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>

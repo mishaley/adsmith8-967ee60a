@@ -80,7 +80,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
             onClick={() => setIsDropdownOpen(true)}
           >
             <span className="flex items-center gap-2 text-left">
-              <span>{selectedLanguageObject.language_flag}</span>
+              <span className="inline-block w-6 text-center">{selectedLanguageObject.language_flag}</span>
               <span>{selectedLanguageObject.language_name}</span>
             </span>
             <ChevronDown className="h-4 w-4" />
@@ -130,7 +130,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
                   }}
                 >
                   <div className="flex items-center gap-2">
-                    <span>{language.language_flag}</span>
+                    <span className="inline-block w-6 text-center">{language.language_flag}</span>
                     <span>{language.language_name}</span>
                   </div>
                   <span className="text-gray-500">{language.language_native}</span>
