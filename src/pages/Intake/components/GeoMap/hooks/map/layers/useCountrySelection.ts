@@ -1,3 +1,4 @@
+
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 import { supabase } from "@/integrations/supabase/client";
@@ -83,7 +84,7 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
     }
   };
   
-  // Register the properly defined click handler function
+  // Using the correct Mapbox API syntax: map.on(event, layer, listener)
   map.on('click', 'countries-fill', clickHandler);
 };
 
