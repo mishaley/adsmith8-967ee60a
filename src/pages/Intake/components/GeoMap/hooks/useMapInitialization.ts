@@ -1,15 +1,10 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useMapInstance } from "./map/useMapInstance";
-import mapboxgl from 'mapbox-gl';
-import { 
-  addCountrySource, 
-  addCountryFillLayer, 
-  addCountryBorderLayer,
-  setupHoverEvents,
-  setupClickEvents,
-  highlightCountry
-} from './map/layers';
+import { useMapHighlighting } from "./map/useMapHighlighting";
+import { useLayerInitialization } from "./map/useLayerInitialization";
+import { useLayerLoading } from "./map/useLayerLoading";
+import { useCountrySync } from "./map/useCountrySync";
 
 interface UseMapInitializationProps {
   mapboxToken: string | null;
@@ -27,8 +22,8 @@ export const useMapInitialization = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [highlightCountryFn, setHighlightCountryFn] = useState<((id: string) => void) | null>(null);
-  const [layersInitialized, setLayersInitialized] = useState(false);
 
+  // Initialize map instance
   const {
     map,
     mapError: instanceError,
@@ -38,23 +33,42 @@ export const useMapInitialization = ({
     mapContainer
   });
 
+  // Initialize layer management
+  const {
+    layersInitialized,
+    initializeLayers
+  } = useLayerInitialization(map, setSelectedCountry);
+
+  // Setup map highlighting functionality
+  const { highlightCountryOnMap } = useMapHighlighting(map, mapInitialized);
+
+  // Handle layer loading
+  useLayerLoading({
+    map,
+    mapboxToken,
+    mapInitialized,
+    layersInitialized,
+    initializeLayers,
+    setMapError
+  });
+
+  // Synchronize country selection with map
+  const { lastHighlightAttempt } = useCountrySync({
+    map,
+    selectedCountry,
+    mapInitialized,
+    layersInitialized
+  });
+
+  // Sync initialization errors
   useEffect(() => {
     if (instanceError) {
       setMapError(instanceError);
     }
-    setInitialized(mapInitialized);
-  }, [instanceError, mapInitialized]);
-
-  // Function to highlight a country
-  const highlightCountryOnMap = useCallback((countryId: string) => {
-    if (!map.current || !mapInitialized) {
-      console.log("Map not ready yet for highlighting countries");
-      return;
-    }
     
-    console.log(`Highlighting country: ${countryId}`);
-    highlightCountry(map.current, countryId);
-  }, [map, mapInitialized]);
+    // Set overall initialization state
+    setInitialized(mapInitialized && layersInitialized);
+  }, [instanceError, mapInitialized, layersInitialized]);
 
   // Set the highlight function
   useEffect(() => {
@@ -62,68 +76,6 @@ export const useMapInitialization = ({
       setHighlightCountryFn(() => highlightCountryOnMap);
     }
   }, [mapInitialized, highlightCountryOnMap]);
-
-  // Initialize map layers in the correct order
-  const initializeLayers = useCallback((mapInstance: mapboxgl.Map) => {
-    // Step 1: Add the source first
-    addCountrySource(mapInstance);
-    
-    // Step 2: Add the fill layer (this will be underneath)
-    addCountryFillLayer(mapInstance);
-    
-    // Step 3: Add the border layer on top for visibility
-    addCountryBorderLayer(mapInstance);
-    
-    // Step 4: Setup hover events
-    setupHoverEvents(mapInstance);
-    
-    // Step 5: Setup click handlers
-    setupClickEvents(mapInstance, (countryId) => {
-      console.log(`Map click detected, setting selected country to: ${countryId}`);
-      setSelectedCountry(countryId);
-    });
-    
-    // Mark initialization as complete
-    setLayersInitialized(true);
-    console.log("Country layers initialized successfully");
-  }, [setSelectedCountry]);
-
-  // Initialize country layers
-  useEffect(() => {
-    if (!mapInitialized || !map.current || !mapboxToken || layersInitialized) {
-      return;
-    }
-
-    try {
-      console.log("Waiting for map to be ready before initializing layers...");
-      
-      // Wait for map style to be fully loaded
-      if (map.current.isStyleLoaded()) {
-        console.log("Map style already loaded, initializing layers now");
-        initializeLayers(map.current);
-      } else {
-        // If style not loaded yet, wait for it
-        console.log("Map style not loaded yet, setting up style.load event handler");
-        map.current.on('style.load', () => {
-          console.log("Map style loaded event fired, initializing layers now");
-          if (map.current) {
-            initializeLayers(map.current);
-          }
-        });
-      }
-    } catch (err) {
-      console.error('Error initializing country layers:', err);
-      setMapError(`Failed to initialize countries: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  }, [map, mapboxToken, mapInitialized, initializeLayers, layersInitialized]);
-
-  // Effect to highlight the selected country when it changes
-  useEffect(() => {
-    if (selectedCountry && mapInitialized && layersInitialized && map.current) {
-      console.log(`Selected country changed to: ${selectedCountry}, highlighting on map`);
-      highlightCountry(map.current, selectedCountry);
-    }
-  }, [selectedCountry, mapInitialized, layersInitialized, map]);
 
   return { 
     mapError, 
