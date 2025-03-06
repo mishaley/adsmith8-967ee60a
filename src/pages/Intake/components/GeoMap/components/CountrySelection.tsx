@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import CountryDropdown from "./CountryDropdown";
+import { useCountries } from "../hooks/useCountries";
 
 interface CountrySelectionProps {
   selectedCountry: string;
@@ -20,6 +21,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCountryFlag, setSelectedCountryFlag] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { countries } = useCountries();
 
   // Effect for handling clicks outside of the dropdown
   useEffect(() => {
@@ -37,6 +39,16 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
+
+  // Effect to fetch and set the flag for the selected country
+  useEffect(() => {
+    if (selectedCountry && countries.length > 0) {
+      const country = countries.find(c => c.country_id === selectedCountry);
+      if (country) {
+        setSelectedCountryFlag(country.country_flag);
+      }
+    }
+  }, [selectedCountry, countries]);
 
   const handleCountrySelect = (country: string, flag?: string) => {
     console.log(`CountrySelection: Setting country to ${country}`);
