@@ -45,29 +45,35 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   };
   
   return (
-    <div className="w-full bg-transparent rounded-lg p-0 border-transparent">
-      {/* Country Selection */}
-      <div className="mb-6">
-        <CountrySelection 
-          selectedCountry={selectedCountry} 
-          setSelectedCountry={setSelectedCountry} 
-          setSelectedCountryId={setSelectedCountryId} 
-          countryName={countryName} 
-        />
+    <div className="w-full bg-transparent rounded-lg p-0 border-transparent flex flex-col h-full">
+      {/* Top section with Country and Language */}
+      <div>
+        {/* Country Selection */}
+        <div className="mb-6">
+          <CountrySelection 
+            selectedCountry={selectedCountry} 
+            setSelectedCountry={setSelectedCountry} 
+            setSelectedCountryId={setSelectedCountryId} 
+            countryName={countryName} 
+          />
+        </div>
+
+        {/* Language Selection */}
+        <div className="mb-6">
+          <LanguageSelection 
+            selectedLanguage={selectedLanguage} 
+            setSelectedLanguage={setSelectedLanguage} 
+            isLoadingCountry={isLoadingCountry} 
+            primaryLanguageId={primaryLanguageId} 
+          />
+        </div>
       </div>
 
-      {/* Language Selection */}
-      <div className="mb-6">
-        <LanguageSelection 
-          selectedLanguage={selectedLanguage} 
-          setSelectedLanguage={setSelectedLanguage} 
-          isLoadingCountry={isLoadingCountry} 
-          primaryLanguageId={primaryLanguageId} 
-        />
-      </div>
-
-      {/* Exclude Selection - Moved to the bottom */}
-      <div className="mt-6">
+      {/* Spacer to push the Exclude selection to the bottom */}
+      <div className="flex-grow"></div>
+      
+      {/* Exclude Selection at the bottom */}
+      <div>
         <ExcludeSelection 
           selectedCountry={excludedCountry} 
           setSelectedCountry={setExcludedCountry} 
