@@ -55,7 +55,22 @@ export const useMessagesGeneration = (
       // Update the state with the new messages
       setGeneratedMessages(messages);
       setIsTableVisible(true);
-      toast.success("Messages generated successfully");
+      
+      // Show sample of generated message
+      let sampleMessage = "";
+      if (personas.length > 0 && selectedMessageTypes.length > 0) {
+        const firstPersonaId = personas[0].id ? String(personas[0].id) : `persona-0`;
+        const firstType = selectedMessageTypes[0];
+        if (messages[firstPersonaId]?.[firstType]) {
+          sampleMessage = messages[firstPersonaId][firstType].message_name;
+        }
+      }
+      
+      if (sampleMessage) {
+        toast.success(`Generated: "${sampleMessage}"`);
+      } else {
+        toast.success("Messages generated successfully");
+      }
       
     } catch (error) {
       console.error("Error generating messages:", error);
@@ -86,7 +101,6 @@ export const useMessagesGeneration = (
       );
       
       console.log("Messages generated successfully for column:", messageType);
-      console.log("Updated messages state:", JSON.stringify(updatedMessages, null, 2));
       
       // Get the first generated tagline to show in toast (if available)
       let sampleTagline = "";
@@ -107,6 +121,8 @@ export const useMessagesGeneration = (
       } else {
         toast.success(`Generated ${messageType} messages`);
       }
+      
+      return updatedMessages;
       
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);

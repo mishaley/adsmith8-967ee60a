@@ -8,17 +8,20 @@ import MessageCell from "./SimplifiedTable/MessageCell";
 import { useMessageColumns } from "./hooks/useMessageColumns";
 import { useMessagesGeneration } from "./hooks/useMessagesGeneration";
 import { toast } from "sonner";
+import { GeneratedMessagesRecord } from "./hooks/useMessagesState";
 
 interface SimplifiedMessagesTableProps {
   personas: Persona[];
   selectedMessageTypes?: string[];
   onMessageTypeChange?: (messageTypes: string[]) => void;
+  generatedMessages?: GeneratedMessagesRecord;
 }
 
 const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
   personas,
   selectedMessageTypes = [],
-  onMessageTypeChange
+  onMessageTypeChange,
+  generatedMessages = {}
 }) => {
   const {
     messageColumns,
@@ -32,7 +35,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     personas,
     selectedMessageTypes, 
     "", 
-    {}, 
+    generatedMessages || {}, // Ensure we have a default empty object
     () => {}, 
     () => {}
   );
@@ -68,7 +71,8 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
   console.log("SimplifiedMessagesTable rendering with:", {
     personas: personas.length,
     columns: messageColumns.length,
-    columnTypes: messageColumns.map(col => col.type)
+    columnTypes: messageColumns.map(col => col.type),
+    generatedMessages: generatedMessages
   });
 
   return (
@@ -134,14 +138,24 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                 />
                 
                 {/* Message cells */}
-                {messageColumns.map(column => (
-                  <MessageCell
-                    key={`${personaId}-${column.id}`}
-                    column={column}
-                    personaId={personaId}
-                    onContentChange={handleContentChange}
-                  />
-                ))}
+                {messageColumns.map(column => {
+                  // Get message data for this persona and column type
+                  const messageData = generatedMessages?.[personaId]?.[column.type];
+                  
+                  console.log(`Cell data for ${personaId}/${column.type}:`, messageData);
+                  
+                  return (
+                    <MessageCell
+                      key={`${personaId}-${column.id}`}
+                      column={{
+                        ...column,
+                        content: messageData ? { [personaId]: messageData } : undefined
+                      }}
+                      personaId={personaId}
+                      onContentChange={handleContentChange}
+                    />
+                  );
+                })}
                 
                 {/* Empty cell for add column button alignment */}
                 <td className="border p-1"></td>

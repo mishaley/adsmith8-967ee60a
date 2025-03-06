@@ -69,12 +69,19 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     }
   };
 
+  console.log("MessagesSection rendering with:", {
+    personaCount: safePersonas.length,
+    messageTypes: selectedMessageTypes,
+    generatedMessages
+  });
+
   return (
     <CollapsibleSection title="MESSAGES">
       <div className="bg-transparent">
         <SimplifiedMessagesTable 
           personas={safePersonas}
           selectedMessageTypes={selectedMessageTypes}
+          generatedMessages={generatedMessages}
           onMessageTypeChange={(types) => {
             setSelectedMessageTypes(types);
           }}

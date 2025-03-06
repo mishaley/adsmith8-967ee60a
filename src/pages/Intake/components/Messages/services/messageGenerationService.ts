@@ -1,3 +1,4 @@
+
 import { Persona } from "../../Personas/types";
 import { Message } from "../hooks/useMessagesFetching";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,11 +105,13 @@ export const generateColumnMessages = async (
       }
       
       console.log("Edge function response:", data);
+      const tagline = data?.tagline || `Generated ${messageType} Example`;
+      console.log(`Generated tagline for ${personaId}: "${tagline}"`);
       
       // Important: Ensure we're using the correct structure for the message content
       updatedMessages[personaId][messageType] = {
         message_id: `${personaId}-${messageType}`,
-        message_name: data?.tagline || `Generated ${messageType} Example`,
+        message_name: tagline,
         message_type: messageType,
         persona_id: personaId,
         created_at: new Date().toISOString()
