@@ -40,8 +40,7 @@ export function setupClickEvents(
   map: mapboxgl.Map, 
   onCountrySelected: (countryId: string) => void
 ) {
-  // Add click behavior for country selection
-  // Note: The proper syntax for Mapbox GL is map.on(event, layerId, callback)
+  // Add click behavior for country selection on fill layer
   map.on('click', 'country-fills', (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
     if (e.features && e.features.length > 0) {
       const countryId = getCountryIdFromFeature(e.features[0]);
@@ -61,13 +60,42 @@ export function setupClickEvents(
     }
   });
 
+  // Also add click handlers to the border layer for better interaction
+  map.on('click', 'country-borders', (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
+    if (e.features && e.features.length > 0) {
+      const countryId = getCountryIdFromFeature(e.features[0]);
+      if (countryId) {
+        console.log(`Country border clicked: ${countryId}`);
+        
+        // Check if clicked on the same country that's already selected
+        if (countryId === selectedCountryCode) {
+          console.log('Clicked on already selected country border, deselecting it');
+          onCountrySelected('');
+        } else {
+          // Select the new country
+          onCountrySelected(countryId);
+        }
+      }
+    }
+  });
+
   // Change cursor to pointer when hovering over a country
   map.on('mouseenter', 'country-fills', () => {
     map.getCanvas().style.cursor = 'pointer';
   });
 
+  // Also add pointer cursor to country borders
+  map.on('mouseenter', 'country-borders', () => {
+    map.getCanvas().style.cursor = 'pointer';
+  });
+
   // Change cursor back when leaving a country
   map.on('mouseleave', 'country-fills', () => {
+    map.getCanvas().style.cursor = '';
+  });
+
+  // Also for borders
+  map.on('mouseleave', 'country-borders', () => {
     map.getCanvas().style.cursor = '';
   });
 }

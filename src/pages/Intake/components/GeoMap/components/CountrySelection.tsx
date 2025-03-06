@@ -44,6 +44,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       const country = countries.find(c => c.country_id === selectedCountry);
       if (country) {
         setSelectedCountryFlag(country.country_flag);
+        console.log(`CountrySelection: Updated flag for ${country.country_name}: ${country.country_flag}`);
+      } else {
+        console.log(`CountrySelection: No country found with ID ${selectedCountry}`);
       }
     } else {
       setSelectedCountryFlag(null);
@@ -56,6 +59,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     if (flag) setSelectedCountryFlag(flag);
     setIsDropdownOpen(false);
     
+    // Also update the map selection when selecting from dropdown
     if (setSelectedCountryId) {
       console.log(`CountrySelection: Updating map with country ${country}`);
       setSelectedCountryId(country);
@@ -63,8 +67,11 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   };
 
   const handleClearSelection = () => {
+    console.log("CountrySelection: Clearing selection");
     setSelectedCountry("");
     setSelectedCountryFlag(null);
+    
+    // Also clear the map selection
     if (setSelectedCountryId) {
       setSelectedCountryId("");
     }
@@ -84,7 +91,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
             {selectedCountryFlag && (
               <span className="inline-block w-6 text-center">{selectedCountryFlag}</span>
             )}
-            <span>{countryName || ""}</span>
+            <span>{countryName || "Select a country"}</span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>

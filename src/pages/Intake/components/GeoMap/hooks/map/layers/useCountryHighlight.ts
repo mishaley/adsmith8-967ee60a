@@ -75,11 +75,47 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
         return;
       }
       
-      // Query features directly using ISO code filter
-      const features = map.querySourceFeatures('countries', {
+      // Use both query methods to increase chance of finding the country
+      let features: mapboxgl.MapboxGeoJSONFeature[] = [];
+      
+      // First try: Query specific layer
+      features = map.querySourceFeatures('countries', {
         sourceLayer: 'country_boundaries',
         filter: ['==', 'iso_3166_1', isoCode]
       });
+      
+      // If no features found, try alternative approaches
+      if (features.length === 0) {
+        // Try different source layers
+        const sourceLayers = ['country_boundaries', 'boundaries_admin_0', 'admin'];
+        
+        for (const sourceLayer of sourceLayers) {
+          const layerFeatures = map.querySourceFeatures('countries', {
+            sourceLayer: sourceLayer,
+            filter: ['==', 'iso_3166_1', isoCode]
+          });
+          
+          if (layerFeatures.length > 0) {
+            features = layerFeatures;
+            console.log(`Found ${layerFeatures.length} features in layer ${sourceLayer}`);
+            break;
+          }
+        }
+        
+        // If still no features, try a more general query
+        if (features.length === 0) {
+          // Get all features and filter client-side
+          const allFeatures = map.querySourceFeatures('countries', {
+            sourceLayer: 'country_boundaries'
+          });
+          
+          features = allFeatures.filter(f => 
+            (f.properties?.iso_3166_1 === isoCode) ||
+            (f.properties?.ISO_A2 === isoCode) ||
+            (f.properties?.ISO_A3 === isoCode)
+          );
+        }
+      }
       
       console.log(`Found ${features.length} features for country code ${isoCode}`);
       

@@ -2,10 +2,10 @@
 import mapboxgl from 'mapbox-gl';
 
 export const addCountryFillLayer = (map: mapboxgl.Map) => {
-  if (!map.getLayer('countries-fill')) {
+  if (!map.getLayer('country-fills')) {
     console.log("Adding countries fill layer...");
     map.addLayer({
-      id: 'countries-fill',
+      id: 'country-fills',
       type: 'fill',
       source: 'countries',
       'source-layer': 'country_boundaries',
@@ -13,12 +13,19 @@ export const addCountryFillLayer = (map: mapboxgl.Map) => {
         'fill-color': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          '#154851',
+          '#154851',  // Selected country color - darker teal
           ['boolean', ['feature-state', 'hover'], false],
-          '#8ebdc2',
-          'rgba(200, 200, 200, 0.03)'  // Even lighter fill to make borders more visible
+          '#8ebdc2',  // Hover color - lighter teal
+          'rgba(200, 200, 200, 0.03)'  // Default fill is very light
         ],
-        'fill-opacity': 0.4  // Slightly increased opacity to better distinguish countries
+        'fill-opacity': [
+          'case',
+          ['boolean', ['feature-state', 'selected'], false],
+          0.8,  // Higher opacity for selected country
+          ['boolean', ['feature-state', 'hover'], false],
+          0.6,  // Medium opacity for hover
+          0.4   // Low opacity for default state
+        ]
       }
     });
   } else {
