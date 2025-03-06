@@ -18,10 +18,8 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   countryName
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedCountryFlag, setSelectedCountryFlag] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Selected country object
-  const selectedCountryObject = selectedCountry ? { country_id: selectedCountry, country_name: countryName } : null;
 
   // Effect for handling clicks outside of the dropdown
   useEffect(() => {
@@ -40,8 +38,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     };
   }, [isDropdownOpen]);
 
-  const handleCountrySelect = (country: string) => {
+  const handleCountrySelect = (country: string, flag?: string) => {
     setSelectedCountry(country);
+    if (flag) setSelectedCountryFlag(flag);
     setIsDropdownOpen(false);
     if (setSelectedCountryId) {
       setSelectedCountryId(country);
@@ -59,7 +58,8 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         >
           <span className="flex items-center gap-2 text-left truncate">
-            {selectedCountryObject ? selectedCountryObject.country_name : "Select a country"}
+            {selectedCountryFlag && <span className="text-lg mr-2">{selectedCountryFlag}</span>}
+            {countryName ? countryName : "Select a country"}
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>

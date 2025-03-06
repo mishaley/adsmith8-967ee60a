@@ -7,7 +7,7 @@ import { Search, X } from "lucide-react";
 
 interface CountryDropdownProps {
   selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
+  setSelectedCountry: (country: string, flag?: string) => void;
   setSelectedCountryId?: ((id: string) => void) | null;
 }
 
@@ -33,8 +33,8 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   );
 
   // Handle country selection
-  const handleCountrySelect = (countryId: string) => {
-    setSelectedCountry(countryId);
+  const handleCountrySelect = (countryId: string, flag: string) => {
+    setSelectedCountry(countryId, flag);
     
     // Also highlight on map if the function is available
     if (setSelectedCountryId) {
@@ -89,7 +89,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
               className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
                 selectedCountry === country.country_id ? "bg-gray-100" : ""
               }`} 
-              onClick={() => handleCountrySelect(country.country_id)}
+              onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
             >
               <div className="flex items-center gap-2">
                 <span className="text-lg">{country.country_flag}</span>
