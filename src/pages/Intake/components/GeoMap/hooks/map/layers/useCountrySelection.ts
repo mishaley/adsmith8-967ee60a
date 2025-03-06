@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 
 let selectedCountryId: string | null = null;
+let selectedCountryCode: string | null = null;
 
 export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: string) => void) => {
   // On click
@@ -12,7 +13,16 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
       const countryName = e.features[0].properties?.iso_3166_1 || '';
       
       console.log(`Map click: Selected country ${countryName} (id: ${countryId})`);
-      onCountryClick(countryName);
+      
+      // Check if we're clicking on the already selected country
+      if (selectedCountryCode === countryName) {
+        console.log('Deselecting current country');
+        // Deselect the country
+        onCountryClick('');
+      } else {
+        // Select the new country
+        onCountryClick(countryName);
+      }
     }
   });
 };
@@ -22,6 +32,9 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
     console.log("Map style not loaded yet, can't highlight country");
     return;
   }
+  
+  // Store the currently highlighted country code
+  selectedCountryCode = countryCode;
   
   if (!countryCode) {
     // Clear previous selection
@@ -165,3 +178,4 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   // Execute the function
   findAndHighlightCountry();
 };
+
