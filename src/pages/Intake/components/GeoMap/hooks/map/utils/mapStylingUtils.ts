@@ -38,72 +38,38 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
     // Check if map and style are properly loaded
     if (!map.isStyleLoaded()) {
       console.log("Style not loaded, deferring coastline border addition");
+      map.once('style.load', () => {
+        addCoastlineBorders(map);
+      });
       return;
     }
     
-    // Log all available layers for debugging
-    console.log("Available layers for coastlines:");
-    const layers = map.getStyle().layers || [];
-    const sources = Object.keys(map.getStyle().sources || {});
-    console.log("Available sources:", sources);
-    
-    layers.forEach(layer => {
-      if (layer.id.includes('water') || layer.id.includes('land') || layer.id.includes('coast')) {
-        console.log(`Potential coastline layer: ${layer.id}`);
-      }
-    });
-    
-    // Attempt to add coastline layer
+    // Add coastline layer if it doesn't exist
     if (!map.getLayer('coastline-borders')) {
       console.log("Adding coastline-borders layer");
       
-      // Use a more reliable approach with water layer if available
-      if (map.getSource('composite')) {
-        try {
-          map.addLayer({
-            id: 'coastline-borders',
-            type: 'line',
-            source: 'composite',
-            'source-layer': 'water',
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round',
-              'visibility': 'visible'
-            },
-            paint: {
-              'line-color': '#c8c8c9',
-              'line-width': 0.8,
-              'line-opacity': 1.0
-            }
-          });
-          console.log("Added coastline-borders layer with water source-layer");
-        } catch (error) {
-          console.error("Error adding coastline-borders with water:", error);
-          
-          // Fallback to admin boundaries if available
-          try {
-            map.addLayer({
-              id: 'coastline-borders-fallback',
-              type: 'line',
-              source: 'composite',
-              'source-layer': 'admin',
-              filter: ['==', 'admin_level', 0],
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round',
-                'visibility': 'visible'
-              },
-              paint: {
-                'line-color': '#c8c8c9',
-                'line-width': 0.8,
-                'line-opacity': 1.0
-              }
-            });
-            console.log("Added fallback coastline layer with admin source-layer");
-          } catch (fallbackError) {
-            console.error("Error adding fallback coastline layer:", fallbackError);
+      // Most reliable approach with admin boundaries
+      try {
+        map.addLayer({
+          id: 'coastline-borders',
+          type: 'line',
+          source: 'composite',
+          'source-layer': 'admin',
+          filter: ['==', 'admin_level', 0],
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+            'visibility': 'visible'
+          },
+          paint: {
+            'line-color': '#c8c8c9',
+            'line-width': 0.8,
+            'line-opacity': 1.0
           }
-        }
+        });
+        console.log("Added coastline layer with admin source-layer");
+      } catch (error) {
+        console.error("Error adding coastline layer:", error);
       }
     }
   } catch (error) {

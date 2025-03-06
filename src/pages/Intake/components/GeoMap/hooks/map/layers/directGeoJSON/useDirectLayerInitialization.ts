@@ -50,17 +50,20 @@ export const useDirectLayerInitialization = ({
           
           geoJsonData = await response.json();
           console.log(`Fetched GeoJSON with ${geoJsonData.features.length} countries`);
+          
+          // Add the GeoJSON source
+          map.current.addSource('countries-geojson', {
+            type: 'geojson',
+            data: geoJsonData,
+            generateId: true,
+            promoteId: 'ISO_A3'
+          });
         } catch (fetchError) {
           console.error("Error fetching GeoJSON:", fetchError);
           throw new Error(`Failed to load countries GeoJSON: ${fetchError.message}`);
         }
-        
-        // Add the GeoJSON source
-        map.current.addSource('countries-geojson', {
-          type: 'geojson',
-          data: geoJsonData,
-          generateId: true
-        });
+      } else {
+        console.log("GeoJSON source already exists");
       }
       
       // Add fill layer for countries

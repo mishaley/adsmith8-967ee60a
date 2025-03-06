@@ -85,7 +85,7 @@ export const useDirectMapInteractions = ({
           return;
         }
         
-        // Clear previous selection first
+        // Clear previous selection
         clearCountrySelection();
         
         // Set the new selection

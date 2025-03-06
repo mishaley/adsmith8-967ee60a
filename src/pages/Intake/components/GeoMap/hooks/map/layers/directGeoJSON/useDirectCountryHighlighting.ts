@@ -124,18 +124,58 @@ export const useDirectCountryHighlighting = ({
       clearCountrySelection();
       clearExcludedCountry();
       
-      // Get all countries from the source
+      // Get all features from the source
       const features = map.current.querySourceFeatures('countries-geojson');
+      console.log(`Found ${features.length} features to highlight for worldwide`);
       
-      // Set selected state for all features
-      features.forEach(feature => {
-        if (feature.id !== undefined) {
-          map.current!.setFeatureState(
-            { source: 'countries-geojson', id: feature.id },
-            { selected: true, excluded: false }
-          );
-        }
-      });
+      if (features.length === 0) {
+        // If no features found, try again after a short delay
+        setTimeout(() => {
+          const retryFeatures = map.current?.querySourceFeatures('countries-geojson') || [];
+          console.log(`Retry found ${retryFeatures.length} features`);
+          
+          // Set selected state for all features
+          retryFeatures.forEach(feature => {
+            if (feature.id !== undefined) {
+              map.current!.setFeatureState(
+                { source: 'countries-geojson', id: feature.id },
+                { selected: true, excluded: false }
+              );
+            }
+          });
+          
+          // Use a more brute force approach as last resort
+          if (retryFeatures.length === 0 && map.current) {
+            console.log("Using alternative approach for worldwide selection");
+            const source = map.current.getSource('countries-geojson');
+            if (source && 'setData' in source) {
+              const data = (source as mapboxgl.GeoJSONSource).getData();
+              if (data && 'features' in data) {
+                const geoData = data as GeoJSON.FeatureCollection;
+                console.log(`Source has ${geoData.features.length} features`);
+                
+                // Mark all features as selected in the data
+                geoData.features.forEach((feature, index) => {
+                  map.current!.setFeatureState(
+                    { source: 'countries-geojson', id: index },
+                    { selected: true, excluded: false }
+                  );
+                });
+              }
+            }
+          }
+        }, 1000);
+      } else {
+        // Set selected state for all features
+        features.forEach(feature => {
+          if (feature.id !== undefined) {
+            map.current!.setFeatureState(
+              { source: 'countries-geojson', id: feature.id },
+              { selected: true, excluded: false }
+            );
+          }
+        });
+      }
       
       setSelectedCountryId("worldwide");
     } catch (error) {

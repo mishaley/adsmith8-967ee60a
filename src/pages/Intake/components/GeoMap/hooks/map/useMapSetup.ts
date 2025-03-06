@@ -63,7 +63,6 @@ export const useMapSetup = ({
         preserveDrawingBuffer: true,
         interactive: true,
         doubleClickZoom: false,
-        failIfMajorPerformanceCaveat: false,
         localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif"
       });
 
@@ -72,6 +71,9 @@ export const useMapSetup = ({
         if (map.current) {
           console.log("Available sources:", Object.keys(map.current.getStyle().sources || {}));
           console.log("Map style loaded successfully");
+          
+          // Apply map styling immediately after style loads
+          applyMapStyling(map.current);
         }
       });
 
