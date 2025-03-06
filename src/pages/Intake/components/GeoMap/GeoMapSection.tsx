@@ -22,6 +22,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const [lastHighlightAttempt, setLastHighlightAttempt] = useState<string | null>(null);
+  const [initializationComplete, setInitializationComplete] = useState(false);
   
   const {
     loading,
@@ -40,51 +41,68 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     setSelectedCountry
   });
 
+  // Track when initialization is fully complete
+  useEffect(() => {
+    if (initialized && !initializationComplete) {
+      console.log("Map initialization is now complete");
+      setInitializationComplete(true);
+      
+      // Apply initial selection if one exists
+      if (selectedCountry && setSelectedCountryId) {
+        console.log(`Applying initial country selection: ${selectedCountry}`);
+        setSelectedCountryId(selectedCountry);
+        setLastHighlightAttempt(selectedCountry);
+      }
+    }
+  }, [initialized, initializationComplete, selectedCountry, setSelectedCountryId]);
+
   // Sync map selection when selectedCountry changes (e.g., from dropdown)
   useEffect(() => {
     if (initialized && setSelectedCountryId) {
       console.log(`GeoMapSection: Syncing country selection to map: ${selectedCountry}`);
       
-      // Avoid redundant highlight attempts for the same country
-      if (lastHighlightAttempt !== selectedCountry) {
-        setSelectedCountryId(selectedCountry);
-        setLastHighlightAttempt(selectedCountry);
-      }
-    }
-  }, [selectedCountry, initialized, setSelectedCountryId, lastHighlightAttempt]);
-
-  // If the map gets initialized later, try to highlight the selected country
-  useEffect(() => {
-    if (initialized && setSelectedCountryId && selectedCountry && !lastHighlightAttempt) {
-      console.log(`Map initialized, highlighting previously selected country: ${selectedCountry}`);
+      // Always attempt to highlight/unhighlight when the country changes
       setSelectedCountryId(selectedCountry);
       setLastHighlightAttempt(selectedCountry);
     }
-  }, [initialized, selectedCountry, setSelectedCountryId, lastHighlightAttempt]);
+  }, [selectedCountry, initialized, setSelectedCountryId]);
 
-  // Retry country selection if initialization happened after country was selected
+  // Enhanced retry mechanism for highlighting countries
   useEffect(() => {
     let retryTimer: NodeJS.Timeout;
     
-    if (initialized && selectedCountry && lastHighlightAttempt === selectedCountry) {
-      // After a delay, check if we need to retry
+    if (initialized && selectedCountry) {
+      // Initial retry after a delay
       retryTimer = setTimeout(() => {
-        console.log(`Retry country selection for ${selectedCountry}`);
         if (setSelectedCountryId) {
+          console.log(`Retry 1: Ensuring country selection for ${selectedCountry}`);
+          setSelectedCountryId(selectedCountry);
+        }
+      }, 1000);
+      
+      // Secondary retry with a longer delay
+      const secondaryRetryTimer = setTimeout(() => {
+        if (setSelectedCountryId && initialized) {
+          console.log(`Retry 2: Final attempt for country selection ${selectedCountry}`);
           setSelectedCountryId(selectedCountry);
           
-          // Show a toast if we're having to retry
+          // Show a toast for user feedback
           toast.info("Refreshing map selection...", {
             duration: 2000,
           });
         }
-      }, 2000);
+      }, 3000);
+      
+      return () => {
+        clearTimeout(retryTimer);
+        clearTimeout(secondaryRetryTimer);
+      };
     }
     
     return () => {
       if (retryTimer) clearTimeout(retryTimer);
     };
-  }, [initialized, selectedCountry, setSelectedCountryId, lastHighlightAttempt]);
+  }, [initialized, selectedCountry, setSelectedCountryId]);
 
   // Combine errors from both hooks
   const error = tokenError || mapError;
@@ -96,6 +114,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     tokenLength: mapboxToken ? mapboxToken.length : 0,
     error,
     initialized,
+    initializationComplete,
     selectedCountry,
     lastHighlightAttempt
   });

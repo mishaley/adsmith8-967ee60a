@@ -20,7 +20,8 @@ export const addCountrySource = (map: mapboxgl.Map) => {
         // First try the primary country boundaries source
         map.addSource('countries', {
           type: 'vector',
-          url: 'mapbox://mapbox.country-boundaries-v1'
+          url: 'mapbox://mapbox.country-boundaries-v1',
+          promoteId: 'iso_3166_1' // This helps with feature state management
         });
         console.log("Countries source added successfully");
         
@@ -34,19 +35,37 @@ export const addCountrySource = (map: mapboxgl.Map) => {
       } catch (error) {
         console.error("Error adding countries source:", error);
         
-        // If first attempt failed, wait a moment and try again with a different source
+        // If first attempt failed, try again with a different source after a short delay
         setTimeout(() => {
           try {
             if (!map.getSource('countries')) {
               console.log("Attempting fallback source addition...");
               map.addSource('countries', {
                 type: 'vector',
-                url: 'mapbox://mapbox.boundaries-adm0-v3'
+                url: 'mapbox://mapbox.boundaries-adm0-v3',
+                promoteId: 'iso_3166_1_alpha_3' // Different ID field in this dataset
               });
               console.log("Fallback countries source added");
             }
           } catch (fallbackError) {
             console.error("Fallback source addition failed:", fallbackError);
+            
+            // Third attempt with different options
+            setTimeout(() => {
+              try {
+                if (!map.getSource('countries')) {
+                  console.log("Attempting second fallback source addition...");
+                  map.addSource('countries', {
+                    type: 'vector',
+                    url: 'mapbox://mapbox.country-boundaries-v1',
+                    maxzoom: 8
+                  });
+                  console.log("Second fallback countries source added");
+                }
+              } catch (thirdError) {
+                console.error("Second fallback source addition failed:", thirdError);
+              }
+            }, 500);
           }
         }, 500);
       }
