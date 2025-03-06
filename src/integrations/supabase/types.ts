@@ -308,6 +308,8 @@ export type Database = {
         Row: {
           country_flag: string
           country_id: string
+          country_iso2: string
+          country_iso3: string
           country_languageprimary: string
           country_languagesecondary: string | null
           country_name: string
@@ -317,6 +319,8 @@ export type Database = {
         Insert: {
           country_flag: string
           country_id?: string
+          country_iso2: string
+          country_iso3: string
           country_languageprimary: string
           country_languagesecondary?: string | null
           country_name: string
@@ -326,6 +330,8 @@ export type Database = {
         Update: {
           country_flag?: string
           country_id?: string
+          country_iso2?: string
+          country_iso3?: string
           country_languageprimary?: string
           country_languagesecondary?: string | null
           country_name?: string

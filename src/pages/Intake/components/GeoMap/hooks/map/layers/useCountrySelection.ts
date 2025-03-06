@@ -1,4 +1,3 @@
-
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 
@@ -45,6 +44,7 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
           { selected: false }
         );
         selectedCountryId = null;
+        console.log("Successfully cleared country selection on map");
       } catch (error) {
         console.error("Error clearing previous country selection:", error);
       }
@@ -178,4 +178,3 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   // Execute the function
   findAndHighlightCountry();
 };
-
