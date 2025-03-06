@@ -12,13 +12,15 @@ interface ImagesSectionProps {
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   adPlatform: string;
+  offering?: string;
 }
 
 const ImagesSection: React.FC<ImagesSectionProps> = ({ 
   personas, 
   generatedMessages,
   selectedMessageTypes,
-  adPlatform
+  adPlatform,
+  offering = ""
 }) => {
   // Filter out any null or undefined personas and messages
   const validPersonas = personas.filter(Boolean);
@@ -37,7 +39,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
     console.log("ImagesSection: Data changed", {
       validPersonas: validPersonas.length,
       validMessageTypes,
-      totalPairs
+      totalPairs,
+      offering
     });
     
     // Only reset to 0 if current index is now out of bounds
@@ -95,7 +98,8 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           <div className="border-transparent p-5 bg-white">
             <ImageGenerator 
               currentPersona={currentPersona} 
-              adPlatform={adPlatform} 
+              adPlatform={adPlatform}
+              offering={offering}
             />
           </div>
         </div>

@@ -3,14 +3,16 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
 import { Persona } from "../../Personas/types";
+import { getRandomRace } from "../../Personas/utils/portraitUtils";
 
 interface UseImageGenerationProps {
   currentPersona: Persona | null;
   adPlatform: string | null;
   toast: any;
+  offering?: string;
 }
 
-export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseImageGenerationProps) => {
+export const useImageGeneration = ({ currentPersona, adPlatform, toast, offering = "" }: UseImageGenerationProps) => {
   const [isGeneratingImages, setIsGeneratingImages] = useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
@@ -46,10 +48,19 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
       const style = await getRandomApprovedStyle();
       console.log("Successfully retrieved style:", style);
       
-      const phrase = generateRandomPhrase();
-      const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+      // Get the message content from the persona's title or generate a phrase
+      const message = currentPersona.title || generateRandomPhrase();
       
-      const prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nThemes: ${currentPersona.interests.join(", ")}` : ""}`;
+      // Get a random race from the distribution
+      const race = getRandomRace();
+      
+      // Convert gender format (Men → Man, Women → Woman)
+      const gender = currentPersona.gender === "Men" ? "Man" : 
+                     currentPersona.gender === "Women" ? "Woman" : 
+                     currentPersona.gender;
+      
+      // Format the prompt according to the new specification
+      const prompt = `Style: ${style}\nMessage: '${message}'\nThemes: ${offering}, Streetwear fashion, Urban art\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       
       setGeneratedPrompt(prompt);
       
@@ -88,10 +99,12 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast }: UseIma
       if (!prompt) {
         console.log("No prompt available, generating a new one...");
         const style = await getRandomApprovedStyle();
-        const phrase = generateRandomPhrase();
-        const demographics = `${currentPersona.gender}, ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+        const race = getRandomRace();
+        const gender = currentPersona.gender === "Men" ? "Man" : 
+                       currentPersona.gender === "Women" ? "Woman" : 
+                       currentPersona.gender;
         
-        prompt = `Style: ${style}\nSubject: ${demographics}\nMessage: '${phrase}'${currentPersona.interests ? `\nThemes: ${currentPersona.interests.join(", ")}` : ""}`;
+        prompt = `Style: ${style}\nMessage: '${currentPersona.title || generateRandomPhrase()}'\nThemes: ${offering}, Streetwear fashion, Urban art\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       }
 
       console.log("Image generation prompt:", prompt);

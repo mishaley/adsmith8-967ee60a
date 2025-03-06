@@ -9,13 +9,15 @@ interface ImagesContainerProps {
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   adPlatform: string;
+  offering?: string;
 }
 
 const ImagesContainer: React.FC<ImagesContainerProps> = ({
   personas,
   generatedMessages,
   selectedMessageTypes,
-  adPlatform
+  adPlatform,
+  offering = ""
 }) => {
   return (
     <ImagesSection
@@ -23,6 +25,7 @@ const ImagesContainer: React.FC<ImagesContainerProps> = ({
       generatedMessages={generatedMessages}
       selectedMessageTypes={selectedMessageTypes}
       adPlatform={adPlatform}
+      offering={offering}
     />
   );
 };

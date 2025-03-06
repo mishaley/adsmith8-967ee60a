@@ -10,11 +10,13 @@ import { ErrorDialog } from "./GeneratorComponents/ErrorDialog";
 interface ImageGeneratorProps {
   currentPersona: Persona;
   adPlatform: string;
+  offering?: string;
 }
 
 const ImageGenerator: React.FC<ImageGeneratorProps> = ({ 
   currentPersona, 
-  adPlatform 
+  adPlatform,
+  offering = ""
 }) => {
   const { toast } = useToast();
   
@@ -32,7 +34,8 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({
   } = useImageGeneration({ 
     currentPersona, 
     adPlatform, 
-    toast 
+    toast,
+    offering
   });
 
   return (
