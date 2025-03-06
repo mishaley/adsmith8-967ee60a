@@ -99,12 +99,18 @@ export const useMapInstance = ({
 
       map.current.on('load', () => {
         console.log("Map loaded event fired");
-        setInitialized(true);
-
+        
         if (map.current) {
+          // Update water color
           map.current.setPaintProperty('water', 'fill-color', '#e9f2fe');
-          console.log("Water color updated to #e9f2fe");
+          
+          // Remove continent labels
+          removeLabels(map.current);
+          
+          console.log("Map styling updated - removed continent labels");
         }
+
+        setInitialized(true);
 
         if (map.current && mapContainer.current) {
           adjustMapView(map.current, mapContainer.current.offsetWidth);
@@ -133,6 +139,7 @@ export const useMapInstance = ({
   return { map, mapError, initialized, setMapError };
 };
 
+// Helper function to adjust map view based on container width
 function adjustMapView(map: mapboxgl.Map, width: number) {
   console.log("Adjusting map view for container width:", width);
   
@@ -161,5 +168,30 @@ function adjustMapView(map: mapboxgl.Map, width: number) {
     padding,
     linear: true,
     duration: 0
+  });
+}
+
+// Helper function to remove continent and country labels
+function removeLabels(map: mapboxgl.Map) {
+  // Find and hide all continent and large region labels
+  const labelsToHide = [
+    'continent-label',
+    'country-label'
+  ];
+  
+  labelsToHide.forEach(layerId => {
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', 'none');
+      console.log(`Hidden layer: ${layerId}`);
+    } else {
+      console.log(`Layer not found: ${layerId}`);
+    }
+  });
+  
+  // Find all layers with names containing "label" and log them for debugging
+  map.getStyle().layers?.forEach((layer) => {
+    if (layer.id.includes('label')) {
+      console.log(`Found label layer: ${layer.id}`);
+    }
   });
 }
