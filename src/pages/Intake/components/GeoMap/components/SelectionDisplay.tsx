@@ -37,13 +37,6 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     <div className="w-full bg-transparent rounded-lg p-4 border-transparent">
       <div className="font-bold text-lg mb-4">Selections</div>
       
-      {/* Map Selection Status */}
-      <CountryStatusDisplay 
-        selectedCountry={selectedCountry}
-        countryName={countryName}
-        onClearSelection={handleClearSelection}
-      />
-      
       {/* Country Selection */}
       <CountrySelection 
         selectedCountry={selectedCountry}
@@ -59,6 +52,16 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         isLoadingCountry={isLoadingCountry}
         primaryLanguageId={primaryLanguageId}
       />
+      
+      {/* Map Selection Status - moved below the dropdowns */}
+      <div className="mt-6">
+        <div className="font-bold text-lg mb-4">Selected from Map</div>
+        <CountryStatusDisplay 
+          selectedCountry={selectedCountry}
+          countryName={countryName}
+          onClearSelection={handleClearSelection}
+        />
+      </div>
     </div>
   );
 };
