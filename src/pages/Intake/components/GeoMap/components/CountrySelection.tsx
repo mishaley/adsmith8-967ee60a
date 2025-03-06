@@ -71,7 +71,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   };
 
   return (
-    <div>
+    <div ref={dropdownRef}>
       <div className="font-bold text-lg mb-4">Country</div>
       
       <div className="relative">
