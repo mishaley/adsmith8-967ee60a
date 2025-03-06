@@ -6,7 +6,8 @@ import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../..
 export interface MessageColumn {
   id: string;
   type: string;
-  content?: Record<string, string>; // Changed from string to Record<string, string>
+  isNew?: boolean;
+  content?: Record<string, string>;
 }
 
 export function useMessageColumns() {
@@ -41,7 +42,9 @@ export function useMessageColumns() {
 
   // Save message columns to localStorage when they change
   useEffect(() => {
-    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_columns", messageColumns);
+    // Don't save isNew flag to localStorage
+    const columnsToSave = messageColumns.map(({ isNew, ...rest }) => rest);
+    saveToLocalStorage(STORAGE_KEYS.MESSAGES + "_columns", columnsToSave);
   }, [messageColumns]);
 
   // Effect to handle auto-focusing on newly selected user-provided cells
@@ -74,8 +77,17 @@ export function useMessageColumns() {
     // Increment the counter for next column ID
     nextColumnIdRef.current += 1;
     const newColumnId = `column-${nextColumnIdRef.current}`;
-    setMessageColumns([...messageColumns, { id: newColumnId, type: "" }]);
+    setMessageColumns([...messageColumns, { id: newColumnId, type: "", isNew: true }]);
     toast.success("New message column added");
+    
+    // Clear the isNew flag after a delay
+    setTimeout(() => {
+      setMessageColumns(prev => 
+        prev.map(col => 
+          col.id === newColumnId ? { ...col, isNew: false } : col
+        )
+      );
+    }, 1000);
   };
 
   // Update message type for a specific column

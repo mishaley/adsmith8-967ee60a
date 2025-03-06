@@ -66,6 +66,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                 key={column.id}
                 columnId={column.id}
                 columnType={column.type}
+                isNewColumn={column.isNew}
                 onTypeChange={handleMessageTypeChange}
               />
             ))}
