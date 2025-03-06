@@ -63,6 +63,31 @@ export const useMapInitialization = ({
     }
   }, [mapInitialized, highlightCountryOnMap]);
 
+  // Initialize map layers in the correct order
+  const initializeLayers = useCallback((mapInstance: mapboxgl.Map) => {
+    // Step 1: Add the source first
+    addCountrySource(mapInstance);
+    
+    // Step 2: Add the fill layer (this will be underneath)
+    addCountryFillLayer(mapInstance);
+    
+    // Step 3: Add the border layer on top for visibility
+    addCountryBorderLayer(mapInstance);
+    
+    // Step 4: Setup hover events
+    setupHoverEvents(mapInstance);
+    
+    // Step 5: Setup click handlers
+    setupClickEvents(mapInstance, (countryId) => {
+      console.log(`Map click detected, setting selected country to: ${countryId}`);
+      setSelectedCountry(countryId);
+    });
+    
+    // Mark initialization as complete
+    setLayersInitialized(true);
+    console.log("Country layers initialized successfully");
+  }, [setSelectedCountry]);
+
   // Initialize country layers
   useEffect(() => {
     if (!mapInitialized || !map.current || !mapboxToken || layersInitialized) {
@@ -70,55 +95,27 @@ export const useMapInitialization = ({
     }
 
     try {
-      // Add source and layers
-      console.log("Initializing country layers...");
+      console.log("Waiting for map to be ready before initializing layers...");
       
-      // Wait for map style to be fully loaded before adding layers
-      const initializeLayers = () => {
-        if (map.current) {
-          console.log("Map style loaded, initializing country layers now");
-          
-          // IMPORTANT: Ensure proper layer order - source first, then fill, then border on top
-          // Add the source
-          addCountrySource(map.current);
-          
-          // Add the fill layer first (underneath)
-          addCountryFillLayer(map.current);
-          
-          // Add the border layer on top for visibility
-          addCountryBorderLayer(map.current);
-          
-          // Setup hover events
-          setupHoverEvents(map.current);
-          
-          // Setup click events with debug logging
-          console.log("Setting up click events with selection handler");
-          setupClickEvents(map.current, (countryId) => {
-            console.log(`Map click detected, setting selected country to: ${countryId}`);
-            setSelectedCountry(countryId);
-          });
-          
-          // Mark layers as initialized
-          setLayersInitialized(true);
-          
-          console.log("Country layers initialized successfully");
-        }
-      };
-      
-      // Check if style is already loaded
+      // Wait for map style to be fully loaded
       if (map.current.isStyleLoaded()) {
         console.log("Map style already loaded, initializing layers now");
-        initializeLayers();
+        initializeLayers(map.current);
       } else {
-        // If not, wait for the style.load event
-        console.log("Waiting for map style to load before initializing layers");
-        map.current.on('style.load', initializeLayers);
+        // If style not loaded yet, wait for it
+        console.log("Map style not loaded yet, setting up style.load event handler");
+        map.current.on('style.load', () => {
+          console.log("Map style loaded event fired, initializing layers now");
+          if (map.current) {
+            initializeLayers(map.current);
+          }
+        });
       }
     } catch (err) {
       console.error('Error initializing country layers:', err);
       setMapError(`Failed to initialize countries: ${err instanceof Error ? err.message : String(err)}`);
     }
-  }, [map, mapboxToken, mapInitialized, setSelectedCountry, layersInitialized]);
+  }, [map, mapboxToken, mapInitialized, initializeLayers, layersInitialized]);
 
   // Effect to highlight the selected country when it changes
   useEffect(() => {
@@ -127,53 +124,6 @@ export const useMapInitialization = ({
       highlightCountry(map.current, selectedCountry);
     }
   }, [selectedCountry, mapInitialized, layersInitialized, map]);
-
-  // Add a listener for the map's style.load event to ensure country data is available
-  useEffect(() => {
-    if (!map.current || !mapInitialized) return;
-    
-    const currentMap = map.current;
-    
-    const handleStyleLoad = () => {
-      console.log("Map style fully loaded, checking if country layers need to be initialized");
-      
-      // Try to ensure the layers are initialized
-      if (!layersInitialized) {
-        try {
-          addCountrySource(currentMap);
-          addCountryFillLayer(currentMap);
-          addCountryBorderLayer(currentMap);
-          setupHoverEvents(currentMap);
-          console.log("Re-setting up click events after style load");
-          setupClickEvents(currentMap, setSelectedCountry);
-          setLayersInitialized(true);
-          console.log("Country layers initialized on style.load");
-        } catch (err) {
-          console.error('Error initializing country layers on style.load:', err);
-        }
-      }
-      
-      // Try to highlight the country again if one is selected
-      if (selectedCountry) {
-        console.log(`Re-highlighting country ${selectedCountry} after style.load`);
-        highlightCountry(currentMap, selectedCountry);
-      }
-    };
-    
-    // Add the event listener
-    currentMap.on('style.load', handleStyleLoad);
-    
-    // If the style is already loaded, call the handler directly
-    if (currentMap.isStyleLoaded()) {
-      console.log("Map style already loaded, running handler directly");
-      handleStyleLoad();
-    }
-    
-    // Clean up on unmount
-    return () => {
-      currentMap.off('style.load', handleStyleLoad);
-    };
-  }, [map, mapInitialized, selectedCountry, layersInitialized, setSelectedCountry]);
 
   return { 
     mapError, 

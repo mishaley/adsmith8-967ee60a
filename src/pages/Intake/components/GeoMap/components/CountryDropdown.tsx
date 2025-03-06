@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCountries } from "../hooks/useCountries";
@@ -19,6 +19,8 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const { countries, isLoading } = useCountries();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Focus the search input when the dropdown is opened
   useEffect(() => {
@@ -62,8 +64,70 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   // Clear search term
   const clearSearch = () => {
     setSearchTerm("");
+    setHighlightedIndex(-1);
     if (searchInputRef.current) {
       searchInputRef.current.focus();
+    }
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (filteredCountries.length === 0) return;
+    
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setHighlightedIndex(prevIndex => {
+          const nextIndex = prevIndex < filteredCountries.length - 1 ? prevIndex + 1 : 0;
+          ensureHighlightedItemVisible(nextIndex);
+          return nextIndex;
+        });
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setHighlightedIndex(prevIndex => {
+          const nextIndex = prevIndex > 0 ? prevIndex - 1 : filteredCountries.length - 1;
+          ensureHighlightedItemVisible(nextIndex);
+          return nextIndex;
+        });
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < filteredCountries.length) {
+          const country = filteredCountries[highlightedIndex];
+          handleCountrySelect(country.country_id, country.country_flag);
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        clearSearch();
+        break;
+    }
+  };
+
+  // Ensure the highlighted item is visible in the scrollable area
+  const ensureHighlightedItemVisible = (index: number) => {
+    if (index < 0 || !dropdownRef.current) return;
+    
+    const listItems = dropdownRef.current.querySelectorAll("button");
+    if (index >= listItems.length) return;
+    
+    const item = listItems[index];
+    const container = dropdownRef.current;
+    
+    if (item) {
+      const itemTop = item.offsetTop;
+      const itemBottom = itemTop + item.offsetHeight;
+      const containerTop = container.scrollTop;
+      const containerBottom = containerTop + container.offsetHeight;
+      
+      if (itemTop < containerTop) {
+        // Scroll up to show the item at the top
+        container.scrollTop = itemTop;
+      } else if (itemBottom > containerBottom) {
+        // Scroll down to show the item at the bottom
+        container.scrollTop = itemBottom - container.offsetHeight;
+      }
     }
   };
 
@@ -78,7 +142,11 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
             type="text"
             placeholder="Search countries..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setHighlightedIndex(-1); // Reset highlight when search changes
+            }}
+            onKeyDown={handleKeyDown}
             className="pl-8 pr-8 w-full"
             autoComplete="off"
           />
@@ -97,16 +165,19 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
       {isLoading ? (
         <div className="p-4 text-center text-gray-500">Loading countries...</div>
       ) : filteredCountries.length > 0 ? (
-        <div className="max-h-60 overflow-y-auto">
-          {filteredCountries.map(country => (
+        <div ref={dropdownRef} className="max-h-60 overflow-y-auto">
+          {filteredCountries.map((country, index) => (
             <Button 
               key={country.country_id} 
               type="button" 
               variant="ghost" 
               className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
                 selectedCountry === country.country_id ? "bg-gray-100" : ""
+              } ${
+                highlightedIndex === index ? "bg-gray-100" : ""
               }`} 
               onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
+              onMouseEnter={() => setHighlightedIndex(index)}
             >
               <div className="flex items-center gap-2">
                 <span className="inline-block w-6 text-center">{country.country_flag}</span>

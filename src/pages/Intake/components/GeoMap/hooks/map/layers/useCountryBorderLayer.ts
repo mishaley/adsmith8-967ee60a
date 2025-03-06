@@ -16,7 +16,7 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
           '#154851',
           ['boolean', ['feature-state', 'hover'], false],
           '#8ebdc2',
-          '#666666'  // Much darker border color for better visibility
+          '#333333'  // Much darker border color for better visibility
         ],
         'line-width': [
           'case',
@@ -24,9 +24,13 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
           3,  // Thicker for selected
           ['boolean', ['feature-state', 'hover'], false],
           2,  // Thicker for hover
-          1   // Base thickness increased for better visibility
+          1.5   // Base thickness increased for better visibility
         ],
         'line-opacity': 1.0  // Full opacity for maximum visibility
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
       }
     });
   } else {
