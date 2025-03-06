@@ -68,12 +68,21 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
 export function addWorldOutlineLayer(map: mapboxgl.Map) {
   if (!map.getLayer('world-outline')) {
     try {
-      // Add a simple world outline as a fallback
+      // Check available source layers for debugging
+      console.log("Available sources:", Object.keys(map.getStyle().sources || {}));
+      
+      // Get all available source layers
+      const sources = map.getStyle().sources || {};
+      Object.entries(sources).forEach(([sourceId, source]) => {
+        console.log(`Source: ${sourceId}`, source);
+      });
+      
+      // Use country-boundaries source instead of land which doesn't exist
       map.addLayer({
         id: 'world-outline',
         type: 'line',
         source: 'composite',
-        'source-layer': 'land',
+        'source-layer': 'admin', // Using admin layer instead of land which doesn't exist
         layout: {
           'line-join': 'round',
           'line-cap': 'round',
@@ -85,9 +94,32 @@ export function addWorldOutlineLayer(map: mapboxgl.Map) {
           'line-opacity': 0.8
         }
       });
-      console.log("Added world outline layer");
+      console.log("Added world outline layer using admin layer");
     } catch (error) {
       console.error("Error adding world outline layer:", error);
+      
+      // Fallback: Try with country-boundaries if admin doesn't work
+      try {
+        map.addLayer({
+          id: 'world-outline-fallback',
+          type: 'line',
+          source: 'composite',
+          'source-layer': 'country_boundaries', // Another possible layer
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+            'visibility': 'visible'
+          },
+          paint: {
+            'line-color': '#c8c8c9',
+            'line-width': 1,
+            'line-opacity': 0.8
+          }
+        });
+        console.log("Added fallback world outline layer");
+      } catch (fallbackError) {
+        console.error("Error adding fallback world outline layer:", fallbackError);
+      }
     }
   }
 }
