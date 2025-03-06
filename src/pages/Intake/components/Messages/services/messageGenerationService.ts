@@ -83,7 +83,8 @@ export const generateColumnMessages = async (
   existingMessages: GeneratedMessagesRecord
 ): Promise<GeneratedMessagesRecord> => {
   console.log(`generateColumnMessages called for type: ${messageType}`, {
-    personasCount: personas.length
+    personasCount: personas.length,
+    existingMessagesStructure: JSON.stringify(existingMessages, null, 2)
   });
   
   const updatedMessages = { ...existingMessages };

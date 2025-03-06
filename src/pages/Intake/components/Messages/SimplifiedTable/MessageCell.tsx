@@ -22,22 +22,15 @@ const MessageCell: React.FC<MessageCellProps> = ({
     return <td className="border p-1"></td>;
   }
   
-  console.log("MessageCell rendering:", {
-    columnId: column.id,
-    columnType: column.type,
-    personaId,
-    content: column.content,
-  });
-  
   // Extract the message data for this persona
   const messageData = column.content?.[personaId];
   
-  // Debug the complete message data structure
-  console.log("Message data:", {
+  console.log("MessageCell rendering for:", {
+    columnId: column.id,
+    columnType: column.type,
     personaId,
     messageData,
-    hasMessageName: messageData?.message_name ? "yes" : "no",
-    messageObject: JSON.stringify(messageData)
+    fullContent: column.content,
   });
   
   // Check if we have a valid message with a message_name that's not empty
