@@ -1,9 +1,11 @@
 
-import React, { useState, useEffect, useRef, KeyboardEvent } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useRef } from "react";
 import { useCountries } from "../hooks/useCountries";
-import { Search, X, Globe } from "lucide-react";
+import SearchBar from "./dropdown/SearchBar";
+import WorldwideOption from "./dropdown/WorldwideOption";
+import CountryList from "./dropdown/CountryList";
+import ClearSelectionButton from "./dropdown/ClearSelectionButton";
+import useKeyboardNavigation from "./dropdown/useKeyboardNavigation";
 
 interface CountryDropdownProps {
   selectedCountry: string;
@@ -20,16 +22,8 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const { countries, isLoading } = useCountries();
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Focus the search input when the dropdown is opened
-  useEffect(() => {
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, []);
 
   // Filter countries based on search term
   const filteredCountries = countries.filter(country => 
@@ -77,55 +71,6 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   const clearSearch = () => {
     setSearchTerm("");
     setHighlightedIndex(-1);
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  };
-
-  // Handle keyboard navigation
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // For exclude dropdown, we don't include the worldwide option
-    const allOptions = isExcludeDropdown 
-      ? [...filteredCountries.map(c => c.country_id)]
-      : ["worldwide", ...filteredCountries.map(c => c.country_id)];
-      
-    if (allOptions.length === 0) return;
-    
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setHighlightedIndex(prevIndex => {
-          const nextIndex = prevIndex < allOptions.length - 1 ? prevIndex + 1 : 0;
-          ensureHighlightedItemVisible(nextIndex);
-          return nextIndex;
-        });
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setHighlightedIndex(prevIndex => {
-          const nextIndex = prevIndex > 0 ? prevIndex - 1 : allOptions.length - 1;
-          ensureHighlightedItemVisible(nextIndex);
-          return nextIndex;
-        });
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (!isExcludeDropdown && highlightedIndex === 0) {
-          // Select worldwide (only if not exclude dropdown)
-          handleCountrySelect("worldwide", "🌐");
-        } else {
-          const countryIndex = isExcludeDropdown ? highlightedIndex : highlightedIndex - 1;
-          if (countryIndex >= 0 && countryIndex < filteredCountries.length) {
-            const country = filteredCountries[countryIndex];
-            handleCountrySelect(country.country_id, country.country_flag);
-          }
-        }
-        break;
-      case "Escape":
-        e.preventDefault();
-        clearSearch();
-        break;
-    }
   };
 
   // Ensure the highlighted item is visible in the scrollable area
@@ -159,36 +104,41 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
     handleCountrySelect("worldwide", "🌐");
   };
 
+  // For exclude dropdown, we don't include the worldwide option
+  const allOptions = isExcludeDropdown 
+    ? [...filteredCountries.map(c => c.country_id)]
+    : ["worldwide", ...filteredCountries.map(c => c.country_id)];
+
+  // Handle keyboard selection of a country
+  const handleSelectFromKeyboard = (highlightIndex: number) => {
+    const countryIndex = isExcludeDropdown ? highlightIndex : highlightIndex - 1;
+    if (countryIndex >= 0 && countryIndex < filteredCountries.length) {
+      const country = filteredCountries[countryIndex];
+      handleCountrySelect(country.country_id, country.country_flag);
+    }
+  };
+
+  // Keyboard navigation
+  const { handleKeyDown } = useKeyboardNavigation({
+    highlightedIndex,
+    setHighlightedIndex,
+    ensureHighlightedItemVisible,
+    options: allOptions,
+    isExcludeDropdown,
+    onWorldwideSelect: handleWorldwideSelect,
+    onCountrySelect: handleSelectFromKeyboard,
+    clearSearch
+  });
+
   return (
     <div className="w-full">
       {/* Search bar */}
-      <div className="sticky top-0 bg-white z-10 p-2 border-b border-gray-50">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search countries..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setHighlightedIndex(-1); // Reset highlight when search changes
-            }}
-            onKeyDown={handleKeyDown}
-            className="pl-8 pr-8 w-full border-gray-100"
-            autoComplete="off"
-          />
-          {searchTerm && (
-            <button 
-              className="absolute right-2 top-2.5"
-              onClick={clearSearch}
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-            </button>
-          )}
-        </div>
-      </div>
+      <SearchBar 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm} 
+        onKeyDown={handleKeyDown}
+        setHighlightedIndex={setHighlightedIndex}
+      />
 
       {isLoading ? (
         <div className="p-4 text-center text-gray-500">Loading countries...</div>
@@ -196,61 +146,36 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
         <div ref={dropdownRef} className="max-h-60 overflow-y-auto">
           {/* Worldwide option at the top - only show for non-exclude dropdowns */}
           {!isExcludeDropdown && (
-            <>
-              <Button 
-                key="worldwide" 
-                type="button" 
-                variant="ghost" 
-                className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
-                  selectedCountry === "worldwide" ? "bg-gray-50" : ""
-                } ${
-                  highlightedIndex === 0 ? "bg-gray-50" : ""
-                }`} 
-                onClick={handleWorldwideSelect}
-                onMouseEnter={() => setHighlightedIndex(0)}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="inline-block w-6 text-center">🌐</span>
-                  <span className="font-medium">Worldwide</span>
-                </div>
-              </Button>
-              
-              {/* Divider */}
-              <div className="border-t border-gray-100 my-1"></div>
-            </>
+            <WorldwideOption 
+              selectedCountry={selectedCountry}
+              highlightedIndex={highlightedIndex}
+              onSelect={handleWorldwideSelect}
+              onMouseEnter={() => setHighlightedIndex(0)}
+            />
           )}
           
           {/* Country list */}
-          {filteredCountries.length > 0 ? (
-            filteredCountries.map((country, index) => {
-              // Calculate the correct highlight index based on dropdown type
-              const highlightIndex = isExcludeDropdown ? index : index + 1;
-              
-              return (
-                <Button 
-                  key={country.country_id} 
-                  type="button" 
-                  variant="ghost" 
-                  className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
-                    selectedCountry === country.country_id ? "bg-gray-50" : ""
-                  } ${
-                    highlightedIndex === highlightIndex ? "bg-gray-50" : ""
-                  }`} 
-                  onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
-                  onMouseEnter={() => setHighlightedIndex(highlightIndex)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block w-6 text-center">{country.country_flag}</span>
-                    <span className="truncate">{country.country_name}</span>
-                  </div>
-                </Button>
-              );
-            })
-          ) : (
-            <div className="p-4 text-center text-gray-500">No countries found</div>
-          )}
+          <CountryList 
+            filteredCountries={filteredCountries}
+            selectedCountry={selectedCountry}
+            highlightedIndex={highlightedIndex}
+            onSelect={handleCountrySelect}
+            setHighlightedIndex={setHighlightedIndex}
+            isExcludeDropdown={isExcludeDropdown}
+          />
         </div>
       )}
+      
+      {/* Clear selection button at the bottom */}
+      <ClearSelectionButton 
+        onClear={() => {
+          setSelectedCountry("");
+          if (setSelectedCountryId) {
+            setSelectedCountryId("");
+          }
+        }}
+        disabled={!selectedCountry}
+      />
     </div>
   );
 };
