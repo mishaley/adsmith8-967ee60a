@@ -66,8 +66,18 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     }
   }, [isDropdownOpen]);
 
+  // Debug log for language selection
+  useEffect(() => {
+    console.log("LanguageSelection rendered with:", {
+      selectedLanguage,
+      selectedLanguageName: selectedLanguageObject?.language_name,
+      languagesLoaded: languages.length > 0
+    });
+  }, [selectedLanguage, selectedLanguageObject, languages]);
+
   // Handle language selection
   const handleLanguageSelect = (languageId: string) => {
+    console.log(`LanguageSelection: Selected language ${languageId}`);
     setSelectedLanguage(languageId);
     setIsDropdownOpen(false);
     setSearchTerm("");
@@ -76,6 +86,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
 
   // Clear selection
   const handleClearSelection = () => {
+    console.log("LanguageSelection: Clearing language selection");
     setSelectedLanguage("");
     setSearchTerm("");
     setIsDropdownOpen(false);
@@ -168,7 +179,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
                 <span>{selectedLanguageObject.language_name}</span>
               </>
             ) : (
-              <span></span>
+              <span className="text-gray-400">Select language</span>
             )}
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />

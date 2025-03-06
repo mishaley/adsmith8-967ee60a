@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCountryLanguage } from "../../Languages/hooks/useCountryLanguage";
 import CountryStatusDisplay from "./CountryStatusDisplay";
 import CountrySelection from "./CountrySelection";
@@ -32,6 +32,14 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     countryName,
     isLoading: isLoadingCountry
   } = useCountryLanguage(selectedCountry);
+  
+  // Make sure if Worldwide is selected, English is set as the language
+  useEffect(() => {
+    if (selectedCountry === "worldwide" && selectedLanguage !== "en") {
+      console.log("SelectionDisplay: Enforcing English for Worldwide selection");
+      setSelectedLanguage("en");
+    }
+  }, [selectedCountry, selectedLanguage, setSelectedLanguage]);
   
   const handleClearSelection = () => {
     // Clear both the country selection and map highlighting
