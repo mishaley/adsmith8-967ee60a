@@ -14,7 +14,6 @@ export const useDirectCountryHighlighting = ({
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
 
   // Function to clear current country selection
-  // Must be defined before it's used in highlightCountry
   const clearCountrySelection = useCallback(() => {
     if (!map.current || !initialized) return;
     
@@ -37,6 +36,47 @@ export const useDirectCountryHighlighting = ({
       setSelectedCountryId(null);
     }
   }, [map, initialized, selectedCountryId]);
+
+  // Function to retry highlight with a full scan of features
+  const retryHighlightWithFullScan = useCallback((countryId: string) => {
+    if (!map.current || !initialized) return;
+    
+    console.log(`Retrying highlight with full scan for: ${countryId}`);
+    
+    try {
+      // Get all features from the source
+      const allFeatures = map.current.querySourceFeatures('countries-geojson');
+      
+      // Manually search through all feature properties
+      const matchingFeature = allFeatures.find(feature => {
+        const props = feature.properties;
+        return (
+          props.ISO_A2 === countryId ||
+          props.ISO_A3 === countryId ||
+          props.iso_a2 === countryId ||
+          props.iso_a3 === countryId
+        );
+      });
+      
+      if (matchingFeature) {
+        const featureId = matchingFeature.id as number;
+        
+        console.log(`Full scan found feature with ID ${featureId} for country ${countryId}`);
+        
+        // Set feature state to selected
+        map.current.setFeatureState(
+          { source: 'countries-geojson', id: featureId },
+          { selected: true }
+        );
+        
+        setSelectedCountryId(countryId);
+      } else {
+        console.log(`Full scan found no features for country code: ${countryId}`);
+      }
+    } catch (error) {
+      console.error(`Error in full scan for country ${countryId}:`, error);
+    }
+  }, [map, initialized]);
 
   // Function to highlight a country programmatically
   const highlightCountry = useCallback((countryId: string) => {
@@ -86,48 +126,7 @@ export const useDirectCountryHighlighting = ({
     } catch (error) {
       console.error(`Error highlighting country ${countryId}:`, error);
     }
-  }, [map, initialized, clearCountrySelection]);
-  
-  // Function to retry highlight with a full scan of features
-  const retryHighlightWithFullScan = useCallback((countryId: string) => {
-    if (!map.current || !initialized) return;
-    
-    console.log(`Retrying highlight with full scan for: ${countryId}`);
-    
-    try {
-      // Get all features from the source
-      const allFeatures = map.current.querySourceFeatures('countries-geojson');
-      
-      // Manually search through all feature properties
-      const matchingFeature = allFeatures.find(feature => {
-        const props = feature.properties;
-        return (
-          props.ISO_A2 === countryId ||
-          props.ISO_A3 === countryId ||
-          props.iso_a2 === countryId ||
-          props.iso_a3 === countryId
-        );
-      });
-      
-      if (matchingFeature) {
-        const featureId = matchingFeature.id as number;
-        
-        console.log(`Full scan found feature with ID ${featureId} for country ${countryId}`);
-        
-        // Set feature state to selected
-        map.current.setFeatureState(
-          { source: 'countries-geojson', id: featureId },
-          { selected: true }
-        );
-        
-        setSelectedCountryId(countryId);
-      } else {
-        console.log(`Full scan found no features for country code: ${countryId}`);
-      }
-    } catch (error) {
-      console.error(`Error in full scan for country ${countryId}:`, error);
-    }
-  }, [map, initialized]);
+  }, [map, initialized, clearCountrySelection, retryHighlightWithFullScan]);
 
   return {
     selectedCountryId,

@@ -51,10 +51,7 @@ export const useMapSetup = ({
         style: 'mapbox://styles/mapbox/light-v11',
         zoom: 1.5,
         center: [0, 30], // Center point adjusted for better visibility
-        projection: {
-          name: 'mercator', // Explicitly set to mercator (not globe)
-          center: [0, 30]
-        },
+        projection: 'mercator', // Explicitly set to mercator (not globe)
         minZoom: 1.0,
         maxZoom: 8,
         maxBounds: [
@@ -70,6 +67,14 @@ export const useMapSetup = ({
         localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif"
       });
 
+      // Log available sources for debugging
+      map.current.on('style.load', () => {
+        if (map.current) {
+          console.log("Available sources:", Object.keys(map.current.getStyle().sources || {}));
+          console.log("Map style loaded successfully");
+        }
+      });
+
       // Add controls
       map.current.addControl(
         new mapboxgl.AttributionControl({ compact: true }),
@@ -80,10 +85,6 @@ export const useMapSetup = ({
         new mapboxgl.NavigationControl({ showCompass: false }),
         'top-right'
       );
-
-      // Preload the GeoJSON data before style is loaded for faster rendering
-      const preloadGeoJSON = new Image();
-      preloadGeoJSON.src = '/countries.geojson'; // This doesn't actually fetch the file but primes DNS lookups
 
       // Enhanced load handling
       map.current.on('load', () => {
@@ -104,11 +105,6 @@ export const useMapSetup = ({
           // Notify that initialization is complete
           setInitialized(true);
         }
-      });
-
-      // Add specific error handler for style load errors
-      map.current.on('style.load', () => {
-        console.log("Map style loaded successfully");
       });
 
       // Set up a backup timer in case the load event doesn't fire

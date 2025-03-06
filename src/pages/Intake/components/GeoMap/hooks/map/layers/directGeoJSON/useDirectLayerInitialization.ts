@@ -49,32 +49,39 @@ export const useDirectLayerInitialization = ({
     let isMounted = true;
     
     const initializeLayers = async () => {
-      if (!map.current || initialized || !geoJsonData) return;
+      // Only proceed if map is initialized, not already set up, and we have the GeoJSON data
+      if (!map.current || initialized || !geoJsonData) {
+        console.log("Layer initialization skipped:", { 
+          mapExists: !!map.current, 
+          alreadyInitialized: initialized,
+          hasGeoJsonData: !!geoJsonData 
+        });
+        return;
+      }
       
       try {
         console.log("Adding direct GeoJSON layers to map");
         
-        // Check if the map style is loaded before proceeding
-        if (!map.current.isStyleLoaded()) {
-          console.log("Map style not loaded yet, waiting...");
+        // Wait for map style to load completely before adding layers
+        const waitForStyleAndInitialize = () => {
+          if (!map.current || !isMounted) return;
           
-          const checkStyleAndInitialize = () => {
-            if (map.current && map.current.isStyleLoaded()) {
-              console.log("Style now loaded, proceeding with layer initialization");
-              setupGeoJSONLayers();
-            } else {
-              console.log("Style still loading, checking again soon...");
-              setTimeout(checkStyleAndInitialize, 200);
-            }
-          };
-          
-          // Start checking
-          checkStyleAndInitialize();
-          return;
-        }
+          if (map.current.isStyleLoaded()) {
+            console.log("Map style loaded, proceeding with layer initialization");
+            setupGeoJSONLayers();
+          } else {
+            console.log("Map style not fully loaded yet, retrying...");
+            // Use both event listener and timeout for redundancy
+            map.current.once('style.load', () => {
+              console.log("Style.load event fired");
+              if (isMounted && map.current) setupGeoJSONLayers();
+            });
+            
+            setTimeout(waitForStyleAndInitialize, 200);
+          }
+        };
         
-        // If style is already loaded, proceed directly
-        setupGeoJSONLayers();
+        waitForStyleAndInitialize();
         
       } catch (err) {
         console.error("Error initializing GeoJSON layers:", err);
@@ -89,17 +96,19 @@ export const useDirectLayerInitialization = ({
       if (!map.current || !isMounted || !geoJsonData) return;
       
       try {
-        // Add the GeoJSON source with the direct data
-        console.log("Adding countries GeoJSON source");
+        console.log("Setting up GeoJSON layers - data points:", geoJsonData.features?.length || 0);
+        
+        // Force map to redraw if needed
+        map.current.resize();
         
         // Check if source already exists
         if (!map.current.getSource('countries-geojson')) {
+          console.log("Adding countries-geojson source");
           map.current.addSource('countries-geojson', {
             type: 'geojson',
             data: geoJsonData,
             generateId: true  // Auto-generate feature IDs for state
           });
-          console.log("Added countries-geojson source");
         }
         
         // Add a fill layer
@@ -165,6 +174,7 @@ export const useDirectLayerInitialization = ({
         // Setup click event for country selection
         setupInteractions();
         
+        // Mark initialization as complete
         setInitialized(true);
         console.log("GeoJSON layers successfully initialized");
         
@@ -178,8 +188,11 @@ export const useDirectLayerInitialization = ({
       }
     };
     
-    // Start the initialization process
-    initializeLayers();
+    // Start the initialization process if we have GeoJSON data
+    if (geoJsonData && map.current && !initialized) {
+      console.log("Starting layer initialization with GeoJSON data");
+      initializeLayers();
+    }
     
     return () => {
       isMounted = false;
