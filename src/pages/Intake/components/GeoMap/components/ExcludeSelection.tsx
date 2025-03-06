@@ -42,6 +42,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   const handleClearSelection = () => {
     setSelectedCountry("");
     setSelectedCountryFlag(null);
+    setIsDropdownOpen(false); // Close the dropdown after clearing
   };
 
   return (

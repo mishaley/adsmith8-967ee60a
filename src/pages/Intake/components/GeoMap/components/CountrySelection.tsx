@@ -75,6 +75,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     if (setSelectedCountryId) {
       setSelectedCountryId("");
     }
+    
+    // Close the dropdown
+    setIsDropdownOpen(false);
   };
 
   return (
