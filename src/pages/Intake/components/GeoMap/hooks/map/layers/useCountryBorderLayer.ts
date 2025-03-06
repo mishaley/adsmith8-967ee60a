@@ -13,20 +13,20 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
         'line-color': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          '#154851',
+          '#154851',  // Keep selected color
           ['boolean', ['feature-state', 'hover'], false],
-          '#8ebdc2',
-          '#333333'  // Much darker border color for better visibility
+          '#8ebdc2',  // Keep hover color
+          '#c8c8c9'   // Lighter, more subtle border color
         ],
         'line-width': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          3,  // Thicker for selected
+          2,  // Slightly thinner for selected
           ['boolean', ['feature-state', 'hover'], false],
-          2,  // Thicker for hover
-          1.5   // Base thickness increased for better visibility
+          1.5,  // Thinner for hover
+          0.8   // Much thinner base width for more elegance
         ],
-        'line-opacity': 1.0  // Full opacity for maximum visibility
+        'line-opacity': 0.8  // Slightly reduced opacity for softer appearance
       },
       layout: {
         'line-join': 'round',
