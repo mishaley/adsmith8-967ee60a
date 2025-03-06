@@ -53,6 +53,8 @@ export const generateMessagesForAllPersonas = async (
           message_type: type,
           created_at: new Date().toISOString(),
         };
+        
+        console.log(`Successfully generated message for ${personaId}/${type}:`, result[personaId][type]);
       } catch (error) {
         console.error(`Error generating ${type} message for persona ${personaId}:`, error);
         
@@ -104,7 +106,7 @@ export const generateColumnMessages = async (
         throw error;
       }
       
-      console.log("Edge function response:", data);
+      console.log("Edge function response for column generation:", data);
       const tagline = data?.tagline || `Generated ${messageType} Example`;
       console.log(`Generated tagline for ${personaId}: "${tagline}"`);
       

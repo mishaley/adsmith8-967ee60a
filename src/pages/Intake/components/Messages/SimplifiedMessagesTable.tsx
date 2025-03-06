@@ -139,17 +139,20 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                 
                 {/* Message cells */}
                 {messageColumns.map(column => {
-                  // Get message data for this persona and column type
-                  const messageData = generatedMessages?.[personaId]?.[column.type];
+                  // Log the generated messages structure to debug
+                  console.log(`Cell data for ${personaId}/${column.type}:`, generatedMessages?.[personaId]?.[column.type]);
                   
-                  console.log(`Cell data for ${personaId}/${column.type}:`, messageData);
-                  
+                  // Create a content object for this column with the right message data
+                  const contentObj = generatedMessages?.[personaId]?.[column.type] 
+                    ? { [personaId]: generatedMessages[personaId][column.type] } 
+                    : undefined;
+                    
                   return (
                     <MessageCell
                       key={`${personaId}-${column.id}`}
                       column={{
                         ...column,
-                        content: messageData ? { [personaId]: messageData } : undefined
+                        content: contentObj
                       }}
                       personaId={personaId}
                       onContentChange={handleContentChange}

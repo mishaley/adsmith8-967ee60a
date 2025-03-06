@@ -40,8 +40,8 @@ const MessageCell: React.FC<MessageCellProps> = ({
     messageObject: JSON.stringify(messageData)
   });
   
-  // Check if we have a valid message with a message_name
-  if (messageData && messageData.message_name) {
+  // Check if we have a valid message with a message_name that's not empty
+  if (messageData && messageData.message_name && messageData.message_name.trim() !== "") {
     return (
       <td className="border p-1 align-top">
         <div className="w-full min-h-[60px] p-2 bg-gray-50 rounded shadow-inner flex items-center justify-center">

@@ -56,7 +56,14 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   const {
     isGeneratingMessages,
     handleGenerateColumnMessages
-  } = useMessagesGeneration(safePersonas, selectedMessageTypes, userProvidedMessage, generatedMessages, setGeneratedMessages, setIsTableVisible);
+  } = useMessagesGeneration(
+    safePersonas, 
+    selectedMessageTypes, 
+    userProvidedMessage, 
+    generatedMessages, 
+    setGeneratedMessages,
+    setIsTableVisible
+  );
 
   const handleColumnGeneration = async (messageType: string): Promise<void> => {
     console.log(`Starting generation for ${messageType}`);
@@ -83,6 +90,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
           selectedMessageTypes={selectedMessageTypes}
           generatedMessages={generatedMessages}
           onMessageTypeChange={(types) => {
+            console.log("Message types changed to:", types);
             setSelectedMessageTypes(types);
           }}
         />

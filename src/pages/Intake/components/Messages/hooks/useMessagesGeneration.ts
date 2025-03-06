@@ -101,6 +101,7 @@ export const useMessagesGeneration = (
       );
       
       console.log("Messages generated successfully for column:", messageType);
+      console.log("Updated messages structure:", JSON.stringify(updatedMessages, null, 2));
       
       // Get the first generated tagline to show in toast (if available)
       let sampleTagline = "";
@@ -122,8 +123,7 @@ export const useMessagesGeneration = (
         toast.success(`Generated ${messageType} messages`);
       }
       
-      // Remove this return statement that was causing the TypeScript error
-      // return updatedMessages;
+      // Do not return anything - function should be void
       
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
