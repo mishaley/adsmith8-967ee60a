@@ -90,6 +90,7 @@ export const useDirectMapInteractions = ({
         
         // Set the new selection
         if (isoCode) {
+          console.log(`Selecting country: ${properties.NAME} with ISO code: ${isoCode}`);
           setSelectedCountryId(isoCode);
           
           // Set feature state to selected

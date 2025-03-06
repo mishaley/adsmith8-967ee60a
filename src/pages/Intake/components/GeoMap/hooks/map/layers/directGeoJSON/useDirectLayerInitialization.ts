@@ -55,8 +55,7 @@ export const useDirectLayerInitialization = ({
           map.current.addSource('countries-geojson', {
             type: 'geojson',
             data: geoJsonData,
-            generateId: true,
-            promoteId: 'ISO_A3'
+            generateId: true
           });
         } catch (fetchError) {
           console.error("Error fetching GeoJSON:", fetchError);

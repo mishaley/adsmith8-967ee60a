@@ -48,28 +48,57 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
     if (!map.getLayer('coastline-borders')) {
       console.log("Adding coastline-borders layer");
       
-      // Most reliable approach with admin boundaries
+      // Try different source-layer options to find one that works
+      const possibleSourceLayers = ['admin', 'boundary', 'coastline'];
+      
+      for (const sourceLayer of possibleSourceLayers) {
+        try {
+          map.addLayer({
+            id: `coastline-borders-${sourceLayer}`,
+            type: 'line',
+            source: 'composite',
+            'source-layer': sourceLayer,
+            filter: ['==', ['get', 'admin_level'], 0],
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+              'visibility': 'visible'
+            },
+            paint: {
+              'line-color': '#c8c8c9',
+              'line-width': 1.2,
+              'line-opacity': 1.0
+            }
+          });
+          console.log(`Added coastline layer with ${sourceLayer} source-layer`);
+          break;
+        } catch (error) {
+          console.log(`Could not add coastline with ${sourceLayer}:`, error);
+        }
+      }
+      
+      // Add a fallback coastline directly from countries layer
       try {
-        map.addLayer({
-          id: 'coastline-borders',
-          type: 'line',
-          source: 'composite',
-          'source-layer': 'admin',
-          filter: ['==', 'admin_level', 0],
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-            'visibility': 'visible'
-          },
-          paint: {
-            'line-color': '#c8c8c9',
-            'line-width': 0.8,
-            'line-opacity': 1.0
-          }
-        });
-        console.log("Added coastline layer with admin source-layer");
+        if (map.getSource('countries-geojson')) {
+          map.addLayer({
+            id: 'coastline-borders-fallback',
+            type: 'line',
+            source: 'countries-geojson',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+              'visibility': 'visible'
+            },
+            paint: {
+              'line-color': '#c8c8c9',
+              'line-width': 1.0,
+              'line-opacity': 0.8
+            }
+          });
+          console.log("Added fallback coastline borders from countries GeoJSON");
+        }
       } catch (error) {
-        console.error("Error adding coastline layer:", error);
+        console.error("Error adding fallback coastline:", error);
       }
     }
   } catch (error) {
