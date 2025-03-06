@@ -1,4 +1,3 @@
-
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 import { supabase } from "@/integrations/supabase/client";
@@ -33,8 +32,8 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
   // Remove any existing click event to prevent duplicates
   map.off('click', 'countries-fill');
   
-  // On click
-  map.on('click', 'countries-fill', async (e) => {
+  // Define the event handler function properly - this fixes the TypeScript error
+  const clickHandler = (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
     console.log("Map click detected on countries-fill layer");
     
     if (e.features && e.features.length > 0) {
@@ -65,24 +64,27 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
         }
       } else {
         // Find the country_id from the ISO code
-        const countryId = await getCountryIdFromIsoCode(isoCode);
-        
-        if (countryId) {
-          console.log(`Found country_id ${countryId} for ISO code ${isoCode}`);
-          // Select the new country by its UUID
-          onCountryClick(countryId);
-        } else {
-          // Fallback to using the ISO code directly if we can't find the UUID
-          console.log(`Could not find country_id for ISO code ${isoCode}, using ISO code`);
-          onCountryClick(isoCode);
-        }
-        
-        // Store map feature ID for highlight clearing
-        selectedCountryId = countryFeatureId;
-        selectedCountryCode = isoCode;
+        getCountryIdFromIsoCode(isoCode).then(countryId => {
+          if (countryId) {
+            console.log(`Found country_id ${countryId} for ISO code ${isoCode}`);
+            // Select the new country by its UUID
+            onCountryClick(countryId);
+          } else {
+            // Fallback to using the ISO code directly if we can't find the UUID
+            console.log(`Could not find country_id for ISO code ${isoCode}, using ISO code`);
+            onCountryClick(isoCode);
+          }
+          
+          // Store map feature ID for highlight clearing
+          selectedCountryId = countryFeatureId;
+          selectedCountryCode = isoCode;
+        });
       }
     }
-  });
+  };
+  
+  // Register the properly defined click handler function
+  map.on('click', 'countries-fill', clickHandler);
 };
 
 export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
