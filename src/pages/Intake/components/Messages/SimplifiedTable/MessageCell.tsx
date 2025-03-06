@@ -4,7 +4,7 @@ import React, { memo } from "react";
 interface MessageColumn {
   id: string;
   type: string;
-  content?: Record<string, string>;
+  content?: Record<string, any>;
 }
 
 interface MessageCellProps {
@@ -16,46 +16,38 @@ interface MessageCellProps {
 const MessageCell: React.FC<MessageCellProps> = ({ 
   column, 
   onContentChange,
-  personaId = "default" // Use a default value if personaId is not provided
+  personaId = "default"
 }) => {
-  // Safeguard against invalid or empty columns
   if (!column || !column.type || column.type === "remove") {
     return <td className="border p-1"></td>;
   }
   
-  // Make sure we have a valid personaId
   const personaKey = personaId || "default";
   
-  // Debug logging to check what content we have
   console.log("MessageCell rendering:", {
     columnId: column.id,
     columnType: column.type,
     personaId: personaKey,
     content: column.content,
-    hasContent: column.content && column.content[personaKey],
-    actualContent: column.content?.[personaKey]
+    messageData: column.content?.[personaKey]
   });
   
-  // Check if column has content for this persona
-  const hasContent = column.content && 
-                    column.content[personaKey] !== undefined && 
-                    column.content[personaKey] !== null && 
-                    column.content[personaKey] !== "";
+  // Check if we have valid content in the expected structure
+  const messageData = column.content?.[personaKey];
+  const hasContent = messageData && messageData.message_name;
   
   if (hasContent) {
-    // Display the content if it exists
     return (
       <td className="border p-1 align-top">
         <div className="w-full min-h-[60px] p-2 bg-gray-50 rounded shadow-inner flex items-center justify-center">
           <span className="font-medium text-center text-gray-800">
-            {column.content?.[personaKey]}
+            {messageData.message_name}
           </span>
         </div>
       </td>
     );
   }
   
-  // If no content, show the waiting message
   return (
     <td className="border p-1 align-top">
       <div className="w-full min-h-[60px] flex items-center justify-center text-gray-400 italic">
@@ -65,5 +57,4 @@ const MessageCell: React.FC<MessageCellProps> = ({
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders
 export default memo(MessageCell);

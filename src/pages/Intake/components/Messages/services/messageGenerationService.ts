@@ -1,4 +1,3 @@
-
 import { Persona } from "../../Personas/types";
 import { Message } from "../hooks/useMessagesFetching";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,21 +83,16 @@ export const generateColumnMessages = async (
     personasCount: personas.length
   });
   
-  // Create a new object to avoid mutating the original
   const updatedMessages = { ...existingMessages };
   
-  // For each persona, generate a message for the specified type
   for (const persona of personas) {
-    // Use ID or index as key
     const personaId = persona.id ? String(persona.id) : `persona-${personas.indexOf(persona)}`;
     
-    // Initialize persona entry if it doesn't exist
     if (!updatedMessages[personaId]) {
       updatedMessages[personaId] = {};
     }
     
     try {
-      // Call our edge function to generate a tagline
       console.log("Calling generate-marketing-taglines for:", { messageType, persona });
       const { data, error } = await supabase.functions.invoke('generate-marketing-taglines', {
         body: { messageType, persona }
@@ -111,31 +105,29 @@ export const generateColumnMessages = async (
       
       console.log("Edge function response:", data);
       
-      // Use the generated tagline or a fallback
-      const tagline = data?.tagline || `Generated ${messageType} Example`;
-      
-      // Add or update message for this type
+      // Important: Ensure we're using the correct structure for the message content
       updatedMessages[personaId][messageType] = {
         message_id: `${personaId}-${messageType}`,
-        message_name: tagline,
-        persona_id: personaId,
+        message_name: data?.tagline || `Generated ${messageType} Example`,
         message_type: messageType,
-        created_at: new Date().toISOString(),
+        persona_id: personaId,
+        created_at: new Date().toISOString()
       };
+
+      console.log(`Updated message for persona ${personaId}:`, updatedMessages[personaId][messageType]);
     } catch (error) {
       console.error(`Error generating ${messageType} message for persona ${personaId}:`, error);
       
-      // Use a fallback message
       updatedMessages[personaId][messageType] = {
         message_id: `${personaId}-${messageType}`,
         message_name: `Generated ${messageType} Example`,
-        persona_id: personaId,
         message_type: messageType,
-        created_at: new Date().toISOString(),
+        persona_id: personaId,
+        created_at: new Date().toISOString()
       };
     }
   }
   
-  console.log("Updated messages:", JSON.stringify(updatedMessages, null, 2));
+  console.log("Final updated messages:", JSON.stringify(updatedMessages, null, 2));
   return updatedMessages;
 };
