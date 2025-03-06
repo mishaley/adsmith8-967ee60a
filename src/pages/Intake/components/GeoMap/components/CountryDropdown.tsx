@@ -137,7 +137,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   return (
     <div className="w-full">
       {/* Search bar */}
-      <div className="sticky top-0 bg-white z-10 p-2 border-b border-gray-100">
+      <div className="sticky top-0 bg-white z-10 p-2 border-b border-gray-50">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
           <Input
@@ -150,7 +150,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
               setHighlightedIndex(-1); // Reset highlight when search changes
             }}
             onKeyDown={handleKeyDown}
-            className="pl-8 pr-8 w-full"
+            className="pl-8 pr-8 w-full border-gray-100"
             autoComplete="off"
           />
           {searchTerm && (
@@ -175,9 +175,9 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
               type="button" 
               variant="ghost" 
               className={`w-full flex items-center justify-between px-4 py-2 text-left h-auto ${
-                selectedCountry === country.country_id ? "bg-gray-100" : ""
+                selectedCountry === country.country_id ? "bg-gray-50" : ""
               } ${
-                highlightedIndex === index ? "bg-gray-100" : ""
+                highlightedIndex === index ? "bg-gray-50" : ""
               }`} 
               onClick={() => handleCountrySelect(country.country_id, country.country_flag)}
               onMouseEnter={() => setHighlightedIndex(index)}

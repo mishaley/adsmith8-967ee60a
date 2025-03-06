@@ -53,7 +53,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between font-normal"
+            className="w-full justify-between font-normal bg-white"
           >
             <span className="flex items-center gap-2 text-left truncate">
               {selectedCountryFlag && (
@@ -68,7 +68,8 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
         <PopoverContent 
           align="center" 
           side="top" 
-          className="w-[var(--radix-popover-trigger-width)] p-0 bg-white border border-gray-200 rounded-md shadow-lg"
+          className="w-[var(--radix-popover-trigger-width)] p-0 bg-white rounded-md shadow-lg border-gray-100"
+          style={{ border: '1px solid #f1f1f1' }}
         >
           <div className="max-h-60 overflow-auto">
             <CountryDropdown 
@@ -77,7 +78,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
               setSelectedCountryId={null}
             />
           </div>
-          <div className="sticky bottom-0 w-full border-t border-gray-200 bg-white">
+          <div className="sticky bottom-0 w-full border-t border-gray-100 bg-white">
             <Button 
               type="button" 
               variant="ghost" 
