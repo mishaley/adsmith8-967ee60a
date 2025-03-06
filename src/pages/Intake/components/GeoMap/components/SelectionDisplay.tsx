@@ -1,9 +1,11 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useCountryLanguage } from "../../Languages/hooks/useCountryLanguage";
 import CountryStatusDisplay from "./CountryStatusDisplay";
 import CountrySelection from "./CountrySelection";
 import LanguageSelection from "./LanguageSelection";
+import ExcludeSelection from "./ExcludeSelection";
+import { useCountries } from "../hooks/useCountries";
 
 interface SelectionDisplayProps {
   selectedCountry: string;
@@ -20,6 +22,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   setSelectedLanguage,
   setSelectedCountryId
 }) => {
+  const { countries } = useCountries();
+  const [excludedCountry, setExcludedCountry] = useState<string>('');
+  
   const {
     primaryLanguageId,
     countryName,
@@ -52,12 +57,21 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
       </div>
 
       {/* Language Selection */}
-      <div>
+      <div className="mb-6">
         <LanguageSelection 
           selectedLanguage={selectedLanguage} 
           setSelectedLanguage={setSelectedLanguage} 
           isLoadingCountry={isLoadingCountry} 
           primaryLanguageId={primaryLanguageId} 
+        />
+      </div>
+
+      {/* Exclude Selection */}
+      <div>
+        <ExcludeSelection 
+          selectedCountry={excludedCountry} 
+          setSelectedCountry={setExcludedCountry} 
+          countryName={countries.find(c => c.country_id === excludedCountry)?.country_name || null} 
         />
       </div>
     </div>
