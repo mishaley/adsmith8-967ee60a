@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import mapboxgl from 'mapbox-gl';
 
 /**
  * Finds country_id from ISO code using Supabase query
@@ -24,6 +25,24 @@ export const getCountryIdFromIsoCode = async (isoCode: string): Promise<string |
     console.error("Exception finding country ID from ISO code:", error);
     return null;
   }
+};
+
+/**
+ * Extracts country ID from a GeoJSON feature
+ * @param feature The GeoJSON feature from mapbox
+ * @returns Country ID string or null if not found
+ */
+export const getCountryIdFromFeature = (feature: mapboxgl.MapboxGeoJSONFeature): string | null => {
+  if (!feature || !feature.properties) {
+    return null;
+  }
+  
+  // Try to find country code in standard properties
+  const isoCode = feature.properties.iso_3166_1 || 
+                 feature.properties.ISO_A2 || 
+                 feature.properties.ISO_A3;
+  
+  return isoCode || null;
 };
 
 /**
