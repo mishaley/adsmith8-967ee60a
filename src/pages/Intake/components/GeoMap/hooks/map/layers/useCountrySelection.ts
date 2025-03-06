@@ -1,3 +1,4 @@
+
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 
@@ -18,6 +19,21 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
         console.log('Deselecting current country');
         // Deselect the country
         onCountryClick('');
+        
+        // Clear the visual highlight immediately here
+        try {
+          if (selectedCountryId) {
+            map.setFeatureState(
+              { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+              { selected: false }
+            );
+            console.log(`Cleared visual highlight for country ID: ${selectedCountryId}`);
+            selectedCountryId = null;
+            selectedCountryCode = null;
+          }
+        } catch (error) {
+          console.error("Error clearing country selection on click:", error);
+        }
       } else {
         // Select the new country
         onCountryClick(countryName);
