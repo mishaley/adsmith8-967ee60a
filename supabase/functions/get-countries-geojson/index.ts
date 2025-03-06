@@ -2,22 +2,14 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 // This edge function serves a simplified GeoJSON of world countries
-// In production, this would fetch from a database or file storage
 serve(async (req) => {
   try {
     // In a real implementation, we would fetch a proper GeoJSON from a database or storage
     // For now, we'll use a simplified version with just a few countries as an example
     
-    // This is where you would fetch or read your actual GeoJSON data
-    // In a production system, this would be a complete world GeoJSON with:
-    // 1. Simplified boundaries for better performance
-    // 2. ISO codes and country names in properties
-    // 3. Unique IDs for each feature
-    
     const countriesGeoJSON = {
       type: "FeatureCollection",
       features: [
-        // Sample GeoJSON features - in production this would be a complete dataset
         {
           type: "Feature",
           properties: {
@@ -57,7 +49,98 @@ serve(async (req) => {
           },
           id: "DEU"
         },
-        // In a real implementation, this would include all countries
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Mexico",
+            ISO_A2: "MX",
+            ISO_A3: "MEX"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[-105, 25], [-105, 15], [-95, 15], [-95, 25], [-105, 25]]]
+          },
+          id: "MEX"
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Japan",
+            ISO_A2: "JP",
+            ISO_A3: "JPN"
+          },
+          geometry: {
+            type: "MultiPolygon",
+            coordinates: [[[[140, 45], [140, 35], [145, 35], [145, 45], [140, 45]]]]
+          },
+          id: "JPN"
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "India",
+            ISO_A2: "IN",
+            ISO_A3: "IND"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[70, 35], [70, 8], [90, 8], [90, 35], [70, 35]]]
+          },
+          id: "IND"
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "France",
+            ISO_A2: "FR",
+            ISO_A3: "FRA"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[0, 51], [0, 42], [8, 42], [8, 51], [0, 51]]]
+          },
+          id: "FRA"
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "United Kingdom",
+            ISO_A2: "GB",
+            ISO_A3: "GBR"
+          },
+          geometry: {
+            type: "MultiPolygon",
+            coordinates: [[[[-5, 58], [-5, 50], [2, 50], [2, 58], [-5, 58]]]]
+          },
+          id: "GBR"
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Australia",
+            ISO_A2: "AU",
+            ISO_A3: "AUS"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[115, -10], [115, -40], [155, -40], [155, -10], [115, -10]]]
+          },
+          id: "AUS"
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Canada",
+            ISO_A2: "CA",
+            ISO_A3: "CAN"
+          },
+          geometry: {
+            type: "MultiPolygon",
+            coordinates: [[[[-140, 70], [-140, 48], [-55, 48], [-55, 70], [-140, 70]]]]
+          },
+          id: "CAN"
+        }
+        // In a production system, this would be a complete world GeoJSON
       ]
     };
 

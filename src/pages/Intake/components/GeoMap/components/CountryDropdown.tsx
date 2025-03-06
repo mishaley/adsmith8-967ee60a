@@ -47,12 +47,15 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
       const selectedCountry = countries.find(c => c.country_id === countryId);
       
       if (selectedCountry) {
-        // Use ISO2 code for map highlighting as it matches Mapbox's iso_3166_1 property
-        if (selectedCountry.country_iso2) {
+        // Use ISO3 code for map highlighting as it matches the GeoJSON features better
+        if (selectedCountry.country_iso3) {
+          console.log(`Using ISO3 code for highlighting: ${selectedCountry.country_iso3}`);
+          setSelectedCountryId(selectedCountry.country_iso3);
+        } else if (selectedCountry.country_iso2) {
           console.log(`Using ISO2 code for highlighting: ${selectedCountry.country_iso2}`);
           setSelectedCountryId(selectedCountry.country_iso2);
         } else {
-          console.log(`No ISO2 code found, using country_id: ${countryId}`);
+          console.log(`No ISO code found, using country_id: ${countryId}`);
           setSelectedCountryId(countryId);
         }
       } else {

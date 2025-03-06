@@ -4,6 +4,7 @@ import { useMapInstance } from "./map/useMapInstance";
 import { useDirectGeoJSONLayers } from "./map/useDirectGeoJSONLayers";
 import { convertIsoToCountryId } from "./map/layers/utils/countryIdUtils";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UseMapInitializationProps {
   mapboxToken: string | null;
@@ -21,6 +22,51 @@ export const useMapInitialization = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [highlightCountryFn, setHighlightCountryFn] = useState<((id: string) => void) | null>(null);
+  const [countryIdToIsoMap, setCountryIdToIsoMap] = useState<Record<string, string>>({});
+  const [isoToCountryIdMap, setIsoToCountryIdMap] = useState<Record<string, string>>({});
+
+  // Load country mappings once
+  useEffect(() => {
+    const loadCountryMappings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('y3countries')
+          .select('country_id, country_iso2, country_iso3');
+          
+        if (error) {
+          console.error("Error loading country mappings:", error);
+          return;
+        }
+        
+        if (data) {
+          const idToIso: Record<string, string> = {};
+          const isoToId: Record<string, string> = {};
+          
+          data.forEach(country => {
+            // Prefer ISO3 over ISO2 for mapping
+            const isoCode = country.country_iso3 || country.country_iso2;
+            if (country.country_id && isoCode) {
+              idToIso[country.country_id] = isoCode;
+              isoToId[isoCode] = country.country_id;
+              
+              // Also add the ISO2 mapping
+              if (country.country_iso2) {
+                isoToId[country.country_iso2] = country.country_id;
+              }
+            }
+          });
+          
+          setCountryIdToIsoMap(idToIso);
+          setIsoToCountryIdMap(isoToId);
+          console.log(`Loaded mappings for ${data.length} countries`);
+        }
+      } catch (error) {
+        console.error("Failed to load country mappings:", error);
+      }
+    };
+    
+    loadCountryMappings();
+  }, []);
 
   // Initialize map instance
   const {
@@ -32,7 +78,7 @@ export const useMapInitialization = ({
     mapContainer
   });
 
-  // Set up new direct GeoJSON approach for country layers
+  // Set up direct GeoJSON approach for country layers
   const {
     initialized: layersInitialized,
     error: layersError,
@@ -50,11 +96,16 @@ export const useMapInitialization = ({
       }
       
       try {
-        // Convert ISO code to country_id for the UI dropdown
-        const countryId = await convertIsoToCountryId(isoCode);
+        // Use our pre-loaded mappings first for better performance
+        let countryId = isoToCountryIdMap[isoCode];
+        
+        if (!countryId) {
+          // Fallback to database query if not in the map
+          countryId = await convertIsoToCountryId(isoCode);
+        }
         
         if (countryId) {
-          console.log(`Setting selected country to: ${countryId}`);
+          console.log(`Setting selected country to: ${countryId} (from ISO: ${isoCode})`);
           setSelectedCountry(countryId);
         } else {
           console.log(`Could not convert ISO ${isoCode} to country_id`);
@@ -95,21 +146,39 @@ export const useMapInitialization = ({
     if (initialized && highlightCountry) {
       if (selectedCountry) {
         console.log(`Applying country selection: ${selectedCountry}`);
-        highlightCountry(selectedCountry);
         
-        // Additional retry for reliability
-        setTimeout(() => {
-          if (highlightCountry) {
-            console.log(`Retry: Applying country selection: ${selectedCountry}`);
-            highlightCountry(selectedCountry);
-          }
-        }, 1000);
+        // Convert UUID to ISO code if needed
+        const isoCode = countryIdToIsoMap[selectedCountry];
+        
+        if (isoCode) {
+          console.log(`Converting UUID ${selectedCountry} to ISO code ${isoCode} for map`);
+          highlightCountry(isoCode);
+          
+          // Additional retry for reliability
+          setTimeout(() => {
+            if (highlightCountry) {
+              console.log(`Retry: Applying country selection ISO: ${isoCode}`);
+              highlightCountry(isoCode);
+            }
+          }, 1000);
+        } else {
+          // Try using the selectedCountry directly (it might already be an ISO code)
+          highlightCountry(selectedCountry);
+          
+          // Additional retry for reliability
+          setTimeout(() => {
+            if (highlightCountry) {
+              console.log(`Retry: Applying country selection direct: ${selectedCountry}`);
+              highlightCountry(selectedCountry);
+            }
+          }, 1000);
+        }
       } else {
         // Clear selection if selectedCountry is empty
         clearCountrySelection();
       }
     }
-  }, [initialized, selectedCountry, highlightCountry, clearCountrySelection]);
+  }, [initialized, selectedCountry, highlightCountry, clearCountrySelection, countryIdToIsoMap]);
 
   // Recovery mechanism if the map fails to initialize properly
   useEffect(() => {
