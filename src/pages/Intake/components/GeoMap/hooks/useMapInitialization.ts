@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useMapInstance } from "./map/useMapInstance";
 import { useDirectGeoJSONLayers } from "./map/useDirectGeoJSONLayers";
 import { useCountryMappings } from "./map/useCountryMappings";
