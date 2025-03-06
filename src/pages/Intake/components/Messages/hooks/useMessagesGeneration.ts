@@ -88,10 +88,25 @@ export const useMessagesGeneration = (
       console.log("Messages generated successfully for column:", messageType);
       console.log("Updated messages state:", JSON.stringify(updatedMessages, null, 2));
       
+      // Get the first generated tagline to show in toast (if available)
+      let sampleTagline = "";
+      if (personas.length > 0 && personas[0]) {
+        const firstPersonaId = personas[0].id ? String(personas[0].id) : "persona-0";
+        if (updatedMessages[firstPersonaId]?.[messageType]) {
+          sampleTagline = updatedMessages[firstPersonaId][messageType].message_name;
+        }
+      }
+      
       // Make sure we're updating the state with the new messages
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
-      toast.success(`Generated ${messageType} messages`);
+      
+      // Show the first generated tagline in the toast (if available)
+      if (sampleTagline) {
+        toast.success(`Generated: "${sampleTagline}"`);
+      } else {
+        toast.success(`Generated ${messageType} messages`);
+      }
       
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);

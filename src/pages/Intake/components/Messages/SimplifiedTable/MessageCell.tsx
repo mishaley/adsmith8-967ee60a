@@ -26,10 +26,21 @@ const MessageCell: React.FC<MessageCellProps> = ({
   // Make sure we have a valid personaId
   const personaKey = personaId || "default";
   
+  // Debug logging to check what content we have
+  console.log("MessageCell rendering:", {
+    columnId: column.id,
+    columnType: column.type,
+    personaId: personaKey,
+    content: column.content,
+    hasContent: column.content && column.content[personaKey],
+    actualContent: column.content?.[personaKey]
+  });
+  
   // Check if column has content for this persona
   const hasContent = column.content && 
-                    column.content[personaKey] && 
-                    column.content[personaKey].trim() !== "";
+                    column.content[personaKey] !== undefined && 
+                    column.content[personaKey] !== null && 
+                    column.content[personaKey] !== "";
   
   if (hasContent) {
     // Display the content if it exists

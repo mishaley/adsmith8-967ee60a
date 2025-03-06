@@ -65,6 +65,12 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     }
   }, [messageColumns, onMessageTypeChange]);
 
+  console.log("SimplifiedMessagesTable rendering with:", {
+    personas: personas.length,
+    columns: messageColumns.length,
+    columnTypes: messageColumns.map(col => col.type)
+  });
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse" style={{ tableLayout: "fixed" }}>
@@ -113,6 +119,11 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
             
             // Get persona ID for referencing message content
             const personaId = persona.id ? String(persona.id) : `persona-${personaIndex}`;
+            
+            console.log(`Rendering row for persona: ${personaId}`, {
+              personaName: persona.name || persona.title,
+              columnsCount: messageColumns.length
+            });
             
             return (
               <tr key={personaId} className="align-top">
