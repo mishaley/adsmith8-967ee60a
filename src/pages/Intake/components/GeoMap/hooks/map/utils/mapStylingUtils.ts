@@ -33,32 +33,10 @@ export function removeLabels(map: mapboxgl.Map) {
  */
 export function addCoastlineBorders(map: mapboxgl.Map) {
   if (!map.getLayer('coastline-borders')) {
-    // Check if coastline layer exists in mapbox style
-    if (map.getSource('composite')) {
-      console.log("Adding coastline border layer");
-      
-      // Add coastline layer from mapbox composite source
-      map.addLayer({
-        id: 'coastline-borders',
-        type: 'line',
-        source: 'composite',
-        'source-layer': 'landuse', // For coastlines
-        filter: ['==', 'class', 'national_park'], // Use national_park edges as a proxy for coastlines
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#8ebdc2',
-          'line-width': 0.5,
-          'line-opacity': 0.6
-        }
-      });
-    } else {
-      // Add coastline using water layer edge
-      console.log("Adding coastline using water edge");
-      
-      // Add a line layer that traces the edge of water polygons
+    console.log("Adding coastline border layer");
+    
+    try {
+      // Primary approach: Use water layer edges
       map.addLayer({
         id: 'coastline-borders',
         type: 'line',
@@ -66,14 +44,42 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
         'source-layer': 'water',
         layout: {
           'line-join': 'round',
-          'line-cap': 'round'
+          'line-cap': 'round',
+          'visibility': 'visible'
         },
         paint: {
           'line-color': '#8ebdc2',
-          'line-width': 0.5, 
-          'line-opacity': 0.6
+          'line-width': 1.0,
+          'line-opacity': 0.9
         }
       });
+      console.log("Added primary coastline layer");
+    } catch (error) {
+      console.error("Error adding primary coastline layer:", error);
+      
+      // Fallback approach using ocean layer if available
+      try {
+        map.addLayer({
+          id: 'coastline-borders-fallback',
+          type: 'line',
+          source: 'composite',
+          'source-layer': 'landuse', 
+          filter: ['==', 'class', 'national_park'],
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+            'visibility': 'visible'
+          },
+          paint: {
+            'line-color': '#8ebdc2',
+            'line-width': 1.0,
+            'line-opacity': 0.9
+          }
+        });
+        console.log("Added fallback coastline layer");
+      } catch (secondError) {
+        console.error("Failed to add fallback coastline layer:", secondError);
+      }
     }
   } else {
     console.log("Coastline layer already exists");
@@ -84,6 +90,8 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
  * Updates water color and other styling on the map
  */
 export function applyMapStyling(map: mapboxgl.Map) {
+  console.log("Applying map styling...");
+  
   // Update water color
   map.setPaintProperty('water', 'fill-color', '#e9f2fe');
   
@@ -92,6 +100,16 @@ export function applyMapStyling(map: mapboxgl.Map) {
   
   // Add coastline borders
   addCoastlineBorders(map);
+  
+  // Ensure country borders are visible by setting opacity
+  try {
+    if (map.getLayer('countries-border')) {
+      map.setPaintProperty('countries-border', 'line-opacity', 1.0);
+      console.log("Updated existing country borders opacity");
+    }
+  } catch (e) {
+    console.log("No countries-border layer found to update");
+  }
   
   console.log("Map styling updated - removed labels and added coastlines");
 }

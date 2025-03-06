@@ -24,6 +24,8 @@ export const useLayerInitialization = (
 
   // Initialize map layers in the correct order
   const initializeLayers = useCallback((mapInstance: mapboxgl.Map) => {
+    console.log("Initializing map layers...");
+    
     // Step 1: Add the source first
     addCountrySource(mapInstance);
     
@@ -48,6 +50,9 @@ export const useLayerInitialization = (
     // Mark initialization as complete
     setLayersInitialized(true);
     console.log("Country layers initialized successfully");
+    
+    // Verify layers were added
+    console.log("Layers in map:", mapInstance.getStyle().layers?.map(l => l.id).join(', '));
   }, [setSelectedCountry]);
 
   return { 

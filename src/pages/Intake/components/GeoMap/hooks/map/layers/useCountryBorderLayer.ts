@@ -13,26 +13,27 @@ export const addCountryBorderLayer = (map: mapboxgl.Map) => {
         'line-color': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          '#154851',  // Keep selected color
+          '#154851',  // Selected country border color
           ['boolean', ['feature-state', 'hover'], false],
-          '#8ebdc2',  // Keep hover color
-          '#c8c8c9'   // Lighter, more subtle border color
+          '#8ebdc2',  // Hover color
+          '#c8c8c9'   // Default border color
         ],
         'line-width': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          2,  // Slightly thinner for selected
+          2,  // Selected border width
           ['boolean', ['feature-state', 'hover'], false],
-          1.5,  // Thinner for hover
-          0.8   // Much thinner base width for more elegance
+          1.5,  // Hover border width
+          0.8   // Default border width
         ],
-        'line-opacity': 0.8  // Slightly reduced opacity for softer appearance
+        'line-opacity': 1.0  // Increased opacity for better visibility
       },
       layout: {
         'line-join': 'round',
         'line-cap': 'round'
       }
     });
+    console.log("Countries border layer added");
   } else {
     console.log("Countries border layer already exists");
   }
