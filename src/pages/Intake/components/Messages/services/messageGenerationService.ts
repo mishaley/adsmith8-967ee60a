@@ -36,7 +36,12 @@ export const generateMessagesForAllPersonas = async (
           body: { messageType: type, persona }
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Error from edge function:", error);
+          throw error;
+        }
+        
+        console.log("Edge function response:", data);
         
         // Use the generated tagline or a fallback
         const tagline = data?.tagline || `Generated ${type} Example`;
@@ -63,7 +68,7 @@ export const generateMessagesForAllPersonas = async (
     }
   }
   
-  console.log("Generated messages result:", result);
+  console.log("Generated messages result:", JSON.stringify(result, null, 2));
   return result;
 };
 
@@ -94,11 +99,17 @@ export const generateColumnMessages = async (
     
     try {
       // Call our edge function to generate a tagline
+      console.log("Calling generate-marketing-taglines for:", { messageType, persona });
       const { data, error } = await supabase.functions.invoke('generate-marketing-taglines', {
         body: { messageType, persona }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error from edge function:", error);
+        throw error;
+      }
+      
+      console.log("Edge function response:", data);
       
       // Use the generated tagline or a fallback
       const tagline = data?.tagline || `Generated ${messageType} Example`;
@@ -125,5 +136,6 @@ export const generateColumnMessages = async (
     }
   }
   
+  console.log("Updated messages:", JSON.stringify(updatedMessages, null, 2));
   return updatedMessages;
 };

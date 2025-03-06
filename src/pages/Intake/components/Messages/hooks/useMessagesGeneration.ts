@@ -55,6 +55,7 @@ export const useMessagesGeneration = (
       // Update the state with the new messages
       setGeneratedMessages(messages);
       setIsTableVisible(true);
+      toast.success("Messages generated successfully");
       
     } catch (error) {
       console.error("Error generating messages:", error);
@@ -84,11 +85,13 @@ export const useMessagesGeneration = (
         generatedMessages
       );
       
-      console.log("Messages generated successfully:", JSON.stringify(updatedMessages, null, 2));
+      console.log("Messages generated successfully for column:", messageType);
+      console.log("Updated messages state:", JSON.stringify(updatedMessages, null, 2));
       
       // Make sure we're updating the state with the new messages
       setGeneratedMessages(updatedMessages);
       setIsTableVisible(true);
+      toast.success(`Generated ${messageType} messages`);
       
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);

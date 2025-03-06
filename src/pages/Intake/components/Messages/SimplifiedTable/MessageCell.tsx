@@ -23,21 +23,28 @@ const MessageCell: React.FC<MessageCellProps> = ({
     return <td className="border p-1"></td>;
   }
   
-  // Safely access content with null checks
-  const content = column.content && personaId ? column.content[personaId] || "" : "";
+  // Make sure we have a valid personaId
+  const personaKey = personaId || "default";
   
-  // If column has content for this persona, display it
-  if (content) {
+  // Check if column has content for this persona
+  const hasContent = column.content && 
+                    column.content[personaKey] && 
+                    column.content[personaKey].trim() !== "";
+  
+  if (hasContent) {
+    // Display the content if it exists
     return (
       <td className="border p-1 align-top">
         <div className="w-full min-h-[60px] p-2 bg-gray-50 rounded shadow-inner flex items-center justify-center">
-          <span className="font-medium text-center text-gray-800">{content}</span>
+          <span className="font-medium text-center text-gray-800">
+            {column.content?.[personaKey]}
+          </span>
         </div>
       </td>
     );
   }
   
-  // If no content, just show an empty cell
+  // If no content, show the waiting message
   return (
     <td className="border p-1 align-top">
       <div className="w-full min-h-[60px] flex items-center justify-center text-gray-400 italic">

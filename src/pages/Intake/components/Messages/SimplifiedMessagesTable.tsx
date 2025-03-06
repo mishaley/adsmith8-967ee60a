@@ -45,8 +45,8 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     }
     
     try {
+      console.log("Generate button clicked for column:", columnType);
       await handleGenerateColumnMessages(columnType);
-      toast.success(`Generated ${columnType} messages`);
     } catch (error) {
       console.error("Error generating messages:", error);
       toast.error("Failed to generate messages");
