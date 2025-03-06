@@ -20,8 +20,12 @@ export const useDirectGeoJSONLayers = ({
   const {
     selectedCountryId,
     setSelectedCountryId,
+    excludedCountryId,
+    setExcludedCountryId,
     highlightCountry,
-    clearCountrySelection
+    highlightExcludedCountry,
+    clearCountrySelection,
+    clearExcludedCountry
   } = useDirectCountryHighlighting({
     map,
     initialized: layersInitialized
@@ -64,7 +68,10 @@ export const useDirectGeoJSONLayers = ({
     initialized,
     error,
     highlightCountry,
+    highlightExcludedCountry,
     clearCountrySelection,
-    selectedCountryId
+    clearExcludedCountry,
+    selectedCountryId,
+    excludedCountryId
   };
 };

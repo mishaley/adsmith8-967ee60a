@@ -24,6 +24,7 @@ export const useMapInitialization = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [highlightCountryFn, setHighlightCountryFn] = useState<((id: string) => void) | null>(null);
+  const [highlightExcludedCountryFn, setHighlightExcludedCountryFn] = useState<((id: string) => void) | null>(null);
 
   // Load country ID to ISO code mappings
   const {
@@ -52,6 +53,7 @@ export const useMapInitialization = ({
     initialized: layersInitialized,
     error: layersError,
     highlightCountry,
+    highlightExcludedCountry,
     clearCountrySelection
   } = useDirectGeoJSONLayers({
     map,
@@ -72,15 +74,16 @@ export const useMapInitialization = ({
     setSelectedCountryId: highlightCountryFn
   });
 
-  // Set the highlight function
+  // Set the highlight functions
   useEffect(() => {
     if (mapInitialized && layersInitialized) {
       setHighlightCountryFn(() => highlightCountry);
+      setHighlightExcludedCountryFn(() => highlightExcludedCountry);
       setInitialized(true);
       
       console.log("Map fully initialized and ready for country selection");
     }
-  }, [mapInitialized, layersInitialized, highlightCountry]);
+  }, [mapInitialized, layersInitialized, highlightCountry, highlightExcludedCountry]);
 
   // Sync initialization errors
   useEffect(() => {
@@ -136,6 +139,7 @@ export const useMapInitialization = ({
   return { 
     mapError, 
     initialized, 
-    setSelectedCountryId: highlightCountryFn 
+    setSelectedCountryId: highlightCountryFn,
+    setExcludedCountryId: highlightExcludedCountryFn
   };
 };

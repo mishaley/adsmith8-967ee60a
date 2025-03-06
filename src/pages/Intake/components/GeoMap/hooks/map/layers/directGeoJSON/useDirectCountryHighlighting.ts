@@ -12,6 +12,7 @@ export const useDirectCountryHighlighting = ({
   initialized
 }: UseDirectCountryHighlightingProps) => {
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
+  const [excludedCountryId, setExcludedCountryId] = useState<string | null>(null);
 
   // Function to clear current country selection
   const clearCountrySelection = useCallback(() => {
@@ -37,11 +38,35 @@ export const useDirectCountryHighlighting = ({
     }
   }, [map, initialized, selectedCountryId]);
 
-  // Function to retry highlight with a full scan of features
-  const retryHighlightWithFullScan = useCallback((countryId: string) => {
+  // Function to clear excluded country
+  const clearExcludedCountry = useCallback(() => {
     if (!map.current || !initialized) return;
     
-    console.log(`Retrying highlight with full scan for: ${countryId}`);
+    if (excludedCountryId) {
+      console.log(`Clearing excluded country: ${excludedCountryId}`);
+      
+      // Find all features that might be excluded
+      const features = map.current.querySourceFeatures('countries-geojson');
+      
+      // Clear excluded state from all features
+      features.forEach(feature => {
+        if (feature.id !== undefined) {
+          map.current!.setFeatureState(
+            { source: 'countries-geojson', id: feature.id },
+            { excluded: false }
+          );
+        }
+      });
+      
+      setExcludedCountryId(null);
+    }
+  }, [map, initialized, excludedCountryId]);
+
+  // Function to retry highlight with a full scan of features
+  const retryHighlightWithFullScan = useCallback((countryId: string, isExcluded: boolean = false) => {
+    if (!map.current || !initialized) return;
+    
+    console.log(`Retrying highlight with full scan for: ${countryId}, excluded: ${isExcluded}`);
     
     try {
       // Get all features from the source
@@ -63,13 +88,20 @@ export const useDirectCountryHighlighting = ({
         
         console.log(`Full scan found feature with ID ${featureId} for country ${countryId}`);
         
-        // Set feature state to selected
-        map.current.setFeatureState(
-          { source: 'countries-geojson', id: featureId },
-          { selected: true }
-        );
-        
-        setSelectedCountryId(countryId);
+        // Set feature state based on whether it's excluded or selected
+        if (isExcluded) {
+          map.current.setFeatureState(
+            { source: 'countries-geojson', id: featureId },
+            { excluded: true, selected: false }
+          );
+          setExcludedCountryId(countryId);
+        } else {
+          map.current.setFeatureState(
+            { source: 'countries-geojson', id: featureId },
+            { selected: true, excluded: false }
+          );
+          setSelectedCountryId(countryId);
+        }
       } else {
         console.log(`Full scan found no features for country code: ${countryId}`);
       }
@@ -79,16 +111,21 @@ export const useDirectCountryHighlighting = ({
   }, [map, initialized]);
 
   // Function to highlight a country programmatically
-  const highlightCountry = useCallback((countryId: string) => {
+  const highlightCountry = useCallback((countryId: string, isExcluded: boolean = false) => {
     if (!map.current || !initialized || !countryId) {
       console.log(`Cannot highlight country ${countryId} - map not ready or country ID empty`);
       return;
     }
     
-    console.log(`Programmatically highlighting country: ${countryId}`);
+    console.log(`Programmatically highlighting country: ${countryId}, excluded: ${isExcluded}`);
     
-    // Clear any existing selection
-    clearCountrySelection();
+    // Clear any existing selection if this is a regular selection (not excluded)
+    if (!isExcluded) {
+      clearCountrySelection();
+    } else {
+      // If we're setting an excluded country, clear any previous excluded country
+      clearExcludedCountry();
+    }
     
     try {
       // Find the feature by ISO code
@@ -108,30 +145,46 @@ export const useDirectCountryHighlighting = ({
         
         console.log(`Found feature with ID ${featureId} for country ${countryId}`);
         
-        // Set feature state to selected
-        map.current.setFeatureState(
-          { source: 'countries-geojson', id: featureId },
-          { selected: true }
-        );
-        
-        setSelectedCountryId(countryId);
+        // Set feature state based on whether it's excluded or selected
+        if (isExcluded) {
+          map.current.setFeatureState(
+            { source: 'countries-geojson', id: featureId },
+            { excluded: true, selected: false }
+          );
+          setExcludedCountryId(countryId);
+        } else {
+          map.current.setFeatureState(
+            { source: 'countries-geojson', id: featureId },
+            { selected: true, excluded: false }
+          );
+          setSelectedCountryId(countryId);
+        }
       } else {
         console.log(`No features found for country code: ${countryId}`);
         
         // Retry with a more expensive search as fallback
         setTimeout(() => {
-          retryHighlightWithFullScan(countryId);
+          retryHighlightWithFullScan(countryId, isExcluded);
         }, 500);
       }
     } catch (error) {
       console.error(`Error highlighting country ${countryId}:`, error);
     }
-  }, [map, initialized, clearCountrySelection, retryHighlightWithFullScan]);
+  }, [map, initialized, clearCountrySelection, clearExcludedCountry, retryHighlightWithFullScan]);
+
+  // Function to highlight a country as excluded
+  const highlightExcludedCountry = useCallback((countryId: string) => {
+    highlightCountry(countryId, true);
+  }, [highlightCountry]);
 
   return {
     selectedCountryId,
     setSelectedCountryId,
+    excludedCountryId,
+    setExcludedCountryId,
     highlightCountry,
-    clearCountrySelection
+    highlightExcludedCountry,
+    clearCountrySelection,
+    clearExcludedCountry
   };
 };

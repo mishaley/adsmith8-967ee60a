@@ -55,9 +55,7 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
       </div>
       
       <div className="mt-8 max-w-md mx-auto">
-        
-        
-        
+        {/* Additional location settings can be added here */}
       </div>
     </CollapsibleSection>
   );

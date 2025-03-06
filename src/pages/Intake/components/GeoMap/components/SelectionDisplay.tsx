@@ -13,6 +13,7 @@ interface SelectionDisplayProps {
   selectedLanguage: string;
   setSelectedLanguage: (language: string) => void;
   setSelectedCountryId?: ((id: string) => void) | null;
+  setExcludedCountryId?: ((id: string) => void) | null;
 }
 
 const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
@@ -20,7 +21,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   setSelectedCountry,
   selectedLanguage,
   setSelectedLanguage,
-  setSelectedCountryId
+  setSelectedCountryId,
+  setExcludedCountryId
 }) => {
   const { countries } = useCountries();
   const [excludedCountry, setExcludedCountry] = useState<string>('');
@@ -77,7 +79,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         <ExcludeSelection 
           selectedCountry={excludedCountry} 
           setSelectedCountry={setExcludedCountry} 
-          countryName={countries.find(c => c.country_id === excludedCountry)?.country_name || null} 
+          countryName={countries.find(c => c.country_id === excludedCountry)?.country_name || null}
+          setExcludedCountryId={setExcludedCountryId}
         />
       </div>
     </div>

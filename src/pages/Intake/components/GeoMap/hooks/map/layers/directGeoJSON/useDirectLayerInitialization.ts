@@ -1,8 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import mapboxgl from 'mapbox-gl';
-import { getCountriesGeoJSON } from '../../data/countriesGeoJSON';
-import { toast } from "sonner";
+import { useState, useEffect, useCallback } from 'react';
+import { applyMapStyling } from '../../utils/mapStylingUtils';
 
 interface UseDirectLayerInitializationProps {
   map: React.MutableRefObject<mapboxgl.Map | null>;
@@ -15,189 +13,134 @@ export const useDirectLayerInitialization = ({
 }: UseDirectLayerInitializationProps) => {
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [geoJsonData, setGeoJsonData] = useState<any>(null);
 
-  // Pre-fetch GeoJSON data as early as possible
-  useEffect(() => {
-    let isMounted = true;
-    
-    const fetchGeoJSON = async () => {
-      try {
-        console.log("Pre-fetching GeoJSON data...");
-        const data = await getCountriesGeoJSON();
-        if (isMounted) {
-          console.log("GeoJSON data pre-fetched successfully");
-          setGeoJsonData(data);
-        }
-      } catch (err) {
-        console.error("Error pre-fetching GeoJSON:", err);
-        if (isMounted) {
-          setError(`Failed to fetch GeoJSON: ${err instanceof Error ? err.message : String(err)}`);
-        }
-      }
-    };
-    
-    fetchGeoJSON();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // Setup map layers and sources
+  const setupLayers = useCallback(async () => {
+    if (!map.current) {
+      console.log("Map not initialized, cannot setup layers");
+      return;
+    }
 
-  // Add GeoJSON source and layers to the map
-  useEffect(() => {
-    let isMounted = true;
-    
-    const initializeLayers = async () => {
-      // Only proceed if map is initialized, not already set up, and we have the GeoJSON data
-      if (!map.current || initialized || !geoJsonData) {
-        console.log("Layer initialization skipped:", { 
-          mapExists: !!map.current, 
-          alreadyInitialized: initialized,
-          hasGeoJsonData: !!geoJsonData 
+    try {
+      console.log("Setting up direct GeoJSON layers and sources");
+      
+      // Wait until the style is loaded
+      if (!map.current.isStyleLoaded()) {
+        console.log("Map style not loaded yet, setting up style.load event");
+        map.current.once('style.load', () => {
+          console.log("Style loaded, now setting up sources and layers");
+          setupLayers();
         });
         return;
       }
       
-      try {
-        console.log("Adding direct GeoJSON layers to map");
+      // Check if the source already exists
+      if (!map.current.getSource('countries-geojson')) {
+        console.log("Adding countries-geojson source");
         
-        // Wait for map style to load completely before adding layers
-        const waitForStyleAndInitialize = () => {
-          if (!map.current || !isMounted) return;
+        // Fetch GeoJSON data from Supabase Edge Function
+        let geoJsonData;
+        try {
+          console.log("Fetching countries GeoJSON from edge function");
+          const response = await fetch('/functions/v1/get-countries-geojson');
           
-          if (map.current.isStyleLoaded()) {
-            console.log("Map style loaded, proceeding with layer initialization");
-            setupGeoJSONLayers();
-          } else {
-            console.log("Map style not fully loaded yet, retrying...");
-            // Use both event listener and timeout for redundancy
-            map.current.once('style.load', () => {
-              console.log("Style.load event fired");
-              if (isMounted && map.current) setupGeoJSONLayers();
-            });
-            
-            setTimeout(waitForStyleAndInitialize, 200);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch countries GeoJSON: ${response.statusText}`);
           }
-        };
-        
-        waitForStyleAndInitialize();
-        
-      } catch (err) {
-        console.error("Error initializing GeoJSON layers:", err);
-        if (isMounted) {
-          setError(`Failed to initialize map: ${err instanceof Error ? err.message : String(err)}`);
-        }
-      }
-    };
-    
-    // Helper function to setup GeoJSON layers
-    const setupGeoJSONLayers = () => {
-      if (!map.current || !isMounted || !geoJsonData) return;
-      
-      try {
-        console.log("Setting up GeoJSON layers - data points:", geoJsonData.features?.length || 0);
-        
-        // Force map to redraw if needed
-        map.current.resize();
-        
-        // Check if source already exists
-        if (!map.current.getSource('countries-geojson')) {
-          console.log("Adding countries-geojson source");
-          map.current.addSource('countries-geojson', {
-            type: 'geojson',
-            data: geoJsonData,
-            generateId: true  // Auto-generate feature IDs for state
-          });
+          
+          geoJsonData = await response.json();
+          console.log(`Fetched GeoJSON with ${geoJsonData.features.length} countries`);
+        } catch (fetchError) {
+          console.error("Error fetching GeoJSON:", fetchError);
+          throw new Error(`Failed to load countries GeoJSON: ${fetchError.message}`);
         }
         
-        // Add a fill layer
-        if (!map.current.getLayer('countries-fill')) {
-          console.log("Adding countries fill layer");
-          map.current.addLayer({
-            id: 'countries-fill',
-            type: 'fill',
-            source: 'countries-geojson',
-            paint: {
-              'fill-color': [
-                'case',
-                ['boolean', ['feature-state', 'selected'], false],
-                '#154851',  // Selected country color
-                ['boolean', ['feature-state', 'hover'], false],
-                '#8ebdc2',  // Hover color
-                'rgba(200, 200, 200, 0.03)'  // Default fill is very light
-              ],
-              'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'selected'], false],
-                0.8,  // Higher opacity for selected country
-                ['boolean', ['feature-state', 'hover'], false],
-                0.6,  // Medium opacity for hover
-                0.4   // Low opacity for default state
-              ]
-            }
-          });
-        }
-        
-        // Add a line layer for borders
-        if (!map.current.getLayer('countries-line')) {
-          console.log("Adding countries line layer");
-          map.current.addLayer({
-            id: 'countries-line',
-            type: 'line',
-            source: 'countries-geojson',
-            paint: {
-              'line-color': [
-                'case',
-                ['boolean', ['feature-state', 'selected'], false],
-                '#154851',  // Selected country border color
-                ['boolean', ['feature-state', 'hover'], false],
-                '#8ebdc2',  // Hover color
-                '#c8c8c9'   // Default border color
-              ],
-              'line-width': [
-                'case',
-                ['boolean', ['feature-state', 'selected'], false],
-                2,  // Selected border width
-                ['boolean', ['feature-state', 'hover'], false],
-                1.5,  // Hover border width
-                0.8   // Default border width
-              ]
-            },
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round'
-            }
-          });
-        }
-        
-        // Setup click event for country selection
-        setupInteractions();
-        
-        // Mark initialization as complete
-        setInitialized(true);
-        console.log("GeoJSON layers successfully initialized");
-        
-        // Notify user
-        toast.success("Map loaded successfully", {
-          duration: 2000,
+        // Add the GeoJSON source
+        map.current.addSource('countries-geojson', {
+          type: 'geojson',
+          data: geoJsonData,
+          generateId: true
         });
-      } catch (layerError) {
-        console.error("Error setting up GeoJSON layers:", layerError);
-        setError(`Failed to setup map layers: ${layerError instanceof Error ? layerError.message : String(layerError)}`);
       }
-    };
-    
-    // Start the initialization process if we have GeoJSON data
-    if (geoJsonData && map.current && !initialized) {
-      console.log("Starting layer initialization with GeoJSON data");
-      initializeLayers();
+      
+      // Add fill layer for countries
+      if (!map.current.getLayer('countries-fill')) {
+        console.log("Adding countries-fill layer");
+        map.current.addLayer({
+          id: 'countries-fill',
+          type: 'fill',
+          source: 'countries-geojson',
+          layout: {},
+          paint: {
+            'fill-color': [
+              'case',
+              ['boolean', ['feature-state', 'excluded'], false], '#990000',  // Red for excluded
+              ['boolean', ['feature-state', 'selected'], false], '#4264fb',  // Blue for selected
+              ['boolean', ['feature-state', 'hover'], false], '#627BC1',     // Light blue for hover
+              '#d1d9e6'  // Default color
+            ],
+            'fill-opacity': [
+              'case',
+              ['boolean', ['feature-state', 'excluded'], false], 0.8,        // Higher opacity for excluded
+              ['boolean', ['feature-state', 'selected'], false], 0.5,        // Medium opacity for selected
+              ['boolean', ['feature-state', 'hover'], false], 0.5,           // Medium opacity for hover
+              0.2  // Low opacity for default
+            ]
+          }
+        });
+      }
+      
+      // Add outline layer for country borders
+      if (!map.current.getLayer('countries-outline')) {
+        console.log("Adding countries-outline layer");
+        map.current.addLayer({
+          id: 'countries-outline',
+          type: 'line',
+          source: 'countries-geojson',
+          layout: {},
+          paint: {
+            'line-color': [
+              'case',
+              ['boolean', ['feature-state', 'excluded'], false], '#990000',  // Red for excluded
+              ['boolean', ['feature-state', 'selected'], false], '#4264fb',  // Blue for selected
+              ['boolean', ['feature-state', 'hover'], false], '#627BC1',     // Light blue for hover
+              '#627BC1'  // Default border color
+            ],
+            'line-width': [
+              'case',
+              ['boolean', ['feature-state', 'excluded'], false], 2,          // Thicker for excluded
+              ['boolean', ['feature-state', 'selected'], false], 2,          // Thicker for selected
+              ['boolean', ['feature-state', 'hover'], false], 1.5,           // Medium for hover
+              0.75  // Thin for default
+            ]
+          }
+        });
+      }
+      
+      // Apply map styling after layers are added
+      applyMapStyling(map.current);
+      
+      // Setup interactions (hover, click, etc.)
+      setupInteractions();
+      
+      console.log("Layers setup complete, marking as initialized");
+      setInitialized(true);
+    } catch (err) {
+      console.error("Error setting up map layers:", err);
+      setError(`Failed to initialize map layers: ${err.message}`);
     }
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [map, initialized, setupInteractions, geoJsonData]);
+  }, [map, setupInteractions]);
 
-  return { initialized, error };
+  // Initialize when the map is ready
+  useEffect(() => {
+    if (map.current && !initialized && !error) {
+      console.log("Map is ready, setting up layers");
+      setupLayers();
+    }
+  }, [map, initialized, error, setupLayers]);
+
+  return {
+    initialized,
+    error
+  };
 };

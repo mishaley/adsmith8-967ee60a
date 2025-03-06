@@ -30,7 +30,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   const {
     mapError,
     initialized,
-    setSelectedCountryId
+    setSelectedCountryId,
+    setExcludedCountryId
   } = useMapInitialization({
     mapboxToken,
     mapContainer,
@@ -60,6 +61,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
           setSelectedCountryId={setSelectedCountryId}
+          setExcludedCountryId={setExcludedCountryId}
         />
       </div>
       <div className="w-full lg:w-2/3">
