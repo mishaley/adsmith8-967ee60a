@@ -21,11 +21,17 @@ export const useCountrySync = ({
 }: UseCountrySyncProps) => {
   const [lastHighlightAttempt, setLastHighlightAttempt] = useState<string | null>(null);
 
-  // Effect to highlight the selected country when it changes
+  // Effect to highlight the selected country when it changes (or clear it)
   useEffect(() => {
-    if (selectedCountry && mapInitialized && layersInitialized && map.current) {
-      console.log(`Selected country changed to: ${selectedCountry}, highlighting on map`);
-      highlightCountry(map.current, selectedCountry);
+    if (mapInitialized && layersInitialized && map.current) {
+      if (selectedCountry) {
+        console.log(`Selected country changed to: ${selectedCountry}, highlighting on map`);
+        highlightCountry(map.current, selectedCountry);
+      } else {
+        console.log('Clearing country selection on map');
+        // Clear the highlight by passing empty string
+        highlightCountry(map.current, '');
+      }
       setLastHighlightAttempt(selectedCountry);
     }
   }, [selectedCountry, mapInitialized, layersInitialized, map]);

@@ -42,7 +42,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
 
   // Sync map selection when selectedCountry changes (e.g., from dropdown)
   useEffect(() => {
-    if (initialized && setSelectedCountryId && selectedCountry) {
+    if (initialized && setSelectedCountryId) {
       console.log(`GeoMapSection: Syncing country selection to map: ${selectedCountry}`);
       
       // Avoid redundant highlight attempts for the same country

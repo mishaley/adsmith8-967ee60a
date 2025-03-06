@@ -47,7 +47,16 @@ export function setupClickEvents(
       const countryId = getCountryIdFromFeature(e.features[0]);
       if (countryId) {
         console.log(`Country clicked: ${countryId}`);
-        onCountrySelected(countryId);
+        
+        // Check if clicked on the same country that's already selected
+        if (countryId === selectedCountryCode) {
+          console.log('Clicked on already selected country, deselecting it');
+          // Call with empty string to clear selection
+          onCountrySelected('');
+        } else {
+          // Select the new country
+          onCountrySelected(countryId);
+        }
       }
     }
   });
