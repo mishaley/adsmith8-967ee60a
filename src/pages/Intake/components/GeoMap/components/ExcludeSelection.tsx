@@ -18,14 +18,14 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCountryFlag, setSelectedCountryFlag] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { countries } = useCountries();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isDropdownOpen && 
-          dropdownRef.current && 
-          !dropdownRef.current.contains(event.target as Node)) {
+          containerRef.current && 
+          !containerRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
@@ -60,10 +60,10 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   };
 
   return (
-    <div ref={dropdownRef}>
+    <div>
       <div className="font-bold text-lg mb-4">Exclude</div>
       
-      <div className="relative">
+      <div className="relative" ref={containerRef}>
         <Button
           variant="outline"
           className="w-full justify-between font-normal"

@@ -71,10 +71,10 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   };
 
   return (
-    <div ref={dropdownRef}>
+    <div>
       <div className="font-bold text-lg mb-4">Country</div>
       
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <Button
           variant="outline"
           className="w-full justify-between font-normal"

@@ -22,6 +22,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
+  const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,8 +44,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (isDropdownOpen && 
-          dropdownRef.current && 
-          !dropdownRef.current.contains(event.target as Node)) {
+          containerRef.current && 
+          !containerRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
         setSearchTerm("");
         setHighlightedIndex(-1);
@@ -150,10 +151,10 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   };
 
   return (
-    <div className="mt-6" ref={dropdownRef}>
+    <div className="mt-6">
       <div className="font-bold text-lg mb-4">Language</div>
       
-      <div className="relative">
+      <div className="relative" ref={containerRef}>
         {/* If a language is selected, show the selection instead of the search input */}
         <Button
           variant="outline"
