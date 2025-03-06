@@ -48,9 +48,9 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
           'visibility': 'visible'
         },
         paint: {
-          'line-color': '#8ebdc2',
-          'line-width': 1.0,
-          'line-opacity': 0.9
+          'line-color': '#c8c8c9',  // Match the default country border color
+          'line-width': 0.8,        // Match the default border width
+          'line-opacity': 1.0       // Full opacity like country borders
         }
       });
       console.log("Added primary coastline layer");
@@ -71,9 +71,9 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
             'visibility': 'visible'
           },
           paint: {
-            'line-color': '#8ebdc2',
-            'line-width': 1.0,
-            'line-opacity': 0.9
+            'line-color': '#c8c8c9',  // Match country border color
+            'line-width': 0.8,        // Match default country border width
+            'line-opacity': 1.0       // Full opacity
           }
         });
         console.log("Added fallback coastline layer");
