@@ -39,10 +39,14 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   }, [isDropdownOpen]);
 
   const handleCountrySelect = (country: string, flag?: string) => {
+    console.log(`CountrySelection: Setting country to ${country}`);
     setSelectedCountry(country);
     if (flag) setSelectedCountryFlag(flag);
     setIsDropdownOpen(false);
+    
+    // Update map selection
     if (setSelectedCountryId) {
+      console.log(`CountrySelection: Updating map with country ${country}`);
       setSelectedCountryId(country);
     }
   };
@@ -72,7 +76,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
               <CountryDropdown 
                 selectedCountry={selectedCountry} 
                 setSelectedCountry={handleCountrySelect}
-                setSelectedCountryId={null}
+                setSelectedCountryId={setSelectedCountryId}
               />
             </div>
           </div>

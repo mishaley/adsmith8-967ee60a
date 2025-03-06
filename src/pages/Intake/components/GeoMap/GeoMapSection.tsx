@@ -38,7 +38,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
 
   // Sync map selection when selectedCountry changes (e.g., from dropdown)
   useEffect(() => {
-    if (initialized && setSelectedCountryId) {
+    if (initialized && setSelectedCountryId && selectedCountry) {
+      console.log(`GeoMapSection: Syncing country selection to map: ${selectedCountry}`);
       setSelectedCountryId(selectedCountry);
     }
   }, [selectedCountry, initialized, setSelectedCountryId]);
@@ -52,7 +53,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     hasToken: !!mapboxToken,
     tokenLength: mapboxToken ? mapboxToken.length : 0,
     error,
-    initialized
+    initialized,
+    selectedCountry
   });
 
   return (

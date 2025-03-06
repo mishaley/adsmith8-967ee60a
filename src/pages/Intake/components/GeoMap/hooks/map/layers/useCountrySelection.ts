@@ -35,28 +35,72 @@ export const highlightCountry = (map: mapboxgl.Map, countryId: string) => {
     return;
   }
   
+  console.log(`Attempting to highlight country with ID: ${countryId}`);
+  
   // Find feature ID for the country code
-  map.querySourceFeatures('countries', {
+  const features = map.querySourceFeatures('countries', {
     sourceLayer: 'country_boundaries',
     filter: ['==', 'iso_3166_1', countryId]
-  }).forEach(feature => {
-    if (feature.id) {
-      selectedCountryId = feature.id as string;
-      
-      map.setFeatureState(
-        { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
-        { selected: true }
-      );
-      
-      // Ensure the country is visible by fitting the map to the country's bounds
-      const bbox = calculateFeatureBbox(feature);
-      
-      if (!bbox.isEmpty()) {
-        map.fitBounds(bbox, {
-          padding: 50,
-          maxZoom: 5
-        });
+  });
+  
+  console.log(`Found ${features.length} features for country ${countryId}`);
+  
+  if (features.length > 0) {
+    for (const feature of features) {
+      if (feature.id) {
+        selectedCountryId = feature.id as string;
+        
+        console.log(`Setting feature state for ID: ${selectedCountryId}`);
+        
+        map.setFeatureState(
+          { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+          { selected: true }
+        );
+        
+        // Ensure the country is visible by fitting the map to the country's bounds
+        const bbox = calculateFeatureBbox(feature);
+        
+        if (!bbox.isEmpty()) {
+          map.fitBounds(bbox, {
+            padding: 50,
+            maxZoom: 5
+          });
+        }
+        
+        // Once we've found and highlighted a feature, we can break
+        break;
       }
     }
-  });
+  } else {
+    console.log(`No features found for country ${countryId}. Waiting for map to fully load...`);
+    
+    // If no features found, it might be because the map is still loading
+    // Set a timeout to try again after a short delay
+    setTimeout(() => {
+      const delayedFeatures = map.querySourceFeatures('countries', {
+        sourceLayer: 'country_boundaries',
+        filter: ['==', 'iso_3166_1', countryId]
+      });
+      
+      console.log(`After delay: Found ${delayedFeatures.length} features for country ${countryId}`);
+      
+      if (delayedFeatures.length > 0 && delayedFeatures[0].id) {
+        selectedCountryId = delayedFeatures[0].id as string;
+        
+        map.setFeatureState(
+          { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+          { selected: true }
+        );
+        
+        const bbox = calculateFeatureBbox(delayedFeatures[0]);
+        
+        if (!bbox.isEmpty()) {
+          map.fitBounds(bbox, {
+            padding: 50,
+            maxZoom: 5
+          });
+        }
+      }
+    }, 500);
+  }
 };

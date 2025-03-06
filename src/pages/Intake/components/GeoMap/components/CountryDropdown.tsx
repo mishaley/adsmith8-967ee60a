@@ -34,10 +34,12 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
 
   // Handle country selection
   const handleCountrySelect = (countryId: string, flag: string) => {
+    console.log(`CountryDropdown: Selected country ${countryId}`);
     setSelectedCountry(countryId, flag);
     
     // Also highlight on map if the function is available
     if (setSelectedCountryId) {
+      console.log(`CountryDropdown: Triggering map highlight for ${countryId}`);
       setSelectedCountryId(countryId);
     }
   };
