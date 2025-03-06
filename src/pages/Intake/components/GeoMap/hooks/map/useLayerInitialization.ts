@@ -6,7 +6,8 @@ import {
   addCountryFillLayer, 
   addCountryBorderLayer,
   setupHoverEvents,
-  setupClickEvents
+  setupClickEvents,
+  addCoastlineLayer
 } from './layers';
 
 /**
@@ -32,10 +33,13 @@ export const useLayerInitialization = (
     // Step 3: Add the border layer on top for visibility
     addCountryBorderLayer(mapInstance);
     
-    // Step 4: Setup hover events
+    // Step 4: Add coastline layer
+    addCoastlineLayer(mapInstance);
+    
+    // Step 5: Setup hover events
     setupHoverEvents(mapInstance);
     
-    // Step 5: Setup click handlers
+    // Step 6: Setup click handlers
     setupClickEvents(mapInstance, (countryId) => {
       console.log(`Map click detected, setting selected country to: ${countryId}`);
       setSelectedCountry(countryId);
