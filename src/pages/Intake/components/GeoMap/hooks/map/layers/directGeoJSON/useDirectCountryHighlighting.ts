@@ -13,6 +13,31 @@ export const useDirectCountryHighlighting = ({
 }: UseDirectCountryHighlightingProps) => {
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
 
+  // Function to clear current country selection
+  // Must be defined before it's used in highlightCountry
+  const clearCountrySelection = useCallback(() => {
+    if (!map.current || !initialized) return;
+    
+    if (selectedCountryId) {
+      console.log(`Clearing selection for country: ${selectedCountryId}`);
+      
+      // Find all features that might be selected
+      const features = map.current.querySourceFeatures('countries-geojson');
+      
+      // Clear selection state from all features
+      features.forEach(feature => {
+        if (feature.id !== undefined) {
+          map.current!.setFeatureState(
+            { source: 'countries-geojson', id: feature.id },
+            { selected: false }
+          );
+        }
+      });
+      
+      setSelectedCountryId(null);
+    }
+  }, [map, initialized, selectedCountryId]);
+
   // Function to highlight a country programmatically
   const highlightCountry = useCallback((countryId: string) => {
     if (!map.current || !initialized || !countryId) {
@@ -24,8 +49,6 @@ export const useDirectCountryHighlighting = ({
     
     // Clear any existing selection
     clearCountrySelection();
-    
-    if (!countryId) return;
     
     try {
       // Find the feature by ISO code
@@ -63,7 +86,7 @@ export const useDirectCountryHighlighting = ({
     } catch (error) {
       console.error(`Error highlighting country ${countryId}:`, error);
     }
-  }, [map, initialized]);
+  }, [map, initialized, clearCountrySelection]);
   
   // Function to retry highlight with a full scan of features
   const retryHighlightWithFullScan = useCallback((countryId: string) => {
@@ -105,30 +128,6 @@ export const useDirectCountryHighlighting = ({
       console.error(`Error in full scan for country ${countryId}:`, error);
     }
   }, [map, initialized]);
-  
-  // Function to clear current country selection
-  const clearCountrySelection = useCallback(() => {
-    if (!map.current || !initialized) return;
-    
-    if (selectedCountryId) {
-      console.log(`Clearing selection for country: ${selectedCountryId}`);
-      
-      // Find all features that might be selected
-      const features = map.current.querySourceFeatures('countries-geojson');
-      
-      // Clear selection state from all features
-      features.forEach(feature => {
-        if (feature.id !== undefined) {
-          map.current!.setFeatureState(
-            { source: 'countries-geojson', id: feature.id },
-            { selected: false }
-          );
-        }
-      });
-      
-      setSelectedCountryId(null);
-    }
-  }, [map, initialized, selectedCountryId]);
 
   return {
     selectedCountryId,

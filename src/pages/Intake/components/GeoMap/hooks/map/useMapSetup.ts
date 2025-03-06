@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { applyMapStyling } from './utils/mapStylingUtils';
-import { adjustMapView } from './utils/viewportUtils';
+import { adjustMapView, forceMapUpdate } from './utils/viewportUtils';
 
 interface UseMapSetupProps {
   mapboxToken: string;
@@ -45,30 +45,29 @@ export const useMapSetup = ({
       
       mapboxgl.accessToken = mapboxToken;
       
-      console.log("Creating map instance");
+      console.log("Creating map instance with mercator projection");
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        zoom: 1,
-        center: [0, 8], // Center point at latitude 8
+        zoom: 1.5,
+        center: [0, 30], // Center point adjusted for better visibility
         projection: {
-          name: 'mercator',
-          center: [0, 8], // Matching center point with the map center
-          parallels: [0, 60]
+          name: 'mercator', // Explicitly set to mercator (not globe)
+          center: [0, 30]
         },
-        minZoom: 0.5,
+        minZoom: 1.0,
         maxZoom: 8,
         maxBounds: [
-          [-180, -56], // Southwest corner
-          [180, 81]    // Northeast corner
+          [-180, -85], // Southwest corner
+          [180, 85]    // Northeast corner
         ],
         renderWorldCopies: false,
         attributionControl: false,
         preserveDrawingBuffer: true,
-        interactive: true,         // Ensure map interaction is enabled
-        doubleClickZoom: false,    // Disable double-click zoom to avoid conflicts with click selection
-        failIfMajorPerformanceCaveat: false, // Be more permissive about performance
-        localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif" // Improve font support
+        interactive: true,
+        doubleClickZoom: false,
+        failIfMajorPerformanceCaveat: false,
+        localIdeographFontFamily: "'Noto Sans', 'Noto Sans CJK SC', sans-serif"
       });
 
       // Add controls
@@ -82,28 +81,34 @@ export const useMapSetup = ({
         'top-right'
       );
 
+      // Preload the GeoJSON data before style is loaded for faster rendering
+      const preloadGeoJSON = new Image();
+      preloadGeoJSON.src = '/countries.geojson'; // This doesn't actually fetch the file but primes DNS lookups
+
       // Enhanced load handling
       map.current.on('load', () => {
         console.log("Map loaded event fired");
         
         if (map.current) {
+          // Apply initial styling
           applyMapStyling(map.current);
           
-          // Force a repaint to ensure everything renders
-          const center = map.current.getCenter();
-          map.current.setCenter([center.lng + 0.0001, center.lat]);
+          // Adjust the view based on container size
+          if (mapContainer.current) {
+            adjustMapView(map.current, mapContainer.current.offsetWidth);
+          }
           
-          setTimeout(() => {
-            if (map.current) {
-              map.current.setCenter(center);
-              setInitialized(true);
-              
-              if (mapContainer.current) {
-                adjustMapView(map.current, mapContainer.current.offsetWidth);
-              }
-            }
-          }, 100);
+          // Force a repaint to ensure everything renders
+          forceMapUpdate(map.current);
+          
+          // Notify that initialization is complete
+          setInitialized(true);
         }
+      });
+
+      // Add specific error handler for style load errors
+      map.current.on('style.load', () => {
+        console.log("Map style loaded successfully");
       });
 
       // Set up a backup timer in case the load event doesn't fire
@@ -114,11 +119,13 @@ export const useMapSetup = ({
           // Force completion even if the event didn't fire
           if (map.current) {
             applyMapStyling(map.current);
-            setInitialized(true);
             
             if (mapContainer.current) {
               adjustMapView(map.current, mapContainer.current.offsetWidth);
             }
+            
+            forceMapUpdate(map.current);
+            setInitialized(true);
           }
         }
       }, 5000);

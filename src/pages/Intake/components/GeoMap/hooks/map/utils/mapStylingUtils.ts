@@ -20,7 +20,8 @@ export function removeLabels(map: mapboxgl.Map) {
     }
   });
   
-  // Find all layers with names containing "label" and log them for debugging
+  // Log all available layers for debugging
+  console.log("Available layers:");
   map.getStyle().layers?.forEach((layer) => {
     if (layer.id.includes('label')) {
       console.log(`Found label layer: ${layer.id}`);
@@ -36,28 +37,35 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
     console.log("Adding coastline border layer");
     
     try {
-      // Primary approach: Use water layer edges
-      map.addLayer({
-        id: 'coastline-borders',
-        type: 'line',
-        source: 'composite',
-        'source-layer': 'water',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-          'visibility': 'visible'
-        },
-        paint: {
-          'line-color': '#c8c8c9',  // Match the default country border color
-          'line-width': 0.8,        // Match the default border width
-          'line-opacity': 1.0       // Full opacity like country borders
-        }
-      });
-      console.log("Added primary coastline layer");
+      // Log available sources and source-layers for debugging
+      console.log("Available sources:", Object.keys(map.getStyle().sources || {}));
+      
+      // Primary approach: Use water layer edges if it exists
+      if (map.getSource('composite') && map.getStyle().sources?.composite?.['source-layer']) {
+        map.addLayer({
+          id: 'coastline-borders',
+          type: 'line',
+          source: 'composite',
+          'source-layer': 'water',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round',
+            'visibility': 'visible'
+          },
+          paint: {
+            'line-color': '#c8c8c9',  // Match the default country border color
+            'line-width': 0.8,        // Match the default border width
+            'line-opacity': 1.0       // Full opacity like country borders
+          }
+        });
+        console.log("Added primary coastline layer");
+      } else {
+        console.log("Could not find suitable source for coastline layer");
+      }
     } catch (error) {
       console.error("Error adding primary coastline layer:", error);
       
-      // Fallback approach using ocean layer if available
+      // Fallback approach if primary fails
       try {
         map.addLayer({
           id: 'coastline-borders-fallback',
@@ -103,12 +111,16 @@ export function applyMapStyling(map: mapboxgl.Map) {
   
   // Ensure country borders are visible by setting opacity
   try {
+    if (map.getLayer('admin')) {
+      map.setPaintProperty('admin', 'line-opacity', 1.0);
+      console.log("Updated admin layer opacity");
+    }
     if (map.getLayer('countries-border')) {
       map.setPaintProperty('countries-border', 'line-opacity', 1.0);
-      console.log("Updated existing country borders opacity");
+      console.log("Updated countries-border layer opacity");
     }
   } catch (e) {
-    console.log("No countries-border layer found to update");
+    console.log("Could not update existing border layers:", e);
   }
   
   console.log("Map styling updated - removed labels and added coastlines");

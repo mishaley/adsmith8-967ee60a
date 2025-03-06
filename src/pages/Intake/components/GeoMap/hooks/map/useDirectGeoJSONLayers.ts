@@ -14,6 +14,7 @@ export const useDirectGeoJSONLayers = ({
   onCountrySelected 
 }: UseDirectGeoJSONLayersProps) => {
   const [error, setError] = useState<string | null>(null);
+  const [layersInitialized, setLayersInitialized] = useState(false);
 
   // Setup country highlighting capabilities
   const {
@@ -23,7 +24,7 @@ export const useDirectGeoJSONLayers = ({
     clearCountrySelection
   } = useDirectCountryHighlighting({
     map,
-    initialized: false // We'll update this after initialization
+    initialized: layersInitialized
   });
 
   // Setup map interactions (hover, click, etc.)
@@ -43,6 +44,14 @@ export const useDirectGeoJSONLayers = ({
     map,
     setupInteractions
   });
+
+  // Update internal state when layers are initialized
+  useEffect(() => {
+    if (initialized && !layersInitialized) {
+      console.log("Layers initialized, updating internal state");
+      setLayersInitialized(true);
+    }
+  }, [initialized, layersInitialized]);
 
   // Update error state when initialization error occurs
   useEffect(() => {

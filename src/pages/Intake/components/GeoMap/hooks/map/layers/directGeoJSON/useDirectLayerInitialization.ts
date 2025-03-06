@@ -15,35 +15,80 @@ export const useDirectLayerInitialization = ({
 }: UseDirectLayerInitializationProps) => {
   const [initialized, setInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [geoJsonData, setGeoJsonData] = useState<any>(null);
+
+  // Pre-fetch GeoJSON data as early as possible
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchGeoJSON = async () => {
+      try {
+        console.log("Pre-fetching GeoJSON data...");
+        const data = await getCountriesGeoJSON();
+        if (isMounted) {
+          console.log("GeoJSON data pre-fetched successfully");
+          setGeoJsonData(data);
+        }
+      } catch (err) {
+        console.error("Error pre-fetching GeoJSON:", err);
+        if (isMounted) {
+          setError(`Failed to fetch GeoJSON: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    };
+    
+    fetchGeoJSON();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Add GeoJSON source and layers to the map
   useEffect(() => {
     let isMounted = true;
     
     const initializeLayers = async () => {
-      if (!map.current || initialized) return;
+      if (!map.current || initialized || !geoJsonData) return;
       
       try {
         console.log("Adding direct GeoJSON layers to map");
         
-        // Wait for the map style to be loaded
+        // Check if the map style is loaded before proceeding
         if (!map.current.isStyleLoaded()) {
           console.log("Map style not loaded yet, waiting...");
-          map.current.once('style.load', () => {
-            // Style loaded, try again
-            initializeLayers();
-          });
+          
+          const checkStyleAndInitialize = () => {
+            if (map.current && map.current.isStyleLoaded()) {
+              console.log("Style now loaded, proceeding with layer initialization");
+              setupGeoJSONLayers();
+            } else {
+              console.log("Style still loading, checking again soon...");
+              setTimeout(checkStyleAndInitialize, 200);
+            }
+          };
+          
+          // Start checking
+          checkStyleAndInitialize();
           return;
         }
         
-        // Get the GeoJSON data
-        const geojsonData = await getCountriesGeoJSON();
+        // If style is already loaded, proceed directly
+        setupGeoJSONLayers();
         
-        if (!isMounted || !map.current) {
-          console.log("Component unmounted or map removed during GeoJSON fetch");
-          return;
+      } catch (err) {
+        console.error("Error initializing GeoJSON layers:", err);
+        if (isMounted) {
+          setError(`Failed to initialize map: ${err instanceof Error ? err.message : String(err)}`);
         }
-        
+      }
+    };
+    
+    // Helper function to setup GeoJSON layers
+    const setupGeoJSONLayers = () => {
+      if (!map.current || !isMounted || !geoJsonData) return;
+      
+      try {
         // Add the GeoJSON source with the direct data
         console.log("Adding countries GeoJSON source");
         
@@ -51,9 +96,10 @@ export const useDirectLayerInitialization = ({
         if (!map.current.getSource('countries-geojson')) {
           map.current.addSource('countries-geojson', {
             type: 'geojson',
-            data: geojsonData,
+            data: geoJsonData,
             generateId: true  // Auto-generate feature IDs for state
           });
+          console.log("Added countries-geojson source");
         }
         
         // Add a fill layer
@@ -119,29 +165,26 @@ export const useDirectLayerInitialization = ({
         // Setup click event for country selection
         setupInteractions();
         
-        if (isMounted) {
-          setInitialized(true);
-          console.log("GeoJSON layers successfully initialized");
-          
-          // Notify user
-          toast.success("Map loaded successfully", {
-            duration: 2000,
-          });
-        }
-      } catch (err) {
-        console.error("Error initializing GeoJSON layers:", err);
-        if (isMounted) {
-          setError(`Failed to initialize map: ${err instanceof Error ? err.message : String(err)}`);
-        }
+        setInitialized(true);
+        console.log("GeoJSON layers successfully initialized");
+        
+        // Notify user
+        toast.success("Map loaded successfully", {
+          duration: 2000,
+        });
+      } catch (layerError) {
+        console.error("Error setting up GeoJSON layers:", layerError);
+        setError(`Failed to setup map layers: ${layerError instanceof Error ? layerError.message : String(layerError)}`);
       }
     };
     
+    // Start the initialization process
     initializeLayers();
     
     return () => {
       isMounted = false;
     };
-  }, [map, initialized, setupInteractions]);
+  }, [map, initialized, setupInteractions, geoJsonData]);
 
   return { initialized, error };
 };
