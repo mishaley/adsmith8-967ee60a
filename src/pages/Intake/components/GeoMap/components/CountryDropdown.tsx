@@ -41,13 +41,19 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
     if (setSelectedCountryId) {
       console.log(`CountryDropdown: Triggering map highlight for ${countryId}`);
       
-      // Get the ISO code for this country
+      // Get the country object
       const selectedCountry = countries.find(c => c.country_id === countryId);
-      if (selectedCountry?.country_iso2) {
-        console.log(`Using ISO code for highlighting: ${selectedCountry.country_iso2}`);
-        setSelectedCountryId(selectedCountry.country_iso2);
+      
+      if (selectedCountry) {
+        // Use ISO2 code for map highlighting as it matches Mapbox's iso_3166_1 property
+        if (selectedCountry.country_iso2) {
+          console.log(`Using ISO2 code for highlighting: ${selectedCountry.country_iso2}`);
+          setSelectedCountryId(selectedCountry.country_iso2);
+        } else {
+          console.log(`No ISO2 code found, using country_id: ${countryId}`);
+          setSelectedCountryId(countryId);
+        }
       } else {
-        console.log(`No ISO code found, using country_id: ${countryId}`);
         setSelectedCountryId(countryId);
       }
     }

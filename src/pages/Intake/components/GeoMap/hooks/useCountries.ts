@@ -24,7 +24,7 @@ export const useCountries = () => {
         console.log("Fetching countries from Supabase...");
         const { data, error } = await supabase
           .from("y3countries")
-          .select("country_id, country_name, country_flag, country_languageprimary")
+          .select("country_id, country_name, country_flag, country_iso2, country_iso3")
           .order("country_name");
           
         if (error) {
@@ -33,15 +33,7 @@ export const useCountries = () => {
         
         if (data) {
           console.log(`Fetched ${data.length} countries`);
-          // Map the response to match our Country interface
-          const formattedCountries: Country[] = data.map(country => ({
-            country_id: country.country_id,
-            country_name: country.country_name,
-            country_flag: country.country_flag,
-            country_iso2: country.country_id, // Use country_id as ISO2 since it's missing
-            country_iso3: country.country_id  // Use country_id as ISO3 since it's missing
-          }));
-          setCountries(formattedCountries);
+          setCountries(data as Country[]);
         }
       } catch (err) {
         console.error("Error fetching countries:", err);

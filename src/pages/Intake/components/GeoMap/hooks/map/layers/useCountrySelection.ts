@@ -1,21 +1,43 @@
 
 import mapboxgl from 'mapbox-gl';
 import { calculateFeatureBbox } from './utils/bboxUtils';
+import { supabase } from "@/integrations/supabase/client";
 
 let selectedCountryId: string | null = null;
 let selectedCountryCode: string | null = null;
 
+// Helper function to find country_id from ISO code
+const getCountryIdFromIsoCode = async (isoCode: string): Promise<string | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('y3countries')
+      .select('country_id')
+      .or(`country_iso2.eq.${isoCode},country_iso3.eq.${isoCode}`)
+      .maybeSingle();
+      
+    if (error) {
+      console.error("Error finding country ID from ISO code:", error);
+      return null;
+    }
+    
+    return data?.country_id || null;
+  } catch (error) {
+    console.error("Exception finding country ID from ISO code:", error);
+    return null;
+  }
+};
+
 export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: string) => void) => {
   // On click
-  map.on('click', 'countries-fill', (e) => {
+  map.on('click', 'countries-fill', async (e) => {
     if (e.features && e.features.length > 0) {
-      const countryId = e.features[0].id as string;
-      const countryName = e.features[0].properties?.iso_3166_1 || '';
+      const countryFeatureId = e.features[0].id as string;
+      const isoCode = e.features[0].properties?.iso_3166_1 || '';
       
-      console.log(`Map click: Selected country ${countryName} (id: ${countryId})`);
+      console.log(`Map click: Selected country ${isoCode} (feature id: ${countryFeatureId})`);
       
       // Check if we're clicking on the already selected country
-      if (selectedCountryCode === countryName) {
+      if (selectedCountryCode === isoCode) {
         console.log('Deselecting current country');
         // Deselect the country
         onCountryClick('');
@@ -35,8 +57,22 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
           console.error("Error clearing country selection on click:", error);
         }
       } else {
-        // Select the new country
-        onCountryClick(countryName);
+        // Find the country_id from the ISO code
+        const countryId = await getCountryIdFromIsoCode(isoCode);
+        
+        if (countryId) {
+          console.log(`Found country_id ${countryId} for ISO code ${isoCode}`);
+          // Select the new country by its UUID
+          onCountryClick(countryId);
+        } else {
+          // Fallback to using the ISO code directly if we can't find the UUID
+          console.log(`Could not find country_id for ISO code ${isoCode}, using ISO code`);
+          onCountryClick(isoCode);
+        }
+        
+        // Store map feature ID for highlight clearing
+        selectedCountryId = countryFeatureId;
+        selectedCountryCode = isoCode;
       }
     }
   });
@@ -70,8 +106,35 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   
   console.log(`Attempting to highlight country with code: ${countryCode}`);
   
-  // Find the ISO code from the country code (assuming it might be a UUID in some cases)
-  let isoCode = countryCode;
+  // Convert country_id to ISO code if needed
+  const findAndConvertToIso = async () => {
+    // Check if this is a UUID (typical format for country_id)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(countryCode);
+    
+    let isoCode = countryCode;
+    
+    // If it's a UUID, we need to find the ISO code
+    if (isUuid) {
+      try {
+        const { data, error } = await supabase
+          .from('y3countries')
+          .select('country_iso2')
+          .eq('country_id', countryCode)
+          .maybeSingle();
+          
+        if (error) {
+          console.error("Error finding ISO code:", error);
+        } else if (data?.country_iso2) {
+          isoCode = data.country_iso2;
+          console.log(`Converted country_id ${countryCode} to ISO code ${isoCode}`);
+        }
+      } catch (error) {
+        console.error("Exception finding ISO code:", error);
+      }
+    }
+    
+    return isoCode;
+  };
   
   // Clear previous selection if any
   if (selectedCountryId) {
@@ -86,7 +149,10 @@ export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   }
   
   // Function to query and highlight the country
-  const findAndHighlightCountry = () => {
+  const findAndHighlightCountry = async () => {
+    // Get ISO code if needed
+    const isoCode = await findAndConvertToIso();
+    
     // Query features directly using ISO code filter
     const features = map.querySourceFeatures('countries', {
       sourceLayer: 'country_boundaries',

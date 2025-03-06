@@ -19,12 +19,22 @@ export const useCountryLanguage = (countryId: string) => {
       try {
         setIsLoading(true);
         setError(null);
-
-        const { data, error } = await supabase
+        
+        // First try fetching by country_id
+        let { data, error } = await supabase
           .from('y3countries')
           .select('country_name, country_languageprimary')
           .eq('country_id', countryId)
           .maybeSingle();
+        
+        // If not found by ID, try with ISO codes (for map selections)
+        if (!data && !error) {
+          ({ data, error } = await supabase
+            .from('y3countries')
+            .select('country_name, country_languageprimary, country_id')
+            .or(`country_iso2.eq.${countryId},country_iso3.eq.${countryId}`)
+            .maybeSingle());
+        }
 
         if (error) {
           throw error;
