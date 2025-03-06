@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { useLanguages } from "../../Languages/hooks/useLanguages";
 import type { Language } from "../../Languages/hooks/useLanguages";
 
@@ -67,6 +67,12 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     }
   };
 
+  const handleClearSelection = () => {
+    setSelectedLanguage("");
+    setSearchTerm("");
+    setIsDropdownOpen(false);
+  };
+
   return (
     <div className="mt-6" ref={dropdownRef}>
       <div className="font-bold text-lg mb-4">Language</div>
@@ -114,31 +120,46 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
               Close
             </Button>
             
-            {isLoadingLanguages ? (
-              <div className="p-2 text-center">Loading languages...</div>
-            ) : filteredLanguages.length > 0 ? (
-              filteredLanguages.map((language: Language) => (
-                <Button 
-                  key={language.language_id} 
-                  type="button" 
-                  variant="ghost" 
-                  className={`w-full flex items-center justify-between px-4 py-2 text-left ${selectedLanguage === language.language_id ? "bg-gray-100" : ""}`} 
-                  onClick={() => {
-                    setSelectedLanguage(language.language_id);
-                    setSearchTerm("");
-                    setIsDropdownOpen(false);
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block w-6 text-center">{language.language_flag}</span>
-                    <span>{language.language_name}</span>
-                  </div>
-                  <span className="text-gray-500">{language.language_native}</span>
-                </Button>
-              ))
-            ) : (
-              <div className="p-2 text-center">No languages found</div>
-            )}
+            <div className="max-h-52 overflow-auto">
+              {isLoadingLanguages ? (
+                <div className="p-2 text-center">Loading languages...</div>
+              ) : filteredLanguages.length > 0 ? (
+                filteredLanguages.map((language: Language) => (
+                  <Button 
+                    key={language.language_id} 
+                    type="button" 
+                    variant="ghost" 
+                    className={`w-full flex items-center justify-between px-4 py-2 text-left ${selectedLanguage === language.language_id ? "bg-gray-100" : ""}`} 
+                    onClick={() => {
+                      setSelectedLanguage(language.language_id);
+                      setSearchTerm("");
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="inline-block w-6 text-center">{language.language_flag}</span>
+                      <span>{language.language_name}</span>
+                    </div>
+                    <span className="text-gray-500">{language.language_native}</span>
+                  </Button>
+                ))
+              ) : (
+                <div className="p-2 text-center">No languages found</div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 w-full border-t border-gray-200 bg-white">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full text-gray-500 flex items-center justify-center py-2"
+                onClick={handleClearSelection}
+                disabled={!selectedLanguage}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear selection
+              </Button>
+            </div>
           </div>
         )}
       </div>

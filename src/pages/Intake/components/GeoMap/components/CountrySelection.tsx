@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import CountryDropdown from "./CountryDropdown";
 import { useCountries } from "../hooks/useCountries";
 
@@ -61,6 +62,14 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     }
   };
 
+  const handleClearSelection = () => {
+    setSelectedCountry("");
+    setSelectedCountryFlag(null);
+    if (setSelectedCountryId) {
+      setSelectedCountryId("");
+    }
+  };
+
   return (
     <div>
       <div className="font-bold text-lg mb-4">Country</div>
@@ -88,6 +97,18 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
                 setSelectedCountry={handleCountrySelect}
                 setSelectedCountryId={setSelectedCountryId}
               />
+            </div>
+            <div className="sticky bottom-0 w-full border-t border-gray-200 bg-white">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                className="w-full text-gray-500 flex items-center justify-center py-2"
+                onClick={handleClearSelection}
+                disabled={!selectedCountry}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Clear selection
+              </Button>
             </div>
           </div>
         )}

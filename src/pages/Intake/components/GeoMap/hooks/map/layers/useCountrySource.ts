@@ -17,6 +17,7 @@ export const addCountrySource = (map: mapboxgl.Map) => {
       }
       
       try {
+        // First try the primary country boundaries source
         map.addSource('countries', {
           type: 'vector',
           url: 'mapbox://mapbox.country-boundaries-v1'
@@ -28,21 +29,26 @@ export const addCountrySource = (map: mapboxgl.Map) => {
           console.log("Verified: countries source exists in the map");
         } else {
           console.error("Source addition verification failed: countries source not found after adding");
+          throw new Error("Source verification failed");
         }
       } catch (error) {
         console.error("Error adding countries source:", error);
         
-        // Try a fallback approach if the primary one fails
-        try {
-          console.log("Attempting fallback source addition...");
-          map.addSource('countries', {
-            type: 'vector',
-            url: 'mapbox://mapbox.boundaries-adm0-v3'
-          });
-          console.log("Fallback countries source added");
-        } catch (fallbackError) {
-          console.error("Fallback source addition failed:", fallbackError);
-        }
+        // If first attempt failed, wait a moment and try again with a different source
+        setTimeout(() => {
+          try {
+            if (!map.getSource('countries')) {
+              console.log("Attempting fallback source addition...");
+              map.addSource('countries', {
+                type: 'vector',
+                url: 'mapbox://mapbox.boundaries-adm0-v3'
+              });
+              console.log("Fallback countries source added");
+            }
+          } catch (fallbackError) {
+            console.error("Fallback source addition failed:", fallbackError);
+          }
+        }, 500);
       }
     } else {
       console.log("Countries source already exists");

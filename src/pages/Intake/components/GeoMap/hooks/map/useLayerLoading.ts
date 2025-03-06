@@ -33,22 +33,30 @@ export const useLayerLoading = ({
       
       // Set up a retry mechanism
       let retryCount = 0;
-      const maxRetries = 3;
+      const maxRetries = 5; // Increased max retries
       
       const attemptInitialization = () => {
         try {
           // Wait for map style to be fully loaded
           if (map.current?.isStyleLoaded()) {
             console.log("Map style already loaded, initializing layers now");
-            initializeLayers(map.current);
+            // Add a small delay to ensure sources are ready
+            setTimeout(() => {
+              if (map.current) {
+                initializeLayers(map.current);
+              }
+            }, 100);
           } else {
             // If style not loaded yet, wait for it
             console.log("Map style not loaded yet, setting up style.load event handler");
             map.current?.once('style.load', () => {
               console.log("Map style loaded event fired, initializing layers now");
-              if (map.current) {
-                initializeLayers(map.current);
-              }
+              // Add a small delay to ensure sources are ready
+              setTimeout(() => {
+                if (map.current) {
+                  initializeLayers(map.current);
+                }
+              }, 100);
             });
             
             // Also set a timeout as a backup in case the event doesn't fire
@@ -65,6 +73,13 @@ export const useLayerLoading = ({
           }
         } catch (innerErr) {
           console.error('Error in initialization attempt:', innerErr);
+          
+          // If we still have retries left, try again
+          if (retryCount < maxRetries) {
+            retryCount++;
+            console.log(`Error occurred, retrying (${retryCount}/${maxRetries})...`);
+            setTimeout(attemptInitialization, 1000 * retryCount);
+          }
         }
       };
       
