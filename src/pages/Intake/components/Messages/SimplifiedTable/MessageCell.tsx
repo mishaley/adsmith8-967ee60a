@@ -30,8 +30,8 @@ const MessageCell: React.FC<MessageCellProps> = ({
   if (content) {
     return (
       <td className="border p-1 align-top">
-        <div className="w-full min-h-[60px] p-2 bg-white">
-          {content}
+        <div className="w-full min-h-[60px] p-2 bg-gray-50 rounded shadow-inner flex items-center justify-center">
+          <span className="font-medium text-center text-gray-800">{content}</span>
         </div>
       </td>
     );
@@ -39,7 +39,11 @@ const MessageCell: React.FC<MessageCellProps> = ({
   
   // If no content, just show an empty cell
   return (
-    <td className="border p-1 align-top"></td>
+    <td className="border p-1 align-top">
+      <div className="w-full min-h-[60px] flex items-center justify-center text-gray-400 italic">
+        Waiting for generation...
+      </div>
+    </td>
   );
 };
 
