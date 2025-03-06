@@ -21,7 +21,6 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   setSelectedLanguage
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const [lastHighlightAttempt, setLastHighlightAttempt] = useState<string | null>(null);
   const [initializationComplete, setInitializationComplete] = useState(false);
   
   const {
@@ -51,38 +50,24 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
       if (selectedCountry && setSelectedCountryId) {
         console.log(`Applying initial country selection: ${selectedCountry}`);
         setSelectedCountryId(selectedCountry);
-        setLastHighlightAttempt(selectedCountry);
       }
     }
   }, [initialized, initializationComplete, selectedCountry, setSelectedCountryId]);
-
-  // Sync map selection when selectedCountry changes (e.g., from dropdown)
-  useEffect(() => {
-    if (initialized && setSelectedCountryId) {
-      console.log(`GeoMapSection: Syncing country selection to map: ${selectedCountry}`);
-      
-      // Always attempt to highlight/unhighlight when the country changes
-      setSelectedCountryId(selectedCountry);
-      setLastHighlightAttempt(selectedCountry);
-    }
-  }, [selectedCountry, initialized, setSelectedCountryId]);
 
   // Enhanced retry mechanism for highlighting countries
   useEffect(() => {
     let retryTimer: NodeJS.Timeout;
     
-    if (initialized && selectedCountry) {
+    if (initialized && selectedCountry && setSelectedCountryId) {
       // Initial retry after a delay
       retryTimer = setTimeout(() => {
-        if (setSelectedCountryId) {
-          console.log(`Retry 1: Ensuring country selection for ${selectedCountry}`);
-          setSelectedCountryId(selectedCountry);
-        }
-      }, 1000);
+        console.log(`Retry 1: Ensuring country selection for ${selectedCountry}`);
+        setSelectedCountryId(selectedCountry);
+      }, 1500);
       
       // Secondary retry with a longer delay
       const secondaryRetryTimer = setTimeout(() => {
-        if (setSelectedCountryId && initialized) {
+        if (initialized && setSelectedCountryId) {
           console.log(`Retry 2: Final attempt for country selection ${selectedCountry}`);
           setSelectedCountryId(selectedCountry);
           
@@ -104,6 +89,23 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     };
   }, [initialized, selectedCountry, setSelectedCountryId]);
 
+  // Display a notice if the map fails to load properly
+  useEffect(() => {
+    if (initialized && mapboxToken && !loading) {
+      const mapHealthCheckTimer = setTimeout(() => {
+        // Check if map container has any child elements
+        if (mapContainer.current && (!mapContainer.current.firstChild || mapContainer.current.childNodes.length === 0)) {
+          console.error("Map container is empty after initialization. Map failed to render.");
+          toast.error("Map did not load properly. Please refresh the page.", {
+            duration: 5000,
+          });
+        }
+      }, 5000);
+      
+      return () => clearTimeout(mapHealthCheckTimer);
+    }
+  }, [initialized, mapboxToken, loading]);
+
   // Combine errors from both hooks
   const error = tokenError || mapError;
 
@@ -115,8 +117,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     error,
     initialized,
     initializationComplete,
-    selectedCountry,
-    lastHighlightAttempt
+    selectedCountry
   });
 
   return (
