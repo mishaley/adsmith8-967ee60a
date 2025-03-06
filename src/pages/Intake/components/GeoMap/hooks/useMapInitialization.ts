@@ -19,7 +19,7 @@ export const useMapInitialization = ({
 }: UseMapInitializationProps) => {
   const [mapError, setMapError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const [setSelectedCountryId, setSetSelectedCountryId] = useState<((id: string) => void) | null>(null);
+  const [highlightCountryFn, setHighlightCountryFn] = useState<((id: string) => void) | null>(null);
 
   const {
     map,
@@ -50,7 +50,7 @@ export const useMapInitialization = ({
         });
 
         // Store the highlightCountry function to use in the outer scope
-        setSetSelectedCountryId(highlightCountry);
+        setHighlightCountryFn(() => highlightCountry);
 
         // Initialize with any existing selection
         if (selectedCountry) {
@@ -65,5 +65,5 @@ export const useMapInitialization = ({
     initCountryLayers();
   }, [map, mapboxToken, mapInitialized, selectedCountry, setSelectedCountry]);
 
-  return { mapError, initialized, setSelectedCountryId };
+  return { mapError, initialized, setSelectedCountryId: highlightCountryFn };
 };

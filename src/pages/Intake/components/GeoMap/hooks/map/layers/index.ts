@@ -1,16 +1,17 @@
 
-import { useCountrySource } from './useCountrySource';
-import { useCountryFillLayer } from './useCountryFillLayer';
-import { useCountryBorderLayer } from './useCountryBorderLayer';
-import { useCountryHover } from './useCountryHover';
-import { useCountrySelection } from './useCountrySelection';
+import { addCountrySource } from './useCountrySource';
+import { addCountryFillLayer } from './useCountryFillLayer';
+import { addCountryBorderLayer } from './useCountryBorderLayer';
+import { setupHoverEvents } from './useCountryHover';
+import { setupClickEvents, highlightCountry } from './useCountrySelection';
 import { calculateFeatureBbox } from './utils/bboxUtils';
 
 export {
-  useCountrySource,
-  useCountryFillLayer,
-  useCountryBorderLayer,
-  useCountryHover,
-  useCountrySelection,
+  addCountrySource,
+  addCountryFillLayer,
+  addCountryBorderLayer,
+  setupHoverEvents,
+  setupClickEvents,
+  highlightCountry,
   calculateFeatureBbox
 };

@@ -1,11 +1,12 @@
 
 import mapboxgl from 'mapbox-gl';
 import { 
-  useCountrySource, 
-  useCountryFillLayer, 
-  useCountryBorderLayer,
-  useCountryHover,
-  useCountrySelection
+  addCountrySource, 
+  addCountryFillLayer, 
+  addCountryBorderLayer,
+  setupHoverEvents,
+  setupClickEvents,
+  highlightCountry
 } from './layers';
 
 interface UseCountryLayersProps {
@@ -17,22 +18,15 @@ export const useCountryLayers = ({
   map,
   onCountryClick
 }: UseCountryLayersProps) => {
-  // Import all functionality from the smaller hooks
-  const { addCountrySource } = useCountrySource(map);
-  const { addCountryFillLayer } = useCountryFillLayer(map);
-  const { addCountryBorderLayer } = useCountryBorderLayer(map);
-  const { setupHoverEvents } = useCountryHover(map);
-  const { setupClickEvents, highlightCountry } = useCountrySelection(map, onCountryClick);
-
   // Initialize everything
-  addCountrySource();
-  addCountryFillLayer();
-  addCountryBorderLayer();
-  setupHoverEvents();
-  setupClickEvents();
+  addCountrySource(map);
+  addCountryFillLayer(map);
+  addCountryBorderLayer(map);
+  setupHoverEvents(map);
+  setupClickEvents(map, onCountryClick);
 
   // Return methods that can be used by the parent component
   return {
-    highlightCountry
+    highlightCountry: (countryId: string) => highlightCountry(map, countryId)
   };
 };
