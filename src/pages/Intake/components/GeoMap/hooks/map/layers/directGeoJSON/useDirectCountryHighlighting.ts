@@ -15,7 +15,31 @@ export const useDirectCountryHighlighting = ({
   const lastAttemptedCountry = useRef<string | null>(null);
   const retryCount = useRef(0);
 
-  // Function to clear current country selection - needs to be defined before it's used
+  // Helper function to scan all features and find a matching country
+  const findFeatureByCountryCode = useCallback((countryId: string): number | null => {
+    if (!map.current) return null;
+    
+    // Get all features from the source
+    const features = map.current.querySourceFeatures('countries-geojson');
+    console.log(`Scanning ${features.length} features to find country: ${countryId}`);
+    
+    // Match by any of the possible country code properties
+    for (const feature of features) {
+      const props = feature.properties;
+      if (
+        props.ISO_A2 === countryId || 
+        props.ISO_A3 === countryId || 
+        props.iso_a2 === countryId || 
+        props.iso_a3 === countryId
+      ) {
+        return feature.id as number;
+      }
+    }
+    
+    return null;
+  }, [map]);
+
+  // Function to clear current country selection
   const clearCountrySelection = useCallback(() => {
     if (!map.current) return;
     
@@ -42,30 +66,6 @@ export const useDirectCountryHighlighting = ({
       console.error("Error clearing country selection:", error);
     }
   }, [map, selectedCountryId]);
-
-  // Helper function to scan all features and find a matching country
-  const findFeatureByCountryCode = useCallback((countryId: string): number | null => {
-    if (!map.current) return null;
-    
-    // Get all features from the source
-    const features = map.current.querySourceFeatures('countries-geojson');
-    console.log(`Scanning ${features.length} features to find country: ${countryId}`);
-    
-    // Match by any of the possible country code properties
-    for (const feature of features) {
-      const props = feature.properties;
-      if (
-        props.ISO_A2 === countryId || 
-        props.ISO_A3 === countryId || 
-        props.iso_a2 === countryId || 
-        props.iso_a3 === countryId
-      ) {
-        return feature.id as number;
-      }
-    }
-    
-    return null;
-  }, [map]);
 
   // Function to highlight a country programmatically
   const highlightCountry = useCallback((countryId: string) => {

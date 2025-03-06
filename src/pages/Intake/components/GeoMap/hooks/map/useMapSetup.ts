@@ -60,7 +60,7 @@ export const useMapSetup = ({
         zoom: 1.5,
         center: [0, 20], // More centered view of the world
         preserveDrawingBuffer: true,
-        pitchWithRotate: false,
+        projection: 'mercator', // Explicitly set to mercator (flat map)
         attributionControl: false,
         minZoom: 1,
         maxZoom: 8,
