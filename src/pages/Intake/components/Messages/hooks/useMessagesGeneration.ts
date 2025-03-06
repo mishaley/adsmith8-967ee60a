@@ -122,7 +122,8 @@ export const useMessagesGeneration = (
         toast.success(`Generated ${messageType} messages`);
       }
       
-      return updatedMessages;
+      // Remove this return statement that was causing the TypeScript error
+      // return updatedMessages;
       
     } catch (error) {
       console.error("Error in generateColumnMessages:", error);
