@@ -66,8 +66,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         />
       </div>
 
-      {/* Exclude Selection */}
-      <div>
+      {/* Exclude Selection - Moved to the bottom */}
+      <div className="mt-6">
         <ExcludeSelection 
           selectedCountry={excludedCountry} 
           setSelectedCountry={setExcludedCountry} 
