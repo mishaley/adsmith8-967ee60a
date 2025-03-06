@@ -21,7 +21,7 @@ serve(async (req) => {
             type: "MultiPolygon",
             coordinates: [[[[-125, 48], [-125, 32], [-110, 32], [-110, 48], [-125, 48]]]]
           },
-          id: "USA"
+          id: 1
         },
         {
           type: "Feature",
@@ -34,7 +34,7 @@ serve(async (req) => {
             type: "Polygon",
             coordinates: [[[-60, 5], [-60, -30], [-40, -30], [-40, 5], [-60, 5]]]
           },
-          id: "BRA"
+          id: 2
         },
         {
           type: "Feature",
@@ -47,7 +47,7 @@ serve(async (req) => {
             type: "Polygon",
             coordinates: [[[8, 54], [8, 47], [15, 47], [15, 54], [8, 54]]]
           },
-          id: "DEU"
+          id: 3
         },
         {
           type: "Feature",
@@ -60,7 +60,7 @@ serve(async (req) => {
             type: "Polygon",
             coordinates: [[[-105, 25], [-105, 15], [-95, 15], [-95, 25], [-105, 25]]]
           },
-          id: "MEX"
+          id: 4
         },
         {
           type: "Feature",
@@ -73,7 +73,7 @@ serve(async (req) => {
             type: "MultiPolygon",
             coordinates: [[[[140, 45], [140, 35], [145, 35], [145, 45], [140, 45]]]]
           },
-          id: "JPN"
+          id: 5
         },
         {
           type: "Feature",
@@ -86,7 +86,7 @@ serve(async (req) => {
             type: "Polygon",
             coordinates: [[[70, 35], [70, 8], [90, 8], [90, 35], [70, 35]]]
           },
-          id: "IND"
+          id: 6
         },
         {
           type: "Feature",
@@ -99,7 +99,7 @@ serve(async (req) => {
             type: "Polygon",
             coordinates: [[[0, 51], [0, 42], [8, 42], [8, 51], [0, 51]]]
           },
-          id: "FRA"
+          id: 7
         },
         {
           type: "Feature",
@@ -112,7 +112,7 @@ serve(async (req) => {
             type: "MultiPolygon",
             coordinates: [[[[-5, 58], [-5, 50], [2, 50], [2, 58], [-5, 58]]]]
           },
-          id: "GBR"
+          id: 8
         },
         {
           type: "Feature",
@@ -125,7 +125,7 @@ serve(async (req) => {
             type: "Polygon",
             coordinates: [[[115, -10], [115, -40], [155, -40], [155, -10], [115, -10]]]
           },
-          id: "AUS"
+          id: 9
         },
         {
           type: "Feature",
@@ -138,7 +138,72 @@ serve(async (req) => {
             type: "MultiPolygon",
             coordinates: [[[[-140, 70], [-140, 48], [-55, 48], [-55, 70], [-140, 70]]]]
           },
-          id: "CAN"
+          id: 10
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "China",
+            ISO_A2: "CN",
+            ISO_A3: "CHN"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[75, 45], [75, 25], [130, 25], [130, 45], [75, 45]]]
+          },
+          id: 11
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Russia",
+            ISO_A2: "RU",
+            ISO_A3: "RUS"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[30, 80], [30, 55], [180, 55], [180, 80], [30, 80]]]
+          },
+          id: 12
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "South Africa",
+            ISO_A2: "ZA",
+            ISO_A3: "ZAF"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[15, -25], [15, -35], [30, -35], [30, -25], [15, -25]]]
+          },
+          id: 13
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Egypt",
+            ISO_A2: "EG",
+            ISO_A3: "EGY"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[25, 32], [25, 22], [35, 22], [35, 32], [25, 32]]]
+          },
+          id: 14
+        },
+        {
+          type: "Feature",
+          properties: {
+            NAME: "Italy",
+            ISO_A2: "IT",
+            ISO_A3: "ITA"
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[[8, 46], [8, 36], [18, 36], [18, 46], [8, 46]]]
+          },
+          id: 15
         }
         // In a production system, this would be a complete world GeoJSON
       ]

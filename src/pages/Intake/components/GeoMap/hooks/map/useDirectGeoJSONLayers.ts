@@ -182,7 +182,7 @@ export const useDirectGeoJSONLayers = ({
         }
       });
       
-      // Handle click - select country
+      // Handle click - select or deselect country
       map.current.on('click', 'countries-fill', (e) => {
         if (e.features && e.features.length > 0) {
           const feature = e.features[0];
@@ -196,7 +196,11 @@ export const useDirectGeoJSONLayers = ({
           
           // If clicking the already selected country, deselect it
           if (isoCode === selectedCountryId) {
+            console.log(`Deselecting country: ${properties.NAME}`);
             clearCountrySelection();
+            
+            // Notify parent about deselection with empty string
+            onCountrySelected('');
             return;
           }
           

@@ -153,25 +153,9 @@ export const useMapInitialization = ({
         if (isoCode) {
           console.log(`Converting UUID ${selectedCountry} to ISO code ${isoCode} for map`);
           highlightCountry(isoCode);
-          
-          // Additional retry for reliability
-          setTimeout(() => {
-            if (highlightCountry) {
-              console.log(`Retry: Applying country selection ISO: ${isoCode}`);
-              highlightCountry(isoCode);
-            }
-          }, 1000);
         } else {
           // Try using the selectedCountry directly (it might already be an ISO code)
           highlightCountry(selectedCountry);
-          
-          // Additional retry for reliability
-          setTimeout(() => {
-            if (highlightCountry) {
-              console.log(`Retry: Applying country selection direct: ${selectedCountry}`);
-              highlightCountry(selectedCountry);
-            }
-          }, 1000);
         }
       } else {
         // Clear selection if selectedCountry is empty
