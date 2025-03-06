@@ -76,13 +76,14 @@ export const useMapInitialization = ({
       // Wait for map style to be fully loaded before adding layers
       const initializeLayers = () => {
         if (map.current) {
+          // IMPORTANT: Ensure proper layer order - source first, then fill, then border on top
           // Add the source
           addCountrySource(map.current);
           
-          // Add the fill layer
+          // Add the fill layer first (underneath)
           addCountryFillLayer(map.current);
           
-          // Add the border layer
+          // Add the border layer on top for visibility
           addCountryBorderLayer(map.current);
           
           // Setup hover events
