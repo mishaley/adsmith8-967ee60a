@@ -1,10 +1,11 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useMapboxToken } from "./hooks/useMapboxToken";
 import { useMapInitialization } from "./hooks/useMapInitialization";
 import MapDisplay from "./components/MapDisplay";
 import SelectionDisplay from "./components/SelectionDisplay";
+import { toast } from "sonner";
 
 interface GeoMapSectionProps {
   selectedCountry: string;
@@ -20,11 +21,14 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   setSelectedLanguage
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
+  const [lastHighlightAttempt, setLastHighlightAttempt] = useState<string | null>(null);
+  
   const {
     loading,
     mapboxToken,
     error: tokenError
   } = useMapboxToken();
+  
   const {
     mapError,
     initialized,
@@ -40,9 +44,47 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   useEffect(() => {
     if (initialized && setSelectedCountryId && selectedCountry) {
       console.log(`GeoMapSection: Syncing country selection to map: ${selectedCountry}`);
-      setSelectedCountryId(selectedCountry);
+      
+      // Avoid redundant highlight attempts for the same country
+      if (lastHighlightAttempt !== selectedCountry) {
+        setSelectedCountryId(selectedCountry);
+        setLastHighlightAttempt(selectedCountry);
+      }
     }
-  }, [selectedCountry, initialized, setSelectedCountryId]);
+  }, [selectedCountry, initialized, setSelectedCountryId, lastHighlightAttempt]);
+
+  // If the map gets initialized later, try to highlight the selected country
+  useEffect(() => {
+    if (initialized && setSelectedCountryId && selectedCountry && !lastHighlightAttempt) {
+      console.log(`Map initialized, highlighting previously selected country: ${selectedCountry}`);
+      setSelectedCountryId(selectedCountry);
+      setLastHighlightAttempt(selectedCountry);
+    }
+  }, [initialized, selectedCountry, setSelectedCountryId, lastHighlightAttempt]);
+
+  // Retry country selection if initialization happened after country was selected
+  useEffect(() => {
+    let retryTimer: NodeJS.Timeout;
+    
+    if (initialized && selectedCountry && lastHighlightAttempt === selectedCountry) {
+      // After a delay, check if we need to retry
+      retryTimer = setTimeout(() => {
+        console.log(`Retry country selection for ${selectedCountry}`);
+        if (setSelectedCountryId) {
+          setSelectedCountryId(selectedCountry);
+          
+          // Show a toast if we're having to retry
+          toast.info("Refreshing map selection...", {
+            duration: 2000,
+          });
+        }
+      }, 2000);
+    }
+    
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [initialized, selectedCountry, setSelectedCountryId, lastHighlightAttempt]);
 
   // Combine errors from both hooks
   const error = tokenError || mapError;
@@ -54,7 +96,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     tokenLength: mapboxToken ? mapboxToken.length : 0,
     error,
     initialized,
-    selectedCountry
+    selectedCountry,
+    lastHighlightAttempt
   });
 
   return (

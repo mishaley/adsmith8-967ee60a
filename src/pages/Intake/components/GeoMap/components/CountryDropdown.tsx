@@ -40,7 +40,16 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
     // Also highlight on map if the function is available
     if (setSelectedCountryId) {
       console.log(`CountryDropdown: Triggering map highlight for ${countryId}`);
-      setSelectedCountryId(countryId);
+      
+      // Get the ISO code for this country
+      const selectedCountry = countries.find(c => c.country_id === countryId);
+      if (selectedCountry?.country_iso2) {
+        console.log(`Using ISO code for highlighting: ${selectedCountry.country_iso2}`);
+        setSelectedCountryId(selectedCountry.country_iso2);
+      } else {
+        console.log(`No ISO code found, using country_id: ${countryId}`);
+        setSelectedCountryId(countryId);
+      }
     }
   };
 

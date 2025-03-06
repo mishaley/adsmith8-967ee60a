@@ -27,6 +27,7 @@ export const useMapInitialization = ({
   const [mapError, setMapError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [highlightCountryFn, setHighlightCountryFn] = useState<((id: string) => void) | null>(null);
+  const [layersInitialized, setLayersInitialized] = useState(false);
 
   const {
     map,
@@ -64,32 +65,96 @@ export const useMapInitialization = ({
 
   // Initialize country layers
   useEffect(() => {
-    if (!mapInitialized || !map.current || !mapboxToken) {
+    if (!mapInitialized || !map.current || !mapboxToken || layersInitialized) {
       return;
     }
 
     try {
       // Add source and layers
+      console.log("Initializing country layers...");
+      
+      // Add the source
       addCountrySource(map.current);
+      
+      // Add the fill layer
       addCountryFillLayer(map.current);
+      
+      // Add the border layer
       addCountryBorderLayer(map.current);
+      
+      // Setup hover events
       setupHoverEvents(map.current);
+      
+      // Setup click events
       setupClickEvents(map.current, setSelectedCountry);
+      
+      // Mark layers as initialized
+      setLayersInitialized(true);
       
       console.log("Country layers initialized successfully");
     } catch (err) {
       console.error('Error initializing country layers:', err);
       setMapError(`Failed to initialize countries: ${err instanceof Error ? err.message : String(err)}`);
     }
-  }, [map, mapboxToken, mapInitialized, setSelectedCountry]);
+  }, [map, mapboxToken, mapInitialized, setSelectedCountry, layersInitialized]);
 
   // Effect to highlight the selected country when it changes
   useEffect(() => {
-    if (selectedCountry && mapInitialized && map.current) {
-      console.log(`Selected country changed to: ${selectedCountry}`);
+    if (selectedCountry && mapInitialized && layersInitialized && map.current) {
+      console.log(`Selected country changed to: ${selectedCountry}, highlighting on map`);
       highlightCountry(map.current, selectedCountry);
     }
-  }, [selectedCountry, mapInitialized, map]);
+  }, [selectedCountry, mapInitialized, layersInitialized, map]);
 
-  return { mapError, initialized, setSelectedCountryId: highlightCountryFn };
+  // Add a listener for the map's style.load event to ensure country data is available
+  useEffect(() => {
+    if (!map.current || !mapInitialized) return;
+    
+    const currentMap = map.current;
+    
+    const handleStyleLoad = () => {
+      console.log("Map style fully loaded, checking if country layers need to be initialized");
+      
+      // Try to ensure the layers are initialized
+      if (!layersInitialized) {
+        try {
+          addCountrySource(currentMap);
+          addCountryFillLayer(currentMap);
+          addCountryBorderLayer(currentMap);
+          setupHoverEvents(currentMap);
+          setupClickEvents(currentMap, setSelectedCountry);
+          setLayersInitialized(true);
+          console.log("Country layers initialized on style.load");
+        } catch (err) {
+          console.error('Error initializing country layers on style.load:', err);
+        }
+      }
+      
+      // Try to highlight the country again if one is selected
+      if (selectedCountry) {
+        console.log(`Re-highlighting country ${selectedCountry} after style.load`);
+        highlightCountry(currentMap, selectedCountry);
+      }
+    };
+    
+    // Add the event listener
+    currentMap.on('style.load', handleStyleLoad);
+    
+    // If the style is already loaded, call the handler directly
+    if (currentMap.isStyleLoaded()) {
+      console.log("Map style already loaded, running handler directly");
+      handleStyleLoad();
+    }
+    
+    // Clean up on unmount
+    return () => {
+      currentMap.off('style.load', handleStyleLoad);
+    };
+  }, [map, mapInitialized, selectedCountry, layersInitialized, setSelectedCountry]);
+
+  return { 
+    mapError, 
+    initialized: mapInitialized && layersInitialized, 
+    setSelectedCountryId: highlightCountryFn 
+  };
 };

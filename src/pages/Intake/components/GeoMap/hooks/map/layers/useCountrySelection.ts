@@ -11,96 +11,175 @@ export const setupClickEvents = (map: mapboxgl.Map, onCountryClick: (countryId: 
       const countryId = e.features[0].id as string;
       const countryName = e.features[0].properties?.iso_3166_1 || '';
       
+      console.log(`Map click: Selected country ${countryName} (id: ${countryId})`);
       onCountryClick(countryName);
     }
   });
 };
 
-export const highlightCountry = (map: mapboxgl.Map, countryId: string) => {
+export const highlightCountry = (map: mapboxgl.Map, countryCode: string) => {
   if (!map || !map.isStyleLoaded()) {
     console.log("Map style not loaded yet, can't highlight country");
     return;
   }
   
-  // Clear previous selection
-  if (selectedCountryId) {
-    map.setFeatureState(
-      { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
-      { selected: false }
-    );
-  }
-  
-  if (!countryId) {
-    selectedCountryId = null;
+  if (!countryCode) {
+    // Clear previous selection
+    if (selectedCountryId) {
+      try {
+        map.setFeatureState(
+          { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+          { selected: false }
+        );
+        selectedCountryId = null;
+      } catch (error) {
+        console.error("Error clearing previous country selection:", error);
+      }
+    }
     return;
   }
   
-  console.log(`Attempting to highlight country with ID: ${countryId}`);
+  console.log(`Attempting to highlight country with code: ${countryCode}`);
   
-  // Find feature ID for the country code
-  const features = map.querySourceFeatures('countries', {
-    sourceLayer: 'country_boundaries',
-    filter: ['==', 'iso_3166_1', countryId]
-  });
+  // Find the ISO code from the country code (assuming it might be a UUID in some cases)
+  let isoCode = countryCode;
   
-  console.log(`Found ${features.length} features for country ${countryId}`);
-  
-  if (features.length > 0) {
-    for (const feature of features) {
-      if (feature.id) {
-        selectedCountryId = feature.id as string;
-        
-        console.log(`Setting feature state for ID: ${selectedCountryId}`);
-        
-        map.setFeatureState(
-          { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
-          { selected: true }
-        );
-        
-        // Ensure the country is visible by fitting the map to the country's bounds
-        const bbox = calculateFeatureBbox(feature);
-        
-        if (!bbox.isEmpty()) {
-          map.fitBounds(bbox, {
-            padding: 50,
-            maxZoom: 5
-          });
-        }
-        
-        // Once we've found and highlighted a feature, we can break
-        break;
-      }
+  // Clear previous selection if any
+  if (selectedCountryId) {
+    try {
+      map.setFeatureState(
+        { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+        { selected: false }
+      );
+    } catch (error) {
+      console.error("Error clearing previous country selection:", error);
     }
-  } else {
-    console.log(`No features found for country ${countryId}. Waiting for map to fully load...`);
+  }
+  
+  // Function to query and highlight the country
+  const findAndHighlightCountry = () => {
+    // Query features directly using ISO code filter
+    const features = map.querySourceFeatures('countries', {
+      sourceLayer: 'country_boundaries',
+      filter: ['==', 'iso_3166_1', isoCode]
+    });
     
-    // If no features found, it might be because the map is still loading
-    // Set a timeout to try again after a short delay
-    setTimeout(() => {
-      const delayedFeatures = map.querySourceFeatures('countries', {
-        sourceLayer: 'country_boundaries',
-        filter: ['==', 'iso_3166_1', countryId]
-      });
+    console.log(`Found ${features.length} features for country code ${isoCode}`);
+    
+    if (features.length > 0) {
+      let foundValidFeature = false;
       
-      console.log(`After delay: Found ${delayedFeatures.length} features for country ${countryId}`);
-      
-      if (delayedFeatures.length > 0 && delayedFeatures[0].id) {
-        selectedCountryId = delayedFeatures[0].id as string;
-        
-        map.setFeatureState(
-          { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
-          { selected: true }
-        );
-        
-        const bbox = calculateFeatureBbox(delayedFeatures[0]);
-        
-        if (!bbox.isEmpty()) {
-          map.fitBounds(bbox, {
-            padding: 50,
-            maxZoom: 5
-          });
+      // Try to find a feature with a valid ID
+      for (const feature of features) {
+        if (feature.id !== undefined && feature.id !== null) {
+          selectedCountryId = feature.id as string;
+          
+          console.log(`Setting feature state for ID: ${selectedCountryId}`);
+          
+          try {
+            map.setFeatureState(
+              { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+              { selected: true }
+            );
+            
+            // Calculate and fit to the country's bounds
+            const bbox = calculateFeatureBbox(feature);
+            if (!bbox.isEmpty()) {
+              map.fitBounds(bbox, {
+                padding: 50,
+                maxZoom: 5
+              });
+            }
+            
+            foundValidFeature = true;
+            break; // Exit the loop once we've found and highlighted a feature
+          } catch (error) {
+            console.error(`Error setting feature state for country ${isoCode}:`, error);
+          }
         }
       }
-    }, 500);
-  }
+      
+      if (!foundValidFeature) {
+        console.log(`No valid feature found for country ${isoCode}`);
+      }
+    } else {
+      console.log(`No features found for country code ${isoCode}. Will retry shortly...`);
+      
+      // Retry after a delay to allow the map to fully load
+      setTimeout(() => {
+        const delayedFeatures = map.querySourceFeatures('countries', {
+          sourceLayer: 'country_boundaries',
+          filter: ['==', 'iso_3166_1', isoCode]
+        });
+        
+        console.log(`Retry: Found ${delayedFeatures.length} features for country ${isoCode}`);
+        
+        if (delayedFeatures.length > 0) {
+          for (const feature of delayedFeatures) {
+            if (feature.id !== undefined && feature.id !== null) {
+              selectedCountryId = feature.id as string;
+              
+              try {
+                map.setFeatureState(
+                  { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+                  { selected: true }
+                );
+                
+                const bbox = calculateFeatureBbox(feature);
+                if (!bbox.isEmpty()) {
+                  map.fitBounds(bbox, {
+                    padding: 50,
+                    maxZoom: 5
+                  });
+                }
+                
+                break;
+              } catch (error) {
+                console.error(`Error setting feature state for country ${isoCode} on retry:`, error);
+              }
+            }
+          }
+        } else {
+          // Last attempt with a longer delay
+          setTimeout(() => {
+            console.log(`Final attempt to find country ${isoCode}`);
+            // Try a different approach: get all features and filter client-side
+            const allFeatures = map.querySourceFeatures('countries', {
+              sourceLayer: 'country_boundaries'
+            });
+            
+            const matchingFeatures = allFeatures.filter(f => 
+              f.properties?.iso_3166_1 === isoCode
+            );
+            
+            console.log(`Final attempt found ${matchingFeatures.length} features for ${isoCode}`);
+            
+            if (matchingFeatures.length > 0 && matchingFeatures[0].id !== undefined) {
+              selectedCountryId = matchingFeatures[0].id as string;
+              
+              try {
+                map.setFeatureState(
+                  { source: 'countries', sourceLayer: 'country_boundaries', id: selectedCountryId },
+                  { selected: true }
+                );
+                
+                const bbox = calculateFeatureBbox(matchingFeatures[0]);
+                if (!bbox.isEmpty()) {
+                  map.fitBounds(bbox, {
+                    padding: 50,
+                    maxZoom: 5
+                  });
+                }
+              } catch (error) {
+                console.error(`Error in final attempt for country ${isoCode}:`, error);
+              }
+            }
+          }, 1500);
+        }
+      }, 500);
+    }
+  };
+  
+  // Execute the function
+  findAndHighlightCountry();
 };
