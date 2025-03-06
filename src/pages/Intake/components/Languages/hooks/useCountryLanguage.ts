@@ -15,6 +15,13 @@ export const useCountryLanguage = (countryId: string) => {
       return;
     }
 
+    // Special case for worldwide selection
+    if (countryId === "worldwide") {
+      setPrimaryLanguageId(null); // No specific language for worldwide
+      setCountryName("Worldwide");
+      return;
+    }
+
     const fetchCountryLanguage = async () => {
       try {
         setIsLoading(true);

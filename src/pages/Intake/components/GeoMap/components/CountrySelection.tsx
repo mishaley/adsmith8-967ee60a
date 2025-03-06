@@ -40,7 +40,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   }, [isDropdownOpen]);
 
   useEffect(() => {
-    if (selectedCountry && countries.length > 0) {
+    if (selectedCountry && selectedCountry === "worldwide") {
+      setSelectedCountryFlag("🌐");
+    } else if (selectedCountry && countries.length > 0) {
       const country = countries.find(c => c.country_id === selectedCountry);
       if (country) {
         setSelectedCountryFlag(country.country_flag);
@@ -80,6 +82,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
     setIsDropdownOpen(false);
   };
 
+  // Display name for the worldwide option
+  const displayName = selectedCountry === "worldwide" ? "Worldwide" : countryName || "";
+
   return (
     <div>
       <div className="font-bold text-lg mb-4">Country</div>
@@ -94,7 +99,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
             {selectedCountryFlag && (
               <span className="inline-block w-6 text-center">{selectedCountryFlag}</span>
             )}
-            <span>{countryName || ""}</span>
+            <span>{displayName}</span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>

@@ -110,10 +110,49 @@ export const useDirectCountryHighlighting = ({
     }
   }, [map, initialized]);
 
+  // Function to highlight all countries (worldwide option)
+  const highlightAllCountries = useCallback(() => {
+    if (!map.current || !initialized) {
+      console.log("Cannot highlight all countries - map not ready");
+      return;
+    }
+    
+    console.log("Highlighting all countries (worldwide option)");
+    
+    try {
+      // Clear any existing selection and exclusion
+      clearCountrySelection();
+      clearExcludedCountry();
+      
+      // Get all countries from the source
+      const features = map.current.querySourceFeatures('countries-geojson');
+      
+      // Set selected state for all features
+      features.forEach(feature => {
+        if (feature.id !== undefined) {
+          map.current!.setFeatureState(
+            { source: 'countries-geojson', id: feature.id },
+            { selected: true, excluded: false }
+          );
+        }
+      });
+      
+      setSelectedCountryId("worldwide");
+    } catch (error) {
+      console.error("Error highlighting all countries:", error);
+    }
+  }, [map, initialized, clearCountrySelection, clearExcludedCountry]);
+
   // Function to highlight a country programmatically
   const highlightCountry = useCallback((countryId: string, isExcluded: boolean = false) => {
     if (!map.current || !initialized || !countryId) {
       console.log(`Cannot highlight country ${countryId} - map not ready or country ID empty`);
+      return;
+    }
+    
+    // Special case for worldwide option
+    if (countryId === "worldwide" && !isExcluded) {
+      highlightAllCountries();
       return;
     }
     
@@ -170,7 +209,7 @@ export const useDirectCountryHighlighting = ({
     } catch (error) {
       console.error(`Error highlighting country ${countryId}:`, error);
     }
-  }, [map, initialized, clearCountrySelection, clearExcludedCountry, retryHighlightWithFullScan]);
+  }, [map, initialized, clearCountrySelection, clearExcludedCountry, retryHighlightWithFullScan, highlightAllCountries]);
 
   // Function to highlight a country as excluded
   const highlightExcludedCountry = useCallback((countryId: string) => {
@@ -185,6 +224,7 @@ export const useDirectCountryHighlighting = ({
     highlightCountry,
     highlightExcludedCountry,
     clearCountrySelection,
-    clearExcludedCountry
+    clearExcludedCountry,
+    highlightAllCountries
   };
 };
