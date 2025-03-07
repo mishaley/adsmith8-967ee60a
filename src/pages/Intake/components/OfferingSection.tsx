@@ -1,11 +1,12 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import SingleSelectField from "./SummaryTable/components/SingleSelectField";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { useOfferingDetails } from "./SummaryTable/hooks/useOfferingDetails";
 import { useToast } from "@/components/ui/use-toast";
+import { OfferingButton } from "./Organization";
 
 interface OfferingSectionProps {
   offering: string;
@@ -29,6 +30,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
   setUniqueOffering
 }) => {
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
   
   // Get offering dropdown data and functionality
   const {
@@ -103,6 +105,27 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     }
   };
 
+  // Handle "NEXT" button click
+  const handleNextClick = () => {
+    setIsSaving(true);
+    
+    // Simulate saving (you'll need to implement actual saving logic here)
+    setTimeout(() => {
+      setIsSaving(false);
+      
+      // Show success toast
+      toast({
+        title: "Offering saved",
+        description: selectedOfferingId === "new-offering" 
+          ? "Your new offering has been created." 
+          : "Your offering has been updated.",
+      });
+      
+      // Collapse this section and expand the next one
+      // You might want to implement actual logic for this
+    }, 1000);
+  };
+
   return (
     <CollapsibleSection title="OFFERING">
       <div className="flex justify-center">
@@ -158,6 +181,15 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
           </tbody>
         </table>
       </div>
+      
+      {/* Next button - only show when an offering is selected or being created */}
+      {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
+        <OfferingButton 
+          onClick={handleNextClick}
+          isDisabled={isSaving || !offering.trim()}
+          isCreating={isSaving}
+        />
+      )}
     </CollapsibleSection>
   );
 };
