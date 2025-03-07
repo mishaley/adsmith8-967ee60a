@@ -4,6 +4,7 @@ import { useIntakeForm } from "./hooks/useIntakeForm";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SectionsContainer from "./components/Containers/SectionsContainer"; 
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
+import { OrganizationSelector } from "@/components/OrganizationSelector";
 
 const IntakeForm: React.FC = () => {
   // Get all form state and handlers from the hook
@@ -61,6 +62,7 @@ const IntakeForm: React.FC = () => {
   return (
     <QuadrantLayout>
       {{
+        q1: <OrganizationSelector />,
         q4: (
           <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
             <SectionsContainer
