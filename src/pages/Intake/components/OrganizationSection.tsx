@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
@@ -7,6 +8,7 @@ import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { toast } from "@/components/ui/use-toast";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
 import { Button } from "@/components/ui/button";
+import { useCreateMutation } from "@/components/table/mutations/useCreateMutation";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -24,6 +26,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   handleSave
 }) => {
   const [isLoadingOrgData, setIsLoadingOrgData] = useState(false);
+  const [isCreatingOrg, setIsCreatingOrg] = useState(false);
 
   const {
     selectedOrgId,
@@ -35,6 +38,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   const {
     isUpdating
   } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
+
+  // Import the create mutation for organizations
+  const createOrgMutation = useCreateMutation('a1organizations');
 
   const handleOrganizationChange = (value: string) => {
     console.log("OrganizationSection - Organization change detected:", value);
@@ -84,11 +90,67 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   }, [selectedOrgId, handleOrgChange]);
 
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
-
   const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";
 
   const handleIndustryChange = (value: string) => {
     setIndustry(value);
+  };
+
+  // Function to create a new organization
+  const createNewOrganization = async () => {
+    // Validation
+    if (!brandName.trim()) {
+      toast({
+        title: "Brand name required",
+        description: "Please enter a brand name for your organization",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsCreatingOrg(true);
+      
+      // Create organization record
+      const newOrg = await createOrgMutation.mutateAsync({
+        organization_name: brandName.trim(),
+        organization_industry: industry.trim() || null
+      });
+      
+      console.log("OrganizationSection - Created new organization:", newOrg);
+      
+      // If successful, update the selected organization to the new one
+      if (newOrg?.organization_id) {
+        handleOrgChange(newOrg.organization_id);
+        
+        toast({
+          title: "Organization created",
+          description: `"${brandName}" has been created successfully.`
+        });
+        
+        // Continue with the normal save flow
+        handleSave();
+      }
+    } catch (error) {
+      console.error("OrganizationSection - Error creating organization:", error);
+      toast({
+        title: "Failed to create organization",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingOrg(false);
+    }
+  };
+
+  // Handle the save button click
+  const handleSaveClick = () => {
+    if (selectedOrgId === "new-organization") {
+      createNewOrganization();
+    } else {
+      // For existing organizations, just call the normal save handler
+      handleSave();
+    }
   };
 
   return <CollapsibleSection title="ORGANIZATION">
@@ -127,7 +189,13 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
       </div>
       
       {isOrgSelected && <div className="flex justify-center mt-6 mb-3">
-          <Button onClick={handleSave} className="w-20">NEXT</Button>
+          <Button 
+            onClick={handleSaveClick} 
+            className="w-20"
+            disabled={isCreatingOrg || isUpdating || isLoadingOrgData}
+          >
+            {isCreatingOrg ? "Saving..." : "NEXT"}
+          </Button>
         </div>}
     </CollapsibleSection>;
 };
