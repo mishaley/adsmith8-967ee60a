@@ -61,7 +61,7 @@ export const useOrganizationSelection = () => {
   });
 
   // Fetch organization details when an organization is selected
-  useQuery({
+  const { data: orgDetails } = useQuery({
     queryKey: ["organization-details", selectedOrgId],
     queryFn: async () => {
       // Don't fetch if we're creating a new organization or no org is selected
@@ -73,7 +73,6 @@ export const useOrganizationSelection = () => {
       console.log("Fetching organization details for:", selectedOrgId);
       
       try {
-        // Using maybeSingle instead of single to avoid errors if no row is found
         const { data, error } = await supabase
           .from("a1organizations")
           .select("organization_name, organization_industry")
@@ -89,6 +88,7 @@ export const useOrganizationSelection = () => {
         console.log("Fetched organization data:", data);
         
         if (data) {
+          // Important: Set the currentOrganization with the fetched data
           setCurrentOrganization(data);
         } else {
           console.warn("No organization found with ID:", selectedOrgId);

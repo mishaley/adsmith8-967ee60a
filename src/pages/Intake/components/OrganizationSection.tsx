@@ -46,23 +46,28 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
       console.log("Filling form with organization data:", currentOrganization);
       
       // Set brand name from organization data
-      setBrandName(currentOrganization.organization_name);
+      if (currentOrganization.organization_name) {
+        setBrandName(currentOrganization.organization_name);
+        console.log("Setting brand name to:", currentOrganization.organization_name);
+      }
       
       // If organization has industry data, set it
       if (currentOrganization.organization_industry) {
         setIndustry(currentOrganization.organization_industry);
+        console.log("Setting industry to:", currentOrganization.organization_industry);
       }
     } else if (selectedOrgId === "new-organization") {
       // Clear fields when "new-organization" is selected
       setBrandName("");
       setIndustry("");
+      console.log("Clearing form fields for new organization");
     }
   }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
   
   // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
   
-  // Log to verify the selectedOrgId value
+  // Log to verify the selectedOrgId value and organization data
   console.log("Selected Organization ID:", selectedOrgId);
   console.log("Current Organization Data:", currentOrganization);
   

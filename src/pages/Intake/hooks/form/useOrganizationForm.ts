@@ -18,6 +18,13 @@ export const useOrganizationForm = () => {
     ""
   );
 
+  // Debug the current values
+  console.log("useOrganizationForm - Current values:", {
+    brandName,
+    industry,
+    businessDescription
+  });
+
   return {
     brandName,
     setBrandName,

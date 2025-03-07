@@ -21,6 +21,9 @@ const OrganizationContainer: React.FC<OrganizationContainerProps> = ({
   setBusinessDescription,
   handleSave
 }) => {
+  // Add debug logging
+  console.log("OrganizationContainer rendering with brandName:", brandName);
+  
   return (
     <OrganizationSection
       brandName={brandName}
