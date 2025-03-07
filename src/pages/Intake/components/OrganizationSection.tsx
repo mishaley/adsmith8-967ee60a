@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
@@ -8,7 +7,6 @@ import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { toast } from "@/components/ui/use-toast";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
 import { Button } from "@/components/ui/button";
-
 interface OrganizationSectionProps {
   brandName: string;
   setBrandName: (value: string) => void;
@@ -16,7 +14,6 @@ interface OrganizationSectionProps {
   setIndustry: (value: string) => void;
   handleSave: () => void;
 }
-
 const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   brandName,
   setBrandName,
@@ -26,7 +23,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
 }) => {
   // Track if we're currently loading organization data
   const [isLoadingOrgData, setIsLoadingOrgData] = useState(false);
-  
+
   // Get organization dropdown data and functionality
   const {
     selectedOrgId,
@@ -34,37 +31,38 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleOrgChange,
     currentOrganization
   } = useSummaryTableData();
-  
+
   // Use the industry sync hook
-  const { isUpdating } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
-  
+  const {
+    isUpdating
+  } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
+
   // Extended handler for organization changes
   const handleOrganizationChange = (value: string) => {
     console.log("OrganizationSection - Organization change detected:", value);
     setIsLoadingOrgData(true);
     handleOrgChange(value);
   };
-  
+
   // Auto-fill fields when organization data is loaded or changes
   useEffect(() => {
     if (currentOrganization) {
       console.log("OrganizationSection - Filling form with organization data:", currentOrganization);
-      
+
       // Set brand name from organization data
       if (currentOrganization.organization_name) {
         setBrandName(currentOrganization.organization_name);
         console.log("OrganizationSection - Setting brand name to:", currentOrganization.organization_name);
       }
-      
+
       // If organization has industry data, set it
       if (currentOrganization.organization_industry) {
         setIndustry(currentOrganization.organization_industry);
         console.log("OrganizationSection - Setting industry to:", currentOrganization.organization_industry);
       }
-      
+
       // Mark loading as complete
       setIsLoadingOrgData(false);
-      
     } else if (selectedOrgId === "new-organization") {
       // Clear fields when "new-organization" is selected
       setBrandName("");
@@ -73,13 +71,13 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
       setIsLoadingOrgData(false);
     }
   }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
-  
+
   // Listen for external organization changes from OrganizationSelector
   useEffect(() => {
     const handleExternalOrgChange = (event: CustomEvent) => {
       const newOrgId = event.detail.organizationId;
       console.log("OrganizationSection - Detected external organization change:", newOrgId);
-      
+
       // Update our local organization selection
       if (newOrgId !== selectedOrgId) {
         setIsLoadingOrgData(true);
@@ -89,16 +87,16 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
 
     // Add event listener
     window.addEventListener('organizationChanged', handleExternalOrgChange as EventListener);
-    
+
     // Clean up
     return () => {
       window.removeEventListener('organizationChanged', handleExternalOrgChange as EventListener);
     };
   }, [selectedOrgId, handleOrgChange]);
-  
+
   // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
-  
+
   // Determine if the input should be readonly (only new organizations can edit brand name)
   const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";
 
@@ -106,7 +104,6 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   const handleIndustryChange = (value: string) => {
     setIndustry(value);
   };
-  
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
@@ -114,17 +111,12 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
             <tr className="border-transparent">
               <td colSpan={2} className="py-4 text-center">
                 <div className="w-72 mx-auto">
-                  <OrganizationSelect 
-                    selectedOrgId={selectedOrgId} 
-                    organizations={organizations} 
-                    onValueChange={handleOrganizationChange} 
-                  />
+                  <OrganizationSelect selectedOrgId={selectedOrgId} organizations={organizations} onValueChange={handleOrganizationChange} />
                 </div>
               </td>
             </tr>
             
-            {isOrgSelected && (
-              <>
+            {isOrgSelected && <>
                 <tr className="border-transparent">
                   <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
                     <div>What's your brand name?</div>
@@ -132,47 +124,26 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                   <td className="py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-96">
-                        <input 
-                          type="text" 
-                          value={brandName} 
-                          onChange={e => {
-                            // Only allow changes for new organizations
-                            if (!isReadOnly) {
-                              setBrandName(e.target.value);
-                            }
-                          }} 
-                          readOnly={isReadOnly}
-                          className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${isReadOnly ? 'bg-gray-100' : ''}`} 
-                        />
+                        <input type="text" value={brandName} onChange={e => {
+                      // Only allow changes for new organizations
+                      if (!isReadOnly) {
+                        setBrandName(e.target.value);
+                      }
+                    }} readOnly={isReadOnly} className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${isReadOnly ? 'bg-gray-100' : ''}`} />
                       </div>
                     </div>
                   </td>
                 </tr>
-                <RecordingField 
-                  label="What industry are you in?" 
-                  value={industry} 
-                  onChange={handleIndustryChange} 
-                  placeholder="Hold to speak about your industry" 
-                  disabled={isUpdating || isLoadingOrgData}
-                />
-              </>
-            )}
+                <RecordingField label="What industry are you in?" value={industry} onChange={handleIndustryChange} placeholder="Hold to speak about your industry" disabled={isUpdating || isLoadingOrgData} />
+              </>}
           </tbody>
         </table>
       </div>
       
       {/* Save button at the bottom of the section */}
-      {isOrgSelected && (
-        <div className="flex justify-center mt-6 mb-3">
-          <Button 
-            onClick={handleSave}
-            className="w-40"
-          >
-            Save
-          </Button>
-        </div>
-      )}
+      {isOrgSelected && <div className="flex justify-center mt-6 mb-3">
+          <Button onClick={handleSave} className="w-40">NEXT</Button>
+        </div>}
     </CollapsibleSection>;
 };
-
 export default OrganizationSection;
