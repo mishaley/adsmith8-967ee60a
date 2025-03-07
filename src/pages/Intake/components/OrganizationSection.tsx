@@ -1,3 +1,4 @@
+
 import React from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
@@ -49,6 +50,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleOrgChange(value);
   };
   
+  // Check if an organization is selected (either an existing one or "new-organization")
+  const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
+  
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
@@ -64,20 +68,39 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                 </div>
               </td>
             </tr>
-            <tr className="border-transparent">
-              <td className="py-4 pr-4 text-lg">
-                <div>What's your brand name?</div>
-              </td>
-              <td className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-96">
-                    <input type="text" value={brandName} onChange={e => setBrandName(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <FormField label="What industry are you in?" value={industry} onChange={e => setIndustry(e.target.value)} />
-            <RecordingField label="Tell me about your business" value={businessDescription} onChange={setBusinessDescription} placeholder="Speak for at least 30 seconds" />
+            
+            {isOrgSelected && (
+              <>
+                <tr className="border-transparent">
+                  <td className="py-4 pr-4 text-lg">
+                    <div>What's your brand name?</div>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-96">
+                        <input 
+                          type="text" 
+                          value={brandName} 
+                          onChange={e => setBrandName(e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <FormField 
+                  label="What industry are you in?" 
+                  value={industry} 
+                  onChange={e => setIndustry(e.target.value)} 
+                />
+                <RecordingField 
+                  label="Tell me about your business" 
+                  value={businessDescription} 
+                  onChange={setBusinessDescription} 
+                  placeholder="Speak for at least 30 seconds" 
+                />
+              </>
+            )}
           </tbody>
         </table>
       </div>
