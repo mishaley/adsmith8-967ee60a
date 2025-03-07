@@ -72,25 +72,25 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
               value={offering} 
               onChange={setOffering} 
               ref={offeringInputRef}
-              placeholder="Type or record your offering name"
+              placeholder=""
             />
             <RecordingField 
               label="Key Selling Points" 
               value={sellingPoints} 
               onChange={setSellingPoints} 
-              placeholder="Speak for at least 30 seconds" 
+              placeholder=""
             />
             <RecordingField 
               label="Problem Solved" 
               value={problemSolved} 
               onChange={setProblemSolved} 
-              placeholder="Speak for at least 30 seconds" 
+              placeholder=""
             />
             <RecordingField 
               label="Unique Advantages" 
               value={uniqueOffering} 
               onChange={setUniqueOffering} 
-              placeholder="Speak for at least 30 seconds" 
+              placeholder=""
             />
           </tbody>
         </table>
