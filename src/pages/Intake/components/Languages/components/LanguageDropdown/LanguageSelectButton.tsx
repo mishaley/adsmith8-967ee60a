@@ -7,11 +7,13 @@ import type { Language } from "../../../Languages/hooks/useLanguages";
 interface LanguageSelectButtonProps {
   selectedLanguage: Language | undefined;
   onClick: () => void;
+  emptyPlaceholder?: string;
 }
 
 const LanguageSelectButton: React.FC<LanguageSelectButtonProps> = ({
   selectedLanguage,
-  onClick
+  onClick,
+  emptyPlaceholder = "Select language"
 }) => {
   return (
     <Button
@@ -26,7 +28,7 @@ const LanguageSelectButton: React.FC<LanguageSelectButtonProps> = ({
             <span>{selectedLanguage.language_name}</span>
           </>
         ) : (
-          <span className="text-gray-400">Select language</span>
+          <span className="text-gray-400">{emptyPlaceholder}</span>
         )}
       </span>
       <ChevronDown className="h-4 w-4 shrink-0" />

@@ -11,6 +11,7 @@ interface CountrySelectionProps {
   setSelectedCountryId?: ((id: string) => void) | null;
   countryName: string | null;
   onClearSelection: () => void;
+  hideLabel?: boolean;
 }
 
 const CountrySelection: React.FC<CountrySelectionProps> = ({
@@ -18,7 +19,8 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   setSelectedCountry,
   setSelectedCountryId,
   countryName,
-  onClearSelection
+  onClearSelection,
+  hideLabel = false
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCountryFlag, setSelectedCountryFlag] = useState<string | null>(null);
@@ -77,7 +79,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
 
   return (
     <div>
-      <SelectionHeader title="Country" />
+      {!hideLabel && <SelectionHeader title="Country" />}
       
       <div className="relative" ref={dropdownRef}>
         <SelectionButton 

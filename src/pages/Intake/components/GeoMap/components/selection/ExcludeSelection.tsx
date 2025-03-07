@@ -11,6 +11,7 @@ interface ExcludeSelectionProps {
   selectedCountryFlag: string | null;
   onClearSelection: () => void;
   setExcludedCountryId?: ((id: string) => void) | null;
+  hideLabel?: boolean;
 }
 
 const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
@@ -18,7 +19,8 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   setSelectedCountry,
   selectedCountryFlag,
   onClearSelection,
-  setExcludedCountryId
+  setExcludedCountryId,
+  hideLabel = false
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { countries } = useCountries();
@@ -35,7 +37,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
 
   return (
     <div>
-      <SelectionHeader title="Exclude" />
+      {!hideLabel && <SelectionHeader title="Exclude" />}
       
       <Popover open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <PopoverTrigger asChild>

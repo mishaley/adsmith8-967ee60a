@@ -59,38 +59,50 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   
   return (
     <div className="w-full bg-transparent rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8">
-      {/* Top section with Country, Exclude, and Language */}
-      <div className="space-y-6">
+      {/* All selections with labels on the left */}
+      <div className="space-y-4">
         {/* Country Selection */}
-        <div>
-          <CountrySelection 
-            selectedCountry={selectedCountry} 
-            setSelectedCountry={setSelectedCountry} 
-            setSelectedCountryId={setSelectedCountryId} 
-            countryName={countryName} 
-            onClearSelection={handleClearSelection}
-          />
+        <div className="flex items-center gap-4">
+          <div className="w-24 font-medium">Country</div>
+          <div className="flex-1">
+            <CountrySelection 
+              selectedCountry={selectedCountry} 
+              setSelectedCountry={setSelectedCountry} 
+              setSelectedCountryId={setSelectedCountryId} 
+              countryName={countryName} 
+              onClearSelection={handleClearSelection}
+              hideLabel={true}
+            />
+          </div>
         </div>
 
-        {/* Exclude Selection - moved between Country and Language */}
-        <div>
-          <ExcludeSelection 
-            selectedCountry={excludedCountry} 
-            setSelectedCountry={setExcludedCountry}
-            selectedCountryFlag={excludedCountryFlag}
-            onClearSelection={handleClearExclusion}
-            setExcludedCountryId={setExcludedCountryId}
-          />
+        {/* Exclude Selection */}
+        <div className="flex items-center gap-4">
+          <div className="w-24 font-medium">Exclude</div>
+          <div className="flex-1">
+            <ExcludeSelection 
+              selectedCountry={excludedCountry} 
+              setSelectedCountry={setExcludedCountry}
+              selectedCountryFlag={excludedCountryFlag}
+              onClearSelection={handleClearExclusion}
+              setExcludedCountryId={setExcludedCountryId}
+              hideLabel={true}
+            />
+          </div>
         </div>
 
         {/* Language Selection */}
-        <div>
-          <LanguageSelection 
-            selectedLanguage={selectedLanguage} 
-            setSelectedLanguage={setSelectedLanguage} 
-            isLoadingCountry={isLoadingCountry} 
-            primaryLanguageId={primaryLanguageId} 
-          />
+        <div className="flex items-center gap-4">
+          <div className="w-24 font-medium">Language</div>
+          <div className="flex-1">
+            <LanguageSelection 
+              selectedLanguage={selectedLanguage} 
+              setSelectedLanguage={setSelectedLanguage} 
+              isLoadingCountry={isLoadingCountry} 
+              primaryLanguageId={primaryLanguageId}
+              hideLabel={true}
+            />
+          </div>
         </div>
       </div>
     </div>

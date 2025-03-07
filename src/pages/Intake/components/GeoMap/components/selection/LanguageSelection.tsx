@@ -9,13 +9,15 @@ interface LanguageSelectionProps {
   setSelectedLanguage: (language: string) => void;
   isLoadingCountry: boolean;
   primaryLanguageId: string | null;
+  hideLabel?: boolean;
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   selectedLanguage,
   setSelectedLanguage,
   isLoadingCountry,
-  primaryLanguageId
+  primaryLanguageId,
+  hideLabel = false
 }) => {
   const {
     searchTerm,
@@ -38,12 +40,13 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
 
   return (
     <div>
-      <SelectionHeader title="Language" />
+      {!hideLabel && <SelectionHeader title="Language" />}
       
       <div className="relative" ref={containerRef}>
         <LanguageSelectButton
           selectedLanguage={selectedLanguageObject}
           onClick={toggleDropdown}
+          emptyPlaceholder=""
         />
         
         {isDropdownOpen && (
