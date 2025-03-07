@@ -44,91 +44,62 @@ export function addCoastlineBorders(map: mapboxgl.Map) {
       return;
     }
     
-    // Add multiple coastline layers to ensure they're visible
-    // Try different approaches to find one that works
-    console.log("Adding enhanced coastline borders");
-
-    // Add coastline as a standalone layer using countries geojson
-    if (map.getSource('countries-geojson')) {
+    // Add coastline layer if it doesn't exist
+    if (!map.getLayer('coastline-borders')) {
+      console.log("Adding coastline-borders layer");
+      
+      // Try different source-layer options to find one that works
+      const possibleSourceLayers = ['admin', 'boundary', 'coastline'];
+      
+      for (const sourceLayer of possibleSourceLayers) {
+        try {
+          map.addLayer({
+            id: `coastline-borders-${sourceLayer}`,
+            type: 'line',
+            source: 'composite',
+            'source-layer': sourceLayer,
+            filter: ['==', ['get', 'admin_level'], 0],
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+              'visibility': 'visible'
+            },
+            paint: {
+              'line-color': '#c8c8c9',
+              'line-width': 1.2,
+              'line-opacity': 1.0
+            }
+          });
+          console.log(`Added coastline layer with ${sourceLayer} source-layer`);
+          break;
+        } catch (error) {
+          console.log(`Could not add coastline with ${sourceLayer}:`, error);
+        }
+      }
+      
+      // Add a fallback coastline directly from countries layer
       try {
-        // Remove existing coastline layers to prevent duplicates
-        if (map.getLayer('coastline-primary')) map.removeLayer('coastline-primary');
-        
-        // Add a more prominent coastline using countries geojson
-        map.addLayer({
-          id: 'coastline-primary',
-          type: 'line',
-          source: 'countries-geojson',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-            'visibility': 'visible'
-          },
-          paint: {
-            'line-color': '#6e7377', // Darker color for better visibility
-            'line-width': 1.2,
-            'line-opacity': 0.9
-          }
-        });
-        console.log("Added primary coastline layer from geojson");
+        if (map.getSource('countries-geojson')) {
+          map.addLayer({
+            id: 'coastline-borders-fallback',
+            type: 'line',
+            source: 'countries-geojson',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+              'visibility': 'visible'
+            },
+            paint: {
+              'line-color': '#c8c8c9',
+              'line-width': 1.0,
+              'line-opacity': 0.8
+            }
+          });
+          console.log("Added fallback coastline borders from countries GeoJSON");
+        }
       } catch (error) {
-        console.error("Error adding primary coastline layer:", error);
+        console.error("Error adding fallback coastline:", error);
       }
-    }
-    
-    // Try adding coastlines from the built-in mapbox sources as a backup
-    try {
-      if (map.getLayer('coastline-backup')) map.removeLayer('coastline-backup');
-      
-      // Try using the land-structure layer from mapbox
-      if (map.getSource('composite')) {
-        map.addLayer({
-          id: 'coastline-backup',
-          type: 'line',
-          source: 'composite',
-          'source-layer': 'land',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-            'visibility': 'visible'
-          },
-          paint: {
-            'line-color': '#6e7377',
-            'line-width': 1.2,
-            'line-opacity': 0.9
-          }
-        });
-        console.log("Added backup coastline from composite source");
-      }
-    } catch (error) {
-      console.log("Could not add backup coastline:", error);
-    }
-    
-    // Add a third attempt using the water layer
-    try {
-      if (map.getLayer('coastline-water-edge')) map.removeLayer('coastline-water-edge');
-      
-      if (map.getSource('composite')) {
-        map.addLayer({
-          id: 'coastline-water-edge',
-          type: 'line',
-          source: 'composite',
-          'source-layer': 'water',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round',
-            'visibility': 'visible'
-          },
-          paint: {
-            'line-color': '#6e7377',
-            'line-width': 1.2,
-            'line-opacity': 0.9
-          }
-        });
-        console.log("Added water edge coastline");
-      }
-    } catch (error) {
-      console.log("Could not add water edge coastline:", error);
     }
   } catch (error) {
     console.error("Error in addCoastlineBorders:", error);
@@ -172,7 +143,7 @@ function applyMapStylingInternal(map: mapboxgl.Map) {
     // Remove labels
     removeLabels(map);
     
-    // Add coastline borders with enhanced visibility
+    // Add coastline borders
     addCoastlineBorders(map);
     
     // Make sure admin boundaries are visible

@@ -135,17 +135,6 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       <div className="h-[600px] overflow-hidden relative rounded">
         <div ref={mapContainerRef} className="absolute inset-0" />
       </div>
-      <div className="absolute bottom-4 right-4 z-10">
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="bg-white/80 hover:bg-white text-gray-700"
-          onClick={handleRefresh}
-        >
-          <RefreshCw className="h-3 w-3 mr-1" />
-          Refresh Map
-        </Button>
-      </div>
     </div>
   );
 };
