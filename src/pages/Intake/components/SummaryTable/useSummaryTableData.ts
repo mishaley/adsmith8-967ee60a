@@ -1,237 +1,69 @@
 
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { STORAGE_KEY, DEFAULT_ORG_ID } from "./constants";
-import { toast } from "@/components/ui/use-toast";
+import { useOrganizationSelection } from "./hooks/useOrganizationSelection";
+import { useOfferingSelection } from "./hooks/useOfferingSelection";
+import { usePersonaSelection } from "./hooks/usePersonaSelection";
+import { useMessageSelection } from "./hooks/useMessageSelection";
 
 export const useSummaryTableData = () => {
-  // Initialize with the stored organization ID from localStorage or empty string
-  const [selectedOrgId, setSelectedOrgId] = useState<string>(() => {
-    const storedOrgId = localStorage.getItem(STORAGE_KEY);
-    return storedOrgId || "";
-  });
-  
-  // Single select for offering instead of multi-select
-  const [selectedOfferingId, setSelectedOfferingId] = useState<string>("");
-  
-  // Multi-select state (arrays instead of single string values)
-  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
-  const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
-
-  // Store current organization data
-  const [currentOrganization, setCurrentOrganization] = useState<{
-    organization_name: string;
-    organization_industry?: string;
-  } | null>(null);
-
-  // Watch for changes to the organization in localStorage
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const newOrgId = localStorage.getItem(STORAGE_KEY) || "";
-      if (newOrgId !== selectedOrgId) {
-        setSelectedOrgId(newOrgId);
-      }
-    };
-
-    // Set up event listener for localStorage changes
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [selectedOrgId]);
-
-  // Reset dependent selections when organization changes
-  useEffect(() => {
-    console.log("Organization changed to:", selectedOrgId);
-    // When organization is empty or changes, clear offering selection
-    setSelectedOfferingId("");
-    
-    // Clear organization data when selecting "new-organization" or empty
-    if (selectedOrgId === "new-organization" || !selectedOrgId) {
-      setCurrentOrganization(null);
-    }
-  }, [selectedOrgId]);
-
-  // Reset persona selection when offering changes
-  useEffect(() => {
-    console.log("Offering changed to:", selectedOfferingId);
-    // When offering changes or is cleared, reset personas
-    setSelectedPersonaIds([]);
-  }, [selectedOfferingId]);
-
-  // Reset message selection when personas change
-  useEffect(() => {
-    console.log("Personas changed to:", selectedPersonaIds);
-    // When personas change or are cleared, reset messages
-    setSelectedMessageIds([]);
-  }, [selectedPersonaIds]);
-
-  const { data: organizations = [] } = useQuery({
-    queryKey: ["organizations"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("a1organizations")
-        .select("organization_id, organization_name");
-      
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Fetch organization details when an organization is selected
-  useQuery({
-    queryKey: ["organization-details", selectedOrgId],
-    queryFn: async () => {
-      // Don't fetch if we're creating a new organization or no org is selected
-      if (selectedOrgId === "new-organization" || !selectedOrgId) {
-        setCurrentOrganization(null);
-        return null;
-      }
-      
-      console.log("Fetching organization details for:", selectedOrgId);
-      
-      try {
-        // Using maybeSingle instead of single to avoid errors if no row is found
-        const { data, error } = await supabase
-          .from("a1organizations")
-          .select("organization_name, organization_industry")
-          .eq("organization_id", selectedOrgId)
-          .maybeSingle();
-        
-        if (error) {
-          console.error("Error fetching organization details:", error);
-          setCurrentOrganization(null);
-          return null;
-        }
-        
-        console.log("Fetched organization data:", data);
-        
-        if (data) {
-          setCurrentOrganization(data);
-        } else {
-          console.warn("No organization found with ID:", selectedOrgId);
-          setCurrentOrganization(null);
-        }
-        
-        return data;
-      } catch (error) {
-        console.error("Unexpected error fetching organization:", error);
-        setCurrentOrganization(null);
-        return null;
-      }
-    },
-    enabled: !!selectedOrgId && selectedOrgId !== "new-organization",
-  });
-
-  // Query offerings based on selected organization
-  const { data: offerings = [] } = useQuery({
-    queryKey: ["offerings", selectedOrgId],
-    queryFn: async () => {
-      if (!selectedOrgId) return [];
-      
-      const { data, error } = await supabase
-        .from("b1offerings")
-        .select("offering_id, offering_name")
-        .eq("organization_id", selectedOrgId);
-      
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!selectedOrgId, // Only run query if an organization is selected
-  });
-
-  // Query personas based on selected offering
-  const { data: personas = [] } = useQuery({
-    queryKey: ["personas", selectedOfferingId],
-    queryFn: async () => {
-      if (!selectedOfferingId) return [];
-      
-      const { data, error } = await supabase
-        .from("c1personas")
-        .select("persona_id, persona_name")
-        .eq("offering_id", selectedOfferingId);
-      
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!selectedOfferingId, // Only run query if offering is selected
-  });
-
-  // Query messages based on selected personas
-  const { data: messages = [] } = useQuery({
-    queryKey: ["messages", selectedPersonaIds],
-    queryFn: async () => {
-      if (selectedPersonaIds.length === 0) return [];
-      
-      const { data, error } = await supabase
-        .from("d1messages")
-        .select("message_id, message_name")
-        .in("persona_id", selectedPersonaIds);
-      
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: selectedPersonaIds.length > 0, // Only run query if personas are selected
-  });
-
-  // Handle organization selection change
-  const handleOrgChange = (value: string) => {
-    console.log("Organization selection changed to:", value);
-    
-    // Update local state
-    setSelectedOrgId(value);
-    
-    // Update localStorage
-    if (value) {
-      localStorage.setItem(STORAGE_KEY, value);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    
-    // Trigger storage event for other components to sync
-    window.dispatchEvent(new Event('storage'));
-  };
-
-  // Format options for the select component
-  const offeringOptions = offerings.map(offering => ({
-    value: offering.offering_id,
-    label: offering.offering_name
-  }));
-
-  const personaOptions = personas.map(persona => ({
-    value: persona.persona_id,
-    label: persona.persona_name
-  }));
-
-  const messageOptions = messages.map(message => ({
-    value: message.message_id,
-    label: message.message_name
-  }));
-
-  // Determine disabled states
-  const isOfferingsDisabled = !selectedOrgId;
-  const isPersonasDisabled = isOfferingsDisabled || !selectedOfferingId;
-  const isMessagesDisabled = isPersonasDisabled || selectedPersonaIds.length === 0;
-
-  return {
+  // Get organization selection data and functions
+  const {
     selectedOrgId,
+    setSelectedOrgId,
+    organizations,
+    handleOrgChange,
+    currentOrganization
+  } = useOrganizationSelection();
+  
+  // Get offering selection data and functions
+  const {
     selectedOfferingId,
     setSelectedOfferingId,
+    offeringOptions,
+    isOfferingsDisabled
+  } = useOfferingSelection(selectedOrgId);
+  
+  // Get persona selection data and functions
+  const {
     selectedPersonaIds,
     setSelectedPersonaIds,
+    personaOptions,
+    isPersonasDisabled
+  } = usePersonaSelection(selectedOfferingId, isOfferingsDisabled);
+  
+  // Get message selection data and functions
+  const {
     selectedMessageIds,
     setSelectedMessageIds,
-    organizations,
-    offeringOptions,
-    personaOptions,
     messageOptions,
+    isMessagesDisabled
+  } = useMessageSelection(selectedPersonaIds, isPersonasDisabled);
+
+  // Return all the data and functions needed by components
+  return {
+    // Organization
+    selectedOrgId,
+    organizations,
     handleOrgChange,
+    currentOrganization,
+    
+    // Offering
+    selectedOfferingId,
+    setSelectedOfferingId,
+    offeringOptions,
+    
+    // Persona
+    selectedPersonaIds,
+    setSelectedPersonaIds,
+    personaOptions,
+    
+    // Message
+    selectedMessageIds,
+    setSelectedMessageIds,
+    messageOptions,
+    
+    // Disabled states
     isOfferingsDisabled,
     isPersonasDisabled,
-    isMessagesDisabled,
-    currentOrganization
+    isMessagesDisabled
   };
 };
