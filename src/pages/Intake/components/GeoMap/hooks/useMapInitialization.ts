@@ -45,14 +45,16 @@ export const useMapInitialization = ({
 
   // Apply enhanced map styling whenever the map changes
   useEffect(() => {
-    if (map) {
+    if (map && map.current) {
       console.log("Applying enhanced map styling with coastlines");
-      applyMapStyling(map);
+      applyMapStyling(map.current);
       
       // Also apply styling when style is fully loaded
-      map.once('style.load', () => {
+      map.current.once('style.load', () => {
         console.log("Map style loaded, reapplying styling");
-        applyMapStyling(map);
+        if (map.current) {
+          applyMapStyling(map.current);
+        }
       });
     }
   }, [map]);
@@ -71,13 +73,13 @@ export const useMapInitialization = ({
     highlightExcludedCountry,
     clearCountrySelection
   } = useDirectGeoJSONLayers({
-    map,
+    map: map?.current,
     onCountrySelected: handleCountrySelected
   });
 
   // Setup map recovery mechanism
   useMapRecovery({
-    map,
+    map: map?.current,
     initialized,
     layersInitialized
   });
