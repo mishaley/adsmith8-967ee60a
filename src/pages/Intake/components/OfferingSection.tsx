@@ -7,6 +7,7 @@ import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { useOfferingDetails } from "./SummaryTable/hooks/useOfferingDetails";
 import { useToast } from "@/components/ui/use-toast";
 import { OfferingButton } from "./Organization";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OfferingSectionProps {
   offering: string;
@@ -37,7 +38,8 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     selectedOfferingId,
     setSelectedOfferingId,
     offeringOptions,
-    isOfferingsDisabled
+    isOfferingsDisabled,
+    selectedOrgId
   } = useSummaryTableData();
   
   // Get offering details if an existing offering is selected
@@ -105,25 +107,98 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     }
   };
 
-  // Handle "NEXT" button click
-  const handleNextClick = () => {
+  // Handle "NEXT" button click - now with actual Supabase saving
+  const handleNextClick = async () => {
+    if (!selectedOrgId) {
+      toast({
+        title: "Organization required",
+        description: "Please select an organization first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!offering.trim()) {
+      toast({
+        title: "Offering name required",
+        description: "Please provide a name for your offering.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     
-    // Simulate saving (you'll need to implement actual saving logic here)
-    setTimeout(() => {
-      setIsSaving(false);
-      
-      // Show success toast
-      toast({
-        title: "Offering saved",
-        description: selectedOfferingId === "new-offering" 
-          ? "Your new offering has been created." 
-          : "Your offering has been updated.",
-      });
+    try {
+      // Handle creating a new offering
+      if (selectedOfferingId === "new-offering") {
+        const { data, error } = await supabase
+          .from("b1offerings")
+          .insert({
+            offering_name: offering.trim(),
+            offering_keysellingpoints: sellingPoints.trim() || null,
+            offering_problemsolved: problemSolved.trim() || null,
+            offering_uniqueadvantages: uniqueOffering.trim() || null,
+            organization_id: selectedOrgId,
+            // Default values required by the schema
+            offering_objective: "Sales", // Default value
+            offering_specialcategory: "None" // Default value
+          })
+          .select('offering_id')
+          .single();
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Update the selected offering to the newly created one
+        if (data) {
+          setSelectedOfferingId(data.offering_id);
+        }
+        
+        toast({
+          title: "Offering created",
+          description: "Your new offering has been created successfully."
+        });
+      } 
+      // Handle updating an existing offering
+      else if (selectedOfferingId && selectedOfferingId !== "new-offering") {
+        const { error } = await supabase
+          .from("b1offerings")
+          .update({
+            offering_name: offering.trim(),
+            offering_keysellingpoints: sellingPoints.trim() || null,
+            offering_problemsolved: problemSolved.trim() || null,
+            offering_uniqueadvantages: uniqueOffering.trim() || null
+          })
+          .eq("offering_id", selectedOfferingId);
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Refetch to ensure we have the latest data
+        refetchOfferingDetails();
+        
+        toast({
+          title: "Offering updated",
+          description: "Your offering has been updated successfully."
+        });
+      }
       
       // Collapse this section and expand the next one
       // You might want to implement actual logic for this
-    }, 1000);
+    } catch (error: any) {
+      console.error("Error saving offering:", error);
+      
+      toast({
+        title: "Error saving offering",
+        description: error.message || "There was an error saving your offering. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
