@@ -8,7 +8,7 @@ export const usePersonaRegeneration = (
   offering: string,
   selectedCountry: string,
   regenerateSinglePersona: (index: number, offering: string, selectedCountry: string) => Promise<Persona | null>,
-  retryPortraitBase: (persona: Persona, index: number, callback: (index: number, updatedPersona: Persona) => void) => void,
+  retryPortraitGeneration: (persona: Persona, index: number, callback: (index: number, updatedPersona: Persona) => void) => void,
   updatePersona: (index: number, updatedPersona: Persona | null) => void,
 ) => {
   // Regenerate a single persona and its portrait
@@ -18,11 +18,11 @@ export const usePersonaRegeneration = (
     
     if (newPersona) {
       // Then generate a portrait for it
-      retryPortraitBase(newPersona, index, (idx, updatedPersona) => {
+      retryPortraitGeneration(newPersona, index, (idx, updatedPersona) => {
         handlePortraitUpdateCallback(idx, updatedPersona, personas, updatePersona);
       });
     }
-  }, [personas, offering, selectedCountry, regenerateSinglePersona, retryPortraitBase, updatePersona]);
+  }, [personas, offering, selectedCountry, regenerateSinglePersona, retryPortraitGeneration, updatePersona]);
 
   // Remove a persona and immediately generate a new one
   const removePersona = useCallback((index: number) => {

@@ -8,8 +8,8 @@ interface PortraitRowProps {
   personas: Persona[];
   isGeneratingPortraits: boolean;
   loadingIndices: number[];
-  onRetryPortrait?: ((index: number) => void) | null;
-  promptText?: string; // Add custom prompt text
+  onRetryPortrait?: ((index: number, customPrompt?: string) => void) | null;
+  promptText?: string; // Custom prompt text
 }
 
 const PortraitRow: React.FC<PortraitRowProps> = ({
@@ -49,7 +49,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                   variant="outline"
                   size="sm"
                   className="mt-2"
-                  onClick={() => onRetryPortrait(index)}
+                  onClick={() => onRetryPortrait(index, promptText)}
                   disabled={isGeneratingPortraits}
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />

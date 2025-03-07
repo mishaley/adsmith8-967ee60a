@@ -6,7 +6,7 @@ import { getRandomRace, savePortraitsToSession } from "../../components/Personas
 
 export const usePersonaPortraits = (
   personas: Persona[],
-  retryPortraitGeneration: (persona: Persona, index: number, updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => Promise<void>,
+  retryPortraitGenerationBase: (persona: Persona, index: number, updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => Promise<void>,
   updatePersona: (index: number, updatedPersona: Persona) => void
 ) => {
   // Generate portraits for all personas
@@ -49,9 +49,9 @@ export const usePersonaPortraits = (
         return;
       }
 
-      retryPortraitGeneration(personas[index], index, updatePersona);
+      retryPortraitGenerationBase(personas[index], index, updatePersona);
     },
-    [personas, retryPortraitGeneration, updatePersona]
+    [personas, retryPortraitGenerationBase, updatePersona]
   );
 
   return {
