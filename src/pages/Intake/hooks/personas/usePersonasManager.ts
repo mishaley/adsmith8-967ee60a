@@ -4,7 +4,7 @@ import { usePortraitGeneration } from "./usePortraitGeneration";
 import { usePersonaRegeneration } from "./usePersonaRegeneration";
 import { usePersonaPortraits } from "./usePersonaPortraits";
 import { Persona } from "../../components/Personas/types";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useMemo } from "react";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../utils/localStorageUtils";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
@@ -47,10 +47,10 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
   }, [personaCount]);
 
   // Wrap the updatePersona function to also persist changes
-  const updatePersona = (index: number, updatedPersona: Persona) => {
+  const updatePersona = useCallback((index: number, updatedPersona: Persona) => {
     updatePersonaBase(index, updatedPersona);
     // Persistence happens in the useEffect above when loadedPersonas changes
-  };
+  }, [updatePersonaBase]);
 
   const {
     isGeneratingPortraits,
@@ -82,8 +82,6 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
 
   // The most important function - generate personas and IMMEDIATELY trigger portrait generation
   const generatePersonas = useCallback(() => {
-    console.log(`Starting persona generation for ${personaCount} personas with automatic portrait generation to follow`);
-    
     // Make sure we're passing the correct personaCount to the generation function
     return generatePersonasBase(offering, selectedCountry, personaCount, (newPersonas) => {
       if (!newPersonas || newPersonas.length === 0) {
@@ -91,21 +89,31 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
         return;
       }
       
-      console.log(`${newPersonas.length} personas generated successfully, triggering portrait generation now`);
-      
       // Only generate portraits for the personas that were generated
       // which should match the personaCount
       generatePortraitsForAll(newPersonas, generatePortraitsForAllPersonas);
     });
   }, [offering, selectedCountry, personaCount, generatePersonasBase, generatePortraitsForAll, generatePortraitsForAllPersonas]);
 
+  // Use useMemo to limit re-renders of the personas array
+  const visiblePersonas = useMemo(() => 
+    loadedPersonas.slice(0, personaCount), 
+    [loadedPersonas, personaCount]
+  );
+
+  // Also filter loadingPortraitIndices to match the visible personas
+  const visibleLoadingIndices = useMemo(() => 
+    loadingPortraitIndices.filter(index => index < personaCount),
+    [loadingPortraitIndices, personaCount]
+  );
+
   return {
     // Only return the first `personaCount` personas to ensure UI matches the selected count
-    personas: loadedPersonas.slice(0, personaCount),
+    personas: visiblePersonas,
     summary,
     isGeneratingPersonas,
     isGeneratingPortraits,
-    loadingPortraitIndices: loadingPortraitIndices.filter(index => index < personaCount),
+    loadingPortraitIndices: visibleLoadingIndices,
     generatePersonas,
     updatePersona,
     retryPortraitGeneration,

@@ -25,7 +25,6 @@ export const useOrganizationSelection = () => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === STORAGE_KEY) {
         const newOrgId = localStorage.getItem(STORAGE_KEY) || "";
-        console.log("useOrganizationSelection - Storage change detected:", newOrgId);
         if (newOrgId !== selectedOrgId) {
           setSelectedOrgId(newOrgId);
         }
@@ -36,7 +35,6 @@ export const useOrganizationSelection = () => {
     const checkLocalStorage = () => {
       const storedOrgId = localStorage.getItem(STORAGE_KEY) || "";
       if (storedOrgId !== selectedOrgId) {
-        console.log("useOrganizationSelection - Direct localStorage change detected:", storedOrgId);
         setSelectedOrgId(storedOrgId);
       }
     };
@@ -58,8 +56,6 @@ export const useOrganizationSelection = () => {
 
   // Clear organization data when selecting "new-organization" or empty
   useEffect(() => {
-    console.log("useOrganizationSelection - Organization changed to:", selectedOrgId);
-    
     if (selectedOrgId === "new-organization" || !selectedOrgId) {
       setCurrentOrganization(null);
     }
@@ -88,8 +84,6 @@ export const useOrganizationSelection = () => {
         return null;
       }
       
-      console.log("useOrganizationSelection - Fetching organization details for:", selectedOrgId);
-      
       try {
         const { data, error } = await supabase
           .from("a1organizations")
@@ -103,13 +97,10 @@ export const useOrganizationSelection = () => {
           return null;
         }
         
-        console.log("useOrganizationSelection - Fetched organization data:", data);
-        
         if (data) {
           // Important: Set the currentOrganization with the fetched data
           setCurrentOrganization(data);
         } else {
-          console.warn("No organization found with ID:", selectedOrgId);
           setCurrentOrganization(null);
         }
         
@@ -132,8 +123,6 @@ export const useOrganizationSelection = () => {
 
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
-    console.log("useOrganizationSelection - Organization selection changed to:", value);
-    
     // Update local state
     setSelectedOrgId(value);
     

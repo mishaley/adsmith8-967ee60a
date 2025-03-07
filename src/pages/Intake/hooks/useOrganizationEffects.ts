@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface UseOrganizationEffectsProps {
   currentOrganization: {
@@ -58,10 +58,10 @@ export const useOrganizationEffects = ({
     };
   }, [selectedOrgId, handleOrgChange]);
 
-  const handleOrganizationChange = (value: string) => {
+  const handleOrganizationChange = useCallback((value: string) => {
     setIsLoadingOrgData(true);
     handleOrgChange(value);
-  };
+  }, [handleOrgChange]);
 
   return {
     isLoadingOrgData,

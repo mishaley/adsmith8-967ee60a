@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
 import PersonaDisplay from "./components/PersonaDisplay";
@@ -23,26 +23,19 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   offering = ""
 }) => {
   // Filter out any null or undefined personas and messages
-  const validPersonas = personas.filter(Boolean);
-  const validMessageTypes = selectedMessageTypes.filter(Boolean);
+  const validPersonas = useMemo(() => personas.filter(Boolean), [personas]);
+  const validMessageTypes = useMemo(() => selectedMessageTypes.filter(Boolean), [selectedMessageTypes]);
   
   // Calculate total number of persona-message pairs
   const totalPersonas = validPersonas.length;
   const totalMessageTypes = validMessageTypes.length;
-  const totalPairs = totalPersonas * totalMessageTypes;
+  const totalPairs = useMemo(() => totalPersonas * totalMessageTypes, [totalPersonas, totalMessageTypes]);
   
   // State for tracking the current index
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   
   // Reset the index when personas or message types change
   useEffect(() => {
-    console.log("ImagesSection: Data changed", {
-      validPersonas: validPersonas.length,
-      validMessageTypes,
-      totalPairs,
-      offering
-    });
-    
     // Only reset to 0 if current index is now out of bounds
     if (currentPairIndex >= totalPairs && totalPairs > 0) {
       setCurrentPairIndex(0);
@@ -112,4 +105,4 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   );
 };
 
-export default ImagesSection;
+export default React.memo(ImagesSection);

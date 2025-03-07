@@ -24,7 +24,7 @@ const MessageCell: React.FC<MessageCellProps> = ({
   }
   
   // Extract the message data for this persona from the column content
-  const messageData = column.content?.[personaId];
+  const messageData = column.content?.[personaId]?.[column.type];
   
   // Check if we have a valid message with a message_name that's not empty
   if (messageData && messageData.message_name && messageData.message_name.trim() !== "") {

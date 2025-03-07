@@ -1,5 +1,5 @@
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, memo } from "react";
 import { Persona } from "../Personas/types";
 import SimplifiedMessagesTable from "./SimplifiedMessagesTable";
 import { useMessagesState } from "./hooks/useMessagesState";
@@ -84,4 +84,4 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   );
 };
 
-export default React.memo(MessagesSection);
+export default memo(MessagesSection);

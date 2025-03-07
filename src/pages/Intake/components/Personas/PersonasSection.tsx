@@ -34,25 +34,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   personaCount = 1,
   setPersonaCount
 }) => {
-  console.log("PersonasSection rendering with personas:", personas, "and personaCount:", personaCount);
   const hasPersonas = personas && personas.length > 0;
-
-  // Monitor loading states for debugging
-  useEffect(() => {
-    console.log("PersonasSection state update:", {
-      hasPersonas,
-      isGeneratingPersonas,
-      isGeneratingPortraits,
-      loadingPortraitIndices,
-      personaCount,
-      portraitUrls: personas.map(p => !!p?.portraitUrl)
-    });
-  }, [personas, isGeneratingPersonas, isGeneratingPortraits, loadingPortraitIndices, personaCount]);
   
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
       const count = parseInt(value, 10);
-      console.log(`Persona count changed to: ${count}`);
       setPersonaCount(count);
     }
   };
