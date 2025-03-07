@@ -49,28 +49,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
           
           {selectedOrgId && (
             <>
-              <tr className="border-transparent">
-                <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
-                  <div>What's your brand name?</div>
-                </td>
-                <td className="py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-96">
-                      <input 
-                        type="text" 
-                        value={brandName} 
-                        onChange={e => {
-                          if (!isReadOnly) {
-                            setBrandName(e.target.value);
-                          }
-                        }} 
-                        readOnly={isReadOnly} 
-                        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${isReadOnly ? 'bg-gray-100' : ''}`} 
-                      />
-                    </div>
-                  </div>
-                </td>
-              </tr>
+              <RecordingField 
+                label="What's your brand name?" 
+                value={brandName} 
+                onChange={setBrandName} 
+                placeholder="" 
+                disabled={isReadOnly || isUpdating || isLoadingOrgData} 
+              />
               <RecordingField 
                 label="What industry are you in?" 
                 value={industry} 
