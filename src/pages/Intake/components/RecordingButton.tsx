@@ -28,7 +28,7 @@ const RecordingButton = ({
             size="sm" 
             className={`w-10 h-10 p-0 flex items-center justify-center rounded-none rounded-r-md ${
               isRecording 
-                ? 'bg-[#990000]' 
+                ? 'bg-[#990000] hover:bg-[#990000]' 
                 : isTranscribing 
                   ? 'bg-yellow-50' 
                   : 'bg-[#d3e4fd] hover:bg-[#0c343d]'
