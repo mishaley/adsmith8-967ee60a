@@ -35,22 +35,29 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
 
   return (
-    <div className={className}>
+    <div className={className} style={{ position: 'relative' }}>
+      {/* Make the entire header div clickable */}
       <div
         className="flex justify-between items-center cursor-pointer py-2 w-full"
         onClick={toggleCollapse}
         role="button"
         tabIndex={0}
         aria-expanded={!isCollapsed}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            toggleCollapse();
+            e.preventDefault();
+          }
+        }}
       >
         <h2 className="text-center w-full text-gray-700 font-bold text-xl">
           {title}
         </h2>
         <div className="flex-shrink-0">
           {isCollapsed ? (
-            <ChevronUp className="h-5 w-5 text-gray-500" />
-          ) : (
             <ChevronDown className="h-5 w-5 text-gray-500" />
+          ) : (
+            <ChevronUp className="h-5 w-5 text-gray-500" />
           )}
         </div>
       </div>

@@ -56,8 +56,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   const setExcludedCountryId = null;
 
   return (
-    <div className="flex flex-col">
-      <div className="w-full max-w-md mx-auto">
+    <div className="flex flex-col" style={{ position: 'static', overflow: 'visible' }}>
+      <div className="w-full max-w-md mx-auto" style={{ position: 'static', overflow: 'visible' }}>
         <SelectionDisplay 
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry}

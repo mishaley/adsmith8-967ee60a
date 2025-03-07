@@ -55,7 +55,8 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
           style={{ 
             border: '1px solid #f1f1f1',
             maxHeight: '300px',
-            overflowY: 'visible'
+            overflowY: 'visible',
+            position: 'absolute'
           }}
           sideOffset={5}
         >

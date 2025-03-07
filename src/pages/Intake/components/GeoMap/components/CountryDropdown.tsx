@@ -131,7 +131,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   });
 
   return (
-    <div className="w-full" style={{ zIndex: 50 }}>
+    <div className="w-full" style={{ zIndex: 50, position: 'static' }}>
       {/* Search bar */}
       <SearchBar 
         searchTerm={searchTerm} 

@@ -58,7 +58,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   };
   
   return (
-    <div className="w-full bg-transparent rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8" style={{ zIndex: 10, position: 'relative' }}>
+    <div className="w-full bg-transparent rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8" style={{ zIndex: 10, position: 'static' }}>
       {/* All selections with labels on the left */}
       <div className="space-y-4">
         {/* Country Selection - Add specific z-index */}
