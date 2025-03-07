@@ -79,6 +79,7 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
+      sideOffset={5}
       {...props}
     >
       {/* Removed ScrollUpButton */}
@@ -89,7 +90,7 @@ const SelectContent = React.forwardRef<
             "w-full"
         )}
         style={{
-          maxHeight: 'unset'  // Remove max-height restriction
+          maxHeight: '300px'  // Set a generous max-height instead of 'unset'
         }}
       >
         {children}

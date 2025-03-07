@@ -42,7 +42,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
     <div>
       {!hideLabel && <SelectionHeader title="Language" />}
       
-      <div className="relative" ref={containerRef}>
+      <div className="relative" ref={containerRef} style={{ zIndex: 30 }}>
         <LanguageSelectButton
           selectedLanguage={selectedLanguageObject}
           onClick={toggleDropdown}
@@ -50,18 +50,20 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
         />
         
         {isDropdownOpen && (
-          <LanguageDropdown
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            selectedLanguage={selectedLanguage}
-            filteredLanguages={filteredLanguages}
-            isLoading={isLoading}
-            highlightedIndex={highlightedIndex}
-            setHighlightedIndex={setHighlightedIndex}
-            handleLanguageSelect={handleLanguageSelect}
-            handleClearSelection={handleClearSelection}
-            handleKeyDown={handleKeyDown}
-          />
+          <div style={{ position: 'relative', zIndex: 50 }}>
+            <LanguageDropdown
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedLanguage={selectedLanguage}
+              filteredLanguages={filteredLanguages}
+              isLoading={isLoading}
+              highlightedIndex={highlightedIndex}
+              setHighlightedIndex={setHighlightedIndex}
+              handleLanguageSelect={handleLanguageSelect}
+              handleClearSelection={handleClearSelection}
+              handleKeyDown={handleKeyDown}
+            />
+          </div>
         )}
       </div>
       

@@ -37,7 +37,11 @@ const OrganizationSelect: React.FC<OrganizationSelectProps> = ({
       <SelectTrigger className="w-full bg-white">
         <SelectValue placeholder="" />
       </SelectTrigger>
-      <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+      <SelectContent 
+        className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit z-50" 
+        position="popper"
+        sideOffset={5}
+      >
         {/* New option at the top */}
         <SelectItem value="new-organization" className="font-semibold text-blue-600">
           + NEW

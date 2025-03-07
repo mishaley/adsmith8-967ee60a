@@ -131,7 +131,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full" style={{ zIndex: 50 }}>
       {/* Search bar */}
       <SearchBar 
         searchTerm={searchTerm} 
@@ -143,7 +143,7 @@ const CountryDropdown: React.FC<CountryDropdownProps> = ({
       {isLoading ? (
         <div className="p-4 text-center text-gray-500">Loading countries...</div>
       ) : (
-        <div ref={dropdownRef} className="max-h-60 overflow-y-auto">
+        <div ref={dropdownRef} className="max-h-80 overflow-y-auto" style={{ maxHeight: '300px' }}>
           {/* Worldwide option at the top - only show for non-exclude dropdowns */}
           {!isExcludeDropdown && (
             <WorldwideOption 

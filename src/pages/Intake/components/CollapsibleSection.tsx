@@ -51,7 +51,12 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         </div>
       </div>
       
-      <div className={`overflow-hidden transition-all duration-300 ${isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[5000px] opacity-100 mt-2'}`}>
+      <div 
+        className={`overflow-visible transition-all duration-300 ${
+          isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[5000px] opacity-100 mt-2'
+        }`}
+        style={{ position: 'relative' }}
+      >
         {children}
       </div>
     </div>

@@ -51,10 +51,15 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
         <PopoverContent 
           align="center" 
           side="top" 
-          className="w-[var(--radix-popover-trigger-width)] p-0 bg-white rounded-md shadow-lg border-gray-100"
-          style={{ border: '1px solid #f1f1f1' }}
+          className="w-[var(--radix-popover-trigger-width)] p-0 bg-white rounded-md shadow-lg border-gray-100 z-50"
+          style={{ 
+            border: '1px solid #f1f1f1',
+            maxHeight: '300px',
+            overflowY: 'visible'
+          }}
+          sideOffset={5}
         >
-          <div className="max-h-60 overflow-auto">
+          <div className="max-h-80 overflow-visible">
             <CountryDropdown 
               selectedCountry={selectedCountry} 
               setSelectedCountry={handleCountrySelect}

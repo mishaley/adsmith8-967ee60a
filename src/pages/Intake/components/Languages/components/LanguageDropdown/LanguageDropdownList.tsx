@@ -57,7 +57,7 @@ const LanguageDropdownList: React.FC<LanguageDropdownListProps> = ({
   }
 
   return (
-    <div className="max-h-60 overflow-y-auto" ref={dropdownRef}>
+    <div className="max-h-60 overflow-y-auto z-50" ref={dropdownRef} style={{ maxHeight: '200px' }}>
       {filteredLanguages.map((language, index) => (
         <LanguageDropdownItem
           key={language.language_id}

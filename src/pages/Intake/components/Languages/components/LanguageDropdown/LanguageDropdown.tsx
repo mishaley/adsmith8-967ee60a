@@ -30,7 +30,7 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
   handleKeyDown
 }) => {
   return (
-    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: '300px', overflowY: 'visible' }}>
       {/* Search bar */}
       <LanguageSearchInput
         searchTerm={searchTerm}

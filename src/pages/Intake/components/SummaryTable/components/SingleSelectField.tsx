@@ -42,7 +42,11 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
       <SelectTrigger className="w-full bg-white">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+      <SelectContent 
+        className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit z-50"
+        position="popper"
+        sideOffset={5}
+      >
         {/* New option at the top if enabled */}
         {showNewOption && (
           <>

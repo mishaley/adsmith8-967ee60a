@@ -58,11 +58,11 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   };
   
   return (
-    <div className="w-full bg-transparent rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8">
+    <div className="w-full bg-transparent rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8" style={{ zIndex: 10, position: 'relative' }}>
       {/* All selections with labels on the left */}
       <div className="space-y-4">
-        {/* Country Selection */}
-        <div className="flex items-center gap-4">
+        {/* Country Selection - Add specific z-index */}
+        <div className="flex items-center gap-4" style={{ position: 'relative', zIndex: 30 }}>
           <div className="w-24 font-medium">Country</div>
           <div className="flex-1">
             <CountrySelection 
@@ -76,8 +76,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           </div>
         </div>
 
-        {/* Exclude Selection */}
-        <div className="flex items-center gap-4">
+        {/* Exclude Selection - Add specific z-index */}
+        <div className="flex items-center gap-4" style={{ position: 'relative', zIndex: 20 }}>
           <div className="w-24 font-medium">Exclude</div>
           <div className="flex-1">
             <ExcludeSelection 
@@ -91,8 +91,8 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           </div>
         </div>
 
-        {/* Language Selection */}
-        <div className="flex items-center gap-4">
+        {/* Language Selection - Add specific z-index */}
+        <div className="flex items-center gap-4" style={{ position: 'relative', zIndex: 10 }}>
           <div className="w-24 font-medium">Language</div>
           <div className="flex-1">
             <LanguageSelection 
