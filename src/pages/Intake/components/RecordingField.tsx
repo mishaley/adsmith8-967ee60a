@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import RecordingButton from "./RecordingButton";
 import { useAudioRecording } from "../hooks/useAudioRecording";
@@ -42,7 +43,9 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
     stopRecording
   } = useAudioRecording({
     onTranscriptionComplete: (text) => {
-      onChange(text);
+      // Append the transcribed text to the existing content rather than replacing it
+      const updatedText = localValue ? `${localValue} ${text}` : text;
+      onChange(updatedText);
       setTempTranscript("");
     },
     onError: (error) => {
@@ -95,7 +98,10 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
   };
 
   // Display value should be the temporary transcript if available, otherwise the local value
-  const displayValue = tempTranscript || localValue;
+  // When recording, show both the existing text and the temporary transcript
+  const displayValue = isRecording && tempTranscript 
+    ? `${localValue} ${tempTranscript}` 
+    : localValue;
 
   return (
     <tr className="border-transparent">

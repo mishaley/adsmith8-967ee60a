@@ -10,6 +10,7 @@ const SpeechRecognitionAPI = (window as any).SpeechRecognition ||
 
 export const useSpeechRecognition = ({ onTranscript }: SpeechRecognitionHookProps) => {
   const recognitionRef = useRef<any>(null);
+  const interimTranscriptRef = useRef<string>('');
 
   const initializeSpeechRecognition = () => {
     if (typeof SpeechRecognitionAPI !== 'undefined') {
@@ -20,18 +21,24 @@ export const useSpeechRecognition = ({ onTranscript }: SpeechRecognitionHookProp
         recognition.interimResults = true;
         recognition.lang = 'en-US';
         
+        // Reset interim transcript at the start
+        interimTranscriptRef.current = '';
+        
         recognition.onresult = (event: any) => {
           let interimTranscript = '';
           for (let i = event.resultIndex; i < event.results.length; i++) {
             if (event.results[i].isFinal) {
-              interimTranscript += event.results[i][0].transcript;
+              interimTranscriptRef.current += event.results[i][0].transcript + ' ';
             } else {
               interimTranscript += event.results[i][0].transcript;
             }
           }
           
-          if (interimTranscript) {
-            onTranscript(interimTranscript);
+          // Combine permanent and interim transcripts
+          const combinedTranscript = (interimTranscriptRef.current + interimTranscript).trim();
+          
+          if (combinedTranscript) {
+            onTranscript(combinedTranscript);
           }
         };
         
@@ -54,6 +61,7 @@ export const useSpeechRecognition = ({ onTranscript }: SpeechRecognitionHookProp
         console.error('Error stopping speech recognition:', e);
       }
       recognitionRef.current = null;
+      interimTranscriptRef.current = '';
     }
   };
 
