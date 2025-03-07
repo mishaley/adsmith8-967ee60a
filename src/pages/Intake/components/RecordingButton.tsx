@@ -2,7 +2,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Mic } from "lucide-react";
-import { formatTime } from "../utils/timeUtils";
 
 interface RecordingButtonProps {
   isRecording: boolean;
@@ -23,7 +22,7 @@ const RecordingButton = ({
     <Button 
       variant="ghost" 
       size="sm" 
-      className={`w-10 h-10 p-0 flex items-center justify-center rounded-md ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'} border border-input`}
+      className={`w-10 h-10 p-0 flex items-center justify-center rounded-none rounded-r-md ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-white/80'} border border-input`}
       onMouseDown={onStartRecording}
       onMouseUp={onStopRecording}
       onMouseLeave={isRecording ? onStopRecording : undefined}

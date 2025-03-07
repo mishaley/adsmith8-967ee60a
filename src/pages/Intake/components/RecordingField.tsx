@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import RecordingButton from "./RecordingButton";
 import { useAudioRecording } from "../hooks/useAudioRecording";
@@ -107,27 +106,25 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
         )}
       </td>
       <td className="py-4">
-        <div className="w-96 flex flex-row items-start">
+        <div className="w-96 flex items-start">
           <textarea
             ref={textareaRef}
             value={displayValue}
             onChange={handleTextChange}
-            className={`flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
+            className={`flex-1 px-3 py-2 border border-r-0 border-input rounded-l-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
             placeholder={placeholder}
             rows={1}
             style={{ resize: "none" }}
             disabled={disabled}
           />
           
-          <div className="ml-2">
-            <RecordingButton
-              isRecording={isRecording}
-              isTranscribing={isTranscribing}
-              timer={timer}
-              onStartRecording={handleStartRecording}
-              onStopRecording={handleStopRecording}
-            />
-          </div>
+          <RecordingButton
+            isRecording={isRecording}
+            isTranscribing={isTranscribing}
+            timer={timer}
+            onStartRecording={handleStartRecording}
+            onStopRecording={handleStopRecording}
+          />
         </div>
       </td>
     </tr>
