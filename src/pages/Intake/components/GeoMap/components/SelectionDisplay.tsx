@@ -58,7 +58,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   };
   
   return (
-    <div className="w-full bg-white rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8">
+    <div className="w-full bg-transparent rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8">
       {/* Top section with Country, Exclude, and Language */}
       <div className="space-y-6">
         {/* Country Selection */}
