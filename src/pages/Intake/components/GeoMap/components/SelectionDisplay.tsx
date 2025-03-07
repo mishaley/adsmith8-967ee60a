@@ -59,10 +59,10 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   
   return (
     <div className="w-full bg-white rounded-lg p-6 border border-gray-100 shadow-sm flex flex-col space-y-8">
-      {/* Top section with Country and Language */}
-      <div>
+      {/* Top section with Country, Exclude, and Language */}
+      <div className="space-y-6">
         {/* Country Selection */}
-        <div className="mb-6">
+        <div>
           <CountrySelection 
             selectedCountry={selectedCountry} 
             setSelectedCountry={setSelectedCountry} 
@@ -72,8 +72,19 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           />
         </div>
 
+        {/* Exclude Selection - moved between Country and Language */}
+        <div>
+          <ExcludeSelection 
+            selectedCountry={excludedCountry} 
+            setSelectedCountry={setExcludedCountry}
+            selectedCountryFlag={excludedCountryFlag}
+            onClearSelection={handleClearExclusion}
+            setExcludedCountryId={setExcludedCountryId}
+          />
+        </div>
+
         {/* Language Selection */}
-        <div className="mb-6">
+        <div>
           <LanguageSelection 
             selectedLanguage={selectedLanguage} 
             setSelectedLanguage={setSelectedLanguage} 
@@ -81,20 +92,6 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
             primaryLanguageId={primaryLanguageId} 
           />
         </div>
-      </div>
-
-      {/* Spacer to push the Exclude selection to the bottom */}
-      <div className="flex-grow"></div>
-      
-      {/* Exclude Selection at the bottom */}
-      <div>
-        <ExcludeSelection 
-          selectedCountry={excludedCountry} 
-          setSelectedCountry={setExcludedCountry}
-          selectedCountryFlag={excludedCountryFlag}
-          onClearSelection={handleClearExclusion}
-          setExcludedCountryId={setExcludedCountryId}
-        />
       </div>
     </div>
   );
