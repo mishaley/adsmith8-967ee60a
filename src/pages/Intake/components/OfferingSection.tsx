@@ -3,7 +3,6 @@ import React, { useRef, useEffect } from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
-import MultiSelectField from "./SummaryTable/components/MultiSelectField";
 import SingleSelectField from "./SummaryTable/components/SingleSelectField";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 

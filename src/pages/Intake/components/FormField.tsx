@@ -44,21 +44,21 @@ const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
   };
 
   return (
-    <tr>
-      <td className="p-2 align-top text-right">
-        <div className="pt-2 font-semibold">{label}</div>
+    <tr className="border-transparent">
+      <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
+        <div>{label}</div>
         {helperText && (
-          <div className="text-xs text-gray-500 mt-1 max-w-xs">{helperText}</div>
+          <div className="text-sm text-gray-500 mt-1">{helperText}</div>
         )}
       </td>
-      <td className="p-2">
+      <td className="py-4">
         <textarea
           ref={ref}
           value={value}
           onChange={onChange}
           onInput={handleInput}
+          className={`w-96 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-indigo-500 resize-none ${disabled ? 'bg-gray-100' : ''}`}
           placeholder={placeholder}
-          className="border border-gray-300 px-3 py-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden min-h-[40px] max-h-96"
           rows={1}
           disabled={disabled}
         />
