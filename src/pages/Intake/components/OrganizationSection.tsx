@@ -86,7 +86,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
             {isOrgSelected && (
               <>
                 <tr className="border-transparent">
-                  <td className="py-4 pr-4 text-lg">
+                  <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
                     <div>What's your brand name?</div>
                   </td>
                   <td className="py-4">

@@ -1,23 +1,17 @@
 
-import React, { useState } from "react";
-import QuadrantLayout from "@/components/QuadrantLayout";
+import React from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
+import IntakeFormContainer from "./components/IntakeFormContainer";
+import SectionsContainer from "./components/Containers/SectionsContainer"; 
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
-import { Message } from "./components/Messages/hooks/useMessagesFetching";
-import { useToast } from "@/components/ui/use-toast";
-import { clearFormAndRefresh } from "./utils/localStorageUtils";
-import IntakeFormContent from "./components/IntakeFormContent";
 
-const IntakeForm = () => {
-  const { toast } = useToast();
-  
+const IntakeForm: React.FC = () => {
+  // Get all form state and handlers from the hook
   const {
     brandName,
     setBrandName,
     industry,
     setIndustry,
-    businessDescription,
-    setBusinessDescription,
     offering,
     setOffering,
     sellingPoints,
@@ -26,91 +20,87 @@ const IntakeForm = () => {
     setProblemSolved,
     uniqueOffering,
     setUniqueOffering,
-    adPlatform,
-    setAdPlatform,
     selectedCountry,
     setSelectedCountry,
+    adPlatform,
+    setAdPlatform,
     selectedLanguage,
     setSelectedLanguage,
+    personas,
+    setPersonas,
+    generatedMessages,
+    setGeneratedMessages,
+    selectedMessageTypes,
+    setSelectedMessageTypes,
     handleSave
   } = useIntakeForm();
-  
+
+  // Get personas-related functionality
   const {
-    personas,
     summary,
     isGeneratingPersonas,
     isGeneratingPortraits,
-    loadingPortraitIndices,
     generatePersonas,
     updatePersona,
+    loadingPortraitIndices,
     retryPortraitGeneration,
     removePersona,
     personaCount,
-    setPersonaCount
-  } = usePersonasManager(offering, selectedCountry);
+    setPersonaCount,
+  } = usePersonasManager(personas, setPersonas);
 
-  const [generatedMessages, setGeneratedMessages] = useState<Record<string, Record<string, Message>>>({});
-  const [selectedMessageTypes, setSelectedMessageTypes] = useState<string[]>(["tagline"]);
-
-  const handleUpdateMessages = (messages: Record<string, Record<string, Message>>, types: string[]) => {
-    console.log("IntakeForm: Messages updated", { messageTypesCount: types.length, personasCount: personas.length });
-    setGeneratedMessages(messages);
-    setSelectedMessageTypes(types);
-  };
-
-  const handleClearForm = () => {
-    clearFormAndRefresh();
-    toast({
-      title: "Form cleared",
-      description: "All form data has been cleared from storage.",
-    });
+  // Handler to update messages state
+  const handleUpdateMessages = (
+    updatedMessages: any,
+    updatedTypes: string[]
+  ) => {
+    setGeneratedMessages(updatedMessages);
+    setSelectedMessageTypes(updatedTypes);
   };
 
   return (
-    <QuadrantLayout>
-      {{
-        q4: (
-          <IntakeFormContent
-            brandName={brandName}
-            setBrandName={setBrandName}
-            industry={industry}
-            setIndustry={setIndustry}
-            businessDescription={businessDescription}
-            setBusinessDescription={setBusinessDescription}
-            offering={offering}
-            setOffering={setOffering}
-            sellingPoints={sellingPoints}
-            setSellingPoints={setSellingPoints}
-            problemSolved={problemSolved}
-            setProblemSolved={setProblemSolved}
-            uniqueOffering={uniqueOffering}
-            setUniqueOffering={setUniqueOffering}
-            adPlatform={adPlatform}
-            setAdPlatform={setAdPlatform}
-            selectedCountry={selectedCountry}
-            setSelectedCountry={setSelectedCountry}
-            selectedLanguage={selectedLanguage}
-            setSelectedLanguage={setSelectedLanguage}
-            handleSave={handleSave}
-            personas={personas}
-            summary={summary}
-            isGeneratingPersonas={isGeneratingPersonas}
-            isGeneratingPortraits={isGeneratingPortraits}
-            generatePersonas={generatePersonas}
-            updatePersona={updatePersona}
-            loadingPortraitIndices={loadingPortraitIndices}
-            retryPortraitGeneration={retryPortraitGeneration}
-            removePersona={removePersona}
-            personaCount={personaCount}
-            setPersonaCount={setPersonaCount}
-            generatedMessages={generatedMessages}
-            selectedMessageTypes={selectedMessageTypes}
-            handleUpdateMessages={handleUpdateMessages}
-            handleClearForm={handleClearForm}
-          />
-        )
-      }}
-    </QuadrantLayout>
+    <IntakeFormContainer>
+      <SectionsContainer
+        brandName={brandName}
+        setBrandName={setBrandName}
+        industry={industry}
+        setIndustry={setIndustry}
+        handleSave={handleSave}
+        
+        offering={offering}
+        setOffering={setOffering}
+        sellingPoints={sellingPoints}
+        setSellingPoints={setSellingPoints}
+        problemSolved={problemSolved}
+        setProblemSolved={setProblemSolved}
+        uniqueOffering={uniqueOffering}
+        setUniqueOffering={setUniqueOffering}
+        
+        selectedCountry={selectedCountry}
+        setSelectedCountry={setSelectedCountry}
+        adPlatform={adPlatform}
+        setAdPlatform={setAdPlatform}
+        
+        selectedLanguage={selectedLanguage}
+        setSelectedLanguage={setSelectedLanguage}
+        
+        personas={personas}
+        summary={summary}
+        isGeneratingPersonas={isGeneratingPersonas}
+        isGeneratingPortraits={isGeneratingPortraits}
+        generatePersonas={generatePersonas}
+        updatePersona={updatePersona}
+        loadingPortraitIndices={loadingPortraitIndices}
+        retryPortraitGeneration={retryPortraitGeneration}
+        removePersona={removePersona}
+        personaCount={personaCount}
+        setPersonaCount={setPersonaCount}
+        
+        generatedMessages={generatedMessages}
+        selectedMessageTypes={selectedMessageTypes}
+        handleUpdateMessages={handleUpdateMessages}
+      />
+    </IntakeFormContainer>
   );
 };
 
