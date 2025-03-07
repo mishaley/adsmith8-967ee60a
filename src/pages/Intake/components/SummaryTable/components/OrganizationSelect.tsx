@@ -40,7 +40,7 @@ const OrganizationSelect: React.FC<OrganizationSelectProps> = ({
       <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
         {/* New option at the top */}
         <SelectItem value="new-organization" className="font-semibold text-blue-600">
-          + New Organization
+          + NEW
         </SelectItem>
         <SelectSeparator className="my-1" />
         
