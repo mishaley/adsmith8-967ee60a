@@ -5,7 +5,6 @@ import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
-import { useToast } from "@/components/ui/use-toast";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -33,19 +32,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleOrgChange
   } = useSummaryTableData();
   
-  const { toast } = useToast();
-  
   // Extended handler for organization changes
   const handleOrganizationChange = (value: string) => {
-    if (value === "new-organization") {
-      // Show toast notification
-      toast({
-        title: "Create Organization",
-        description: "This would open a form to create a new organization.",
-      });
-    }
-    
-    // Always use the normal handler
+    // Just use the normal handler without showing the toast
     handleOrgChange(value);
   };
   
