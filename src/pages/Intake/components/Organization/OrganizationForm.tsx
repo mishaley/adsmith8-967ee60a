@@ -1,6 +1,5 @@
 
 import React from "react";
-import FormField from "../FormField";
 import RecordingField from "../RecordingField";
 import OrganizationSelect from "../SummaryTable/components/OrganizationSelect";
 
@@ -76,7 +75,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
                 label="What industry are you in?" 
                 value={industry} 
                 onChange={handleIndustryChange} 
-                placeholder="Hold to speak about your industry" 
+                placeholder="" 
                 disabled={isUpdating || isLoadingOrgData} 
               />
             </>
