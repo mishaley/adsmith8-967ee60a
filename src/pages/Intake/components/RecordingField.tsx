@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, forwardRef } from "react";
 import RecordingButton from "./RecordingButton";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
@@ -13,21 +13,27 @@ interface RecordingFieldProps {
   placeholder?: string;
   disabled?: boolean;
   helperText?: string;
+  autoFocus?: boolean;
 }
 
-const RecordingField: React.FC<RecordingFieldProps> = ({ 
+const RecordingField = forwardRef<HTMLTextAreaElement, RecordingFieldProps>(({ 
   label, 
   value, 
   onChange,
   placeholder = "Hold to record",
   disabled = false,
-  helperText
-}) => {
+  helperText,
+  autoFocus = false
+}, ref) => {
   // Track the temporary transcript as recording happens
   const [tempTranscript, setTempTranscript] = useState("");
   
   // Prevent textarea from controlling value during prop updates
   const [localValue, setLocalValue] = useState(value);
+  
+  // Create internal ref if none is provided
+  const internalTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalTextareaRef;
   
   // Sync local value with prop value when it changes externally
   useEffect(() => {
@@ -60,7 +66,6 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
   });
   
   // Textarea auto-resizing
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   useTextareaResize(textareaRef, localValue, tempTranscript);
 
   // Handle transcription updates during recording
@@ -96,6 +101,13 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
     setLocalValue(newValue);
     onChange(newValue);
   };
+
+  // Auto-focus effect
+  useEffect(() => {
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [autoFocus]);
 
   // Display value should be the temporary transcript if available, otherwise the local value
   // When recording, show both the existing text and the temporary transcript
@@ -135,6 +147,8 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
       </td>
     </tr>
   );
-};
+});
+
+RecordingField.displayName = "RecordingField";
 
 export default RecordingField;

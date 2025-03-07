@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import RecordingField from "../RecordingField";
 import OrganizationSelect from "../SummaryTable/components/OrganizationSelect";
 
@@ -31,6 +31,20 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
   isUpdating,
   isLoadingOrgData
 }) => {
+  const brandNameRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Auto-focus the brand name field when "new-organization" is selected
+  useEffect(() => {
+    if (selectedOrgId === "new-organization" && brandNameRef.current) {
+      // Small delay to ensure the field is rendered and visible
+      const timeoutId = setTimeout(() => {
+        brandNameRef.current?.focus();
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [selectedOrgId]);
+
   return (
     <div className="flex justify-center">
       <table className="border-collapse border-transparent">
@@ -50,11 +64,13 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
           {selectedOrgId && (
             <>
               <RecordingField 
+                ref={brandNameRef}
                 label="What's your brand name?" 
                 value={brandName} 
                 onChange={setBrandName} 
                 placeholder="" 
                 disabled={isReadOnly || isUpdating || isLoadingOrgData} 
+                autoFocus={selectedOrgId === "new-organization"}
               />
               <RecordingField 
                 label="What industry are you in?" 
