@@ -7,6 +7,7 @@ import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { toast } from "@/components/ui/use-toast";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
+import { Button } from "@/components/ui/button";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -159,6 +160,18 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
           </tbody>
         </table>
       </div>
+      
+      {/* Save button at the bottom of the section */}
+      {isOrgSelected && (
+        <div className="flex justify-center mt-6 mb-3">
+          <Button 
+            onClick={handleSave}
+            className="w-40"
+          >
+            Save
+          </Button>
+        </div>
+      )}
     </CollapsibleSection>;
 };
 
