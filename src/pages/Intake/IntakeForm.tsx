@@ -47,7 +47,7 @@ const IntakeForm: React.FC = () => {
     removePersona,
     personaCount,
     setPersonaCount,
-  } = usePersonasManager(personas, setPersonas);
+  } = usePersonasManager(offering, selectedCountry);
 
   // Handler to update messages state
   const handleUpdateMessages = (
@@ -59,7 +59,7 @@ const IntakeForm: React.FC = () => {
   };
 
   return (
-    <IntakeFormContainer>
+    <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
       <SectionsContainer
         brandName={brandName}
         setBrandName={setBrandName}
@@ -100,7 +100,7 @@ const IntakeForm: React.FC = () => {
         selectedMessageTypes={selectedMessageTypes}
         handleUpdateMessages={handleUpdateMessages}
       />
-    </IntakeFormContainer>
+    </div>
   );
 };
 
