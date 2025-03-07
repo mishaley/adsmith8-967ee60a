@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
@@ -35,6 +35,20 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     offeringOptions,
     isOfferingsDisabled
   } = useSummaryTableData();
+  
+  const offeringInputRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Auto-focus the offering name field when "new-offering" is selected
+  useEffect(() => {
+    if (selectedOfferingId === "new-offering" && offeringInputRef.current) {
+      // Small delay to ensure the field is rendered and visible
+      const timeoutId = setTimeout(() => {
+        offeringInputRef.current?.focus();
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [selectedOfferingId]);
 
   return (
     <CollapsibleSection title="OFFERING">
@@ -50,15 +64,16 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
                     onChange={setSelectedOfferingId}
                     disabled={isOfferingsDisabled}
                     placeholder="Select an offering"
+                    showNewOption={true}
                   />
                 </div>
               </td>
             </tr>
             <FormField 
               label="Name just one of your offerings" 
-              helperText="We can add more later" 
               value={offering} 
               onChange={e => setOffering(e.target.value)} 
+              ref={offeringInputRef}
             />
             <RecordingField 
               label="Key Selling Points" 

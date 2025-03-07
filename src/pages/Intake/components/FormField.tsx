@@ -1,39 +1,46 @@
 
-import React from "react";
+import React, { forwardRef } from "react";
 
 interface FormFieldProps {
   label: string;
-  helperText?: string;
-  helperTextClassName?: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  helperText?: string;
+  disabled?: boolean;
 }
 
-const FormField = ({ 
-  label, 
-  helperText, 
-  helperTextClassName = "text-sm text-gray-500 mt-1", 
-  value, 
-  onChange 
-}: FormFieldProps) => {
+const FormField = forwardRef<HTMLTextAreaElement, FormFieldProps>(({
+  label,
+  value,
+  onChange,
+  placeholder = "",
+  helperText = "",
+  disabled = false
+}, ref) => {
   return (
-    <tr className="border-transparent">
-      <td className="py-4 pr-4 text-lg">
-        <div>{label}</div>
-        {helperText && <div className={helperTextClassName}>{helperText}</div>}
+    <tr>
+      <td className="p-2 align-top text-right">
+        <div className="pt-2 font-semibold">{label}</div>
+        {helperText && (
+          <div className="text-xs text-gray-500 mt-1 max-w-xs">{helperText}</div>
+        )}
       </td>
-      <td className="py-4">
-        <div className="w-96">
-          <input
-            type="text"
-            value={value}
-            onChange={onChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
+      <td className="p-2">
+        <textarea
+          ref={ref}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          className="border border-gray-300 px-3 py-2 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden min-h-[40px] max-h-96"
+          rows={1}
+          disabled={disabled}
+        />
       </td>
     </tr>
   );
-};
+});
+
+FormField.displayName = "FormField";
 
 export default FormField;

@@ -36,7 +36,7 @@ export const useOfferingSelection = (selectedOrgId: string) => {
     label: offering.offering_name
   }));
 
-  // Determine disabled state
+  // Determine disabled state - offerings are disabled when no organization is selected
   const isOfferingsDisabled = !selectedOrgId;
 
   return {

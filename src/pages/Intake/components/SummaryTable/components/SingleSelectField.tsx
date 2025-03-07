@@ -15,6 +15,8 @@ interface SingleSelectFieldProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  showNewOption?: boolean;
+  newOptionLabel?: string;
 }
 
 const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
@@ -22,7 +24,9 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   value,
   onChange,
   disabled = false,
-  placeholder = "Select an option"
+  placeholder = "Select an option",
+  showNewOption = false,
+  newOptionLabel = "+ NEW"
 }) => {
   const handleSelectChange = (selectedValue: string) => {
     // Clear selection if "clear-selection" is chosen
@@ -39,6 +43,16 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+        {/* New option at the top if enabled */}
+        {showNewOption && (
+          <>
+            <SelectItem value="new-offering" className="font-semibold text-blue-600">
+              {newOptionLabel}
+            </SelectItem>
+            <SelectSeparator className="my-1" />
+          </>
+        )}
+        
         {options.map((option) => (
           <SelectItem 
             key={option.value}
