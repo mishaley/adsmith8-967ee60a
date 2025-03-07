@@ -26,7 +26,13 @@ const RecordingButton = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            className={`w-10 h-10 p-0 flex items-center justify-center rounded-none rounded-r-md ${isRecording ? 'bg-red-50' : isTranscribing ? 'bg-yellow-50' : 'bg-[#d3e4fd]'} border border-input`}
+            className={`w-10 h-10 p-0 flex items-center justify-center rounded-none rounded-r-md ${
+              isRecording 
+                ? 'bg-[#990000]' 
+                : isTranscribing 
+                  ? 'bg-yellow-50' 
+                  : 'bg-[#d3e4fd] hover:bg-[#0c343d]'
+            } border border-input`}
             onMouseDown={onStartRecording}
             onMouseUp={onStopRecording}
             onMouseLeave={isRecording ? onStopRecording : undefined}
@@ -35,7 +41,7 @@ const RecordingButton = ({
             disabled={isTranscribing}
             aria-label={isRecording ? "Recording" : isTranscribing ? "Transcribing" : "Hold to record"}
           >
-            <Mic size={18} className={`${isRecording ? 'text-red-500' : isTranscribing ? 'text-yellow-500' : 'text-white'}`} />
+            <Mic size={18} className={`${isRecording ? 'text-white' : isTranscribing ? 'text-yellow-500' : 'text-white'}`} />
           </Button>
         </TooltipTrigger>
         {!isRecording && !isTranscribing && (
