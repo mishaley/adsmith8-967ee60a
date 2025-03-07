@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Loader, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,18 +18,17 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
   selectedCountry,
   setSelectedCountry
 }) => {
-  const [displayError, setDisplayError] = useState<string | null>(error);
-  const [mapHealthCheck, setMapHealthCheck] = useState({
-    status: "pending" as "pending" | "failed" | "healthy",
-    lastChecked: Date.now()
-  });
+  // Component is inactive, but we'll keep the code with minimal functionality
+  const [displayError] = useState<string | null>(null);
   
-  // Update displayed error when error prop changes
-  useEffect(() => {
-    setDisplayError(error);
-  }, [error]);
+  // All map health checking is disabled
+  // const [mapHealthCheck, setMapHealthCheck] = useState({
+  //   status: "pending" as "pending" | "failed" | "healthy",
+  //   lastChecked: Date.now()
+  // });
   
-  // Check map health periodically
+  // Disabled map health checking
+  /*
   useEffect(() => {
     if (loading || error) return;
     
@@ -70,70 +68,21 @@ const MapDisplay: React.FC<MapDisplayProps> = ({
       clearInterval(intervalTimer);
     };
   }, [loading, error, mapContainerRef]);
+  */
   
-  // Handle refresh button click
+  // Handle refresh button click - also disabled
   const handleRefresh = () => {
-    toast.info("Refreshing map...", { duration: 2000 });
-    
-    // Force page refresh to reload the map
-    window.location.reload();
+    toast.info("Map feature is currently disabled", { duration: 2000 });
   };
   
-  if (loading) {
-    return (
-      <div className="h-[600px] flex items-center justify-center bg-gray-100 rounded">
-        <Loader className="h-8 w-8 animate-spin text-[#154851]" />
-        <div className="ml-2">Loading map...</div>
-      </div>
-    );
-  }
-  
-  if (displayError) {
-    return (
-      <div className="h-[600px] flex flex-col items-center justify-center bg-gray-100 rounded text-red-500 p-4">
-        <AlertCircle className="h-8 w-8 mb-2" />
-        <div className="font-semibold mb-2">Error loading map</div>
-        <div className="text-sm text-center max-w-md">{displayError}</div>
-        <div className="text-xs text-gray-500 mt-4 text-center">
-          Please ensure the MAPBOX_TOKEN is correctly set in Supabase Edge Function Secrets
-        </div>
-        <Button 
-          variant="outline" 
-          className="mt-4" 
-          onClick={handleRefresh}
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh Map
-        </Button>
-      </div>
-    );
-  }
-  
-  // Show recovery UI if map health check failed
-  if (mapHealthCheck.status === "failed") {
-    return (
-      <div className="h-[600px] flex flex-col items-center justify-center bg-gray-100 rounded p-4">
-        <AlertCircle className="h-8 w-8 mb-2 text-amber-500" />
-        <div className="font-semibold mb-2">Map is not displaying correctly</div>
-        <div className="text-sm text-center max-w-md">
-          The map appears to have loaded but isn't rendering properly.
-        </div>
-        <Button 
-          variant="default" 
-          className="mt-4 bg-[#154851] hover:bg-[#0d2e33]" 
-          onClick={handleRefresh}
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Reload Map
-        </Button>
-      </div>
-    );
-  }
-  
+  // Return a placeholder instead of the actual map
   return (
     <div className="w-full">
-      <div className="h-[600px] overflow-hidden relative rounded">
-        <div ref={mapContainerRef} className="absolute inset-0" />
+      <div className="h-[600px] flex flex-col items-center justify-center bg-gray-100 rounded p-4">
+        <div className="font-semibold mb-2">Map Temporarily Disabled</div>
+        <div className="text-sm text-center max-w-md">
+          The map functionality has been temporarily disabled. Please use the dropdown menu to select a country.
+        </div>
       </div>
     </div>
   );

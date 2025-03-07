@@ -10,6 +10,7 @@ interface UseMapRecoveryProps {
 
 /**
  * Hook to handle map initialization recovery mechanisms
+ * Currently disabled to prevent background processes
  */
 export const useMapRecovery = ({
   map,
@@ -17,7 +18,8 @@ export const useMapRecovery = ({
   layersInitialized
 }: UseMapRecoveryProps) => {
   
-  // Recovery mechanism if the map fails to initialize properly
+  // Recovery mechanism is commented out to disable background processes
+  /*
   useEffect(() => {
     let retryCount = 0;
     const maxRetries = 3;
@@ -59,4 +61,7 @@ export const useMapRecovery = ({
       clearTimeout(initialCheckTimer);
     };
   }, [map, initialized, layersInitialized]);
+  */
+  
+  // Empty implementation - no recovery actions will take place
 };

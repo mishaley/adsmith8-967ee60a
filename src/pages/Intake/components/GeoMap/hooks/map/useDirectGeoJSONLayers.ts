@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from 'react';
-import { useDirectLayerInitialization } from './layers/directGeoJSON/useDirectLayerInitialization';
-import { useDirectMapInteractions } from './layers/directGeoJSON/useDirectMapInteractions';
-import { useDirectCountryHighlighting } from './layers/directGeoJSON/useDirectCountryHighlighting';
+import { useState } from 'react';
+// Commented out imports that aren't needed when map is disabled
+// import { useDirectLayerInitialization } from './layers/directGeoJSON/useDirectLayerInitialization';
+// import { useDirectMapInteractions } from './layers/directGeoJSON/useDirectMapInteractions';
+// import { useDirectCountryHighlighting } from './layers/directGeoJSON/useDirectCountryHighlighting';
 
 interface UseDirectGeoJSONLayersProps {
   map: React.MutableRefObject<mapboxgl.Map | null>;
@@ -13,9 +14,11 @@ export const useDirectGeoJSONLayers = ({
   map, 
   onCountrySelected 
 }: UseDirectGeoJSONLayersProps) => {
-  const [error, setError] = useState<string | null>(null);
-  const [layersInitialized, setLayersInitialized] = useState(false);
+  const [error] = useState<string | null>(null);
+  const [layersInitialized] = useState(false);
 
+  // All functionality is disabled to prevent background processes
+  /*
   // Setup country highlighting capabilities
   const {
     selectedCountryId,
@@ -63,15 +66,17 @@ export const useDirectGeoJSONLayers = ({
       setError(initError);
     }
   }, [initError]);
+  */
 
+  // Return empty/dummy implementations of the functions
   return {
-    initialized,
+    initialized: false,
     error,
-    highlightCountry,
-    highlightExcludedCountry,
-    clearCountrySelection,
-    clearExcludedCountry,
-    selectedCountryId,
-    excludedCountryId
+    highlightCountry: (countryId: string) => {},
+    highlightExcludedCountry: (countryId: string) => {},
+    clearCountrySelection: () => {},
+    clearExcludedCountry: () => {},
+    selectedCountryId: null,
+    excludedCountryId: null
   };
 };
