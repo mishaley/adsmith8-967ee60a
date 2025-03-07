@@ -107,25 +107,27 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
         )}
       </td>
       <td className="py-4">
-        <div className="w-96 flex flex-col">
-          <RecordingButton
-            isRecording={isRecording}
-            isTranscribing={isTranscribing}
-            timer={timer}
-            onStartRecording={handleStartRecording}
-            onStopRecording={handleStopRecording}
-          />
-          
+        <div className="w-96 flex flex-row items-start">
           <textarea
             ref={textareaRef}
             value={displayValue}
             onChange={handleTextChange}
-            className={`w-full px-3 py-2 border border-input rounded-b-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
+            className={`flex-1 px-3 py-2 border border-input rounded-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
             placeholder={placeholder}
             rows={1}
             style={{ resize: "none" }}
             disabled={disabled}
           />
+          
+          <div className="ml-2">
+            <RecordingButton
+              isRecording={isRecording}
+              isTranscribing={isTranscribing}
+              timer={timer}
+              onStartRecording={handleStartRecording}
+              onStopRecording={handleStopRecording}
+            />
+          </div>
         </div>
       </td>
     </tr>
