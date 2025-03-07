@@ -38,7 +38,7 @@ export const generateMessagesForAllPersonas = async (
         const tagline = data?.tagline || `Generated ${type} Example`;
         
         result[personaId][type] = {
-          message_id: `${personaId}-${type}`,
+          id: `${personaId}-${type}`,
           message_name: tagline,
           persona_id: personaId,
           message_type: type,
@@ -49,7 +49,7 @@ export const generateMessagesForAllPersonas = async (
         
         // Use a fallback message
         result[personaId][type] = {
-          message_id: `${personaId}-${type}`,
+          id: `${personaId}-${type}`,
           message_name: `Generated ${type} Example`,
           persona_id: personaId,
           message_type: type,
@@ -93,7 +93,7 @@ export const generateColumnMessages = async (
       
       // Create a new message object for this type and persona
       updatedMessages[personaId][messageType] = {
-        message_id: `${personaId}-${messageType}`,
+        id: `${personaId}-${messageType}`,
         message_name: tagline,
         message_type: messageType,
         persona_id: personaId,
@@ -103,7 +103,7 @@ export const generateColumnMessages = async (
       console.error(`Error generating ${messageType} message for persona ${personaId}:`, error);
       
       updatedMessages[personaId][messageType] = {
-        message_id: `${personaId}-${messageType}`,
+        id: `${personaId}-${messageType}`,
         message_name: `Generated ${messageType} Example`,
         message_type: messageType,
         persona_id: personaId,

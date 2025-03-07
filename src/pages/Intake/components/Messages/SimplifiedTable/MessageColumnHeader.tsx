@@ -7,19 +7,25 @@ import { Button } from "@/components/ui/button";
 interface MessageColumnHeaderProps {
   columnId: string;
   columnType: string;
+  column?: { id: string; type: string; content?: Record<string, any> }; // Added for backward compatibility
   isNewColumn?: boolean;
-  onTypeChange: (columnId: string, newType: string) => void;
+  onTypeChange?: (columnId: string, newType: string) => void;
   onGenerateClick?: (columnId: string, columnType: string) => void;
+  onRemoveColumn?: () => void; // Added for backward compatibility
 }
 
 const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
   columnId,
   columnType,
+  column, // For backward compatibility
   isNewColumn = false,
   onTypeChange,
-  onGenerateClick
+  onGenerateClick,
+  onRemoveColumn
 }) => {
-  const messageTypes = ["pain-point", "unique-offering", "value-prop", "user-provided"];
+  // Use either direct props or extract from column object for backward compatibility
+  const id = column?.id || columnId;
+  const type = column?.type || columnType;
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Auto-open dropdown when new column is added
@@ -31,20 +37,28 @@ const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
     }
   }, [isNewColumn]);
 
+  const handleTypeChange = (value: string) => {
+    if (onTypeChange) {
+      onTypeChange(id, value);
+    } else if (onRemoveColumn && value === "remove") {
+      onRemoveColumn();
+    }
+  };
+
   // If the column has no type selected yet, show type selector
-  if (!columnType) {
+  if (!type) {
     return (
       <th className="border p-2 text-left">
         <Select 
-          value={columnType} 
-          onValueChange={(value) => onTypeChange(columnId, value)}
+          value={type} 
+          onValueChange={handleTypeChange}
           defaultOpen={isNewColumn}
         >
           <SelectTrigger className="bg-white" ref={triggerRef}>
             <SelectValue placeholder="Select message type" />
           </SelectTrigger>
           <SelectContent>
-            {messageTypes.map(type => (
+            {["pain-point", "unique-offering", "value-prop", "user-provided"].map(type => (
               <SelectItem key={type} value={type}>
                 {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
               </SelectItem>
@@ -67,13 +81,13 @@ const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
     <th className="border p-2 text-left">
       <div className="flex items-center justify-between">
         <span className="font-medium text-gray-700">
-          {columnType.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+          {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
         </span>
         <Button 
           variant="outline" 
           size="sm" 
           className="ml-2 text-xs"
-          onClick={() => onGenerateClick && onGenerateClick(columnId, columnType)}
+          onClick={() => onGenerateClick && onGenerateClick(id, type)}
         >
           Generate
         </Button>

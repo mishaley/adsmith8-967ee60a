@@ -50,14 +50,18 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
             {/* Message type header cells */}
             {columns.map(column => (
               <MessageColumnHeader 
-                key={column.id} 
-                column={column} 
+                key={column.id}
+                columnId={column.id}
+                columnType={column.type}
+                onTypeChange={(columnId, newType) => {
+                  // This is not currently supported but could be implemented
+                }}
                 onRemoveColumn={() => {
                   if (onMessageTypeChange) {
                     const newTypes = selectedMessageTypes.filter(type => type !== column.id);
                     onMessageTypeChange(newTypes);
                   }
-                }} 
+                }}
               />
             ))}
             

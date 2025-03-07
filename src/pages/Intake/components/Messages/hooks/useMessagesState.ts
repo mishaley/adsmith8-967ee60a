@@ -62,7 +62,7 @@ export const useMessagesState = (personas: Persona[]) => {
           // Only initialize if it doesn't exist yet
           if (!generatedMessages[personaId]?.[type]) {
             initialMessages[personaId][type] = {
-              message_id: `${personaId}-${type}-placeholder`,
+              id: `${personaId}-${type}-placeholder`,
               message_name: "",
               persona_id: personaId,
               message_type: type,
