@@ -30,13 +30,14 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   }, [isCollapsed, storageKey]);
 
   const toggleCollapse = () => {
+    console.log(`Toggling collapse for section: ${title}`);
     setIsCollapsed(!isCollapsed);
   };
 
   return (
     <div className={className}>
       <div
-        className="flex justify-between items-center cursor-pointer py-2"
+        className="flex justify-between items-center cursor-pointer py-2 w-full"
         onClick={toggleCollapse}
         role="button"
         tabIndex={0}
@@ -55,10 +56,9 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
       </div>
       
       <div 
-        className={`overflow-visible transition-all duration-300 ${
-          isCollapsed ? 'max-h-0 opacity-0 mt-0 overflow-hidden' : 'max-h-[5000px] opacity-100 mt-2'
+        className={`overflow-hidden transition-all duration-300 ${
+          isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[5000px] opacity-100 mt-2'
         }`}
-        style={{ position: 'relative' }}
       >
         {children}
       </div>
