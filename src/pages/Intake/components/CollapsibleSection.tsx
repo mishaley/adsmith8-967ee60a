@@ -38,6 +38,9 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
       <div
         className="flex justify-between items-center cursor-pointer py-2"
         onClick={toggleCollapse}
+        role="button"
+        tabIndex={0}
+        aria-expanded={!isCollapsed}
       >
         <h2 className="text-center w-full text-gray-700 font-bold text-xl">
           {title}
@@ -53,7 +56,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
       
       <div 
         className={`overflow-visible transition-all duration-300 ${
-          isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[5000px] opacity-100 mt-2'
+          isCollapsed ? 'max-h-0 opacity-0 mt-0 overflow-hidden' : 'max-h-[5000px] opacity-100 mt-2'
         }`}
         style={{ position: 'relative' }}
       >

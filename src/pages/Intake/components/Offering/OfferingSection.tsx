@@ -27,6 +27,8 @@ const OfferingSection: React.FC<OfferingSectionProps> = (props) => {
     isSaving
   } = useOfferingSectionLogic(props);
 
+  console.log("Rendering OfferingSection with title: OFFERING");
+
   return (
     <CollapsibleSection title="OFFERING">
       <OfferingSectionContent
