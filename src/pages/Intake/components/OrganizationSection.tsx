@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
@@ -29,7 +29,8 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   const {
     selectedOrgId,
     organizations,
-    handleOrgChange
+    handleOrgChange,
+    currentOrganization
   } = useSummaryTableData();
   
   // Extended handler for organization changes
@@ -38,11 +39,29 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleOrgChange(value);
   };
   
+  // Auto-fill fields when organization data is loaded
+  useEffect(() => {
+    if (currentOrganization) {
+      // Set brand name from organization data
+      setBrandName(currentOrganization.organization_name);
+      
+      // If organization has industry data, set it
+      if (currentOrganization.organization_industry) {
+        setIndustry(currentOrganization.organization_industry);
+      }
+    } else if (selectedOrgId === "new-organization") {
+      // Clear fields when "new-organization" is selected
+      setBrandName("");
+      setIndustry("");
+    }
+  }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
+  
   // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
   
   // Log to verify the selectedOrgId value
   console.log("Selected Organization ID:", selectedOrgId);
+  console.log("Current Organization Data:", currentOrganization);
   
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">

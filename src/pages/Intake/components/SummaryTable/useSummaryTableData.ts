@@ -18,6 +18,12 @@ export const useSummaryTableData = () => {
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
   const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
 
+  // Store current organization data
+  const [currentOrganization, setCurrentOrganization] = useState<{
+    organization_name: string;
+    organization_industry?: string;
+  } | null>(null);
+
   // Watch for changes to the organization in localStorage
   useEffect(() => {
     const handleStorageChange = () => {
@@ -41,6 +47,11 @@ export const useSummaryTableData = () => {
     console.log("Organization changed to:", selectedOrgId);
     // When organization is empty or changes, clear offering selection
     setSelectedOfferingId("");
+    
+    // Clear organization data when selecting "new-organization" or empty
+    if (selectedOrgId === "new-organization" || !selectedOrgId) {
+      setCurrentOrganization(null);
+    }
   }, [selectedOrgId]);
 
   // Reset persona selection when offering changes
@@ -67,6 +78,34 @@ export const useSummaryTableData = () => {
       if (error) throw error;
       return data || [];
     },
+  });
+
+  // Fetch organization details when an organization is selected
+  useQuery({
+    queryKey: ["organization-details", selectedOrgId],
+    queryFn: async () => {
+      // Don't fetch if we're creating a new organization or no org is selected
+      if (selectedOrgId === "new-organization" || !selectedOrgId) {
+        setCurrentOrganization(null);
+        return null;
+      }
+      
+      const { data, error } = await supabase
+        .from("a1organizations")
+        .select("organization_name, organization_industry")
+        .eq("organization_id", selectedOrgId)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching organization details:", error);
+        setCurrentOrganization(null);
+        return null;
+      }
+      
+      setCurrentOrganization(data);
+      return data;
+    },
+    enabled: !!selectedOrgId && selectedOrgId !== "new-organization",
   });
 
   // Query offerings based on selected organization
@@ -174,6 +213,7 @@ export const useSummaryTableData = () => {
     handleOrgChange,
     isOfferingsDisabled,
     isPersonasDisabled,
-    isMessagesDisabled
+    isMessagesDisabled,
+    currentOrganization
   };
 };
