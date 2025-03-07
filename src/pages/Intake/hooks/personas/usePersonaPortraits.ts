@@ -1,41 +1,61 @@
 
 import { useCallback } from "react";
 import { Persona } from "../../components/Personas/types";
-import { handlePortraitUpdateCallback } from "./utils/personaManagerUtils";
+import { generatePersonaPortrait } from "../../components/Personas/services/portraitService";
+import { getRandomRace, savePortraitsToSession } from "../../components/Personas/utils/portraitUtils";
 
 export const usePersonaPortraits = (
   personas: Persona[],
-  retryPortraitBase: (persona: Persona, index: number, callback: (index: number, updatedPersona: Persona) => void) => void,
+  retryPortraitGeneration: (persona: Persona, index: number, updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => Promise<void>,
   updatePersona: (index: number, updatedPersona: Persona) => void
 ) => {
-  // Wrapper for generating portraits for all personas
-  const generatePortraitsForAll = useCallback((
-    personasList: Persona[],
-    generatePortraitsForAllPersonas: (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => void
-  ) => {
-    // Use the provided personasList instead of the personas from props
-    if (!personasList || personasList.length === 0) {
-      return;
-    }
-    
-    generatePortraitsForAllPersonas(personasList, (index, updatedPersona) => {
-      handlePortraitUpdateCallback(index, updatedPersona, personasList, updatePersona);
-    });
-  }, [updatePersona]);
+  // Generate portraits for all personas
+  const generatePortraitsForAll = useCallback(
+    async (
+      personasList: Persona[],
+      generatePortraitsFunction: (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => Promise<void>,
+      customPrompt?: string
+    ) => {
+      if (!personasList || personasList.length === 0) {
+        return;
+      }
 
-  // Wrapper for retryPortraitGeneration
-  const retryPortraitGeneration = useCallback((index: number) => {
-    if (!personas[index]) {
-      return;
-    }
-    
-    retryPortraitBase(personas[index], index, (idx, updatedPersona) => {
-      handlePortraitUpdateCallback(idx, updatedPersona, personas, updatePersona);
-    });
-  }, [personas, retryPortraitBase, updatePersona]);
+      // Assign random races if not present
+      const enhancedPersonas = personasList.map(persona => {
+        if (!persona.race) {
+          return { ...persona, race: getRandomRace() };
+        }
+        return persona;
+      });
+
+      // Update personas with races
+      enhancedPersonas.forEach((persona, index) => {
+        updatePersona(index, persona);
+      });
+
+      // Generate portraits
+      await generatePortraitsFunction(enhancedPersonas, updatePersona);
+
+      // Save to session
+      savePortraitsToSession(enhancedPersonas);
+    },
+    [updatePersona]
+  );
+
+  // Retry portrait generation for a specific persona
+  const retryPortraitGeneration = useCallback(
+    (index: number, customPrompt?: string) => {
+      if (!personas || !personas[index]) {
+        return;
+      }
+
+      retryPortraitGeneration(personas[index], index, updatePersona);
+    },
+    [personas, retryPortraitGeneration, updatePersona]
+  );
 
   return {
     generatePortraitsForAll,
-    retryPortraitGeneration
+    retryPortraitGeneration,
   };
 };

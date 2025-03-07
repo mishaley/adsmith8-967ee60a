@@ -1,142 +1,65 @@
 
-import React, { useState } from "react";
-import { Loader, RefreshCw, AlertTriangle } from "lucide-react";
-import { Persona } from "./types";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Loader, RefreshCw } from "lucide-react";
+import { Persona } from "./types";
 
 interface PortraitRowProps {
   personas: Persona[];
   isGeneratingPortraits: boolean;
-  loadingIndices?: number[];
-  onRetryPortrait?: (index: number) => void;
+  loadingIndices: number[];
+  onRetryPortrait?: ((index: number) => void) | null;
+  promptText?: string; // Add custom prompt text
 }
 
-const PortraitRow: React.FC<PortraitRowProps> = ({ 
-  personas, 
+const PortraitRow: React.FC<PortraitRowProps> = ({
+  personas,
   isGeneratingPortraits,
-  loadingIndices = [],
-  onRetryPortrait
+  loadingIndices,
+  onRetryPortrait,
+  promptText // Custom prompt text
 }) => {
-  const [openPopoverIndex, setOpenPopoverIndex] = useState<number | null>(null);
-
-  const handleRetry = (index: number) => {
-    if (onRetryPortrait) {
-      toast.info(`Retrying portrait for persona ${index + 1}`);
-      onRetryPortrait(index);
-    }
-  };
-  
-  // Removed the console.log statement that was causing excessive logging
-
   return (
-    <tr>
-      {Array.from({ length: 5 }).map((_, index) => (
-        <td key={index} className="py-3 px-3" style={{ width: "20%" }}>
-          <div className="flex flex-col items-center">
-            {personas[index]?.portraitUrl ? (
-              <Popover open={openPopoverIndex === index} onOpenChange={(open) => {
-                if (open) {
-                  setOpenPopoverIndex(index);
-                } else {
-                  setOpenPopoverIndex(null);
-                }
-              }}>
-                <PopoverTrigger asChild>
-                  <div 
-                    className="cursor-pointer transition-all hover:opacity-90 hover:shadow-md rounded-md"
-                    onMouseEnter={() => setOpenPopoverIndex(index)}
-                    onMouseLeave={() => setOpenPopoverIndex(null)}
-                  >
-                    <img 
-                      src={personas[index].portraitUrl} 
-                      alt={`Portrait of persona ${index + 1}`}
-                      className="w-full h-auto rounded-md"
-                      onError={(e) => {
-                        // When image fails to load, we retry automatically
-                        if (onRetryPortrait) {
-                          onRetryPortrait(index);
-                        }
-                        
-                        // Create a placeholder for failed images that will show until retry completes
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        
-                        const parentEl = target.parentElement;
-                        if (parentEl) {
-                          const placeholder = document.createElement('div');
-                          placeholder.className = 'w-full h-32 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500';
-                          placeholder.innerText = 'Retrying...';
-                          parentEl.appendChild(placeholder);
-                        }
-                      }}
-                    />
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent 
-                  className="p-0 rounded-md shadow-xl"
-                  onMouseEnter={() => setOpenPopoverIndex(index)}
-                  onMouseLeave={() => setOpenPopoverIndex(null)}
-                >
-                  <img 
-                    src={personas[index].portraitUrl} 
-                    alt={`Large portrait of persona ${index + 1}`}
-                    className="max-w-[400px] max-h-[400px] h-auto rounded-md"
+    <tr className="h-44 border-transparent">
+      <td colSpan={personas.length} className="p-0">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {personas.map((persona, index) => (
+            <div key={index} className="relative flex flex-col items-center">
+              {persona.portraitUrl ? (
+                <div className="relative w-32 h-32 overflow-hidden rounded-full bg-gray-100">
+                  <img
+                    src={persona.portraitUrl}
+                    alt={`Portrait of ${persona.title}`}
+                    className="w-full h-full object-cover"
                   />
-                </PopoverContent>
-              </Popover>
-            ) : personas.length > 0 && index < personas.length ? (
-              loadingIndices.includes(index) ? (
-                <div className="w-full aspect-square bg-transparent rounded-md flex flex-col items-center justify-center">
-                  <Loader className="h-6 w-6 animate-spin mb-2 text-blue-500" />
-                  <span className="text-sm text-gray-500">Generating portrait...</span>
                 </div>
               ) : (
-                <div className="w-full aspect-square bg-transparent rounded-md flex flex-col items-center justify-center text-sm text-gray-500">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex flex-col items-center">
-                          <AlertTriangle className="h-5 w-5 text-amber-500 mb-2" />
-                          <div className="mb-2 text-center">
-                            {isGeneratingPortraits ? "Waiting in queue..." : "Portrait generation needed"}
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Click 'Retry Manually' to generate this portrait</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  
-                  {!isGeneratingPortraits && onRetryPortrait && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => handleRetry(index)}
-                      className="mt-2 text-xs"
-                    >
-                      <RefreshCw className="h-3 w-3 mr-1" />
-                      Retry Manually
-                    </Button>
+                <div className="relative w-32 h-32 flex items-center justify-center rounded-full bg-gray-100">
+                  {loadingIndices.includes(index) ? (
+                    <Loader className="h-8 w-8 animate-spin text-blue-500" />
+                  ) : (
+                    <span className="text-gray-400 text-sm text-center">No portrait</span>
                   )}
                 </div>
-              )
-            ) : (
-              <div className="w-full aspect-square bg-transparent rounded-md flex items-center justify-center text-sm text-gray-500">
-                {/* Empty placeholder */}
-              </div>
-            )}
-          </div>
-        </td>
-      ))}
+              )}
+              
+              {/* Retry button */}
+              {onRetryPortrait && !loadingIndices.includes(index) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() => onRetryPortrait(index)}
+                  disabled={isGeneratingPortraits}
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  Retry
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      </td>
     </tr>
   );
 };

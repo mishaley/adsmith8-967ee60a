@@ -1,11 +1,13 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { createPortraitPrompt } from "./utils/portraitUtils";
+import { Textarea } from "@/components/ui/textarea";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -35,6 +37,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   setPersonaCount
 }) => {
   const hasPersonas = personas && personas.length > 0;
+  const [promptText, setPromptText] = useState<string>("");
   
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
@@ -42,6 +45,16 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       setPersonaCount(count);
     }
   };
+  
+  // Update the prompt text whenever personas change
+  useEffect(() => {
+    if (hasPersonas && personas[0]) {
+      const samplePrompt = createPortraitPrompt(personas[0]);
+      setPromptText(samplePrompt);
+    } else {
+      setPromptText("");
+    }
+  }, [personas, hasPersonas]);
   
   return <>
       <tr className="border-transparent">
@@ -71,6 +84,30 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           </div>
         </td>
       </tr>
+      
+      {/* Prompt Text Area */}
+      {hasPersonas && (
+        <tr className="border-transparent">
+          <td colSpan={2} className="pb-4">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Portrait Generation Prompt:
+              </label>
+              <Textarea
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                placeholder="Portrait generation prompt will appear here..."
+                className="w-full h-24 text-sm font-mono"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This is the prompt that will be sent to Ideogram when generating portraits.
+                You can edit it to customize the portrait generation.
+              </p>
+            </div>
+          </td>
+        </tr>
+      )}
+      
       {isGeneratingPersonas && !hasPersonas ? <tr className="border-transparent">
           <td colSpan={2} className="py-8 text-center bg-transparent">
             <Loader className="h-8 w-8 animate-spin mx-auto" />
@@ -82,7 +119,13 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
               <table className="w-full border-collapse border-transparent">
                 <tbody>
                   <PersonasList personas={personas} onRemovePersona={removePersona} />
-                  <PortraitRow personas={personas} isGeneratingPortraits={isGeneratingPortraits} loadingIndices={loadingPortraitIndices} onRetryPortrait={retryPortraitGeneration} />
+                  <PortraitRow 
+                    personas={personas} 
+                    isGeneratingPortraits={isGeneratingPortraits} 
+                    loadingIndices={loadingPortraitIndices} 
+                    onRetryPortrait={retryPortraitGeneration} 
+                    promptText={promptText}
+                  />
                 </tbody>
               </table>
             </div>
