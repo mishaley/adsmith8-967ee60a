@@ -79,10 +79,11 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                     </div>
                   </td>
                 </tr>
-                <FormField 
+                <RecordingField 
                   label="What industry are you in?" 
                   value={industry} 
-                  onChange={e => setIndustry(e.target.value)} 
+                  onChange={setIndustry} 
+                  placeholder="Hold to speak about your industry" 
                 />
                 <RecordingField 
                   label="Tell me about your business" 
