@@ -44,9 +44,9 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         </h2>
         <div className="flex-shrink-0">
           {isCollapsed ? (
-            <ChevronDown className="h-5 w-5 text-gray-500" />
-          ) : (
             <ChevronUp className="h-5 w-5 text-gray-500" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-gray-500" />
           )}
         </div>
       </div>
