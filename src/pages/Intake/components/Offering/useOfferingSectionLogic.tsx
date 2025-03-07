@@ -1,15 +1,11 @@
 
-import React, { useRef, useEffect, useState } from "react";
-import RecordingField from "./RecordingField";
-import CollapsibleSection from "./CollapsibleSection";
-import SingleSelectField from "./SummaryTable/components/SingleSelectField";
-import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
-import { useOfferingDetails } from "./SummaryTable/hooks/useOfferingDetails";
+import { useState, useEffect, useRef } from "react";
+import { useSummaryTableData } from "../SummaryTable/useSummaryTableData";
+import { useOfferingDetails } from "../SummaryTable/hooks/useOfferingDetails";
 import { useToast } from "@/components/ui/use-toast";
-import { OfferingButton } from "./Organization";
 import { supabase } from "@/integrations/supabase/client";
 
-interface OfferingSectionProps {
+interface UseOfferingSectionLogicProps {
   offering: string;
   setOffering: (value: string) => void;
   sellingPoints: string;
@@ -20,7 +16,7 @@ interface OfferingSectionProps {
   setUniqueOffering: (value: string) => void;
 }
 
-const OfferingSection: React.FC<OfferingSectionProps> = ({
+export const useOfferingSectionLogic = ({
   offering,
   setOffering,
   sellingPoints,
@@ -29,7 +25,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
   setProblemSolved,
   uniqueOffering,
   setUniqueOffering
-}) => {
+}: UseOfferingSectionLogicProps) => {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   
@@ -201,72 +197,14 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     }
   };
 
-  return (
-    <CollapsibleSection title="OFFERING">
-      <div className="flex justify-center">
-        <table className="border-collapse border-transparent">
-          <tbody>
-            <tr className="border-transparent">
-              <td colSpan={2} className="py-4 text-center">
-                <div className="w-72 mx-auto">
-                  <SingleSelectField
-                    options={offeringOptions}
-                    value={selectedOfferingId}
-                    onChange={handleOfferingChange}
-                    disabled={isOfferingsDisabled}
-                    placeholder=""
-                    showNewOption={true}
-                  />
-                </div>
-              </td>
-            </tr>
-            
-            {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
-              <>
-                <RecordingField 
-                  label="Name just one of your offerings" 
-                  value={offering} 
-                  onChange={setOffering} 
-                  ref={offeringInputRef}
-                  placeholder=""
-                />
-                <RecordingField 
-                  label="Key Selling Points" 
-                  value={sellingPoints} 
-                  onChange={setSellingPoints} 
-                  placeholder=""
-                  helperText="What makes this offering valuable to customers?"
-                />
-                <RecordingField 
-                  label="Problem Solved" 
-                  value={problemSolved} 
-                  onChange={setProblemSolved} 
-                  placeholder=""
-                  helperText="What customer pain point does this solve?"
-                />
-                <RecordingField 
-                  label="Unique Advantages" 
-                  value={uniqueOffering} 
-                  onChange={setUniqueOffering} 
-                  placeholder=""
-                  helperText="What makes your offering different from competitors?"
-                />
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
-      
-      {/* Next button - only show when an offering is selected or being created */}
-      {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
-        <OfferingButton 
-          onClick={handleNextClick}
-          isDisabled={isSaving || !offering.trim()}
-          isCreating={isSaving}
-        />
-      )}
-    </CollapsibleSection>
-  );
+  return {
+    selectedOfferingId,
+    offeringOptions,
+    isOfferingsDisabled,
+    offeringDetails,
+    offeringInputRef,
+    handleOfferingChange,
+    handleNextClick,
+    isSaving
+  };
 };
-
-export default React.memo(OfferingSection);

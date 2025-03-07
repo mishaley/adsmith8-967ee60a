@@ -1,6 +1,6 @@
 
 import React from "react";
-import OfferingSection from "../OfferingSection";
+import { OfferingSection } from "../Offering";
 
 interface OfferingContainerProps {
   offering: string;
