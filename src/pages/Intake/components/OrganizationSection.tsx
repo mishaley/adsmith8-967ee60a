@@ -7,6 +7,7 @@ import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { toast } from "@/components/ui/use-toast";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
 import { Button } from "@/components/ui/button";
+
 interface OrganizationSectionProps {
   brandName: string;
   setBrandName: (value: string) => void;
@@ -14,6 +15,7 @@ interface OrganizationSectionProps {
   setIndustry: (value: string) => void;
   handleSave: () => void;
 }
+
 const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   brandName,
   setBrandName,
@@ -21,10 +23,8 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   setIndustry,
   handleSave
 }) => {
-  // Track if we're currently loading organization data
   const [isLoadingOrgData, setIsLoadingOrgData] = useState(false);
 
-  // Get organization dropdown data and functionality
   const {
     selectedOrgId,
     organizations,
@@ -32,39 +32,32 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     currentOrganization
   } = useSummaryTableData();
 
-  // Use the industry sync hook
   const {
     isUpdating
   } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
 
-  // Extended handler for organization changes
   const handleOrganizationChange = (value: string) => {
     console.log("OrganizationSection - Organization change detected:", value);
     setIsLoadingOrgData(true);
     handleOrgChange(value);
   };
 
-  // Auto-fill fields when organization data is loaded or changes
   useEffect(() => {
     if (currentOrganization) {
       console.log("OrganizationSection - Filling form with organization data:", currentOrganization);
 
-      // Set brand name from organization data
       if (currentOrganization.organization_name) {
         setBrandName(currentOrganization.organization_name);
         console.log("OrganizationSection - Setting brand name to:", currentOrganization.organization_name);
       }
 
-      // If organization has industry data, set it
       if (currentOrganization.organization_industry) {
         setIndustry(currentOrganization.organization_industry);
         console.log("OrganizationSection - Setting industry to:", currentOrganization.organization_industry);
       }
 
-      // Mark loading as complete
       setIsLoadingOrgData(false);
     } else if (selectedOrgId === "new-organization") {
-      // Clear fields when "new-organization" is selected
       setBrandName("");
       setIndustry("");
       console.log("OrganizationSection - Clearing form fields for new organization");
@@ -72,38 +65,32 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     }
   }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
 
-  // Listen for external organization changes from OrganizationSelector
   useEffect(() => {
     const handleExternalOrgChange = (event: CustomEvent) => {
       const newOrgId = event.detail.organizationId;
       console.log("OrganizationSection - Detected external organization change:", newOrgId);
 
-      // Update our local organization selection
       if (newOrgId !== selectedOrgId) {
         setIsLoadingOrgData(true);
         handleOrgChange(newOrgId);
       }
     };
 
-    // Add event listener
     window.addEventListener('organizationChanged', handleExternalOrgChange as EventListener);
 
-    // Clean up
     return () => {
       window.removeEventListener('organizationChanged', handleExternalOrgChange as EventListener);
     };
   }, [selectedOrgId, handleOrgChange]);
 
-  // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
 
-  // Determine if the input should be readonly (only new organizations can edit brand name)
   const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";
 
-  // Handler for industry changes
   const handleIndustryChange = (value: string) => {
     setIndustry(value);
   };
+
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
@@ -125,7 +112,6 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                     <div className="flex items-center gap-3">
                       <div className="w-96">
                         <input type="text" value={brandName} onChange={e => {
-                      // Only allow changes for new organizations
                       if (!isReadOnly) {
                         setBrandName(e.target.value);
                       }
@@ -140,10 +126,10 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
         </table>
       </div>
       
-      {/* Save button at the bottom of the section */}
       {isOrgSelected && <div className="flex justify-center mt-6 mb-3">
-          <Button onClick={handleSave} className="w-40">NEXT</Button>
+          <Button onClick={handleSave} className="w-20">NEXT</Button>
         </div>}
     </CollapsibleSection>;
 };
+
 export default OrganizationSection;
