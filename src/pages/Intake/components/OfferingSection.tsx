@@ -1,6 +1,5 @@
 
 import React, { useRef, useEffect } from "react";
-import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import SingleSelectField from "./SummaryTable/components/SingleSelectField";
@@ -68,11 +67,12 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
                 </div>
               </td>
             </tr>
-            <FormField 
+            <RecordingField 
               label="Name just one of your offerings" 
               value={offering} 
-              onChange={e => setOffering(e.target.value)} 
+              onChange={setOffering} 
               ref={offeringInputRef}
+              placeholder="Type or record your offering name"
             />
             <RecordingField 
               label="Key Selling Points" 
