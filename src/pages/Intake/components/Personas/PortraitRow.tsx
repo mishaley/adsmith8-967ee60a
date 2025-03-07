@@ -34,13 +34,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
     }
   };
   
-  // Log the current state to help debug
-  console.log("PortraitRow rendering with:", {
-    personasCount: personas.length, 
-    portraitsExist: personas.map(p => !!p?.portraitUrl),
-    loadingIndices,
-    isGeneratingPortraits
-  });
+  // Removed the console.log statement that was causing excessive logging
 
   return (
     <tr>
@@ -66,10 +60,8 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                       alt={`Portrait of persona ${index + 1}`}
                       className="w-full h-auto rounded-md"
                       onError={(e) => {
-                        console.log(`Image failed to load for persona ${index + 1}:`, personas[index].portraitUrl);
                         // When image fails to load, we retry automatically
                         if (onRetryPortrait) {
-                          console.log(`Auto-retrying portrait for persona ${index + 1} due to image load failure`);
                           onRetryPortrait(index);
                         }
                         
@@ -139,7 +131,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
               )
             ) : (
               <div className="w-full aspect-square bg-transparent rounded-md flex items-center justify-center text-sm text-gray-500">
-                {/* Removed the "No persona data" text here */}
+                {/* Empty placeholder */}
               </div>
             )}
           </div>

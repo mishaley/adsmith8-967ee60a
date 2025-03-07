@@ -46,7 +46,6 @@ export const usePersonaGeneration = () => {
       // Only pass the personas that match the requested count to the callback
       onPersonasGenerated(enhancedPersonas.slice(0, validCount));
     } catch (err) {
-      console.error("Error generating personas:", err);
       toast.error("Something went wrong: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setIsGeneratingPersonas(false);
@@ -85,7 +84,6 @@ export const usePersonaGeneration = () => {
       
       return null;
     } catch (err) {
-      console.error("Error regenerating persona:", err);
       toast.error("Something went wrong: " + (err instanceof Error ? err.message : String(err)));
       return null;
     }

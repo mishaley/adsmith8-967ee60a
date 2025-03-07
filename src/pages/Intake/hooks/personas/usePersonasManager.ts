@@ -85,7 +85,6 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     // Make sure we're passing the correct personaCount to the generation function
     return generatePersonasBase(offering, selectedCountry, personaCount, (newPersonas) => {
       if (!newPersonas || newPersonas.length === 0) {
-        console.error("No personas were generated, cannot generate portraits");
         return;
       }
       

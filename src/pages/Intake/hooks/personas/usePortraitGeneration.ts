@@ -21,8 +21,6 @@ export const usePortraitGeneration = () => {
     });
     
     try {
-      console.log(`Starting portrait generation for persona ${index + 1}:`, persona);
-      
       // Assign a random race if not already present
       let personaToUse = { ...persona };
       if (!personaToUse.race) {
@@ -39,7 +37,6 @@ export const usePortraitGeneration = () => {
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
       
       if (imageUrl) {
-        console.log(`Portrait generated successfully for persona ${index + 1}`);
         return { 
           success: true, 
           error: null, 
@@ -49,13 +46,11 @@ export const usePortraitGeneration = () => {
           }
         };
       } else if (error) {
-        console.error(`Error generating portrait for persona ${index + 1}:`, error);
         return { success: false, error, updatedPersona: null };
       }
       
       return null;
     } catch (error) {
-      console.error(`Exception generating portrait for persona ${index + 1}:`, error);
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
       return { success: false, error, updatedPersona: null };
     }
@@ -63,12 +58,10 @@ export const usePortraitGeneration = () => {
 
   const generatePortraitsForAllPersonas = async (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => {
     if (!personasList || personasList.length === 0) {
-      console.warn("No personas to generate portraits for in generatePortraitsForAllPersonas");
       return;
     }
     
     setIsGeneratingPortraits(true);
-    console.log("Starting parallel portrait generation for all personas:", personasList);
     toast.info("Generating portraits for all personas...");
     
     // Start with all indices as loading
@@ -79,34 +72,24 @@ export const usePortraitGeneration = () => {
     setLoadingPortraitIndices(initialLoadingIndices);
     
     try {
-      console.log(`Starting parallel portrait generation for ${personasList.length} personas`);
-      
       // Generate all portraits in parallel
       const portraitPromises = personasList.map(async (persona, index) => {
         // Skip if portrait already exists
         if (persona.portraitUrl) {
-          console.log(`Portrait for persona ${index + 1} already exists, skipping...`);
           return { index, success: true, updatedPersona: persona };
         }
         
-        console.log(`Starting portrait generation for persona ${index + 1} of ${personasList.length}`);
         const result = await generatePortraitForPersona(persona, index);
         
         if (result?.success && result.updatedPersona) {
-          console.log(`Successfully generated portrait for persona ${index + 1}`);
           return { index, success: true, updatedPersona: result.updatedPersona };
         } else {
-          console.error(`Failed to generate portrait for persona ${index + 1}`);
-          
           // Make a second attempt right away
-          console.log(`Making an immediate second attempt for persona ${index + 1}...`);
           const secondAttempt = await generatePortraitForPersona(persona, index);
           
           if (secondAttempt?.success && secondAttempt.updatedPersona) {
-            console.log(`Second attempt succeeded for persona ${index + 1}`);
             return { index, success: true, updatedPersona: secondAttempt.updatedPersona };
           } else {
-            console.error(`Second attempt also failed for persona ${index + 1}`);
             return { index, success: false, updatedPersona: null };
           }
         }
@@ -134,8 +117,6 @@ export const usePortraitGeneration = () => {
       // Save all portraits to session storage
       savePortraitsToSession(updatedPersonasList.filter(Boolean));
       
-      console.log(`Parallel portrait generation complete. Success: ${successCount}, Errors: ${errorCount}`);
-      
       if (errorCount === 0 && successCount > 0) {
         toast.success("All portraits have been generated");
       } else if (successCount > 0 && errorCount > 0) {
@@ -144,7 +125,6 @@ export const usePortraitGeneration = () => {
         toast.error("Failed to generate any portraits. Please try again or click 'Retry Manually'.");
       }
     } catch (error) {
-      console.error("Unexpected error in portrait generation process:", error);
       toast.error("Failed to complete portrait generation");
     } finally {
       setIsGeneratingPortraits(false);
@@ -173,7 +153,6 @@ export const usePortraitGeneration = () => {
         toast.error(`Failed to generate portrait for persona ${index + 1}. Please try again.`);
       }
     } catch (error) {
-      console.error(`Error retrying portrait for persona ${index + 1}:`, error);
       toast.error(`Failed to generate portrait: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsGeneratingPortraits(false);
