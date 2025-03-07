@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Persona } from "../Personas/types";
 import AddColumnButton from "./SimplifiedTable/AddColumnButton";
 import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
@@ -55,7 +55,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     }
   };
 
-  // Extract all selected message types from columns
+  // Extract all selected message types from columns - wrapped in useMemo to prevent unnecessary recalculations
   useEffect(() => {
     const types = messageColumns
       .map(col => col.type)
@@ -65,6 +65,52 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
       onMessageTypeChange(types);
     }
   }, [messageColumns, onMessageTypeChange]);
+
+  // Memoize the table cells to prevent unnecessary re-renders
+  const renderMessageCells = useMemo(() => {
+    return personas.map((persona, personaIndex) => {
+      // Skip null personas
+      if (!persona) return null;
+      
+      // Get persona ID for referencing message content
+      const personaId = persona.id ? String(persona.id) : `persona-${personaIndex}`;
+      
+      return (
+        <tr key={personaId} className="align-top">
+          {/* Persona cell */}
+          <PersonaCell 
+            persona={persona} 
+            index={personaIndex}
+          />
+          
+          {/* Message cells */}
+          {messageColumns.map(column => {
+            const columnType = column.type;
+            
+            // Create content object with the message data for this cell
+            const content = columnType && generatedMessages?.[personaId]?.[columnType] 
+              ? { [personaId]: generatedMessages[personaId][columnType] }
+              : undefined;
+            
+            return (
+              <MessageCell
+                key={`${personaId}-${column.id}`}
+                column={{
+                  ...column,
+                  content
+                }}
+                personaId={personaId}
+                onContentChange={handleContentChange}
+              />
+            );
+          })}
+          
+          {/* Empty cell for add column button alignment */}
+          <td className="border p-1"></td>
+        </tr>
+      );
+    });
+  }, [personas, messageColumns, generatedMessages, handleContentChange]);
 
   return (
     <div className="overflow-x-auto">
@@ -108,52 +154,11 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {personas.map((persona, personaIndex) => {
-            // Skip null personas
-            if (!persona) return null;
-            
-            // Get persona ID for referencing message content
-            const personaId = persona.id ? String(persona.id) : `persona-${personaIndex}`;
-            
-            return (
-              <tr key={personaId} className="align-top">
-                {/* Persona cell */}
-                <PersonaCell 
-                  persona={persona} 
-                  index={personaIndex}
-                />
-                
-                {/* Message cells */}
-                {messageColumns.map(column => {
-                  const columnType = column.type;
-                  
-                  // Create content object with the message data for this cell
-                  const content = columnType && generatedMessages?.[personaId]?.[columnType] 
-                    ? { [personaId]: generatedMessages[personaId][columnType] }
-                    : undefined;
-                  
-                  return (
-                    <MessageCell
-                      key={`${personaId}-${column.id}`}
-                      column={{
-                        ...column,
-                        content
-                      }}
-                      personaId={personaId}
-                      onContentChange={handleContentChange}
-                    />
-                  );
-                })}
-                
-                {/* Empty cell for add column button alignment */}
-                <td className="border p-1"></td>
-              </tr>
-            );
-          })}
+          {renderMessageCells}
         </tbody>
       </table>
     </div>
   );
 };
 
-export default SimplifiedMessagesTable;
+export default React.memo(SimplifiedMessagesTable);

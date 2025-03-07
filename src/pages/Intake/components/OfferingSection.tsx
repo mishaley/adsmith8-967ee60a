@@ -36,8 +36,6 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
     isOfferingsDisabled
   } = useSummaryTableData();
 
-  console.log("OfferingSection rendered:", { isOfferingsDisabled, options: offeringOptions.length });
-
   return (
     <CollapsibleSection title="OFFERING">
       <div className="flex justify-center">
@@ -90,4 +88,4 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
   );
 };
 
-export default OfferingSection;
+export default React.memo(OfferingSection);

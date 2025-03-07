@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Persona } from "../Personas/types";
 import SimplifiedMessagesTable from "./SimplifiedMessagesTable";
 import { useMessagesState } from "./hooks/useMessagesState";
@@ -59,14 +59,14 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     setIsTableVisible
   );
 
-  const handleColumnGeneration = async (messageType: string): Promise<void> => {
+  const handleColumnGeneration = useCallback(async (messageType: string): Promise<void> => {
     try {
       await handleGenerateColumnMessages(messageType);
     } catch (error) {
       console.error(`Error during generation for ${messageType}:`, error);
       throw error;
     }
-  };
+  }, [handleGenerateColumnMessages]);
 
   return (
     <CollapsibleSection title="MESSAGES">
@@ -84,4 +84,4 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   );
 };
 
-export default MessagesSection;
+export default React.memo(MessagesSection);

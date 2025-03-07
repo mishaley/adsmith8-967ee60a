@@ -8,8 +8,6 @@ import { getRandomRace } from "../utils/personaGenerationUtils";
  * Generate multiple personas through the Supabase function
  */
 export const generatePersonasApi = async (offering: string, selectedCountry: string, count?: number) => {
-  console.log(`Calling generate-personas with product: ${offering}${count ? `, count: ${count}` : ''}`);
-  
   const { data, error } = await supabase.functions.invoke('generate-personas', {
     body: { 
       product: offering || "ramen noodles",
@@ -18,15 +16,12 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
     }
   });
 
-  console.log("Response from generate-personas:", data, error);
-
   if (error) {
     console.error("Error generating personas:", error);
     throw new Error("Failed to generate personas: " + error.message);
   }
 
   if (!data) {
-    console.error("No data received from generate-personas");
     throw new Error("No data received from the server");
   }
 

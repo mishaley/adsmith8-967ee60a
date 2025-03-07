@@ -26,8 +26,7 @@ export const usePersonaGeneration = () => {
 
     // Validate count to ensure it's a positive number
     const validCount = Math.max(1, Math.min(5, count));
-    console.log(`Generating ${validCount} personas (requested: ${count})`);
-
+    
     setIsGeneratingPersonas(true);
     setPersonas([]);
     setSummary("");
@@ -35,8 +34,6 @@ export const usePersonaGeneration = () => {
     try {
       // Pass the validated count to the API
       const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, validCount);
-      
-      console.log(`Generated ${enhancedPersonas.length} personas with enhanced titles:`, enhancedPersonas);
       
       // Only set the personas that match the requested count
       setPersonas(enhancedPersonas.slice(0, validCount));
@@ -70,14 +67,10 @@ export const usePersonaGeneration = () => {
     }
 
     try {
-      console.log(`Regenerating persona at index ${index} for product: ${offering}`);
-      
       const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, 1);
       
       if (enhancedPersonas && enhancedPersonas.length > 0) {
         const newPersona = enhancedPersonas[0];
-        
-        console.log("Generated single persona with enhanced title:", newPersona);
         
         setPersonas(prevPersonas => {
           const newPersonas = [...prevPersonas];
