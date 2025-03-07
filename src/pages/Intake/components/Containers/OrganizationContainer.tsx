@@ -7,8 +7,6 @@ interface OrganizationContainerProps {
   setBrandName: (value: string) => void;
   industry: string;
   setIndustry: (value: string) => void;
-  businessDescription: string;
-  setBusinessDescription: (value: string) => void;
   handleSave: () => void;
 }
 
@@ -17,8 +15,6 @@ const OrganizationContainer: React.FC<OrganizationContainerProps> = ({
   setBrandName,
   industry,
   setIndustry,
-  businessDescription,
-  setBusinessDescription,
   handleSave
 }) => {
   // Add debug logging
@@ -28,10 +24,8 @@ const OrganizationContainer: React.FC<OrganizationContainerProps> = ({
     <OrganizationSection
       brandName={brandName}
       setBrandName={setBrandName}
-      industry={industry}
+      industry={setIndustry}
       setIndustry={setIndustry}
-      businessDescription={businessDescription}
-      setBusinessDescription={setBusinessDescription}
       handleSave={handleSave}
     />
   );

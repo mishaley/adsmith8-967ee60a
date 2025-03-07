@@ -12,8 +12,6 @@ interface OrganizationSectionProps {
   setBrandName: (value: string) => void;
   industry: string;
   setIndustry: (value: string) => void;
-  businessDescription: string;
-  setBusinessDescription: (value: string) => void;
   handleSave: () => void;
 }
 
@@ -22,8 +20,6 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   setBrandName,
   industry,
   setIndustry,
-  businessDescription,
-  setBusinessDescription,
   handleSave
 }) => {
   // Get organization dropdown data and functionality
@@ -111,12 +107,6 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                   value={industry} 
                   onChange={setIndustry} 
                   placeholder="Hold to speak about your industry" 
-                />
-                <RecordingField 
-                  label="Tell me about your business" 
-                  value={businessDescription} 
-                  onChange={setBusinessDescription} 
-                  placeholder="Speak for at least 30 seconds" 
                 />
               </>
             )}

@@ -12,25 +12,17 @@ export const useOrganizationForm = () => {
     `${STORAGE_KEYS.ORGANIZATION}_industry`, 
     ""
   );
-  
-  const [businessDescription, setBusinessDescription] = useLocalStorageState<string>(
-    `${STORAGE_KEYS.ORGANIZATION}_description`, 
-    ""
-  );
 
   // Debug the current values
   console.log("useOrganizationForm - Current values:", {
     brandName,
-    industry,
-    businessDescription
+    industry
   });
 
   return {
     brandName,
     setBrandName,
     industry,
-    setIndustry,
-    businessDescription,
-    setBusinessDescription
+    setIndustry
   };
 };
