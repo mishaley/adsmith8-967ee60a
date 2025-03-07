@@ -12,7 +12,7 @@ interface RecordingFieldProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
-  helperText?: string; // Added helperText as an optional prop
+  helperText?: string;
 }
 
 const RecordingField: React.FC<RecordingFieldProps> = ({ 
@@ -23,8 +23,16 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
   disabled = false,
   helperText
 }) => {
-  // State to temporarily show transcription as it's being processed
+  // Track the temporary transcript as recording happens
   const [tempTranscript, setTempTranscript] = useState("");
+  
+  // Prevent textarea from controlling value during prop updates
+  const [localValue, setLocalValue] = useState(value);
+  
+  // Sync local value with prop value when it changes externally
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
   
   // Handle audio recording with error handling
   const { 
@@ -51,7 +59,7 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
   
   // Textarea auto-resizing
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  useTextareaResize(textareaRef, value, tempTranscript);
+  useTextareaResize(textareaRef, localValue, tempTranscript);
 
   // Handle transcription updates during recording
   const handleTranscriptUpdate = (transcript: string) => {
@@ -79,9 +87,16 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
     stopSpeechRecognition();
     stopRecording();
   };
+  
+  // Handle text input changes
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    onChange(newValue);
+  };
 
-  // Combined value for display (actual value or temporary transcription)
-  const displayValue = tempTranscript || value;
+  // Display value should be the temporary transcript if available, otherwise the local value
+  const displayValue = tempTranscript || localValue;
 
   return (
     <tr className="border-transparent">
@@ -104,7 +119,7 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
           <textarea
             ref={textareaRef}
             value={displayValue}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={handleTextChange}
             className={`w-full px-3 py-2 border border-input rounded-b-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
             placeholder={placeholder}
             rows={1}

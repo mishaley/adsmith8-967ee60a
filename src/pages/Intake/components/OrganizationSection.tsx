@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FormField from "./FormField";
 import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
@@ -23,6 +23,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   setIndustry,
   handleSave
 }) => {
+  // Track if we're currently loading organization data
+  const [isLoadingOrgData, setIsLoadingOrgData] = useState(false);
+  
   // Get organization dropdown data and functionality
   const {
     selectedOrgId,
@@ -37,7 +40,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   // Extended handler for organization changes
   const handleOrganizationChange = (value: string) => {
     console.log("OrganizationSection - Organization change detected:", value);
-    // Just use the normal handler without showing the toast
+    setIsLoadingOrgData(true);
     handleOrgChange(value);
   };
   
@@ -57,11 +60,16 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
         setIndustry(currentOrganization.organization_industry);
         console.log("OrganizationSection - Setting industry to:", currentOrganization.organization_industry);
       }
+      
+      // Mark loading as complete
+      setIsLoadingOrgData(false);
+      
     } else if (selectedOrgId === "new-organization") {
       // Clear fields when "new-organization" is selected
       setBrandName("");
       setIndustry("");
       console.log("OrganizationSection - Clearing form fields for new organization");
+      setIsLoadingOrgData(false);
     }
   }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
   
@@ -73,6 +81,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
       
       // Update our local organization selection
       if (newOrgId !== selectedOrgId) {
+        setIsLoadingOrgData(true);
         handleOrgChange(newOrgId);
       }
     };
@@ -143,7 +152,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                   value={industry} 
                   onChange={handleIndustryChange} 
                   placeholder="Hold to speak about your industry" 
-                  disabled={isUpdating}
+                  disabled={isUpdating || isLoadingOrgData}
                 />
               </>
             )}
