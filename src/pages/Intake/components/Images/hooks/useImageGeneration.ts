@@ -59,8 +59,13 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast, offering
                      currentPersona.gender === "Women" ? "Woman" : 
                      currentPersona.gender;
       
-      // Format the prompt according to the new specification
-      const prompt = `Style: ${style}\nMessage: '${message}'\nThemes: ${offering}, Streetwear fashion, Urban art\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+      // Get the persona's interests, or use default interests if none available
+      const interests = currentPersona.interests || [];
+      const interest1 = interests.length > 0 ? interests[0] : "Urban style";
+      const interest2 = interests.length > 1 ? interests[1] : "Fashion";
+      
+      // Format the prompt according to the updated specification
+      const prompt = `Style: ${style}\nMessage: '${message}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       
       setGeneratedPrompt(prompt);
       
@@ -104,7 +109,12 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast, offering
                        currentPersona.gender === "Women" ? "Woman" : 
                        currentPersona.gender;
         
-        prompt = `Style: ${style}\nMessage: '${currentPersona.title || generateRandomPhrase()}'\nThemes: ${offering}, Streetwear fashion, Urban art\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+        // Get the persona's interests, or use default interests if none available
+        const interests = currentPersona.interests || [];
+        const interest1 = interests.length > 0 ? interests[0] : "Urban style";
+        const interest2 = interests.length > 1 ? interests[1] : "Fashion";
+        
+        prompt = `Style: ${style}\nMessage: '${currentPersona.title || generateRandomPhrase()}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
       }
 
       console.log("Image generation prompt:", prompt);
