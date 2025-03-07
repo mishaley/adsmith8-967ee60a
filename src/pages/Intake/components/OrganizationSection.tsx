@@ -1,18 +1,10 @@
 
 import React, { useEffect, useState } from "react";
-import FormField from "./FormField";
-import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
-import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
-import { toast } from "@/components/ui/use-toast";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
-import { Button } from "@/components/ui/button";
-import { useCreateMutation } from "@/components/table/mutations/useCreateMutation";
-import type { Database } from "@/integrations/supabase/types";
-
-// Define the type for organization data returned from the API
-type OrganizationRecord = Database["public"]["Tables"]["a1organizations"]["Row"];
+import { useOrganizationCreation } from "../hooks/useOrganizationCreation";
+import { OrganizationForm, OrganizationButton } from "./Organization";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -30,7 +22,6 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   handleSave
 }) => {
   const [isLoadingOrgData, setIsLoadingOrgData] = useState(false);
-  const [isCreatingOrg, setIsCreatingOrg] = useState(false);
 
   const {
     selectedOrgId,
@@ -42,9 +33,11 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   const {
     isUpdating
   } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
-
-  // Import the create mutation for organizations
-  const createOrgMutation = useCreateMutation('a1organizations');
+  
+  const {
+    isCreatingOrg,
+    handleSaveClick
+  } = useOrganizationCreation(brandName, industry, handleOrgChange, handleSave);
 
   const handleOrganizationChange = (value: string) => {
     console.log("OrganizationSection - Organization change detected:", value);
@@ -100,111 +93,36 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     setIndustry(value);
   };
 
-  // Function to create a new organization
-  const createNewOrganization = async () => {
-    // Validation
-    if (!brandName.trim()) {
-      toast({
-        title: "Brand name required",
-        description: "Please enter a brand name for your organization",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setIsCreatingOrg(true);
-      
-      // Create organization record with proper type assertion
-      const result = await createOrgMutation.mutateAsync({
-        organization_name: brandName.trim(),
-        organization_industry: industry.trim() || null
-      });
-      
-      // Cast the result to the OrganizationRecord type
-      const newOrg = result as OrganizationRecord;
-      
-      console.log("OrganizationSection - Created new organization:", newOrg);
-      
-      // Check if organization_id exists before using it
-      if (newOrg && newOrg.organization_id) {
-        handleOrgChange(newOrg.organization_id);
-        
-        toast({
-          title: "Organization created",
-          description: `"${brandName}" has been created successfully.`
-        });
-        
-        // Continue with the normal save flow
-        handleSave();
-      }
-    } catch (error) {
-      console.error("OrganizationSection - Error creating organization:", error);
-      toast({
-        title: "Failed to create organization",
-        description: error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive"
-      });
-    } finally {
-      setIsCreatingOrg(false);
-    }
+  const onButtonClick = () => {
+    handleSaveClick(selectedOrgId);
   };
+  
+  const isButtonDisabled = isCreatingOrg || isUpdating || isLoadingOrgData;
 
-  // Handle the save button click
-  const handleSaveClick = () => {
-    if (selectedOrgId === "new-organization") {
-      createNewOrganization();
-    } else {
-      // For existing organizations, just call the normal save handler
-      handleSave();
-    }
-  };
-
-  return <CollapsibleSection title="ORGANIZATION">
-      <div className="flex justify-center">
-        <table className="border-collapse border-transparent">
-          <tbody>
-            <tr className="border-transparent">
-              <td colSpan={2} className="py-4 text-center">
-                <div className="w-72 mx-auto">
-                  <OrganizationSelect selectedOrgId={selectedOrgId} organizations={organizations} onValueChange={handleOrganizationChange} />
-                </div>
-              </td>
-            </tr>
-            
-            {isOrgSelected && <>
-                <tr className="border-transparent">
-                  <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
-                    <div>What's your brand name?</div>
-                  </td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-96">
-                        <input type="text" value={brandName} onChange={e => {
-                      if (!isReadOnly) {
-                        setBrandName(e.target.value);
-                      }
-                    }} readOnly={isReadOnly} className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${isReadOnly ? 'bg-gray-100' : ''}`} />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                <RecordingField label="What industry are you in?" value={industry} onChange={handleIndustryChange} placeholder="Hold to speak about your industry" disabled={isUpdating || isLoadingOrgData} />
-              </>}
-          </tbody>
-        </table>
-      </div>
+  return (
+    <CollapsibleSection title="ORGANIZATION">
+      <OrganizationForm
+        selectedOrgId={selectedOrgId}
+        organizations={organizations}
+        handleOrganizationChange={handleOrganizationChange}
+        brandName={brandName}
+        setBrandName={setBrandName}
+        industry={industry}
+        handleIndustryChange={handleIndustryChange}
+        isReadOnly={isReadOnly}
+        isUpdating={isUpdating}
+        isLoadingOrgData={isLoadingOrgData}
+      />
       
-      {isOrgSelected && <div className="flex justify-center mt-6 mb-3">
-          <Button 
-            onClick={handleSaveClick} 
-            className="w-20"
-            disabled={isCreatingOrg || isUpdating || isLoadingOrgData}
-          >
-            {isCreatingOrg ? "Saving..." : "NEXT"}
-          </Button>
-        </div>}
-    </CollapsibleSection>;
+      {isOrgSelected && (
+        <OrganizationButton 
+          onClick={onButtonClick}
+          isDisabled={isButtonDisabled}
+          isCreating={isCreatingOrg}
+        />
+      )}
+    </CollapsibleSection>
+  );
 };
 
 export default OrganizationSection;
