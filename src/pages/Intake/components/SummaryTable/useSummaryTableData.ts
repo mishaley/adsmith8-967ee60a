@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { STORAGE_KEY, DEFAULT_ORG_ID } from "./constants";
+import { toast } from "@/components/ui/use-toast";
 
 export const useSummaryTableData = () => {
   // Initialize with the stored organization ID from localStorage or empty string
@@ -90,20 +91,37 @@ export const useSummaryTableData = () => {
         return null;
       }
       
-      const { data, error } = await supabase
-        .from("a1organizations")
-        .select("organization_name, organization_industry")
-        .eq("organization_id", selectedOrgId)
-        .single();
+      console.log("Fetching organization details for:", selectedOrgId);
       
-      if (error) {
-        console.error("Error fetching organization details:", error);
+      try {
+        // Using maybeSingle instead of single to avoid errors if no row is found
+        const { data, error } = await supabase
+          .from("a1organizations")
+          .select("organization_name, organization_industry")
+          .eq("organization_id", selectedOrgId)
+          .maybeSingle();
+        
+        if (error) {
+          console.error("Error fetching organization details:", error);
+          setCurrentOrganization(null);
+          return null;
+        }
+        
+        console.log("Fetched organization data:", data);
+        
+        if (data) {
+          setCurrentOrganization(data);
+        } else {
+          console.warn("No organization found with ID:", selectedOrgId);
+          setCurrentOrganization(null);
+        }
+        
+        return data;
+      } catch (error) {
+        console.error("Unexpected error fetching organization:", error);
         setCurrentOrganization(null);
         return null;
       }
-      
-      setCurrentOrganization(data);
-      return data;
     },
     enabled: !!selectedOrgId && selectedOrgId !== "new-organization",
   });

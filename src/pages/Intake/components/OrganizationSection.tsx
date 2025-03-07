@@ -5,6 +5,7 @@ import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
+import { toast } from "@/components/ui/use-toast";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -42,6 +43,8 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   // Auto-fill fields when organization data is loaded
   useEffect(() => {
     if (currentOrganization) {
+      console.log("Filling form with organization data:", currentOrganization);
+      
       // Set brand name from organization data
       setBrandName(currentOrganization.organization_name);
       
