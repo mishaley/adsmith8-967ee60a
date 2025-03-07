@@ -6,6 +6,7 @@ import CollapsibleSection from "./CollapsibleSection";
 import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { toast } from "@/components/ui/use-toast";
+import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -29,6 +30,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleOrgChange,
     currentOrganization
   } = useSummaryTableData();
+  
+  // Use the industry sync hook
+  const { isUpdating } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
   
   // Extended handler for organization changes
   const handleOrganizationChange = (value: string) => {
@@ -85,8 +89,13 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
   
-  // Determine if the input should be readonly (only new organizations can edit)
+  // Determine if the input should be readonly (only new organizations can edit brand name)
   const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";
+
+  // Handler for industry changes
+  const handleIndustryChange = (value: string) => {
+    setIndustry(value);
+  };
   
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
@@ -132,8 +141,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                 <RecordingField 
                   label="What industry are you in?" 
                   value={industry} 
-                  onChange={setIndustry} 
+                  onChange={handleIndustryChange} 
                   placeholder="Hold to speak about your industry" 
+                  disabled={isUpdating}
                 />
               </>
             )}

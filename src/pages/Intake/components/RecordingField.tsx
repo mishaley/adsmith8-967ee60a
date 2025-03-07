@@ -1,133 +1,93 @@
 
-import React, { useState, useRef } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useState, useRef, useEffect } from "react";
+import RecordingButton from "./RecordingButton";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { useTextareaResize } from "../hooks/useTextareaResize";
-import { useTranscriptionCorrection } from "../hooks/useTranscriptionCorrection";
-import { useToast } from "@/components/ui/use-toast";
-import RecordingButton from "./RecordingButton";
 
 interface RecordingFieldProps {
   label: string;
-  helperText?: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
-const RecordingField = ({ 
+const RecordingField: React.FC<RecordingFieldProps> = ({ 
   label, 
-  helperText, 
   value, 
   onChange,
-  placeholder 
-}: RecordingFieldProps) => {
+  placeholder = "Hold to record",
+  disabled = false
+}) => {
+  // Get all recording functionality
+  const { 
+    isRecording,
+    startRecording,
+    stopRecording,
+    timer,
+    audioBlob
+  } = useAudioRecording();
+  
+  // Speech recognition functionality
+  const {
+    isTranscribing,
+    transcription,
+    startTranscription,
+    resetTranscription
+  } = useSpeechRecognition();
+  
+  // Textarea auto-resizing
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
-  const [tempTranscript, setTempTranscript] = useState("");
+  useTextareaResize(textareaRef, value);
   
-  const { 
-    setTranscription, 
-    saveOriginalValue, 
-    getOriginalValue, 
-    handleBlur 
-  } = useTranscriptionCorrection({ value });
+  // Handle recording start/stop
+  const handleStartRecording = () => {
+    if (disabled) return;
+    startRecording();
+  };
   
-  const { currentHeight } = useTextareaResize(textareaRef, value, tempTranscript);
-  
-  const { 
-    isRecording, 
-    isTranscribing, 
-    timer, 
-    startRecording, 
-    stopRecording 
-  } = useAudioRecording({
-    onTranscriptionComplete: (text) => {
-      // Append new transcription to existing value instead of replacing it
-      const newValue = value.trim() ? `${value.trim()} ${text}` : text;
-      setTranscription(text);
-      onChange(newValue);
-      setTempTranscript("");
-      saveOriginalValue(newValue);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: `Failed to transcribe audio: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
-    }
-  });
-  
-  const { initializeSpeechRecognition, stopSpeechRecognition } = useSpeechRecognition({
-    onTranscript: (interimTranscript) => {
-      // Store the value before starting recording
-      if (!tempTranscript && interimTranscript) {
-        saveOriginalValue(value);
-      }
-      
-      setTempTranscript(interimTranscript);
-      
-      // Append interim transcript to existing text instead of replacing it
-      const previousValue = getOriginalValue();
-      const newValue = previousValue.trim() && interimTranscript.trim() 
-        ? `${previousValue.trim()} ${interimTranscript}`
-        : previousValue.trim() || interimTranscript;
-        
-      onChange(newValue);
-    }
-  });
-  
-  const handleStartRecording = async () => {
-    try {
-      // Store the current value before recording starts
-      saveOriginalValue(value);
-      await startRecording();
-      initializeSpeechRecognition();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to access microphone: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-      });
+  const handleStopRecording = async () => {
+    if (!isRecording) return;
+    const blob = await stopRecording();
+    if (blob) {
+      startTranscription(blob);
     }
   };
   
-  const handleStopRecording = () => {
-    stopRecording();
-    stopSpeechRecognition();
-  };
-  
+  // When transcription is complete, update the value
+  useEffect(() => {
+    if (transcription && !isTranscribing) {
+      onChange(transcription);
+      resetTranscription();
+    }
+  }, [transcription, isTranscribing, onChange, resetTranscription]);
+
   return (
     <tr className="border-transparent">
-      <td className="py-4 pr-4 text-lg whitespace-nowrap w-auto">
+      <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
         <div>{label}</div>
-        {helperText && <div className="text-sm text-gray-500 mt-1">{helperText}</div>}
       </td>
-      <td className="py-4 w-full">
+      <td className="py-4">
         <div className="w-96 flex flex-col">
-          <div className="relative w-full">
-            <RecordingButton
-              isRecording={isRecording}
-              isTranscribing={isTranscribing}
-              timer={timer}
-              onStartRecording={handleStartRecording}
-              onStopRecording={handleStopRecording}
-            />
-          </div>
-          <div className="w-full">
-            <Textarea
-              ref={textareaRef}
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              onBlur={handleBlur}
-              className="min-h-[36px] w-full overflow-hidden resize-none rounded-t-none rounded-b-md text-left placeholder:text-center placeholder:italic"
-              style={{ height: 'auto' }}
-              rows={1}
-              placeholder={placeholder}
-            />
-          </div>
+          <RecordingButton
+            isRecording={isRecording}
+            isTranscribing={isTranscribing}
+            timer={timer}
+            onStartRecording={handleStartRecording}
+            onStopRecording={handleStopRecording}
+          />
+          
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`w-full px-3 py-2 border border-input rounded-b-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
+            placeholder={placeholder}
+            rows={1}
+            style={{ resize: "none" }}
+            disabled={disabled}
+          />
         </div>
       </td>
     </tr>
