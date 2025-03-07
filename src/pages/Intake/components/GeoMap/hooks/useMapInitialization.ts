@@ -7,6 +7,7 @@ import { useSelectionSync } from "./map/useSelectionSync";
 import { useMapRecovery } from "./map/useMapRecovery";
 import { useSelectionRetry } from "./map/useSelectionRetry";
 import { toast } from "sonner";
+import { applyMapStyling } from "./map/utils/mapStylingUtils";
 
 interface UseMapInitializationProps {
   mapboxToken: string | null;
@@ -41,6 +42,20 @@ export const useMapInitialization = ({
     mapboxToken: mapboxToken || "",
     mapContainer
   });
+
+  // Apply enhanced map styling whenever the map changes
+  useEffect(() => {
+    if (map) {
+      console.log("Applying enhanced map styling with coastlines");
+      applyMapStyling(map);
+      
+      // Also apply styling when style is fully loaded
+      map.once('style.load', () => {
+        console.log("Map style loaded, reapplying styling");
+        applyMapStyling(map);
+      });
+    }
+  }, [map]);
 
   // Setup country selection handler
   const { handleCountrySelected } = useSelectionSync({
