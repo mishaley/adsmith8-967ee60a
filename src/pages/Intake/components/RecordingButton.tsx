@@ -36,7 +36,7 @@ const RecordingButton = ({
         ? formatTime(timer)
         : isTranscribing 
           ? 'Transcribing...' 
-          : 'Hold and Talk'}
+          : 'Hold to talk, or type below'}
     </Button>
   );
 };
