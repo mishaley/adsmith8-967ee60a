@@ -19,6 +19,7 @@ const OrganizationButton: React.FC<OrganizationButtonProps> = ({
         onClick={onClick} 
         className="w-20"
         disabled={isDisabled}
+        style={{ backgroundColor: "#0c343d" }}
       >
         {isCreating ? "Saving..." : "NEXT"}
       </Button>
