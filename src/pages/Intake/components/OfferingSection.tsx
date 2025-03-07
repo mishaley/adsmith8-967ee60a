@@ -76,21 +76,18 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
             />
             <RecordingField 
               label="Key Selling Points" 
-              helperText="Main reasons why customers buy this offering" 
               value={sellingPoints} 
               onChange={setSellingPoints} 
               placeholder="Speak for at least 30 seconds" 
             />
             <RecordingField 
               label="Problem Solved" 
-              helperText="How does this offering help your customers?" 
               value={problemSolved} 
               onChange={setProblemSolved} 
               placeholder="Speak for at least 30 seconds" 
             />
             <RecordingField 
               label="Unique Advantages" 
-              helperText="How is this offering better than alternatives?" 
               value={uniqueOffering} 
               onChange={setUniqueOffering} 
               placeholder="Speak for at least 30 seconds" 
