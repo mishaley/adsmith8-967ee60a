@@ -1,7 +1,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useLanguages } from "./useLanguages";
-import type { Language } from "./useLanguages";
 
 interface UseLanguageSelectionProps {
   selectedLanguage: string;
@@ -50,18 +49,8 @@ export const useLanguageSelection = ({
     };
   }, [isDropdownOpen]);
 
-  // Debug log for language selection
-  useEffect(() => {
-    console.log("LanguageSelection rendered with:", {
-      selectedLanguage,
-      selectedLanguageName: selectedLanguageObject?.language_name,
-      languagesLoaded: languages.length > 0
-    });
-  }, [selectedLanguage, selectedLanguageObject, languages]);
-
   // Handle language selection
   const handleLanguageSelect = (languageId: string) => {
-    console.log(`LanguageSelection: Selected language ${languageId}`);
     setSelectedLanguage(languageId);
     setIsDropdownOpen(false);
     setSearchTerm("");
@@ -70,7 +59,6 @@ export const useLanguageSelection = ({
 
   // Clear selection
   const handleClearSelection = () => {
-    console.log("LanguageSelection: Clearing language selection");
     setSelectedLanguage("");
     setSearchTerm("");
     setIsDropdownOpen(false);

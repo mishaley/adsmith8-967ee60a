@@ -48,7 +48,6 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
     }
     
     try {
-      console.log("Generate button clicked for column:", columnType);
       await handleGenerateColumnMessages(columnType);
     } catch (error) {
       console.error("Error generating messages:", error);
@@ -63,18 +62,9 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
       .filter(type => type && type !== "user-provided" && type !== "remove");
     
     if (onMessageTypeChange) {
-      console.log("SimplifiedMessagesTable: Message types updated:", types);
       onMessageTypeChange(types);
     }
   }, [messageColumns, onMessageTypeChange]);
-
-  useEffect(() => {
-    console.log("SimplifiedMessagesTable generatedMessages updated:", {
-      personaCount: personas.length,
-      messageTypesCount: selectedMessageTypes.length, 
-      generatedMessagesKeys: Object.keys(generatedMessages)
-    });
-  }, [generatedMessages, personas.length, selectedMessageTypes.length]);
 
   return (
     <div className="overflow-x-auto">
@@ -125,11 +115,6 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
             // Get persona ID for referencing message content
             const personaId = persona.id ? String(persona.id) : `persona-${personaIndex}`;
             
-            console.log(`Rendering row for persona: ${personaId}`, {
-              personaName: persona.name || persona.title,
-              columnsCount: messageColumns.length
-            });
-            
             return (
               <tr key={personaId} className="align-top">
                 {/* Persona cell */}
@@ -141,11 +126,6 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                 {/* Message cells */}
                 {messageColumns.map(column => {
                   const columnType = column.type;
-                  
-                  // Log data availability for debugging
-                  console.log(`Cell data for ${personaId}/${columnType}:`, 
-                    generatedMessages?.[personaId]?.[columnType] || "No data"
-                  );
                   
                   // Create content object with the message data for this cell
                   const content = columnType && generatedMessages?.[personaId]?.[columnType] 

@@ -17,9 +17,6 @@ const OrganizationContainer: React.FC<OrganizationContainerProps> = ({
   setIndustry,
   handleSave
 }) => {
-  // Add debug logging
-  console.log("OrganizationContainer rendering with brandName:", brandName);
-  
   return (
     <OrganizationSection
       brandName={brandName}

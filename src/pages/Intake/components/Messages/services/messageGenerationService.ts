@@ -8,19 +8,12 @@ export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
 
 /**
  * Generate messages for all personas and all selected message types.
- * This would normally call an API, but for now we're returning hardcoded examples.
  */
 export const generateMessagesForAllPersonas = async (
   personas: Persona[],
   messageTypes: string[],
   userProvidedMessage: string
 ): Promise<GeneratedMessagesRecord> => {
-  console.log("generateMessagesForAllPersonas called with:", {
-    personasCount: personas.length,
-    messageTypes,
-    userProvidedMessage: userProvidedMessage ? "provided" : "not provided"
-  });
-  
   const result: GeneratedMessagesRecord = {};
   
   // For each persona, generate messages for each selected type
@@ -41,8 +34,6 @@ export const generateMessagesForAllPersonas = async (
           throw error;
         }
         
-        console.log("Edge function response:", data);
-        
         // Use the generated tagline or a fallback
         const tagline = data?.tagline || `Generated ${type} Example`;
         
@@ -53,8 +44,6 @@ export const generateMessagesForAllPersonas = async (
           message_type: type,
           created_at: new Date().toISOString(),
         };
-        
-        console.log(`Successfully generated message for ${personaId}/${type}:`, result[personaId][type]);
       } catch (error) {
         console.error(`Error generating ${type} message for persona ${personaId}:`, error);
         
@@ -70,7 +59,6 @@ export const generateMessagesForAllPersonas = async (
     }
   }
   
-  console.log("Generated messages result:", JSON.stringify(result, null, 2));
   return result;
 };
 
@@ -82,11 +70,6 @@ export const generateColumnMessages = async (
   personas: Persona[],
   existingMessages: GeneratedMessagesRecord
 ): Promise<GeneratedMessagesRecord> => {
-  console.log(`generateColumnMessages called for type: ${messageType}`, {
-    personasCount: personas.length,
-    existingMessagesStructure: JSON.stringify(existingMessages, null, 2)
-  });
-  
   const updatedMessages = { ...existingMessages };
   
   for (const persona of personas) {
@@ -97,7 +80,6 @@ export const generateColumnMessages = async (
     }
     
     try {
-      console.log("Calling generate-marketing-taglines for:", { messageType, persona });
       const { data, error } = await supabase.functions.invoke('generate-marketing-taglines', {
         body: { messageType, persona }
       });
@@ -107,9 +89,7 @@ export const generateColumnMessages = async (
         throw error;
       }
       
-      console.log("Edge function response for column generation:", data);
       const tagline = data?.tagline || `Generated ${messageType} Example`;
-      console.log(`Generated tagline for ${personaId}: "${tagline}"`);
       
       // Create a new message object for this type and persona
       updatedMessages[personaId][messageType] = {
@@ -119,8 +99,6 @@ export const generateColumnMessages = async (
         persona_id: personaId,
         created_at: new Date().toISOString()
       };
-
-      console.log(`Updated message for persona ${personaId}:`, updatedMessages[personaId][messageType]);
     } catch (error) {
       console.error(`Error generating ${messageType} message for persona ${personaId}:`, error);
       
@@ -134,6 +112,5 @@ export const generateColumnMessages = async (
     }
   }
   
-  console.log("Final updated messages:", JSON.stringify(updatedMessages, null, 2));
   return updatedMessages;
 };

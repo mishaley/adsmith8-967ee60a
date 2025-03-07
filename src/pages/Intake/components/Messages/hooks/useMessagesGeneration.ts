@@ -16,15 +16,9 @@ export const useMessagesGeneration = (
   const [isGeneratingMessages, setIsGeneratingMessages] = useState(false);
   const [isLoaded, setIsLoaded] = useState(true);
   
-  // Enhanced logging to track personas
-  const logPersonasInfo = useCallback(() => {
-    console.log("useMessagesGeneration - Personas info:", {
-      totalCount: personas.length,
-      personaDetails: personas.map((p, index) => ({
-        id: p.id ? String(p.id) : `persona-${index}`,
-        name: p.name || p.title,
-      }))
-    });
+  // Helper to check if personas array is valid
+  const hasValidPersonas = useCallback(() => {
+    return Array.isArray(personas) && personas.length > 0 && personas.every(Boolean);
   }, [personas]);
 
   const generateMessages = async () => {
@@ -33,24 +27,18 @@ export const useMessagesGeneration = (
       return;
     }
     
-    // Log personas data to debug
-    logPersonasInfo();
-    
-    if (personas.length === 0) {
+    if (!hasValidPersonas()) {
       toast.error("No personas available");
       return;
     }
     
     setIsGeneratingMessages(true);
     try {
-      console.log("Generating messages for all personas");
       const messages = await generateMessagesForAllPersonas(
         personas,
         selectedMessageTypes,
         userProvidedMessage
       );
-      
-      console.log("Messages generated successfully:", JSON.stringify(messages, null, 2));
       
       // Update the state with the new messages
       setGeneratedMessages(messages);
@@ -81,12 +69,7 @@ export const useMessagesGeneration = (
   };
 
   const handleGenerateColumnMessages = useCallback(async (messageType: string) => {
-    console.log(`useMessagesGeneration: Generating column messages for type: ${messageType}`);
-    
-    // Log personas info for debugging
-    logPersonasInfo();
-    
-    if (personas.length === 0) {
+    if (!hasValidPersonas()) {
       toast.error("No personas available");
       throw new Error("No personas available");
     }
@@ -99,9 +82,6 @@ export const useMessagesGeneration = (
         personas,
         generatedMessages
       );
-      
-      console.log("Messages generated successfully for column:", messageType);
-      console.log("Updated messages structure:", JSON.stringify(updatedMessages, null, 2));
       
       // Get the first generated tagline to show in toast (if available)
       let sampleTagline = "";
@@ -130,7 +110,7 @@ export const useMessagesGeneration = (
     } finally {
       setIsGeneratingMessages(false);
     }
-  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible, logPersonasInfo]);
+  }, [personas, generatedMessages, setGeneratedMessages, setIsTableVisible, hasValidPersonas]);
 
   return {
     isGeneratingMessages,

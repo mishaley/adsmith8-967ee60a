@@ -37,12 +37,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   // Call onUpdateMessages whenever generatedMessages or selectedMessageTypes change
   useEffect(() => {
     if (onUpdateMessages) {
-      console.log("MessagesSection: Updating parent with messages", {
-        messageTypes: selectedMessageTypes,
-        personaCount: safePersonas.length,
-        messageCount: Object.keys(generatedMessages).length,
-        totalPairs: safePersonas.length * selectedMessageTypes.length
-      });
       onUpdateMessages(generatedMessages, selectedMessageTypes);
     }
   }, [generatedMessages, selectedMessageTypes, onUpdateMessages, safePersonas.length]);
@@ -66,21 +60,13 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
   );
 
   const handleColumnGeneration = async (messageType: string): Promise<void> => {
-    console.log(`Starting generation for ${messageType}`);
     try {
       await handleGenerateColumnMessages(messageType);
-      console.log(`Generation completed for ${messageType}`);
     } catch (error) {
       console.error(`Error during generation for ${messageType}:`, error);
       throw error;
     }
   };
-
-  console.log("MessagesSection rendering with:", {
-    personaCount: safePersonas.length,
-    messageTypes: selectedMessageTypes,
-    generatedMessages: Object.keys(generatedMessages)
-  });
 
   return (
     <CollapsibleSection title="MESSAGES">
@@ -90,7 +76,6 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
           selectedMessageTypes={selectedMessageTypes}
           generatedMessages={generatedMessages}
           onMessageTypeChange={(types) => {
-            console.log("Message types changed to:", types);
             setSelectedMessageTypes(types);
           }}
         />

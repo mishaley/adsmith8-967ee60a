@@ -24,23 +24,18 @@ export const useOrganizationEffects = ({
   // Effect to sync organization data with form fields
   useEffect(() => {
     if (currentOrganization) {
-      console.log("useOrganizationEffects - Filling form with organization data:", currentOrganization);
-
       if (currentOrganization.organization_name) {
         setBrandName(currentOrganization.organization_name);
-        console.log("useOrganizationEffects - Setting brand name to:", currentOrganization.organization_name);
       }
 
       if (currentOrganization.organization_industry) {
         setIndustry(currentOrganization.organization_industry);
-        console.log("useOrganizationEffects - Setting industry to:", currentOrganization.organization_industry);
       }
 
       setIsLoadingOrgData(false);
     } else if (selectedOrgId === "new-organization") {
       setBrandName("");
       setIndustry("");
-      console.log("useOrganizationEffects - Clearing form fields for new organization");
       setIsLoadingOrgData(false);
     }
   }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
@@ -49,7 +44,6 @@ export const useOrganizationEffects = ({
   useEffect(() => {
     const handleExternalOrgChange = (event: CustomEvent) => {
       const newOrgId = event.detail.organizationId;
-      console.log("useOrganizationEffects - Detected external organization change:", newOrgId);
 
       if (newOrgId !== selectedOrgId) {
         setIsLoadingOrgData(true);
@@ -65,7 +59,6 @@ export const useOrganizationEffects = ({
   }, [selectedOrgId, handleOrgChange]);
 
   const handleOrganizationChange = (value: string) => {
-    console.log("useOrganizationEffects - Organization change detected:", value);
     setIsLoadingOrgData(true);
     handleOrgChange(value);
   };
