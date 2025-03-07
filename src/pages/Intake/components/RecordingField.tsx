@@ -4,6 +4,7 @@ import RecordingButton from "./RecordingButton";
 import { useAudioRecording } from "../hooks/useAudioRecording";
 import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
 import { useTextareaResize } from "../hooks/useTextareaResize";
+import { toast } from "@/components/ui/use-toast";
 
 interface RecordingFieldProps {
   label: string;
@@ -11,6 +12,7 @@ interface RecordingFieldProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  helperText?: string; // Added helperText as an optional prop
 }
 
 const RecordingField: React.FC<RecordingFieldProps> = ({ 
@@ -18,55 +20,76 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
   value, 
   onChange,
   placeholder = "Hold to record",
-  disabled = false
+  disabled = false,
+  helperText
 }) => {
-  // Get all recording functionality
+  // State to temporarily show transcription as it's being processed
+  const [tempTranscript, setTempTranscript] = useState("");
+  
+  // Handle audio recording with error handling
   const { 
     isRecording,
-    startRecording,
-    stopRecording,
-    timer,
-    audioBlob
-  } = useAudioRecording();
-  
-  // Speech recognition functionality
-  const {
     isTranscribing,
-    transcription,
-    startTranscription,
-    resetTranscription
-  } = useSpeechRecognition();
+    timer,
+    startRecording,
+    stopRecording
+  } = useAudioRecording({
+    onTranscriptionComplete: (text) => {
+      onChange(text);
+      setTempTranscript("");
+    },
+    onError: (error) => {
+      console.error("Transcription error:", error);
+      toast({
+        title: "Transcription failed",
+        description: "There was a problem transcribing your audio. Please try again.",
+        variant: "destructive"
+      });
+      setTempTranscript("");
+    }
+  });
   
   // Textarea auto-resizing
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  useTextareaResize(textareaRef, value);
+  useTextareaResize(textareaRef, value, tempTranscript);
+
+  // Handle transcription updates during recording
+  const handleTranscriptUpdate = (transcript: string) => {
+    setTempTranscript(transcript);
+  };
+  
+  // Speech recognition for live feedback during recording
+  const { 
+    initializeSpeechRecognition,
+    stopSpeechRecognition
+  } = useSpeechRecognition({
+    onTranscript: handleTranscriptUpdate
+  });
   
   // Handle recording start/stop
   const handleStartRecording = () => {
     if (disabled) return;
+    setTempTranscript("");
+    initializeSpeechRecognition();
     startRecording();
   };
   
-  const handleStopRecording = async () => {
+  const handleStopRecording = () => {
     if (!isRecording) return;
-    const blob = await stopRecording();
-    if (blob) {
-      startTranscription(blob);
-    }
+    stopSpeechRecognition();
+    stopRecording();
   };
-  
-  // When transcription is complete, update the value
-  useEffect(() => {
-    if (transcription && !isTranscribing) {
-      onChange(transcription);
-      resetTranscription();
-    }
-  }, [transcription, isTranscribing, onChange, resetTranscription]);
+
+  // Combined value for display (actual value or temporary transcription)
+  const displayValue = tempTranscript || value;
 
   return (
     <tr className="border-transparent">
       <td className="py-4 pr-4 text-lg whitespace-nowrap min-w-[180px]">
         <div>{label}</div>
+        {helperText && (
+          <div className="text-sm text-gray-500 mt-1">{helperText}</div>
+        )}
       </td>
       <td className="py-4">
         <div className="w-96 flex flex-col">
@@ -80,7 +103,7 @@ const RecordingField: React.FC<RecordingFieldProps> = ({
           
           <textarea
             ref={textareaRef}
-            value={value}
+            value={displayValue}
             onChange={(e) => onChange(e.target.value)}
             className={`w-full px-3 py-2 border border-input rounded-b-md focus:outline-none focus:ring focus:border-indigo-500 ${disabled ? 'bg-gray-100' : ''}`}
             placeholder={placeholder}

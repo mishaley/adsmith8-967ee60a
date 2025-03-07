@@ -94,7 +94,7 @@ export const useAudioRecording = ({
       setIsRecording(true);
     } catch (error) {
       console.error('Failed to start recording:', error);
-      throw error;
+      onError(error);
     }
   };
   
