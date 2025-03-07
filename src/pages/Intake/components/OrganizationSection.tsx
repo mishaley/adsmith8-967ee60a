@@ -67,6 +67,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   console.log("Selected Organization ID:", selectedOrgId);
   console.log("Current Organization Data:", currentOrganization);
   
+  // Determine if the input should be readonly (only new organizations can edit)
+  const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";
+  
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
@@ -95,8 +98,14 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
                         <input 
                           type="text" 
                           value={brandName} 
-                          onChange={e => setBrandName(e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+                          onChange={e => {
+                            // Only allow changes for new organizations
+                            if (!isReadOnly) {
+                              setBrandName(e.target.value);
+                            }
+                          }} 
+                          readOnly={isReadOnly}
+                          className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 ${isReadOnly ? 'bg-gray-100' : ''}`} 
                         />
                       </div>
                     </div>
