@@ -61,7 +61,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = ({
                     value={selectedOfferingId}
                     onChange={setSelectedOfferingId}
                     disabled={isOfferingsDisabled}
-                    placeholder="Select offering"
+                    placeholder=""
                     showNewOption={true}
                   />
                 </div>
