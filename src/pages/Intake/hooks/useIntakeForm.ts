@@ -12,9 +12,7 @@ export const useIntakeForm = () => {
     brandName,
     setBrandName,
     industry,
-    setIndustry,
-    businessDescription,
-    setBusinessDescription
+    setIndustry
   } = useOrganizationForm();
   
   // Offering
@@ -66,7 +64,6 @@ export const useIntakeForm = () => {
   return {
     brandName, setBrandName,
     industry, setIndustry,
-    businessDescription, setBusinessDescription,
     offering, setOffering,
     sellingPoints, setSellingPoints,
     problemSolved, setProblemSolved,

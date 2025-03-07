@@ -24,7 +24,7 @@ const OrganizationContainer: React.FC<OrganizationContainerProps> = ({
     <OrganizationSection
       brandName={brandName}
       setBrandName={setBrandName}
-      industry={setIndustry}
+      industry={industry}
       setIndustry={setIndustry}
       handleSave={handleSave}
     />

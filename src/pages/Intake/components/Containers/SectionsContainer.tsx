@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -17,8 +16,6 @@ interface SectionsContainerProps {
   setBrandName: (value: string) => void;
   industry: string;
   setIndustry: (value: string) => void;
-  businessDescription: string;
-  setBusinessDescription: (value: string) => void;
   handleSave: () => void;
   
   offering: string;
@@ -61,8 +58,6 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     setBrandName,
     industry,
     setIndustry,
-    businessDescription,
-    setBusinessDescription,
     handleSave,
     
     offering,
@@ -106,8 +101,6 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         setBrandName={setBrandName}
         industry={industry}
         setIndustry={setIndustry}
-        businessDescription={businessDescription}
-        setBusinessDescription={setBusinessDescription}
         handleSave={handleSave}
       />
       
