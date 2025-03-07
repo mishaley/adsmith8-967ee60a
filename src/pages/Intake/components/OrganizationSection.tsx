@@ -9,6 +9,10 @@ import { toast } from "@/components/ui/use-toast";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
 import { Button } from "@/components/ui/button";
 import { useCreateMutation } from "@/components/table/mutations/useCreateMutation";
+import type { Database } from "@/integrations/supabase/types";
+
+// Define the type for organization data returned from the API
+type OrganizationRecord = Database["public"]["Tables"]["a1organizations"]["Row"];
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -111,16 +115,19 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     try {
       setIsCreatingOrg(true);
       
-      // Create organization record
-      const newOrg = await createOrgMutation.mutateAsync({
+      // Create organization record with proper type assertion
+      const result = await createOrgMutation.mutateAsync({
         organization_name: brandName.trim(),
         organization_industry: industry.trim() || null
       });
       
+      // Cast the result to the OrganizationRecord type
+      const newOrg = result as OrganizationRecord;
+      
       console.log("OrganizationSection - Created new organization:", newOrg);
       
-      // If successful, update the selected organization to the new one
-      if (newOrg?.organization_id) {
+      // Check if organization_id exists before using it
+      if (newOrg && newOrg.organization_id) {
         handleOrgChange(newOrg.organization_id);
         
         toast({
