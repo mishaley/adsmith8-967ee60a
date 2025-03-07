@@ -4,6 +4,8 @@ import RecordingField from "./RecordingField";
 import CollapsibleSection from "./CollapsibleSection";
 import OrganizationSelect from "./SummaryTable/components/OrganizationSelect";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
+import { useToast } from "@/components/ui/use-toast";
+
 interface OrganizationSectionProps {
   brandName: string;
   setBrandName: (value: string) => void;
@@ -13,6 +15,7 @@ interface OrganizationSectionProps {
   setBusinessDescription: (value: string) => void;
   handleSave: () => void;
 }
+
 const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   brandName,
   setBrandName,
@@ -28,15 +31,36 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     organizations,
     handleOrgChange
   } = useSummaryTableData();
+  
+  const { toast } = useToast();
+  
+  // Extended handler for organization changes
+  const handleOrganizationChange = (value: string) => {
+    if (value === "new-organization") {
+      // Show toast notification
+      toast({
+        title: "Create Organization",
+        description: "This would open a form to create a new organization.",
+      });
+      return;
+    }
+    
+    // Otherwise use the normal handler
+    handleOrgChange(value);
+  };
+  
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
         <table className="border-collapse border-transparent">
           <tbody>
             <tr className="border-transparent">
               <td colSpan={2} className="py-4 text-center">
-                
                 <div className="w-72 mx-auto">
-                  <OrganizationSelect selectedOrgId={selectedOrgId} organizations={organizations} onValueChange={handleOrgChange} />
+                  <OrganizationSelect 
+                    selectedOrgId={selectedOrgId} 
+                    organizations={organizations} 
+                    onValueChange={handleOrganizationChange} 
+                  />
                 </div>
               </td>
             </tr>
@@ -59,4 +83,5 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
       </div>
     </CollapsibleSection>;
 };
+
 export default OrganizationSection;

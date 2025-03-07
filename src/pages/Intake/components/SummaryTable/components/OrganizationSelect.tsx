@@ -38,6 +38,12 @@ const OrganizationSelect: React.FC<OrganizationSelectProps> = ({
         <SelectValue placeholder="Select organization" />
       </SelectTrigger>
       <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
+        {/* New option at the top */}
+        <SelectItem value="new-organization" className="font-semibold text-blue-600">
+          + New Organization
+        </SelectItem>
+        <SelectSeparator className="my-1" />
+        
         {organizations.map((org) => (
           <SelectItem 
             key={org.organization_id}
