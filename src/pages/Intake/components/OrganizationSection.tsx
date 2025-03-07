@@ -43,15 +43,17 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
         title: "Create Organization",
         description: "This would open a form to create a new organization.",
       });
-      return;
     }
     
-    // Otherwise use the normal handler
+    // Always use the normal handler
     handleOrgChange(value);
   };
   
   // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
+  
+  // Log to verify the selectedOrgId value
+  console.log("Selected Organization ID:", selectedOrgId);
   
   return <CollapsibleSection title="ORGANIZATION">
       <div className="flex justify-center">
