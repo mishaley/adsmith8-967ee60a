@@ -35,7 +35,7 @@ const OrganizationSelect: React.FC<OrganizationSelectProps> = ({
   return (
     <Select value={selectedOrgId || ""} onValueChange={handleSelectChange}>
       <SelectTrigger className="w-full bg-white">
-        <SelectValue placeholder="Select organization" />
+        <SelectValue placeholder="" />
       </SelectTrigger>
       <SelectContent className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit">
         {/* New option at the top */}
