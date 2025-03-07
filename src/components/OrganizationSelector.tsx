@@ -33,20 +33,22 @@ export const OrganizationSelector = () => {
     (org) => org.organization_id === selectedOrgId
   );
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, selectedOrgId);
-  }, [selectedOrgId]);
+  // Update localStorage and dispatch a custom event when organization changes
+  const handleOrgChange = (orgId: string) => {
+    console.log("Organization changed in selector to:", orgId);
+    setSelectedOrgId(orgId);
+    localStorage.setItem(STORAGE_KEY, orgId);
+    
+    // Dispatch a custom event that other components can listen for
+    const event = new CustomEvent("organizationChanged", { 
+      detail: { organizationId: orgId }
+    });
+    window.dispatchEvent(event);
+  };
 
-  // For debugging
   useEffect(() => {
-    if (selectedOrg) {
-      console.log("Selected organization:", selectedOrg);
-      if (selectedOrg.organization_wordmark) {
-        console.log("Wordmark URL:", supabase.storage
-          .from("adsmith_assets")
-          .getPublicUrl(selectedOrg.organization_wordmark).data.publicUrl);
-      }
-    }
+    // Debug logging
+    console.log("OrganizationSelector - Current org:", selectedOrg?.organization_name);
   }, [selectedOrg]);
 
   return (
@@ -68,7 +70,7 @@ export const OrganizationSelector = () => {
           </div>
         )}
       </div>
-      <Select value={selectedOrgId} onValueChange={setSelectedOrgId}>
+      <Select value={selectedOrgId} onValueChange={handleOrgChange}>
         <SelectTrigger className="absolute bottom-0 left-0 w-[170px] bg-[#2A2A2A] text-white border-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <SelectValue placeholder="" />
         </SelectTrigger>

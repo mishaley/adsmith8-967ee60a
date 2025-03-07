@@ -32,40 +32,58 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   
   // Extended handler for organization changes
   const handleOrganizationChange = (value: string) => {
+    console.log("OrganizationSection - Organization change detected:", value);
     // Just use the normal handler without showing the toast
     handleOrgChange(value);
   };
   
-  // Auto-fill fields when organization data is loaded
+  // Auto-fill fields when organization data is loaded or changes
   useEffect(() => {
     if (currentOrganization) {
-      console.log("Filling form with organization data:", currentOrganization);
+      console.log("OrganizationSection - Filling form with organization data:", currentOrganization);
       
       // Set brand name from organization data
       if (currentOrganization.organization_name) {
         setBrandName(currentOrganization.organization_name);
-        console.log("Setting brand name to:", currentOrganization.organization_name);
+        console.log("OrganizationSection - Setting brand name to:", currentOrganization.organization_name);
       }
       
       // If organization has industry data, set it
       if (currentOrganization.organization_industry) {
         setIndustry(currentOrganization.organization_industry);
-        console.log("Setting industry to:", currentOrganization.organization_industry);
+        console.log("OrganizationSection - Setting industry to:", currentOrganization.organization_industry);
       }
     } else if (selectedOrgId === "new-organization") {
       // Clear fields when "new-organization" is selected
       setBrandName("");
       setIndustry("");
-      console.log("Clearing form fields for new organization");
+      console.log("OrganizationSection - Clearing form fields for new organization");
     }
   }, [currentOrganization, selectedOrgId, setBrandName, setIndustry]);
   
+  // Listen for external organization changes from OrganizationSelector
+  useEffect(() => {
+    const handleExternalOrgChange = (event: CustomEvent) => {
+      const newOrgId = event.detail.organizationId;
+      console.log("OrganizationSection - Detected external organization change:", newOrgId);
+      
+      // Update our local organization selection
+      if (newOrgId !== selectedOrgId) {
+        handleOrgChange(newOrgId);
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('organizationChanged', handleExternalOrgChange as EventListener);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('organizationChanged', handleExternalOrgChange as EventListener);
+    };
+  }, [selectedOrgId, handleOrgChange]);
+  
   // Check if an organization is selected (either an existing one or "new-organization")
   const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
-  
-  // Log to verify the selectedOrgId value and organization data
-  console.log("Selected Organization ID:", selectedOrgId);
-  console.log("Current Organization Data:", currentOrganization);
   
   // Determine if the input should be readonly (only new organizations can edit)
   const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";

@@ -22,25 +22,43 @@ export const useOrganizationSelection = () => {
 
   // Watch for changes to the organization in localStorage
   useEffect(() => {
-    const handleStorageChange = () => {
-      const newOrgId = localStorage.getItem(STORAGE_KEY) || "";
-      if (newOrgId !== selectedOrgId) {
-        setSelectedOrgId(newOrgId);
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY) {
+        const newOrgId = localStorage.getItem(STORAGE_KEY) || "";
+        console.log("useOrganizationSelection - Storage change detected:", newOrgId);
+        if (newOrgId !== selectedOrgId) {
+          setSelectedOrgId(newOrgId);
+        }
       }
     };
 
-    // Set up event listener for localStorage changes
+    // Also check for direct changes to localStorage
+    const checkLocalStorage = () => {
+      const storedOrgId = localStorage.getItem(STORAGE_KEY) || "";
+      if (storedOrgId !== selectedOrgId) {
+        console.log("useOrganizationSelection - Direct localStorage change detected:", storedOrgId);
+        setSelectedOrgId(storedOrgId);
+      }
+    };
+
+    // Set up event listeners
     window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('organizationChanged', checkLocalStorage);
+    
+    // Set up periodic check (as a fallback)
+    const intervalId = setInterval(checkLocalStorage, 1000);
     
     // Cleanup
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('organizationChanged', checkLocalStorage);
+      clearInterval(intervalId);
     };
   }, [selectedOrgId]);
 
   // Clear organization data when selecting "new-organization" or empty
   useEffect(() => {
-    console.log("Organization changed to:", selectedOrgId);
+    console.log("useOrganizationSelection - Organization changed to:", selectedOrgId);
     
     if (selectedOrgId === "new-organization" || !selectedOrgId) {
       setCurrentOrganization(null);
@@ -61,7 +79,7 @@ export const useOrganizationSelection = () => {
   });
 
   // Fetch organization details when an organization is selected
-  const { data: orgDetails } = useQuery({
+  const { data: orgDetails, refetch } = useQuery({
     queryKey: ["organization-details", selectedOrgId],
     queryFn: async () => {
       // Don't fetch if we're creating a new organization or no org is selected
@@ -70,7 +88,7 @@ export const useOrganizationSelection = () => {
         return null;
       }
       
-      console.log("Fetching organization details for:", selectedOrgId);
+      console.log("useOrganizationSelection - Fetching organization details for:", selectedOrgId);
       
       try {
         const { data, error } = await supabase
@@ -85,7 +103,7 @@ export const useOrganizationSelection = () => {
           return null;
         }
         
-        console.log("Fetched organization data:", data);
+        console.log("useOrganizationSelection - Fetched organization data:", data);
         
         if (data) {
           // Important: Set the currentOrganization with the fetched data
@@ -105,9 +123,16 @@ export const useOrganizationSelection = () => {
     enabled: !!selectedOrgId && selectedOrgId !== "new-organization",
   });
 
+  // Force refetch when selectedOrgId changes
+  useEffect(() => {
+    if (selectedOrgId && selectedOrgId !== "new-organization") {
+      refetch();
+    }
+  }, [selectedOrgId, refetch]);
+
   // Handle organization selection change
   const handleOrgChange = (value: string) => {
-    console.log("Organization selection changed to:", value);
+    console.log("useOrganizationSelection - Organization selection changed to:", value);
     
     // Update local state
     setSelectedOrgId(value);
@@ -121,6 +146,12 @@ export const useOrganizationSelection = () => {
     
     // Trigger storage event for other components to sync
     window.dispatchEvent(new Event('storage'));
+    
+    // Dispatch custom event
+    const event = new CustomEvent("organizationChanged", { 
+      detail: { organizationId: value }
+    });
+    window.dispatchEvent(event);
   };
 
   return {
