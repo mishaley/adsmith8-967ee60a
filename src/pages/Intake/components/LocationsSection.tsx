@@ -56,17 +56,13 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
 
   return (
     <CollapsibleSection title="LOCATIONS">
-      <div className="max-w-full mx-auto">
+      <div className="max-w-md mx-auto">
         <GeoMapSection 
           selectedCountry={selectedCountry} 
           setSelectedCountry={setSelectedCountry}
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
         />
-      </div>
-      
-      <div className="mt-8 max-w-md mx-auto">
-        {/* Additional location settings can be added here */}
       </div>
     </CollapsibleSection>
   );
