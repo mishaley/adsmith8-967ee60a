@@ -1,69 +1,100 @@
 
-import { useOrganizationSelection } from "./hooks/useOrganizationSelection";
-import { useOfferingSelection } from "./hooks/useOfferingSelection";
-import { usePersonaSelection } from "./hooks/usePersonaSelection";
-import { useMessageSelection } from "./hooks/useMessageSelection";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { STORAGE_KEYS } from "../../utils/localStorageUtils";
 
 export const useSummaryTableData = () => {
-  // Get organization selection data and functions
-  const {
+  const STORAGE_KEY = "selectedOrganizationId";
+  
+  // Initialize with the stored organization ID from localStorage
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(
+    localStorage.getItem(STORAGE_KEY) || ""
+  );
+  
+  // Initialize offering selection from localStorage
+  const [selectedOfferingId, setSelectedOfferingId] = useState<string>(
+    localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`) || ""
+  );
+  
+  // Watch for changes to the organization in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newOrgId = localStorage.getItem(STORAGE_KEY) || "";
+      setSelectedOrgId(newOrgId);
+    };
+
+    // Set up event listener for localStorage changes
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Query offerings based on selected organization
+  const { data: offerings = [] } = useQuery({
+    queryKey: ["offerings", selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      
+      const { data, error } = await supabase
+        .from("b1offerings")
+        .select("offering_id, offering_name")
+        .eq("organization_id", selectedOrgId);
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!selectedOrgId, // Only run query if an organization is selected
+  });
+
+  // Reset offering selection when organization changes
+  useEffect(() => {
+    // When organization is empty or changes, clear offering selection
+    if (!selectedOrgId || offerings.length === 0) {
+      setSelectedOfferingId("");
+      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+    } else {
+      // If we have a selectedOfferingId from localStorage, check if it's still valid
+      const savedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+      if (savedOfferingId) {
+        // Check if the saved offering belongs to the current organization
+        const offeringExists = offerings.some(o => o.offering_id === savedOfferingId);
+        if (!offeringExists) {
+          // If not, clear the selection
+          setSelectedOfferingId("");
+          localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+        }
+      }
+    }
+  }, [selectedOrgId, offerings]);
+
+  // Format options for the select component
+  const offeringOptions = offerings.map(offering => ({
+    value: offering.offering_id,
+    label: offering.offering_name
+  }));
+
+  // Add 'Create new offering' option if an organization is selected
+  if (selectedOrgId) {
+    offeringOptions.push({
+      value: "new-offering",
+      label: "Create new offering"
+    });
+  }
+
+  // Determine disabled state - offerings are disabled when no organization is selected
+  const isOfferingsDisabled = !selectedOrgId;
+
+  return {
     selectedOrgId,
     setSelectedOrgId,
-    organizations,
-    handleOrgChange,
-    currentOrganization
-  } = useOrganizationSelection();
-  
-  // Get offering selection data and functions
-  const {
     selectedOfferingId,
     setSelectedOfferingId,
+    offerings,
     offeringOptions,
     isOfferingsDisabled
-  } = useOfferingSelection(selectedOrgId);
-  
-  // Get persona selection data and functions
-  const {
-    selectedPersonaIds,
-    setSelectedPersonaIds,
-    personaOptions,
-    isPersonasDisabled
-  } = usePersonaSelection(selectedOfferingId, isOfferingsDisabled);
-  
-  // Get message selection data and functions
-  const {
-    selectedMessageIds,
-    setSelectedMessageIds,
-    messageOptions,
-    isMessagesDisabled
-  } = useMessageSelection(selectedPersonaIds, isPersonasDisabled);
-
-  // Return all the data and functions needed by components
-  return {
-    // Organization
-    selectedOrgId,
-    organizations,
-    handleOrgChange,
-    currentOrganization,
-    
-    // Offering
-    selectedOfferingId,
-    setSelectedOfferingId,
-    offeringOptions,
-    
-    // Persona
-    selectedPersonaIds,
-    setSelectedPersonaIds,
-    personaOptions,
-    
-    // Message
-    selectedMessageIds,
-    setSelectedMessageIds,
-    messageOptions,
-    
-    // Disabled states
-    isOfferingsDisabled,
-    isPersonasDisabled,
-    isMessagesDisabled
   };
 };

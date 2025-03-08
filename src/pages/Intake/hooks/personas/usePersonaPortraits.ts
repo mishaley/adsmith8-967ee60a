@@ -13,7 +13,7 @@ export const usePersonaPortraits = (
   const generatePortraitsForAll = useCallback(
     async (
       personasList: Persona[],
-      generatePortraitsFunction: (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => Promise<void>,
+      generatePortraitsFunction: (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void, customPrompt?: string) => Promise<void>,
       customPrompt?: string
     ) => {
       if (!personasList || personasList.length === 0) {
@@ -49,7 +49,7 @@ export const usePersonaPortraits = (
         return;
       }
 
-      retryPortraitGenerationBase(personas[index], index, updatePersona, customPrompt);
+      retryPortraitGenerationBase(personas[index], index, updatePersona);
     },
     [personas, retryPortraitGenerationBase, updatePersona]
   );

@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { STORAGE_KEYS } from "../../../utils/localStorageUtils";
 
 interface UseOfferingSelectionProps {
   selectedOfferingId: string;
@@ -25,6 +26,13 @@ export const useOfferingSelection = ({
 }: UseOfferingSelectionProps) => {
   const { toast } = useToast();
   const offeringInputRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Save selected offering ID to localStorage when it changes
+  useEffect(() => {
+    if (selectedOfferingId) {
+      localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
+    }
+  }, [selectedOfferingId]);
   
   // Auto-focus the offering name field when "new-offering" is selected
   useEffect(() => {
@@ -78,6 +86,8 @@ export const useOfferingSelection = ({
       setSellingPoints("");
       setProblemSolved("");
       setUniqueOffering("");
+      // Clear the localStorage value
+      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
     } else if (value === "new-offering") {
       toast({
         title: "Creating a new offering",

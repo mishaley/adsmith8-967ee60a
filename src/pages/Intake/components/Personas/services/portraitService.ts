@@ -15,11 +15,11 @@ export const generatePersonaPortrait = async (persona: Persona, customPrompt?: s
     // Prepare persona data for the API call
     const personaData = {
       name: persona.title,
-      gender: persona.gender,
-      age: persona.age,
-      occupation: persona.occupation,
-      interests: persona.interests,
-      race: persona.race,
+      gender: persona.gender || '',
+      age: persona.age || '',
+      occupation: persona.occupation || '',
+      interests: persona.interests || [],
+      race: persona.race || '',
       customPrompt: customPrompt // Pass the custom prompt
     };
 
