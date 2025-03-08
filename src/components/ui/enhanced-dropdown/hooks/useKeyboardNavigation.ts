@@ -43,15 +43,15 @@ export const useKeyboardNavigation = ({
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setHighlightedIndex(prev => 
-          prev < filteredOptions.length - 1 ? prev + 1 : 0
+        setHighlightedIndex(
+          highlightedIndex < filteredOptions.length - 1 ? highlightedIndex + 1 : 0
         );
         ensureHighlightedVisible();
         break;
       case "ArrowUp":
         e.preventDefault();
-        setHighlightedIndex(prev => 
-          prev > 0 ? prev - 1 : filteredOptions.length - 1
+        setHighlightedIndex(
+          highlightedIndex > 0 ? highlightedIndex - 1 : filteredOptions.length - 1
         );
         ensureHighlightedVisible();
         break;
