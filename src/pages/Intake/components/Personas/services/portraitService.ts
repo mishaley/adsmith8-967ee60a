@@ -17,6 +17,8 @@ export const generatePersonaPortrait = async (persona: Persona, customPrompt?: s
       name: persona.title,
       gender: persona.gender || '',
       age: persona.age || '',
+      ageMin: persona.ageMin || '',
+      ageMax: persona.ageMax || '',
       occupation: persona.occupation || '',
       interests: persona.interests || [],
       race: persona.race || '',

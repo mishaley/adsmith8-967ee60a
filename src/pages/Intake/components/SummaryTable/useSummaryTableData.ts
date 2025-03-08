@@ -17,6 +17,10 @@ export const useSummaryTableData = () => {
     localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`) || ""
   );
   
+  // Initialize persona and message selections
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
+  const [selectedMessageIds, setSelectedMessageIds] = useState<string[]>([]);
+  
   // Watch for changes to the organization in localStorage
   useEffect(() => {
     const handleStorageChange = () => {
@@ -85,8 +89,21 @@ export const useSummaryTableData = () => {
     });
   }
 
-  // Determine disabled state - offerings are disabled when no organization is selected
+  // Placeholder options for personas and messages
+  const personaOptions = [
+    { value: "persona-1", label: "Persona 1" },
+    { value: "persona-2", label: "Persona 2" }
+  ];
+  
+  const messageOptions = [
+    { value: "headline", label: "Headline" },
+    { value: "description", label: "Description" }
+  ];
+
+  // Determine disabled states
   const isOfferingsDisabled = !selectedOrgId;
+  const isPersonasDisabled = !selectedOfferingId;
+  const isMessagesDisabled = selectedPersonaIds.length === 0;
 
   return {
     selectedOrgId,
@@ -95,6 +112,16 @@ export const useSummaryTableData = () => {
     setSelectedOfferingId,
     offerings,
     offeringOptions,
-    isOfferingsDisabled
+    isOfferingsDisabled,
+    
+    // Add missing persona and message props
+    selectedPersonaIds,
+    setSelectedPersonaIds,
+    selectedMessageIds,
+    setSelectedMessageIds,
+    personaOptions,
+    messageOptions,
+    isPersonasDisabled,
+    isMessagesDisabled
   };
 };

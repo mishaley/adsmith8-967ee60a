@@ -42,7 +42,7 @@ export const usePortraitGeneration = () => {
           error: null, 
           updatedPersona: {
             ...personaToUse,
-            portraitUrl: imageUrl
+            portraitUrl: imageUrl // Store the generated portrait URL
           }
         };
       } else if (error) {

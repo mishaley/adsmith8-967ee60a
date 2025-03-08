@@ -16,7 +16,7 @@ export const getRandomRace = (): string => {
 // Save portrait URLs to session storage
 export const savePortraitsToSession = (personaList: Persona[]) => {
   try {
-    const portraitUrls = personaList.map(p => p.portraitUrl || "");
+    const portraitUrls = personaList.map(p => p.portraitUrl || p.imageUrl || "");
     sessionStorage.setItem("personaPortraits", JSON.stringify(portraitUrls));
   } catch (error) {
     console.error("Error saving portraits to session storage:", error);
@@ -49,10 +49,15 @@ export const loadPortraitsFromSession = (
 
 // Create enhanced prompt for portrait generation
 export const createPortraitPrompt = (persona: Persona): string => {
+  // Get the age range - either from ageMin/ageMax or split the age if it exists
+  const ageRange = (persona.ageMin && persona.ageMax) 
+    ? `${persona.ageMin}-${persona.ageMax}` 
+    : persona.age || "25-35"; // Default age range if none provided
+  
   // Enhanced prompt that incorporates interests in a more exaggerated, interesting way
-  const interestsDescription = persona.interests.length > 0 
+  const interestsDescription = persona.interests && persona.interests.length > 0 
     ? `Their personality visibly reflects their passions: ${persona.interests.join(", ")}. They are seen wearing or holding items related to these interests, with subtle visual cues in the background.` 
     : "";
     
-  return `Portrait style magazine quality photo of a ${persona.race} ${persona.gender}, age ${persona.ageMin}-${persona.ageMax}, who is ${persona.title.toLowerCase()}. ${interestsDescription} High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
+  return `Portrait style magazine quality photo of a ${persona.race} ${persona.gender}, age ${ageRange}, who is ${persona.title.toLowerCase()}. ${interestsDescription} High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
 };

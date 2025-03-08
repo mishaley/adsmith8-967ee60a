@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
@@ -48,24 +47,21 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast, offering
       const style = await getRandomApprovedStyle();
       console.log("Successfully retrieved style:", style);
       
-      // Get the message content from the persona's title or generate a phrase
       const message = currentPersona.title || generateRandomPhrase();
-      
-      // Get a random race from the distribution
       const race = getRandomRace();
-      
-      // Convert gender format (Men → Man, Women → Woman)
       const gender = currentPersona.gender === "Men" ? "Man" : 
                      currentPersona.gender === "Women" ? "Woman" : 
                      currentPersona.gender;
       
-      // Get the persona's interests, or use default interests if none available
       const interests = currentPersona.interests || [];
       const interest1 = interests.length > 0 ? interests[0] : "Urban style";
       const interest2 = interests.length > 1 ? interests[1] : "Fashion";
       
-      // Format the prompt according to the updated specification
-      const prompt = `Style: ${style}\nMessage: '${message}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+      const ageRange = (currentPersona.ageMin && currentPersona.ageMax) 
+        ? `${currentPersona.ageMin}-${currentPersona.ageMax}` 
+        : currentPersona.age || "25-35";
+      
+      const prompt = `Style: ${style}\nMessage: '${message}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${ageRange}`;
       
       setGeneratedPrompt(prompt);
       
@@ -109,12 +105,15 @@ export const useImageGeneration = ({ currentPersona, adPlatform, toast, offering
                        currentPersona.gender === "Women" ? "Woman" : 
                        currentPersona.gender;
         
-        // Get the persona's interests, or use default interests if none available
         const interests = currentPersona.interests || [];
         const interest1 = interests.length > 0 ? interests[0] : "Urban style";
         const interest2 = interests.length > 1 ? interests[1] : "Fashion";
         
-        prompt = `Style: ${style}\nMessage: '${currentPersona.title || generateRandomPhrase()}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${currentPersona.ageMin}-${currentPersona.ageMax}`;
+        const ageRange = (currentPersona.ageMin && currentPersona.ageMax) 
+          ? `${currentPersona.ageMin}-${currentPersona.ageMax}` 
+          : currentPersona.age || "25-35";
+        
+        prompt = `Style: ${style}\nMessage: '${currentPersona.title || generateRandomPhrase()}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${ageRange}`;
       }
 
       console.log("Image generation prompt:", prompt);
