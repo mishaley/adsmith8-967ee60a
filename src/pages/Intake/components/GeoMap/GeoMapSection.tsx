@@ -13,6 +13,9 @@ interface GeoMapSectionProps {
   setSelectedCountries?: (countries: string[]) => void;
   selectedLanguages?: string[];
   setSelectedLanguages?: (languages: string[]) => void;
+  // Add excluded countries props
+  excludedCountries?: string[];
+  setExcludedCountries?: (countries: string[]) => void;
 }
 
 const GeoMapSection: React.FC<GeoMapSectionProps> = ({
@@ -23,7 +26,9 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   selectedCountries = [],
   setSelectedCountries,
   selectedLanguages = [],
-  setSelectedLanguages
+  setSelectedLanguages,
+  excludedCountries = [],
+  setExcludedCountries
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   
@@ -76,6 +81,8 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
           setSelectedCountries={setSelectedCountries}
           selectedLanguages={selectedLanguages}
           setSelectedLanguages={setSelectedLanguages}
+          excludedCountries={excludedCountries}
+          setExcludedCountries={setExcludedCountries}
         />
       </div>
       

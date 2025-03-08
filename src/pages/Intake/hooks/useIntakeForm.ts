@@ -37,7 +37,12 @@ export const useIntakeForm = () => {
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
-    setSelectedLanguages
+    setSelectedLanguages,
+    // Excluded countries
+    excludedCountry,
+    setExcludedCountry,
+    excludedCountries,
+    setExcludedCountries
   } = useLocationForm();
   
   // Ad Platform
@@ -79,6 +84,9 @@ export const useIntakeForm = () => {
     // Multi-select state
     selectedCountries, setSelectedCountries,
     selectedLanguages, setSelectedLanguages,
+    // Excluded countries
+    excludedCountry, setExcludedCountry,
+    excludedCountries, setExcludedCountries,
     personas, setPersonas,
     generatedMessages, setGeneratedMessages,
     selectedMessageTypes, setSelectedMessageTypes,

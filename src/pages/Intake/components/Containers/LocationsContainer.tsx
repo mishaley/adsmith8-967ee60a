@@ -12,6 +12,9 @@ interface LocationsContainerProps {
   setSelectedCountries?: (values: string[]) => void;
   selectedLanguages?: string[];
   setSelectedLanguages?: (values: string[]) => void;
+  // Add excluded countries props
+  excludedCountries?: string[];
+  setExcludedCountries?: (values: string[]) => void;
 }
 
 const LocationsContainer: React.FC<LocationsContainerProps> = ({
@@ -22,7 +25,9 @@ const LocationsContainer: React.FC<LocationsContainerProps> = ({
   selectedCountries = [],
   setSelectedCountries,
   selectedLanguages = [],
-  setSelectedLanguages
+  setSelectedLanguages,
+  excludedCountries = [],
+  setExcludedCountries
 }) => {
   return (
     <LocationsSection
@@ -34,6 +39,8 @@ const LocationsContainer: React.FC<LocationsContainerProps> = ({
       setSelectedCountries={setSelectedCountries}
       selectedLanguages={selectedLanguages}
       setSelectedLanguages={setSelectedLanguages}
+      excludedCountries={excludedCountries}
+      setExcludedCountries={setExcludedCountries}
     />
   );
 };

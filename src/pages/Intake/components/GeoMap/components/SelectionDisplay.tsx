@@ -18,6 +18,9 @@ interface SelectionDisplayProps {
   setSelectedCountries?: ((countries: string[]) => void) | null;
   selectedLanguages?: string[];
   setSelectedLanguages?: ((languages: string[]) => void) | null;
+  // Add excluded countries multi-select props
+  excludedCountries?: string[];
+  setExcludedCountries?: ((countries: string[]) => void) | null;
 }
 
 const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
@@ -30,7 +33,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   selectedCountries = [],
   setSelectedCountries = null,
   selectedLanguages = [],
-  setSelectedLanguages = null
+  setSelectedLanguages = null,
+  excludedCountries = [],
+  setExcludedCountries = null
 }) => {
   const {
     primaryLanguageId,
@@ -38,6 +43,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     isLoading: isLoadingCountry
   } = useCountryLanguage(selectedCountry);
   
+  // We'll continue to use this for backward compatibility
   const {
     excludedCountry,
     setExcludedCountry,
@@ -114,7 +120,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               onClearSelection={handleClearExclusion}
               setExcludedCountryId={setExcludedCountryId}
               hideLabel={true}
-              multiSelect={false}
+              multiSelect={!!setExcludedCountries}
+              selectedCountries={excludedCountries}
+              setSelectedCountries={setExcludedCountries}
             />
           </div>
         </div>

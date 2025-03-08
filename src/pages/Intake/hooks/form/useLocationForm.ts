@@ -15,6 +15,12 @@ export const useLocationForm = () => {
     []
   );
   
+  // Added state for excluded countries with multi-select support
+  const [excludedCountries, setExcludedCountries] = useLocalStorageState<string[]>(
+    `${STORAGE_KEYS.LOCATION}_excluded_countries`,
+    []
+  );
+  
   // Backward compatibility: provide single-select getters/setters
   // This helps during transition to avoid breaking existing code
   const selectedCountry = selectedCountries.length > 0 ? selectedCountries[0] : "";
@@ -27,17 +33,26 @@ export const useLocationForm = () => {
     setSelectedLanguages(language ? [language] : []);
   };
   
+  const excludedCountry = excludedCountries.length > 0 ? excludedCountries[0] : "";
+  const setExcludedCountry = (country: string) => {
+    setExcludedCountries(country ? [country] : []);
+  };
+  
   return {
     // Multi-select API
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
     setSelectedLanguages,
+    excludedCountries,
+    setExcludedCountries,
     
     // Single-select API (for backward compatibility)
     selectedCountry,
     setSelectedCountry,
     selectedLanguage,
-    setSelectedLanguage
+    setSelectedLanguage,
+    excludedCountry,
+    setExcludedCountry
   };
 };
