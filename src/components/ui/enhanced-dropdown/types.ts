@@ -19,7 +19,6 @@ export interface TriggerButtonProps extends CommonDropdownProps {
   selectedOptionLabels: DropdownOption[];
   multiSelect: boolean;
   onToggle: () => void;
-  isOpen: boolean;
   buttonClassName: string;
 }
 

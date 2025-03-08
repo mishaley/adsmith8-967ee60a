@@ -183,7 +183,6 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
         selectedOptionLabels={selectedOptionLabels}
         multiSelect={multiSelect}
         onToggle={toggleDropdown}
-        isOpen={isOpen}
         disabled={disabled}
         buttonClassName={buttonClassName}
       />

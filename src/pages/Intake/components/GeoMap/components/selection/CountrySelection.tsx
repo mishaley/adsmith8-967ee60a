@@ -99,7 +99,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
         placeholder="Select country"
         searchPlaceholder="Search countries..."
         disabled={isLoading}
-        multiSelect={multiSelect}
+        multiSelect={false} // Force single select for country
       />
       
       {isLoading && (
