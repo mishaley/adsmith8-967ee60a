@@ -34,7 +34,7 @@ export const usePersonaPortraits = (
       });
 
       // Generate portraits
-      await generatePortraitsFunction(enhancedPersonas, updatePersona);
+      await generatePortraitsFunction(enhancedPersonas, updatePersona, customPrompt);
 
       // Save to session
       savePortraitsToSession(enhancedPersonas);
@@ -49,7 +49,7 @@ export const usePersonaPortraits = (
         return;
       }
 
-      retryPortraitGenerationBase(personas[index], index, updatePersona);
+      retryPortraitGenerationBase(personas[index], index, updatePersona, customPrompt);
     },
     [personas, retryPortraitGenerationBase, updatePersona]
   );

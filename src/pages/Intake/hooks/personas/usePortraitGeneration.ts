@@ -9,7 +9,7 @@ export const usePortraitGeneration = () => {
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
 
-  const generatePortraitForPersona = async (persona: Persona, index: number) => {
+  const generatePortraitForPersona = async (persona: Persona, index: number, customPrompt?: string) => {
     if (!persona) return null;
     
     // Mark this specific persona as loading
@@ -31,7 +31,7 @@ export const usePortraitGeneration = () => {
       }
       
       // Generate the portrait
-      const { imageUrl, error } = await generatePersonaPortrait(personaToUse);
+      const { imageUrl, error } = await generatePersonaPortrait(personaToUse, customPrompt);
       
       // Remove this index from loading indices
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
@@ -52,11 +52,19 @@ export const usePortraitGeneration = () => {
       return null;
     } catch (error) {
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
-      return { success: false, error, updatedPersona: null };
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.toString() : String(error), 
+        updatedPersona: null 
+      };
     }
   };
 
-  const generatePortraitsForAllPersonas = async (personasList: Persona[], updatePersonaCallback: (index: number, updatedPersona: Persona) => void) => {
+  const generatePortraitsForAllPersonas = async (
+    personasList: Persona[], 
+    updatePersonaCallback: (index: number, updatedPersona: Persona) => void,
+    customPrompt?: string
+  ) => {
     if (!personasList || personasList.length === 0) {
       return;
     }
@@ -79,13 +87,13 @@ export const usePortraitGeneration = () => {
           return { index, success: true, updatedPersona: persona };
         }
         
-        const result = await generatePortraitForPersona(persona, index);
+        const result = await generatePortraitForPersona(persona, index, customPrompt);
         
         if (result?.success && result.updatedPersona) {
           return { index, success: true, updatedPersona: result.updatedPersona };
         } else {
           // Make a second attempt right away
-          const secondAttempt = await generatePortraitForPersona(persona, index);
+          const secondAttempt = await generatePortraitForPersona(persona, index, customPrompt);
           
           if (secondAttempt?.success && secondAttempt.updatedPersona) {
             return { index, success: true, updatedPersona: secondAttempt.updatedPersona };
@@ -125,7 +133,7 @@ export const usePortraitGeneration = () => {
         toast.error("Failed to generate any portraits. Please try again or click 'Retry Manually'.");
       }
     } catch (error) {
-      toast.error("Failed to complete portrait generation");
+      toast.error(error instanceof Error ? error.toString() : String(error));
     } finally {
       setIsGeneratingPortraits(false);
       // Clear any remaining loading indices
@@ -137,14 +145,15 @@ export const usePortraitGeneration = () => {
   const retryPortraitGeneration = async (
     persona: Persona, 
     index: number, 
-    updatePersonaCallback: (index: number, updatedPersona: Persona) => void
+    updatePersonaCallback: (index: number, updatedPersona: Persona) => void,
+    customPrompt?: string
   ) => {
     if (!persona) return;
 
     try {
       toast.info(`Retrying portrait for persona ${index + 1}`);
       setIsGeneratingPortraits(true);
-      const result = await generatePortraitForPersona(persona, index);
+      const result = await generatePortraitForPersona(persona, index, customPrompt);
       
       if (result?.success && result.updatedPersona) {
         updatePersonaCallback(index, result.updatedPersona);
@@ -153,7 +162,7 @@ export const usePortraitGeneration = () => {
         toast.error(`Failed to generate portrait for persona ${index + 1}. Please try again.`);
       }
     } catch (error) {
-      toast.error(`Failed to generate portrait: ${error instanceof Error ? error.message : String(error)}`);
+      toast.error(error instanceof Error ? error.toString() : String(error));
     } finally {
       setIsGeneratingPortraits(false);
     }

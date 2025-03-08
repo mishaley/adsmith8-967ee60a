@@ -1,40 +1,48 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../types";
-import { createPortraitPrompt } from "../utils/portraitUtils";
 
-export interface PortraitResult {
-  imageUrl?: string;
-  error?: string;
-}
+// Function to generate a portrait for a persona using the Supabase Edge Function
+export const generatePersonaPortrait = async (persona: Persona, customPrompt?: string) => {
+  if (!persona || !persona.title) {
+    console.error("Invalid persona data for portrait generation");
+    return { error: "Invalid persona data" };
+  }
 
-export const generatePersonaPortrait = async (
-  persona: Persona,
-  customPrompt?: string
-): Promise<PortraitResult> => {
   try {
-    // Use custom prompt if provided, otherwise generate one
-    const prompt = customPrompt || createPortraitPrompt(persona);
-    console.log(`Generating portrait with prompt: ${prompt}`);
+    console.log(`Generating portrait for persona: ${persona.title}`);
+    
+    // Prepare persona data for the API call
+    const personaData = {
+      name: persona.title,
+      gender: persona.gender,
+      age: persona.age,
+      occupation: persona.occupation,
+      interests: persona.interests,
+      race: persona.race,
+      customPrompt: customPrompt // Pass the custom prompt
+    };
 
-    // Call Supabase Edge function to generate the portrait
+    // Call the Supabase Edge Function to generate the portrait
     const { data, error } = await supabase.functions.invoke('generate-persona-image', {
-      body: { prompt }
+      body: personaData
     });
 
     if (error) {
-      console.error('Error generating portrait:', error);
-      return { error: error.message };
+      console.error("Error generating portrait:", error);
+      return { error: error.message || "Failed to generate portrait" };
     }
 
-    if (data && data.success && data.imageUrl) {
-      return { imageUrl: data.imageUrl };
-    } else {
-      console.error('Invalid response from portrait generation:', data);
-      return { error: data?.error || 'Failed to generate portrait' };
+    if (!data || !data.image_url) {
+      console.error("No image URL returned from the API");
+      return { error: "No image was generated" };
     }
-  } catch (error) {
-    console.error('Exception in portrait generation:', error);
-    return { error: error instanceof Error ? error.message : 'Unknown error' };
+
+    console.log(`Portrait generated successfully for ${persona.title}`);
+    return { imageUrl: data.image_url };
+
+  } catch (err) {
+    console.error("Exception in portrait generation:", err);
+    return { error: err instanceof Error ? err.message : String(err) };
   }
 };
