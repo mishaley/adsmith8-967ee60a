@@ -1,32 +1,13 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, X, ChevronDown, Check } from "lucide-react";
-import { Portal } from "@radix-ui/react-portal";
+import TriggerButton from "./TriggerButton";
+import SearchBar from "./SearchBar";
+import OptionList from "./OptionList";
+import ClearButton from "./ClearButton";
+import DropdownContent from "./DropdownContent";
+import { EnhancedDropdownProps, DropdownOption } from "./types";
 
-export interface DropdownOption {
-  id: string;
-  label: string;
-  icon?: string | React.ReactNode;
-  secondary?: string;
-}
-
-interface EnhancedDropdownProps {
-  options: DropdownOption[];
-  selectedItems: string[];
-  onSelectionChange: (selectedIds: string[]) => void;
-  placeholder?: string;
-  buttonIcon?: React.ReactNode;
-  multiSelect?: boolean;
-  searchPlaceholder?: string;
-  clearButtonText?: string;
-  renderOption?: (option: DropdownOption, isSelected: boolean, isHighlighted: boolean) => React.ReactNode;
-  className?: string;
-  buttonClassName?: string;
-  contentClassName?: string;
-  disabled?: boolean;
-}
+export type { DropdownOption } from "./types";
 
 export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   options,
@@ -192,155 +173,56 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
     }
   }, [isOpen]);
 
-  // Default option renderer
-  const defaultRenderOption = (option: DropdownOption, isSelected: boolean, isHighlighted: boolean) => (
-    <div className="flex items-center justify-between px-4 py-2">
-      <div className="flex items-center gap-2">
-        {multiSelect && (
-          <div className={`flex items-center justify-center w-5 h-5 mr-1 border rounded ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
-            {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
-          </div>
-        )}
-        {typeof option.icon === 'string' ? (
-          <span className="inline-block w-6 text-center">{option.icon}</span>
-        ) : option.icon ? (
-          option.icon
-        ) : null}
-        <span className="truncate">{option.label}</span>
-      </div>
-      {option.secondary && (
-        <span className="text-gray-500 truncate">{option.secondary}</span>
-      )}
-    </div>
-  );
-
   return (
     <div className={`relative ${className}`}>
       {/* Trigger button */}
-      <Button
+      <TriggerButton 
         ref={triggerRef}
-        variant="outline"
-        className={`w-full justify-between font-normal ${buttonClassName} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-        onClick={toggleDropdown}
+        placeholder={placeholder}
+        buttonIcon={buttonIcon}
+        selectedOptionLabels={selectedOptionLabels}
+        multiSelect={multiSelect}
+        onToggle={toggleDropdown}
+        isOpen={isOpen}
         disabled={disabled}
-        type="button"
-      >
-        <span className="flex items-center gap-2 text-left truncate">
-          {selectedOptionLabels.length > 0 ? (
-            <>
-              {selectedOptionLabels[0].icon && typeof selectedOptionLabels[0].icon === 'string' && (
-                <span className="inline-block w-6 text-center">
-                  {selectedOptionLabels[0].icon}
-                </span>
-              )}
-              {multiSelect && selectedOptionLabels.length > 1 ? (
-                <span>{selectedOptionLabels.length} selected</span>
-              ) : (
-                <span>{selectedOptionLabels[0].label}</span>
-              )}
-            </>
-          ) : (
-            <span className="text-gray-400">{placeholder}</span>
-          )}
-        </span>
-        {buttonIcon || <ChevronDown className="h-4 w-4 shrink-0" />}
-      </Button>
+        buttonClassName={buttonClassName}
+      />
 
-      {/* Dropdown content - using Portal to render outside of any containers */}
+      {/* Dropdown content */}
       {isOpen && (
-        <Portal>
-          <div 
-            ref={contentRef}
-            className={`fixed bg-white border border-gray-200 rounded-md shadow-lg z-[100] ${contentClassName}`}
-            style={{
-              top: `${contentPosition.top}px`,
-              left: `${contentPosition.left}px`,
-              width: `${contentPosition.width}px`,
-              maxHeight: '400px'
+        <DropdownContent
+          contentRef={contentRef}
+          contentPosition={contentPosition}
+          onKeyDown={handleKeyDown}
+          contentClassName={contentClassName}
+        >
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={(term) => {
+              setSearchTerm(term);
+              setHighlightedIndex(-1);
             }}
-            onKeyDown={handleKeyDown}
-          >
-            {/* Search bar */}
-            <div className="sticky top-0 bg-white z-10 p-2 border-b border-gray-100">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
-                <Input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder={searchPlaceholder}
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setHighlightedIndex(-1);
-                  }}
-                  className="pl-8 pr-8 w-full"
-                  autoComplete="off"
-                />
-                {searchTerm && (
-                  <button 
-                    className="absolute right-2 top-2.5"
-                    onClick={() => {
-                      setSearchTerm("");
-                      if (searchInputRef.current) {
-                        searchInputRef.current.focus();
-                      }
-                    }}
-                    aria-label="Clear search"
-                  >
-                    <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Options list */}
-            <div 
-              ref={listRef}
-              className="overflow-y-auto"
-              style={{ maxHeight: '250px' }}
-              role="listbox"
-              aria-multiselectable={multiSelect}
-            >
-              {filteredOptions.length === 0 ? (
-                <div className="p-4 text-center text-gray-500">No options found</div>
-              ) : (
-                filteredOptions.map((option, index) => (
-                  <div
-                    key={option.id}
-                    className={`
-                      cursor-pointer
-                      ${selectedItems.includes(option.id) ? 'bg-gray-100' : ''}
-                      ${highlightedIndex === index ? 'bg-gray-100' : ''}
-                      hover:bg-gray-100
-                    `}
-                    onClick={() => handleSelect(option.id)}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                    role="option"
-                    aria-selected={selectedItems.includes(option.id)}
-                  >
-                    {renderOption 
-                      ? renderOption(option, selectedItems.includes(option.id), highlightedIndex === index) 
-                      : defaultRenderOption(option, selectedItems.includes(option.id), highlightedIndex === index)}
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Clear selection button */}
-            <div className="sticky bottom-0 w-full border-t border-gray-200 bg-white">
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full text-gray-500 flex items-center justify-center py-2"
-                onClick={handleClearSelection}
-                disabled={selectedItems.length === 0}
-              >
-                <X className="h-4 w-4 mr-2" />
-                {clearButtonText}
-              </Button>
-            </div>
-          </div>
-        </Portal>
+            searchPlaceholder={searchPlaceholder}
+            inputRef={searchInputRef}
+          />
+          
+          <OptionList
+            filteredOptions={filteredOptions}
+            selectedItems={selectedItems}
+            highlightedIndex={highlightedIndex}
+            setHighlightedIndex={setHighlightedIndex}
+            onSelect={handleSelect}
+            multiSelect={multiSelect}
+            renderOption={renderOption}
+            listRef={listRef}
+          />
+          
+          <ClearButton
+            selectedItems={selectedItems}
+            onClear={handleClearSelection}
+            clearButtonText={clearButtonText}
+          />
+        </DropdownContent>
       )}
     </div>
   );
