@@ -113,17 +113,15 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         <div className="flex items-center gap-4" style={{ position: 'relative', zIndex: 20 }}>
           <div className="w-24 font-medium">Exclude</div>
           <div className="flex-1">
-            <ExcludeSelection 
-              selectedCountry={excludedCountry} 
-              setSelectedCountry={setExcludedCountry}
-              selectedCountryFlag={excludedCountryFlag}
-              onClearSelection={handleClearExclusion}
-              setExcludedCountryId={setExcludedCountryId}
-              hideLabel={true}
-              multiSelect={!!setExcludedCountries}
-              selectedCountries={excludedCountries}
-              setSelectedCountries={setExcludedCountries}
-            />
+            {/* Replace the old component with the new multi-select version */}
+            {setExcludedCountries && (
+              <ExcludeSelection 
+                excludedCountries={excludedCountries || []}
+                setExcludedCountries={setExcludedCountries}
+                setExcludedCountryId={setExcludedCountryId}
+                hideLabel={true}
+              />
+            )}
           </div>
         </div>
 

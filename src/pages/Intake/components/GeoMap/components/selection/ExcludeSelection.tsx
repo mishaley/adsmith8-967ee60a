@@ -5,27 +5,18 @@ import SelectionHeader from "./SelectionHeader";
 import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface ExcludeSelectionProps {
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
-  selectedCountryFlag: string | null;
-  onClearSelection: () => void;
+  // Remove single-select props and rename multi-select props for clarity
+  excludedCountries: string[];
+  setExcludedCountries: (countries: string[]) => void;
   setExcludedCountryId?: ((id: string) => void) | null;
   hideLabel?: boolean;
-  multiSelect?: boolean;
-  selectedCountries?: string[];
-  setSelectedCountries?: ((countries: string[]) => void) | null;
 }
 
 const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
-  selectedCountry,
-  setSelectedCountry,
-  selectedCountryFlag,
-  onClearSelection,
+  excludedCountries,
+  setExcludedCountries,
   setExcludedCountryId,
-  hideLabel = false,
-  multiSelect = false,
-  selectedCountries = [],
-  setSelectedCountries = null
+  hideLabel = false
 }) => {
   const { countries, isLoading } = useCountries();
   const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
@@ -44,44 +35,30 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   }, [countries]);
 
   const handleCountrySelect = (selectedIds: string[]) => {
-    if (selectedIds.length === 0) {
-      onClearSelection();
-      return;
-    }
+    // Update the excluded countries list
+    setExcludedCountries(selectedIds);
     
-    if (multiSelect && setSelectedCountries) {
-      // Update multi-select state
-      setSelectedCountries(selectedIds);
-      
-      // Also update single-select for backward compatibility
+    // For map highlighting, use the first country (if available)
+    if (setExcludedCountryId) {
       if (selectedIds.length > 0) {
-        setSelectedCountry(selectedIds[0]);
-      } else {
-        setSelectedCountry("");
-      }
-    } else {
-      // For single select, use the first selected item
-      const countryId = selectedIds[0];
-      setSelectedCountry(countryId);
-    }
-    
-    // Also update excluded country on map if that function is available (only for first country)
-    if (setExcludedCountryId && selectedIds.length > 0) {
-      const countryId = selectedIds[0];
-      
-      // Get the country object for map highlighting
-      const country = countries.find(c => c.country_id === countryId);
-      if (country) {
-        // We might need to convert UUID to ISO code first
-        const iso = country.country_iso2 || country.country_iso3;
-        if (iso) {
-          console.log(`Highlighting excluded country on map: ${iso}`);
-          setExcludedCountryId(iso);
+        const firstCountryId = selectedIds[0];
+        const country = countries.find(c => c.country_id === firstCountryId);
+        
+        if (country) {
+          // Use ISO code for map if available
+          const iso = country.country_iso2 || country.country_iso3;
+          if (iso) {
+            console.log(`Highlighting excluded country on map: ${iso}`);
+            setExcludedCountryId(iso);
+          } else {
+            setExcludedCountryId(firstCountryId);
+          }
         } else {
-          setExcludedCountryId(countryId);
+          setExcludedCountryId(firstCountryId);
         }
       } else {
-        setExcludedCountryId(countryId);
+        // Clear excluded country highlight if no countries selected
+        setExcludedCountryId("");
       }
     }
   };
@@ -92,12 +69,12 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
       
       <EnhancedDropdown
         options={countryOptions}
-        selectedItems={multiSelect && selectedCountries.length > 0 ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
+        selectedItems={excludedCountries}
         onSelectionChange={handleCountrySelect}
-        placeholder="Select country to exclude"
+        placeholder="Select countries to exclude"
         searchPlaceholder="Search countries to exclude..."
         disabled={isLoading}
-        multiSelect={multiSelect}
+        multiSelect={true}
       />
       
       {isLoading && (

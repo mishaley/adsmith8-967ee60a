@@ -24,11 +24,18 @@ export const useExcludedCountry = ({ setExcludedCountryId }: UseExcludedCountryP
           if (iso) {
             console.log(`Highlighting excluded country on map: ${iso}`);
             setExcludedCountryId(iso);
+          } else {
+            setExcludedCountryId(excludedCountry);
           }
         }
       }
     } else {
       setExcludedCountryFlag(null);
+      
+      // Clear excluded country on the map
+      if (setExcludedCountryId) {
+        setExcludedCountryId("");
+      }
     }
   }, [excludedCountry, countries, setExcludedCountryId]);
 
