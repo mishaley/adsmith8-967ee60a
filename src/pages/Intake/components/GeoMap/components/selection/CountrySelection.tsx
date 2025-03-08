@@ -12,6 +12,8 @@ interface CountrySelectionProps {
   onClearSelection: () => void;
   hideLabel?: boolean;
   multiSelect?: boolean;
+  selectedCountries?: string[];
+  setSelectedCountries?: ((countries: string[]) => void) | null;
 }
 
 const CountrySelection: React.FC<CountrySelectionProps> = ({
@@ -21,7 +23,9 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   countryName,
   onClearSelection,
   hideLabel = false,
-  multiSelect = false
+  multiSelect = false,
+  selectedCountries = [],
+  setSelectedCountries = null
 }) => {
   const { countries, isLoading } = useCountries();
   const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
@@ -54,12 +58,25 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       return;
     }
     
-    // For single select, use the first selected item
-    const countryId = selectedIds[0];
-    setSelectedCountry(countryId);
+    // Update multi-select state if available
+    if (multiSelect && setSelectedCountries) {
+      setSelectedCountries(selectedIds);
+      
+      // Also update single select state with first country for backward compatibility
+      if (selectedIds.length > 0) {
+        setSelectedCountry(selectedIds[0]);
+      } else {
+        setSelectedCountry("");
+      }
+    } else {
+      // For single select, use the first selected item
+      const countryId = selectedIds[0];
+      setSelectedCountry(countryId);
+    }
     
-    // Also update the map selection when selecting from dropdown
-    if (setSelectedCountryId) {
+    // Also update the map selection when selecting from dropdown (using first country)
+    if (setSelectedCountryId && selectedIds.length > 0) {
+      const countryId = selectedIds[0];
       console.log(`CountrySelection: Updating map with country ${countryId}`);
       
       if (countryId === "worldwide") {
@@ -94,7 +111,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       
       <EnhancedDropdown
         options={countryOptions}
-        selectedItems={selectedCountry ? [selectedCountry] : []}
+        selectedItems={multiSelect && selectedCountries.length > 0 ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
         onSelectionChange={handleCountrySelect}
         placeholder="Select country"
         searchPlaceholder="Search countries..."

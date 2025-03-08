@@ -41,6 +41,11 @@ const IntakeForm: React.FC = () => {
     setAdPlatform,
     selectedLanguage,
     setSelectedLanguage,
+    // Add multi-select state
+    selectedCountries,
+    setSelectedCountries,
+    selectedLanguages,
+    setSelectedLanguages,
     personas,
     setPersonas,
     generatedMessages,
@@ -134,6 +139,12 @@ const IntakeForm: React.FC = () => {
               
               selectedLanguage={selectedLanguage}
               setSelectedLanguage={setSelectedLanguage}
+              
+              // Add multi-select props
+              selectedCountries={selectedCountries}
+              setSelectedCountries={setSelectedCountries}
+              selectedLanguages={selectedLanguages}
+              setSelectedLanguages={setSelectedLanguages}
               
               personas={personas}
               summary={summary}

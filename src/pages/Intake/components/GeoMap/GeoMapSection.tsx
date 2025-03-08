@@ -1,8 +1,6 @@
 
 import React, { useRef, useEffect } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
-// import { useMapboxToken } from "./hooks/useMapboxToken";
-// import { useMapInitialization } from "./hooks/useMapInitialization";
 import SelectionDisplay from "./components/SelectionDisplay";
 
 interface GeoMapSectionProps {
@@ -10,13 +8,22 @@ interface GeoMapSectionProps {
   setSelectedCountry: (country: string) => void;
   selectedLanguage: string;
   setSelectedLanguage: (language: string) => void;
+  // Add multi-select props
+  selectedCountries?: string[];
+  setSelectedCountries?: (countries: string[]) => void;
+  selectedLanguages?: string[];
+  setSelectedLanguages?: (languages: string[]) => void;
 }
 
 const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   selectedCountry,
   setSelectedCountry,
   selectedLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  selectedCountries = [],
+  setSelectedCountries,
+  selectedLanguages = [],
+  setSelectedLanguages
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   
@@ -65,6 +72,10 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
           setSelectedLanguage={setSelectedLanguage}
           setSelectedCountryId={setSelectedCountryId}
           setExcludedCountryId={setExcludedCountryId}
+          selectedCountries={selectedCountries}
+          setSelectedCountries={setSelectedCountries}
+          selectedLanguages={selectedLanguages}
+          setSelectedLanguages={setSelectedLanguages}
         />
       </div>
       

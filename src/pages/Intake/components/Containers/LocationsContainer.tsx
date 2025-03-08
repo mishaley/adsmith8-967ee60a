@@ -7,13 +7,22 @@ interface LocationsContainerProps {
   setSelectedCountry: (value: string) => void;
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
+  // Add multi-select props
+  selectedCountries?: string[];
+  setSelectedCountries?: (values: string[]) => void;
+  selectedLanguages?: string[];
+  setSelectedLanguages?: (values: string[]) => void;
 }
 
 const LocationsContainer: React.FC<LocationsContainerProps> = ({
   selectedCountry,
   setSelectedCountry,
   selectedLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  selectedCountries = [],
+  setSelectedCountries,
+  selectedLanguages = [],
+  setSelectedLanguages
 }) => {
   return (
     <LocationsSection
@@ -21,6 +30,10 @@ const LocationsContainer: React.FC<LocationsContainerProps> = ({
       setSelectedCountry={setSelectedCountry}
       selectedLanguage={selectedLanguage}
       setSelectedLanguage={setSelectedLanguage}
+      selectedCountries={selectedCountries}
+      setSelectedCountries={setSelectedCountries}
+      selectedLanguages={selectedLanguages}
+      setSelectedLanguages={setSelectedLanguages}
     />
   );
 };

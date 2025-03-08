@@ -11,6 +11,8 @@ interface LanguageSelectionProps {
   primaryLanguageId: string | null;
   hideLabel?: boolean;
   multiSelect?: boolean;
+  selectedLanguages?: string[];
+  setSelectedLanguages?: ((languages: string[]) => void) | null;
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({
@@ -19,7 +21,9 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   isLoadingCountry,
   primaryLanguageId,
   hideLabel = false,
-  multiSelect = false
+  multiSelect = false,
+  selectedLanguages = [],
+  setSelectedLanguages = null
 }) => {
   const { languages, isLoading } = useLanguages();
   const [languageOptions, setLanguageOptions] = useState<DropdownOption[]>([]);
@@ -41,11 +45,28 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   const handleLanguageSelect = (selectedIds: string[]) => {
     if (selectedIds.length === 0) {
       setSelectedLanguage("");
+      
+      // Update multi-select state if available
+      if (multiSelect && setSelectedLanguages) {
+        setSelectedLanguages([]);
+      }
       return;
     }
     
-    // For single select, use the first selected item
-    setSelectedLanguage(selectedIds[0]);
+    // Update multi-select state if available
+    if (multiSelect && setSelectedLanguages) {
+      setSelectedLanguages(selectedIds);
+      
+      // Also update single select for backward compatibility
+      if (selectedIds.length > 0) {
+        setSelectedLanguage(selectedIds[0]);
+      } else {
+        setSelectedLanguage("");
+      }
+    } else {
+      // For single select, use the first selected item
+      setSelectedLanguage(selectedIds[0]);
+    }
   };
 
   return (
@@ -54,7 +75,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
       
       <EnhancedDropdown
         options={languageOptions}
-        selectedItems={selectedLanguage ? [selectedLanguage] : []}
+        selectedItems={multiSelect && selectedLanguages.length > 0 ? selectedLanguages : (selectedLanguage ? [selectedLanguage] : [])}
         onSelectionChange={handleLanguageSelect}
         placeholder="Select language"
         searchPlaceholder="Search languages..."

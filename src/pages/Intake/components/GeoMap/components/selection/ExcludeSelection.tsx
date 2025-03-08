@@ -12,6 +12,8 @@ interface ExcludeSelectionProps {
   setExcludedCountryId?: ((id: string) => void) | null;
   hideLabel?: boolean;
   multiSelect?: boolean;
+  selectedCountries?: string[];
+  setSelectedCountries?: ((countries: string[]) => void) | null;
 }
 
 const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
@@ -21,7 +23,9 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   onClearSelection,
   setExcludedCountryId,
   hideLabel = false,
-  multiSelect = false
+  multiSelect = false,
+  selectedCountries = [],
+  setSelectedCountries = null
 }) => {
   const { countries, isLoading } = useCountries();
   const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
@@ -45,13 +49,40 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
       return;
     }
     
-    // For single select, use the first selected item
-    const countryId = selectedIds[0];
-    setSelectedCountry(countryId);
+    if (multiSelect && setSelectedCountries) {
+      // Update multi-select state
+      setSelectedCountries(selectedIds);
+      
+      // Also update single-select for backward compatibility
+      if (selectedIds.length > 0) {
+        setSelectedCountry(selectedIds[0]);
+      } else {
+        setSelectedCountry("");
+      }
+    } else {
+      // For single select, use the first selected item
+      const countryId = selectedIds[0];
+      setSelectedCountry(countryId);
+    }
     
-    // Also update excluded country on map if that function is available
-    if (setExcludedCountryId) {
-      setExcludedCountryId(countryId);
+    // Also update excluded country on map if that function is available (only for first country)
+    if (setExcludedCountryId && selectedIds.length > 0) {
+      const countryId = selectedIds[0];
+      
+      // Get the country object for map highlighting
+      const country = countries.find(c => c.country_id === countryId);
+      if (country) {
+        // We might need to convert UUID to ISO code first
+        const iso = country.country_iso2 || country.country_iso3;
+        if (iso) {
+          console.log(`Highlighting excluded country on map: ${iso}`);
+          setExcludedCountryId(iso);
+        } else {
+          setExcludedCountryId(countryId);
+        }
+      } else {
+        setExcludedCountryId(countryId);
+      }
     }
   };
 
@@ -61,7 +92,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
       
       <EnhancedDropdown
         options={countryOptions}
-        selectedItems={selectedCountry ? [selectedCountry] : []}
+        selectedItems={multiSelect && selectedCountries.length > 0 ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
         onSelectionChange={handleCountrySelect}
         placeholder="Select country to exclude"
         searchPlaceholder="Search countries to exclude..."

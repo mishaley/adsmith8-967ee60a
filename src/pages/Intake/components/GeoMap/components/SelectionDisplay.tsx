@@ -13,6 +13,11 @@ interface SelectionDisplayProps {
   setSelectedLanguage: (language: string) => void;
   setSelectedCountryId?: ((id: string) => void) | null;
   setExcludedCountryId?: ((id: string) => void) | null;
+  // Add multi-select props
+  selectedCountries?: string[];
+  setSelectedCountries?: ((countries: string[]) => void) | null;
+  selectedLanguages?: string[];
+  setSelectedLanguages?: ((languages: string[]) => void) | null;
 }
 
 const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
@@ -21,7 +26,11 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
   selectedLanguage,
   setSelectedLanguage,
   setSelectedCountryId,
-  setExcludedCountryId
+  setExcludedCountryId,
+  selectedCountries = [],
+  setSelectedCountries = null,
+  selectedLanguages = [],
+  setSelectedLanguages = null
 }) => {
   const {
     primaryLanguageId,
@@ -41,12 +50,22 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     if (selectedCountry === "worldwide" && selectedLanguage !== "en") {
       console.log("SelectionDisplay: Enforcing English for Worldwide selection");
       setSelectedLanguage("en");
+      
+      // Also update multi-select languages if available
+      if (setSelectedLanguages) {
+        setSelectedLanguages(["en"]);
+      }
     }
-  }, [selectedCountry, selectedLanguage, setSelectedLanguage]);
+  }, [selectedCountry, selectedLanguage, setSelectedLanguage, setSelectedLanguages]);
   
   const handleClearSelection = () => {
     // Clear both the country selection and map highlighting
     setSelectedCountry('');
+
+    // Also clear multi-select countries if available
+    if (setSelectedCountries) {
+      setSelectedCountries([]);
+    }
 
     // Ensure the map highlight is cleared by explicitly passing empty string
     if (setSelectedCountryId) {
@@ -55,6 +74,11 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
 
     // Also clear the language when country is cleared
     setSelectedLanguage('');
+    
+    // Also clear multi-select languages if available
+    if (setSelectedLanguages) {
+      setSelectedLanguages([]);
+    }
   };
   
   return (
@@ -72,6 +96,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               countryName={countryName} 
               onClearSelection={handleClearSelection}
               hideLabel={true}
+              multiSelect={!!setSelectedCountries}
+              selectedCountries={selectedCountries}
+              setSelectedCountries={setSelectedCountries}
             />
           </div>
         </div>
@@ -87,6 +114,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               onClearSelection={handleClearExclusion}
               setExcludedCountryId={setExcludedCountryId}
               hideLabel={true}
+              multiSelect={false}
             />
           </div>
         </div>
@@ -101,6 +129,9 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               isLoadingCountry={isLoadingCountry} 
               primaryLanguageId={primaryLanguageId}
               hideLabel={true}
+              multiSelect={!!setSelectedLanguages}
+              selectedLanguages={selectedLanguages}
+              setSelectedLanguages={setSelectedLanguages}
             />
           </div>
         </div>

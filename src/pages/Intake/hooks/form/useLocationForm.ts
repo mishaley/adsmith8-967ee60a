@@ -1,21 +1,40 @@
+
 import { STORAGE_KEYS } from "../../utils/localStorageUtils";
 import { useLocalStorageState } from "./useLocalStorageState";
 
 export const useLocationForm = () => {
-  // For country, we'll continue to use a single string since the current UI design assumes
-  // a single country selection
-  const [selectedCountry, setSelectedCountry] = useLocalStorageState<string>(
-    `${STORAGE_KEYS.LOCATION}_country`, 
-    "US"
+  // Changed from string to string[] to support multi-select
+  const [selectedCountries, setSelectedCountries] = useLocalStorageState<string[]>(
+    `${STORAGE_KEYS.LOCATION}_countries`, 
+    []
   );
   
-  // For language, we keep it as a string for now to maintain compatibility
-  const [selectedLanguage, setSelectedLanguage] = useLocalStorageState<string>(
+  // Changed from string to string[] to support multi-select
+  const [selectedLanguages, setSelectedLanguages] = useLocalStorageState<string[]>(
     `${STORAGE_KEYS.LANGUAGE}_selected`, 
-    "en"
+    []
   );
+  
+  // Backward compatibility: provide single-select getters/setters
+  // This helps during transition to avoid breaking existing code
+  const selectedCountry = selectedCountries.length > 0 ? selectedCountries[0] : "";
+  const setSelectedCountry = (country: string) => {
+    setSelectedCountries(country ? [country] : []);
+  };
+  
+  const selectedLanguage = selectedLanguages.length > 0 ? selectedLanguages[0] : "";
+  const setSelectedLanguage = (language: string) => {
+    setSelectedLanguages(language ? [language] : []);
+  };
   
   return {
+    // Multi-select API
+    selectedCountries,
+    setSelectedCountries,
+    selectedLanguages,
+    setSelectedLanguages,
+    
+    // Single-select API (for backward compatibility)
     selectedCountry,
     setSelectedCountry,
     selectedLanguage,

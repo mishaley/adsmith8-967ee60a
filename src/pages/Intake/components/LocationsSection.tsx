@@ -10,13 +10,22 @@ interface LocationsSectionProps {
   setSelectedCountry: (value: string) => void;
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
+  // Add multi-select props
+  selectedCountries?: string[];
+  setSelectedCountries?: (values: string[]) => void;
+  selectedLanguages?: string[];
+  setSelectedLanguages?: (values: string[]) => void;
 }
 
 const LocationsSection: React.FC<LocationsSectionProps> = ({
   selectedCountry,
   setSelectedCountry,
   selectedLanguage,
-  setSelectedLanguage
+  setSelectedLanguage,
+  selectedCountries = [],
+  setSelectedCountries,
+  selectedLanguages = [],
+  setSelectedLanguages
 }) => {
   const [locationGroupName, setLocationGroupName] = useState(() => 
     loadFromLocalStorage<string>(STORAGE_KEYS.LOCATION + "_groupName", "")
@@ -62,6 +71,10 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
           setSelectedCountry={setSelectedCountry}
           selectedLanguage={selectedLanguage}
           setSelectedLanguage={setSelectedLanguage}
+          selectedCountries={selectedCountries}
+          setSelectedCountries={setSelectedCountries}
+          selectedLanguages={selectedLanguages}
+          setSelectedLanguages={setSelectedLanguages}
         />
       </div>
     </CollapsibleSection>
