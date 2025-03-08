@@ -142,6 +142,7 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
         searchInputRef.current.focus();
       }
     } else {
+      // For single select, just replace the current selection
       onSelectionChange([id]);
       setIsOpen(false);
       setSearchTerm("");

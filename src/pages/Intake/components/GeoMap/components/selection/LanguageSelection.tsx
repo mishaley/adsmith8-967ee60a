@@ -59,7 +59,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
         placeholder="Select language"
         searchPlaceholder="Search languages..."
         disabled={isLoading}
-        multiSelect={false} // Force single select for language
+        multiSelect={multiSelect}
       />
       
       {isLoadingCountry && primaryLanguageId && (

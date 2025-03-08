@@ -66,7 +66,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
         placeholder="Select country to exclude"
         searchPlaceholder="Search countries to exclude..."
         disabled={isLoading}
-        multiSelect={false} // Force single select for excluded country
+        multiSelect={multiSelect}
       />
       
       {isLoading && (

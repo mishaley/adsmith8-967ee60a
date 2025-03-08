@@ -72,7 +72,6 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               countryName={countryName} 
               onClearSelection={handleClearSelection}
               hideLabel={true}
-              multiSelect={false} // Force single select for country
             />
           </div>
         </div>
@@ -88,7 +87,6 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               onClearSelection={handleClearExclusion}
               setExcludedCountryId={setExcludedCountryId}
               hideLabel={true}
-              multiSelect={false} // Force single select for excluded country
             />
           </div>
         </div>
@@ -103,7 +101,6 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
               isLoadingCountry={isLoadingCountry} 
               primaryLanguageId={primaryLanguageId}
               hideLabel={true}
-              multiSelect={false} // Force single select for language
             />
           </div>
         </div>
