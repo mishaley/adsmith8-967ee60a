@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
-export const STORAGE_KEY = "selectedOrganizationId";
-export const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
+// Storage key for organization selection
+const STORAGE_KEY = "selectedOrganizationId";
+const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
 
 export const useOrganizationSync = () => {
   // Initialize with the stored organization ID from localStorage
@@ -39,5 +40,5 @@ export const useOrganizationSync = () => {
     }
   };
 
-  return { selectedOrgId, setSelectedOrgId, handleOrgChange };
+  return { selectedOrgId, handleOrgChange };
 };

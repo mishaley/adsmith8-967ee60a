@@ -9,38 +9,28 @@ import {
   SelectSeparator,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import MultiSelect from "./MultiSelect";
-
-// Campaign platform options from Supabase enum
-const PLATFORM_OPTIONS = ["Google", "Meta"] as const;
-
-// Campaign bid strategy options from Supabase enum
-const BID_STRATEGY_OPTIONS = ["Highest Volume", "Cost Per Result", "Return On Ad Spend"] as const;
+import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
+import { PLATFORM_OPTIONS, BID_STRATEGY_OPTIONS } from "../constants";
 
 interface CampaignSettingsFormProps {
-  // Organizations section
   organizations: any[];
   selectedOrgId: string;
   handleOrgChange: (value: string) => void;
-  offeringOptions: { value: string; label: string }[];
+  offeringOptions: DropdownOption[];
   selectedOfferingIds: string[];
-  setSelectedOfferingIds: (value: string[]) => void;
-  personaOptions: { value: string; label: string }[];
+  setSelectedOfferingIds: (ids: string[]) => void;
+  personaOptions: DropdownOption[];
   selectedPersonaIds: string[];
-  setSelectedPersonaIds: (value: string[]) => void;
-  messageOptions: { value: string; label: string }[];
+  setSelectedPersonaIds: (ids: string[]) => void;
+  messageOptions: DropdownOption[];
   selectedMessageIds: string[];
-  setSelectedMessageIds: (value: string[]) => void;
-  
-  // Campaign settings
+  setSelectedMessageIds: (ids: string[]) => void;
   selectedPlatform: string;
   handlePlatformChange: (value: string) => void;
   dailyBudget: string;
   handleDailyBudgetChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   selectedBidStrategy: string;
   handleBidStrategyChange: (value: string) => void;
-  
-  // Location and language
   selectedLocation: string;
   handleLocationChange: (value: string) => void;
   selectedLanguage: string;
@@ -60,14 +50,12 @@ const CampaignSettingsForm: React.FC<CampaignSettingsFormProps> = ({
   messageOptions,
   selectedMessageIds,
   setSelectedMessageIds,
-  
   selectedPlatform,
   handlePlatformChange,
   dailyBudget,
   handleDailyBudgetChange,
   selectedBidStrategy,
   handleBidStrategyChange,
-  
   selectedLocation,
   handleLocationChange,
   selectedLanguage,
@@ -198,11 +186,13 @@ const CampaignSettingsForm: React.FC<CampaignSettingsFormProps> = ({
             </td>
             <td className="border border-transparent p-4">
               <div className="min-w-[180px]">
-                <MultiSelect
+                <EnhancedDropdown
                   options={offeringOptions}
-                  value={selectedOfferingIds}
-                  onChange={setSelectedOfferingIds}
-                  placeholder=""
+                  selectedItems={selectedOfferingIds}
+                  onSelectionChange={setSelectedOfferingIds}
+                  placeholder="Select offerings"
+                  searchPlaceholder="Search offerings..."
+                  multiSelect={true}
                   disabled={!selectedOrgId}
                 />
               </div>
@@ -245,11 +235,13 @@ const CampaignSettingsForm: React.FC<CampaignSettingsFormProps> = ({
             </td>
             <td className="border border-transparent p-4">
               <div className="min-w-[180px]">
-                <MultiSelect
+                <EnhancedDropdown
                   options={personaOptions}
-                  value={selectedPersonaIds}
-                  onChange={setSelectedPersonaIds}
-                  placeholder=""
+                  selectedItems={selectedPersonaIds}
+                  onSelectionChange={setSelectedPersonaIds}
+                  placeholder="Select personas"
+                  searchPlaceholder="Search personas..."
+                  multiSelect={true}
                   disabled={selectedOfferingIds.length === 0}
                 />
               </div>
@@ -268,11 +260,13 @@ const CampaignSettingsForm: React.FC<CampaignSettingsFormProps> = ({
             </td>
             <td className="border border-transparent p-4">
               <div className="min-w-[180px]">
-                <MultiSelect
+                <EnhancedDropdown
                   options={messageOptions}
-                  value={selectedMessageIds}
-                  onChange={setSelectedMessageIds}
-                  placeholder=""
+                  selectedItems={selectedMessageIds}
+                  onSelectionChange={setSelectedMessageIds}
+                  placeholder="Select messages"
+                  searchPlaceholder="Search messages..."
+                  multiSelect={true}
                   disabled={selectedPersonaIds.length === 0}
                 />
               </div>
