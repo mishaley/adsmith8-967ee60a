@@ -5,11 +5,11 @@ export interface Persona {
   title: string;
   description: string;
   imageUrl?: string;
-  portraitUrl?: string; // Added for compatibility
-  gender?: string;
+  portraitUrl?: string;
+  gender: string; // Now required for consistency
   age?: string;
-  ageMin?: string | number; // Added for compatibility
-  ageMax?: string | number; // Added for compatibility
+  ageMin?: string | number;
+  ageMax?: string | number;
   occupation?: string;
   interests?: string[];
   race?: string;

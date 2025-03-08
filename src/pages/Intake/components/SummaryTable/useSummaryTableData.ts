@@ -37,6 +37,24 @@ export const useSummaryTableData = () => {
     };
   }, []);
 
+  // Query organizations
+  const { data: organizations = [] } = useQuery({
+    queryKey: ["organizations"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("a1organizations")
+        .select("organization_id, organization_name, organization_industry");
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Get the current organization
+  const currentOrganization = selectedOrgId 
+    ? organizations.find(org => org.organization_id === selectedOrgId) 
+    : null;
+
   // Query offerings based on selected organization
   const { data: offerings = [] } = useQuery({
     queryKey: ["offerings", selectedOrgId],
@@ -89,6 +107,18 @@ export const useSummaryTableData = () => {
     });
   }
 
+  // Function to handle organization change
+  const handleOrgChange = (value: string) => {
+    setSelectedOrgId(value);
+    localStorage.setItem(STORAGE_KEY, value);
+    
+    // Dispatch a custom event to notify other components
+    const event = new CustomEvent('organizationChanged', { 
+      detail: { organizationId: value }
+    });
+    window.dispatchEvent(event);
+  };
+
   // Placeholder options for personas and messages
   const personaOptions = [
     { value: "persona-1", label: "Persona 1" },
@@ -110,11 +140,14 @@ export const useSummaryTableData = () => {
     setSelectedOrgId,
     selectedOfferingId,
     setSelectedOfferingId,
+    organizations,
     offerings,
     offeringOptions,
     isOfferingsDisabled,
+    currentOrganization,
+    handleOrgChange,
     
-    // Add missing persona and message props
+    // Persona and message props
     selectedPersonaIds,
     setSelectedPersonaIds,
     selectedMessageIds,
