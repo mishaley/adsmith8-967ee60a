@@ -11,7 +11,7 @@ export interface Persona {
   ageMin?: number; // Changed to be only number type for consistency
   ageMax?: number; // Changed to be only number type for consistency
   occupation?: string;
-  interests?: string[];
+  interests: string[]; // Changed from optional to required
   race?: string;
   loading?: boolean;
   error?: string;

@@ -55,7 +55,7 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
     return {
       ...persona,
       gender: normalizeGender(persona.gender || ''), // Ensure gender is never empty
-      interests: enhancedInterests,
+      interests: enhancedInterests, // This is now guaranteed to be a non-empty array
       ageMin,
       ageMax
     };
