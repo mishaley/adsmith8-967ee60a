@@ -5,7 +5,6 @@ import SelectionHeader from "./SelectionHeader";
 import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface ExcludeSelectionProps {
-  // Remove single-select props and rename multi-select props for clarity
   excludedCountries: string[];
   setExcludedCountries: (countries: string[]) => void;
   setExcludedCountryId?: ((id: string) => void) | null;

@@ -113,7 +113,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         <div className="flex items-center gap-4" style={{ position: 'relative', zIndex: 20 }}>
           <div className="w-24 font-medium">Exclude</div>
           <div className="flex-1">
-            {/* Replace the old component with the new multi-select version */}
+            {/* Only render if setExcludedCountries is provided */}
             {setExcludedCountries && (
               <ExcludeSelection 
                 excludedCountries={excludedCountries || []}

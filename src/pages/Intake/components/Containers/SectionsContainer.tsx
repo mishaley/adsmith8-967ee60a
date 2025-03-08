@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -36,11 +35,13 @@ interface SectionsContainerProps {
   selectedLanguage: string;
   setSelectedLanguage: (value: string) => void;
   
-  // Add multi-select props
   selectedCountries?: string[];
   setSelectedCountries?: (values: string[]) => void;
   selectedLanguages?: string[];
   setSelectedLanguages?: (values: string[]) => void;
+  
+  excludedCountries?: string[];
+  setExcludedCountries?: (values: string[]) => void;
   
   personas: Persona[];
   summary: string;
@@ -84,11 +85,13 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     selectedLanguage,
     setSelectedLanguage,
     
-    // Multi-select props
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
     setSelectedLanguages,
+    
+    excludedCountries,
+    setExcludedCountries,
     
     personas,
     summary,
@@ -137,6 +140,8 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         setSelectedCountries={setSelectedCountries}
         selectedLanguages={selectedLanguages}
         setSelectedLanguages={setSelectedLanguages}
+        excludedCountries={excludedCountries}
+        setExcludedCountries={setExcludedCountries}
       />
       
       <PersonasContainer

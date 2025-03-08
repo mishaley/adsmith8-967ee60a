@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import QuadrantLayout from "@/components/QuadrantLayout";
@@ -21,7 +20,6 @@ import {
 import { clearFormAndRefresh } from "./utils/localStorageUtils";
 
 const IntakeForm: React.FC = () => {
-  // Get all form state and handlers from the hook
   const {
     brandName,
     setBrandName,
@@ -41,11 +39,12 @@ const IntakeForm: React.FC = () => {
     setAdPlatform,
     selectedLanguage,
     setSelectedLanguage,
-    // Add multi-select state
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
     setSelectedLanguages,
+    excludedCountries,
+    setExcludedCountries,
     personas,
     setPersonas,
     generatedMessages,
@@ -55,7 +54,6 @@ const IntakeForm: React.FC = () => {
     handleSave
   } = useIntakeForm();
 
-  // Get personas-related functionality
   const {
     summary,
     isGeneratingPersonas,
@@ -69,7 +67,6 @@ const IntakeForm: React.FC = () => {
     setPersonaCount,
   } = usePersonasManager(offering, selectedCountry);
 
-  // Handler to update messages state
   const handleUpdateMessages = (
     updatedMessages: any,
     updatedTypes: string[]
@@ -84,7 +81,6 @@ const IntakeForm: React.FC = () => {
         q1: <OrganizationSelector />,
         q4: (
           <div className="bg-#d3e4fd rounded-2xl shadow-sm p-4 relative overflow-hidden max-w-6xl mx-auto">
-            {/* Welcome Text */}
             <div className="mb-6 text-center">
               <p className="mb-4 text-2xl">Welcome to Adsmith! Your marketing ROI is our only focus.</p>
               <p className="mb-4 text-2xl">
@@ -92,7 +88,6 @@ const IntakeForm: React.FC = () => {
               </p>
             </div>
             
-            {/* Clear Form Button */}
             <div className="absolute top-0 right-0 z-10 mr-6 mt-6">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -140,11 +135,13 @@ const IntakeForm: React.FC = () => {
               selectedLanguage={selectedLanguage}
               setSelectedLanguage={setSelectedLanguage}
               
-              // Add multi-select props
               selectedCountries={selectedCountries}
               setSelectedCountries={setSelectedCountries}
               selectedLanguages={selectedLanguages}
               setSelectedLanguages={setSelectedLanguages}
+              
+              excludedCountries={excludedCountries}
+              setExcludedCountries={setExcludedCountries}
               
               personas={personas}
               summary={summary}
