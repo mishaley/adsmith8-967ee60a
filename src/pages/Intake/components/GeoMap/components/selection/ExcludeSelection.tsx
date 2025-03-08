@@ -1,9 +1,8 @@
 
-import React, { useState } from "react";
-import CountryDropdown from "../CountryDropdown";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import React, { useEffect, useState } from "react";
+import { useCountries } from "../../hooks/useCountries";
 import SelectionHeader from "./SelectionHeader";
-import SelectionButton from "./SelectionButton";
+import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface ExcludeSelectionProps {
   selectedCountry: string;
@@ -22,59 +21,58 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   setExcludedCountryId,
   hideLabel = false
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { countries } = useCountries();
+  const { countries, isLoading } = useCountries();
+  const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
+  
+  useEffect(() => {
+    if (countries.length > 0) {
+      // Create dropdown options from countries
+      const options: DropdownOption[] = countries.map(country => ({
+        id: country.country_id,
+        label: country.country_name,
+        icon: country.country_flag
+      }));
+      
+      setCountryOptions(options);
+    }
+  }, [countries]);
 
-  const handleCountrySelect = (country: string, flag?: string) => {
-    setSelectedCountry(country);
-    setIsDropdownOpen(false);
+  const handleCountrySelect = (selectedIds: string[]) => {
+    if (selectedIds.length === 0) {
+      onClearSelection();
+      return;
+    }
+    
+    const countryId = selectedIds[0];
+    setSelectedCountry(countryId);
+    
+    // Also update excluded country on map if that function is available
+    if (setExcludedCountryId) {
+      setExcludedCountryId(countryId);
+    }
   };
-
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-
-  // Get the country name from the selected country ID
-  const displayName = countries.find(c => c.country_id === selectedCountry)?.country_name || "";
 
   return (
     <div>
       {!hideLabel && <SelectionHeader title="Exclude" />}
       
-      <Popover open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-        <PopoverTrigger asChild>
-          <SelectionButton 
-            onClick={toggleDropdown}
-            selectedFlag={selectedCountryFlag}
-            displayName={displayName}
-          />
-        </PopoverTrigger>
-        
-        <PopoverContent 
-          align="center" 
-          side="top" 
-          className="w-[var(--radix-popover-trigger-width)] p-0 bg-white rounded-md shadow-lg border-gray-100 z-50"
-          style={{ 
-            border: '1px solid #f1f1f1',
-            maxHeight: '300px',
-            overflowY: 'visible',
-            position: 'absolute'
-          }}
-          sideOffset={5}
-        >
-          <div className="max-h-80 overflow-visible">
-            <CountryDropdown 
-              selectedCountry={selectedCountry} 
-              setSelectedCountry={handleCountrySelect}
-              setSelectedCountryId={null}
-              isExcludeDropdown={true}
-            />
-          </div>
-        </PopoverContent>
-      </Popover>
+      <EnhancedDropdown
+        options={countryOptions}
+        selectedItems={selectedCountry ? [selectedCountry] : []}
+        onSelectionChange={handleCountrySelect}
+        placeholder="Select country to exclude"
+        searchPlaceholder="Search countries to exclude..."
+        disabled={isLoading}
+        multiSelect={false}
+      />
+      
+      {isLoading && (
+        <div className="mt-2 text-sm text-gray-500">
+          Loading countries...
+        </div>
+      )}
     </div>
   );
 };
-
-// Add the missing useCountries import
-import { useCountries } from "../../hooks/useCountries";
 
 export default ExcludeSelection;

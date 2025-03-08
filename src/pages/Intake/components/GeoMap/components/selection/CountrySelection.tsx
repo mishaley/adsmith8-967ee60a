@@ -1,9 +1,8 @@
 
-import React, { useState, useRef, useEffect } from "react";
-import CountryDropdown from "../CountryDropdown";
+import React, { useEffect, useState } from "react";
 import { useCountries } from "../../hooks/useCountries";
 import SelectionHeader from "./SelectionHeader";
-import SelectionButton from "./SelectionButton";
+import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface CountrySelectionProps {
   selectedCountry: string;
@@ -22,84 +21,90 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   onClearSelection,
   hideLabel = false
 }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedCountryFlag, setSelectedCountryFlag] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const { countries } = useCountries();
-
+  const { countries, isLoading } = useCountries();
+  const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
+  
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isDropdownOpen && 
-          dropdownRef.current && 
-          !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isDropdownOpen]);
-
-  useEffect(() => {
-    if (selectedCountry && selectedCountry === "worldwide") {
-      setSelectedCountryFlag("🌐");
-    } else if (selectedCountry && countries.length > 0) {
-      const country = countries.find(c => c.country_id === selectedCountry);
-      if (country) {
-        setSelectedCountryFlag(country.country_flag);
-        console.log(`CountrySelection: Updated flag for ${country.country_name}: ${country.country_flag}`);
-      } else {
-        console.log(`CountrySelection: No country found with ID ${selectedCountry}`);
-      }
-    } else {
-      setSelectedCountryFlag(null);
+    if (countries.length > 0) {
+      // Create dropdown options from countries
+      const options: DropdownOption[] = [
+        // Add worldwide option at the top
+        {
+          id: "worldwide",
+          label: "Worldwide",
+          icon: "🌐"
+        },
+        // Add all country options
+        ...countries.map(country => ({
+          id: country.country_id,
+          label: country.country_name,
+          icon: country.country_flag
+        }))
+      ];
+      
+      setCountryOptions(options);
     }
-  }, [selectedCountry, countries]);
+  }, [countries]);
 
-  const handleCountrySelect = (country: string, flag?: string) => {
-    console.log(`CountrySelection: Setting country to ${country}`);
-    setSelectedCountry(country);
-    if (flag) setSelectedCountryFlag(flag);
-    setIsDropdownOpen(false);
+  const handleCountrySelect = (selectedIds: string[]) => {
+    if (selectedIds.length === 0) {
+      onClearSelection();
+      return;
+    }
+    
+    const countryId = selectedIds[0];
+    console.log(`CountrySelection: Setting country to ${countryId}`);
+    setSelectedCountry(countryId);
     
     // Also update the map selection when selecting from dropdown
     if (setSelectedCountryId) {
-      console.log(`CountrySelection: Updating map with country ${country}`);
-      setSelectedCountryId(country);
+      console.log(`CountrySelection: Updating map with country ${countryId}`);
+      
+      if (countryId === "worldwide") {
+        setSelectedCountryId("worldwide");
+        return;
+      }
+      
+      // Get the country object for map highlighting
+      const selectedCountry = countries.find(c => c.country_id === countryId);
+      
+      if (selectedCountry) {
+        // Use ISO3 code for map highlighting as it matches the GeoJSON features better
+        if (selectedCountry.country_iso3) {
+          console.log(`Using ISO3 code for highlighting: ${selectedCountry.country_iso3}`);
+          setSelectedCountryId(selectedCountry.country_iso3);
+        } else if (selectedCountry.country_iso2) {
+          console.log(`Using ISO2 code for highlighting: ${selectedCountry.country_iso2}`);
+          setSelectedCountryId(selectedCountry.country_iso2);
+        } else {
+          console.log(`No ISO code found, using country_id: ${countryId}`);
+          setSelectedCountryId(countryId);
+        }
+      } else {
+        setSelectedCountryId(countryId);
+      }
     }
   };
-
-  // Display name for the worldwide option
-  const displayName = selectedCountry === "worldwide" ? "Worldwide" : countryName || "";
-
-  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
   return (
     <div>
       {!hideLabel && <SelectionHeader title="Country" />}
       
-      <div className="relative" ref={dropdownRef}>
-        <SelectionButton 
-          onClick={toggleDropdown}
-          selectedFlag={selectedCountryFlag}
-          displayName={displayName}
-        />
-        
-        {isDropdownOpen && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
-            <div className="max-h-60 overflow-auto">
-              <CountryDropdown 
-                selectedCountry={selectedCountry} 
-                setSelectedCountry={handleCountrySelect}
-                setSelectedCountryId={setSelectedCountryId}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      <EnhancedDropdown
+        options={countryOptions}
+        selectedItems={selectedCountry ? [selectedCountry] : []}
+        onSelectionChange={handleCountrySelect}
+        placeholder="Select country"
+        searchPlaceholder="Search countries..."
+        disabled={isLoading}
+        multiSelect={false}
+      />
+      
+      {isLoading && (
+        <div className="mt-2 text-sm text-gray-500">
+          Loading countries...
+        </div>
+      )}
     </div>
   );
 };

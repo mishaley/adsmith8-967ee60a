@@ -1,8 +1,8 @@
 
-import React from "react";
-import { useLanguageSelection } from "../../../Languages/hooks/useLanguageSelection";
-import { LanguageDropdown, LanguageSelectButton } from "../../../Languages/components/LanguageDropdown";
+import React, { useEffect, useState } from "react";
+import { useLanguages } from "../../../Languages/hooks/useLanguages";
 import SelectionHeader from "./SelectionHeader";
+import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface LanguageSelectionProps {
   selectedLanguage: string;
@@ -19,53 +19,45 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   primaryLanguageId,
   hideLabel = false
 }) => {
-  const {
-    searchTerm,
-    isDropdownOpen,
-    highlightedIndex,
-    selectedLanguageObject,
-    filteredLanguages,
-    isLoading,
-    containerRef,
-    setSearchTerm,
-    setHighlightedIndex,
-    handleLanguageSelect,
-    handleClearSelection,
-    handleKeyDown,
-    toggleDropdown
-  } = useLanguageSelection({
-    selectedLanguage,
-    setSelectedLanguage
-  });
+  const { languages, isLoading } = useLanguages();
+  const [languageOptions, setLanguageOptions] = useState<DropdownOption[]>([]);
+  
+  useEffect(() => {
+    if (languages.length > 0) {
+      // Create dropdown options from languages
+      const options: DropdownOption[] = languages.map(language => ({
+        id: language.language_id,
+        label: language.language_name,
+        icon: language.language_flag,
+        secondary: language.language_native
+      }));
+      
+      setLanguageOptions(options);
+    }
+  }, [languages]);
+
+  const handleLanguageSelect = (selectedIds: string[]) => {
+    if (selectedIds.length === 0) {
+      setSelectedLanguage("");
+      return;
+    }
+    
+    setSelectedLanguage(selectedIds[0]);
+  };
 
   return (
     <div>
       {!hideLabel && <SelectionHeader title="Language" />}
       
-      <div className="relative" ref={containerRef} style={{ zIndex: 30 }}>
-        <LanguageSelectButton
-          selectedLanguage={selectedLanguageObject}
-          onClick={toggleDropdown}
-          emptyPlaceholder=""
-        />
-        
-        {isDropdownOpen && (
-          <div style={{ position: 'relative', zIndex: 50 }}>
-            <LanguageDropdown
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedLanguage={selectedLanguage}
-              filteredLanguages={filteredLanguages}
-              isLoading={isLoading}
-              highlightedIndex={highlightedIndex}
-              setHighlightedIndex={setHighlightedIndex}
-              handleLanguageSelect={handleLanguageSelect}
-              handleClearSelection={handleClearSelection}
-              handleKeyDown={handleKeyDown}
-            />
-          </div>
-        )}
-      </div>
+      <EnhancedDropdown
+        options={languageOptions}
+        selectedItems={selectedLanguage ? [selectedLanguage] : []}
+        onSelectionChange={handleLanguageSelect}
+        placeholder="Select language"
+        searchPlaceholder="Search languages..."
+        disabled={isLoading}
+        multiSelect={false}
+      />
       
       {isLoadingCountry && primaryLanguageId && (
         <div className="mt-2 text-sm text-gray-500">

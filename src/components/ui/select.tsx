@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
@@ -82,7 +81,6 @@ const SelectContent = React.forwardRef<
       sideOffset={5}
       {...props}
     >
-      {/* Removed ScrollUpButton */}
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
@@ -90,12 +88,11 @@ const SelectContent = React.forwardRef<
             "w-full"
         )}
         style={{
-          maxHeight: '300px'  // Set a generous max-height instead of 'unset'
+          maxHeight: '300px'  // Set a generous max-height for scrolling
         }}
       >
         {children}
       </SelectPrimitive.Viewport>
-      {/* Removed ScrollDownButton */}
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))
