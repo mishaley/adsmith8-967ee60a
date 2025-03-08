@@ -1,49 +1,57 @@
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import React, { forwardRef } from "react";
 import { TriggerButtonProps } from "./types";
+import { ChevronDown } from "lucide-react";
 
-const TriggerButton = React.forwardRef<HTMLButtonElement, TriggerButtonProps>(({
-  placeholder,
-  buttonIcon,
-  selectedOptionLabels,
-  multiSelect,
-  onToggle,
-  disabled,
-  buttonClassName,
-}, ref) => {
-  return (
-    <Button
-      ref={ref}
-      variant="outline"
-      className={`w-full justify-between font-normal ${buttonClassName} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-      onClick={onToggle}
-      disabled={disabled}
-      type="button"
-    >
-      <span className="flex items-center gap-2 text-left truncate">
-        {selectedOptionLabels.length > 0 ? (
-          <>
-            {selectedOptionLabels[0].icon && typeof selectedOptionLabels[0].icon === 'string' && (
-              <span className="inline-block w-6 text-center">
-                {selectedOptionLabels[0].icon}
-              </span>
-            )}
-            {multiSelect && selectedOptionLabels.length > 1 ? (
-              <span>{selectedOptionLabels.length} selected</span>
-            ) : (
-              <span>{selectedOptionLabels[0].label}</span>
-            )}
-          </>
-        ) : (
-          <span className="text-gray-400">{placeholder}</span>
-        )}
-      </span>
-      {buttonIcon || <ChevronDown className="h-4 w-4 shrink-0" />}
-    </Button>
-  );
-});
+const TriggerButton = forwardRef<HTMLButtonElement, TriggerButtonProps>(
+  ({ placeholder, buttonIcon, selectedOptionLabels, multiSelect, onToggle, disabled, buttonClassName }, ref) => {
+    // Determine what to display in the button
+    const hasSelection = selectedOptionLabels.length > 0;
+    
+    // Format the display text based on selection count
+    const getDisplayText = () => {
+      if (!hasSelection) return placeholder;
+      
+      if (multiSelect) {
+        if (selectedOptionLabels.length === 1) {
+          return selectedOptionLabels[0].label;
+        } else {
+          return `${selectedOptionLabels.length} selected`;
+        }
+      } else {
+        return selectedOptionLabels[0].label;
+      }
+    };
+    
+    // Get the icon to display (either from the first selected option or the provided buttonIcon)
+    const displayIcon = hasSelection && selectedOptionLabels[0].icon 
+      ? selectedOptionLabels[0].icon 
+      : buttonIcon;
+      
+    // For multi-select with multiple items, show count instead of an icon
+    const showMultiCount = multiSelect && selectedOptionLabels.length > 1;
+    
+    return (
+      <button
+        ref={ref}
+        type="button"
+        onClick={onToggle}
+        disabled={disabled}
+        className={`flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${buttonClassName}`}
+      >
+        <div className="flex items-center">
+          {!showMultiCount && displayIcon && (
+            <span className="mr-2 flex items-center">
+              {typeof displayIcon === "string" ? displayIcon : displayIcon}
+            </span>
+          )}
+          <span className="truncate">{getDisplayText()}</span>
+        </div>
+        <ChevronDown className="h-4 w-4 text-gray-500" />
+      </button>
+    );
+  }
+);
 
 TriggerButton.displayName = "TriggerButton";
 

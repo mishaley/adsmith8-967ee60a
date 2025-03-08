@@ -58,50 +58,55 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       return;
     }
     
-    // Update multi-select state if available
     if (multiSelect && setSelectedCountries) {
+      // In multi-select mode, update the full array of countries
       setSelectedCountries(selectedIds);
       
-      // Also update single select state with first country for backward compatibility
+      // For backward compatibility and map display, use the first country
       if (selectedIds.length > 0) {
-        setSelectedCountry(selectedIds[0]);
-      } else {
-        setSelectedCountry("");
+        const firstCountryId = selectedIds[0];
+        setSelectedCountry(firstCountryId);
+        
+        // Also update the map selection
+        if (setSelectedCountryId) {
+          updateMapHighlight(firstCountryId);
+        }
       }
     } else {
-      // For single select, use the first selected item
+      // In single-select mode (legacy)
       const countryId = selectedIds[0];
       setSelectedCountry(countryId);
+      
+      // Update map selection
+      if (setSelectedCountryId) {
+        updateMapHighlight(countryId);
+      }
+    }
+  };
+  
+  const updateMapHighlight = (countryId: string) => {
+    if (countryId === "worldwide") {
+      setSelectedCountryId!("worldwide");
+      return;
     }
     
-    // Also update the map selection when selecting from dropdown (using first country)
-    if (setSelectedCountryId && selectedIds.length > 0) {
-      const countryId = selectedIds[0];
-      console.log(`CountrySelection: Updating map with country ${countryId}`);
-      
-      if (countryId === "worldwide") {
-        setSelectedCountryId("worldwide");
-        return;
-      }
-      
-      // Get the country object for map highlighting
-      const selectedCountry = countries.find(c => c.country_id === countryId);
-      
-      if (selectedCountry) {
-        // Use ISO3 code for map highlighting as it matches the GeoJSON features better
-        if (selectedCountry.country_iso3) {
-          console.log(`Using ISO3 code for highlighting: ${selectedCountry.country_iso3}`);
-          setSelectedCountryId(selectedCountry.country_iso3);
-        } else if (selectedCountry.country_iso2) {
-          console.log(`Using ISO2 code for highlighting: ${selectedCountry.country_iso2}`);
-          setSelectedCountryId(selectedCountry.country_iso2);
-        } else {
-          console.log(`No ISO code found, using country_id: ${countryId}`);
-          setSelectedCountryId(countryId);
-        }
+    // Get the country object for map highlighting
+    const selectedCountry = countries.find(c => c.country_id === countryId);
+    
+    if (selectedCountry) {
+      // Use ISO3 code for map highlighting as it matches the GeoJSON features better
+      if (selectedCountry.country_iso3) {
+        console.log(`Using ISO3 code for highlighting: ${selectedCountry.country_iso3}`);
+        setSelectedCountryId!(selectedCountry.country_iso3);
+      } else if (selectedCountry.country_iso2) {
+        console.log(`Using ISO2 code for highlighting: ${selectedCountry.country_iso2}`);
+        setSelectedCountryId!(selectedCountry.country_iso2);
       } else {
-        setSelectedCountryId(countryId);
+        console.log(`No ISO code found, using country_id: ${countryId}`);
+        setSelectedCountryId!(countryId);
       }
+    } else {
+      setSelectedCountryId!(countryId);
     }
   };
 
@@ -111,7 +116,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       
       <EnhancedDropdown
         options={countryOptions}
-        selectedItems={multiSelect && selectedCountries.length > 0 ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
+        selectedItems={multiSelect ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
         onSelectionChange={handleCountrySelect}
         placeholder="Select country"
         searchPlaceholder="Search countries..."

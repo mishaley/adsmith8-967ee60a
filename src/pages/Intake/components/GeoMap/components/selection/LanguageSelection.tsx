@@ -44,27 +44,26 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
 
   const handleLanguageSelect = (selectedIds: string[]) => {
     if (selectedIds.length === 0) {
+      // Clear selection for both single and multi-select
       setSelectedLanguage("");
-      
-      // Update multi-select state if available
       if (multiSelect && setSelectedLanguages) {
         setSelectedLanguages([]);
       }
       return;
     }
     
-    // Update multi-select state if available
     if (multiSelect && setSelectedLanguages) {
+      // In multi-select mode, update the full array of languages
       setSelectedLanguages(selectedIds);
       
-      // Also update single select for backward compatibility
+      // For backward compatibility, also update single-select with first language
       if (selectedIds.length > 0) {
         setSelectedLanguage(selectedIds[0]);
       } else {
         setSelectedLanguage("");
       }
     } else {
-      // For single select, use the first selected item
+      // In single-select mode (legacy)
       setSelectedLanguage(selectedIds[0]);
     }
   };
@@ -75,7 +74,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
       
       <EnhancedDropdown
         options={languageOptions}
-        selectedItems={multiSelect && selectedLanguages.length > 0 ? selectedLanguages : (selectedLanguage ? [selectedLanguage] : [])}
+        selectedItems={multiSelect ? selectedLanguages : (selectedLanguage ? [selectedLanguage] : [])}
         onSelectionChange={handleLanguageSelect}
         placeholder="Select language"
         searchPlaceholder="Search languages..."

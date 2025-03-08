@@ -1,7 +1,7 @@
 
 import React from "react";
-import { Check } from "lucide-react";
 import { DropdownOption } from "./types";
+import { Check } from "lucide-react";
 
 interface OptionRendererProps {
   option: DropdownOption;
@@ -10,29 +10,50 @@ interface OptionRendererProps {
   multiSelect: boolean;
 }
 
-const OptionRenderer: React.FC<OptionRendererProps> = ({
-  option,
-  isSelected,
+const OptionRenderer: React.FC<OptionRendererProps> = ({ 
+  option, 
+  isSelected, 
   isHighlighted,
-  multiSelect,
+  multiSelect
 }) => {
   return (
-    <div className="flex items-center justify-between px-4 py-2">
+    <div 
+      className={`
+        flex items-center justify-between px-4 py-2 
+        ${isSelected ? 'bg-gray-100' : ''}
+        ${isHighlighted ? 'bg-gray-50' : ''}
+      `}
+    >
       <div className="flex items-center gap-2">
-        {multiSelect && (
-          <div className={`flex items-center justify-center w-5 h-5 mr-1 border rounded ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
-            {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
-          </div>
+        {option.icon && (
+          <span className="flex-shrink-0">
+            {typeof option.icon === 'string' ? option.icon : option.icon}
+          </span>
         )}
-        {typeof option.icon === 'string' ? (
-          <span className="inline-block w-6 text-center">{option.icon}</span>
-        ) : option.icon ? (
-          option.icon
-        ) : null}
-        <span className="truncate">{option.label}</span>
+        
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">{option.label}</span>
+          {option.secondary && (
+            <span className="text-xs text-gray-500">{option.secondary}</span>
+          )}
+        </div>
       </div>
-      {option.secondary && (
-        <span className="text-gray-500 truncate">{option.secondary}</span>
+      
+      {isSelected && (
+        <span className="flex-shrink-0 text-blue-500">
+          {multiSelect ? (
+            <div className="h-4 w-4 rounded-sm border border-blue-500 bg-blue-500 flex items-center justify-center">
+              <Check className="h-3 w-3 text-white" />
+            </div>
+          ) : (
+            <Check className="h-4 w-4" />
+          )}
+        </span>
+      )}
+      
+      {/* Empty checkbox for non-selected items in multi-select mode */}
+      {!isSelected && multiSelect && (
+        <div className="h-4 w-4 rounded-sm border border-gray-300"></div>
       )}
     </div>
   );

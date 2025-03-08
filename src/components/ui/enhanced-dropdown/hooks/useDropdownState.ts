@@ -80,24 +80,25 @@ export const useDropdownState = ({
 
   const handleSelect = (id: string) => {
     if (multiSelect) {
+      // Toggle selection - if already selected, remove it, otherwise add it
       const newSelection = selectedItems.includes(id)
         ? selectedItems.filter(item => item !== id)
         : [...selectedItems, id];
-      onSelectionChange(newSelection);
       
+      onSelectionChange(newSelection);
       // Don't close dropdown in multi-select mode
     } else {
-      // For single select, just replace the current selection
+      // For single select, replace the current selection
       onSelectionChange([id]);
-      setIsOpen(false);
+      setIsOpen(false); // Close dropdown after selection in single-select mode
       setSearchTerm("");
     }
   };
 
   const handleClearSelection = () => {
-    onSelectionChange([]);
+    onSelectionChange([]); // Clear the selection
     if (!multiSelect) {
-      setIsOpen(false);
+      setIsOpen(false); // Only close for single-select
     }
     setSearchTerm("");
   };
