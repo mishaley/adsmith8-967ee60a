@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { PlusCircle } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface AddColumnButtonProps {
   selectedTypes?: string[]; // Made optional for backward compatibility
@@ -26,15 +26,21 @@ const AddColumnButton: React.FC<AddColumnButtonProps> = ({
   // Filter out already selected types
   const availableTypes = messageTypes.filter(type => !selectedTypes.includes(type));
   
-  const handleTypeSelection = (value: string) => {
+  // Create dropdown options
+  const typeOptions: DropdownOption[] = availableTypes.map(type => ({
+    id: type,
+    label: type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+  }));
+  
+  const handleTypeSelection = (selectedIds: string[]) => {
     // Reset the adding state
     setIsAdding(false);
     
-    if (value) {
+    if (selectedIds.length > 0) {
       if (onAddType) {
-        onAddType(value);
+        onAddType(selectedIds[0]);
       } else if (onTypeChange) {
-        const newTypes = [...selectedTypes, value];
+        const newTypes = [...selectedTypes, selectedIds[0]];
         onTypeChange(newTypes);
       }
     }
@@ -48,18 +54,16 @@ const AddColumnButton: React.FC<AddColumnButtonProps> = ({
   return (
     <th className="border p-2 w-10">
       {isAdding ? (
-        <Select onValueChange={handleTypeSelection}>
-          <SelectTrigger className="min-w-[150px]" autoFocus>
-            <SelectValue placeholder="Select type" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableTypes.map(type => (
-              <SelectItem key={type} value={type}>
-                {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="min-w-[150px]">
+          <EnhancedDropdown
+            options={typeOptions}
+            selectedItems={[]}
+            onSelectionChange={handleTypeSelection}
+            placeholder="Select type"
+            searchPlaceholder="Search types..."
+            multiSelect={false}
+          />
+        </div>
       ) : (
         <button 
           onClick={() => setIsAdding(true)}

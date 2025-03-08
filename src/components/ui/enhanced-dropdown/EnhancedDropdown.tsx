@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X, ChevronDown } from "lucide-react";
+import { Search, X, ChevronDown, Check } from "lucide-react";
 import { Portal } from "@radix-ui/react-portal";
 
 export interface DropdownOption {
@@ -196,6 +196,11 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   const defaultRenderOption = (option: DropdownOption, isSelected: boolean, isHighlighted: boolean) => (
     <div className="flex items-center justify-between px-4 py-2">
       <div className="flex items-center gap-2">
+        {multiSelect && (
+          <div className={`flex items-center justify-center w-5 h-5 mr-1 border rounded ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'}`}>
+            {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+          </div>
+        )}
         {typeof option.icon === 'string' ? (
           <span className="inline-block w-6 text-center">{option.icon}</span>
         ) : option.icon ? (
@@ -246,7 +251,7 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
         <Portal>
           <div 
             ref={contentRef}
-            className={`fixed bg-white border border-gray-200 rounded-md shadow-lg z-50 ${contentClassName}`}
+            className={`fixed bg-white border border-gray-200 rounded-md shadow-lg z-[100] ${contentClassName}`}
             style={{
               top: `${contentPosition.top}px`,
               left: `${contentPosition.left}px`,

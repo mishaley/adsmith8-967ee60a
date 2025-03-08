@@ -11,6 +11,7 @@ interface CountrySelectionProps {
   countryName: string | null;
   onClearSelection: () => void;
   hideLabel?: boolean;
+  multiSelect?: boolean;
 }
 
 const CountrySelection: React.FC<CountrySelectionProps> = ({
@@ -19,7 +20,8 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
   setSelectedCountryId,
   countryName,
   onClearSelection,
-  hideLabel = false
+  hideLabel = false,
+  multiSelect = false
 }) => {
   const { countries, isLoading } = useCountries();
   const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
@@ -52,8 +54,8 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       return;
     }
     
+    // For single select, use the first selected item
     const countryId = selectedIds[0];
-    console.log(`CountrySelection: Setting country to ${countryId}`);
     setSelectedCountry(countryId);
     
     // Also update the map selection when selecting from dropdown
@@ -97,7 +99,7 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
         placeholder="Select country"
         searchPlaceholder="Search countries..."
         disabled={isLoading}
-        multiSelect={false}
+        multiSelect={multiSelect}
       />
       
       {isLoading && (

@@ -11,6 +11,7 @@ interface ExcludeSelectionProps {
   onClearSelection: () => void;
   setExcludedCountryId?: ((id: string) => void) | null;
   hideLabel?: boolean;
+  multiSelect?: boolean;
 }
 
 const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
@@ -19,7 +20,8 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
   selectedCountryFlag,
   onClearSelection,
   setExcludedCountryId,
-  hideLabel = false
+  hideLabel = false,
+  multiSelect = false
 }) => {
   const { countries, isLoading } = useCountries();
   const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
@@ -43,6 +45,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
       return;
     }
     
+    // For single select, use the first selected item
     const countryId = selectedIds[0];
     setSelectedCountry(countryId);
     
@@ -63,7 +66,7 @@ const ExcludeSelection: React.FC<ExcludeSelectionProps> = ({
         placeholder="Select country to exclude"
         searchPlaceholder="Search countries to exclude..."
         disabled={isLoading}
-        multiSelect={false}
+        multiSelect={multiSelect}
       />
       
       {isLoading && (

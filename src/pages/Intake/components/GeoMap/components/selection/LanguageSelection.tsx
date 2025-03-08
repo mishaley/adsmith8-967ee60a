@@ -10,6 +10,7 @@ interface LanguageSelectionProps {
   isLoadingCountry: boolean;
   primaryLanguageId: string | null;
   hideLabel?: boolean;
+  multiSelect?: boolean;
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({
@@ -17,7 +18,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   setSelectedLanguage,
   isLoadingCountry,
   primaryLanguageId,
-  hideLabel = false
+  hideLabel = false,
+  multiSelect = false
 }) => {
   const { languages, isLoading } = useLanguages();
   const [languageOptions, setLanguageOptions] = useState<DropdownOption[]>([]);
@@ -42,6 +44,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
       return;
     }
     
+    // For single select, use the first selected item
     setSelectedLanguage(selectedIds[0]);
   };
 
@@ -56,7 +59,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
         placeholder="Select language"
         searchPlaceholder="Search languages..."
         disabled={isLoading}
-        multiSelect={false}
+        multiSelect={multiSelect}
       />
       
       {isLoadingCountry && primaryLanguageId && (
