@@ -8,8 +8,8 @@ export interface Persona {
   portraitUrl?: string;
   gender: string; // Now required for consistency
   age?: string;
-  ageMin?: string | number;
-  ageMax?: string | number;
+  ageMin?: number; // Changed to be only number type for consistency
+  ageMax?: number; // Changed to be only number type for consistency
   occupation?: string;
   interests?: string[];
   race?: string;

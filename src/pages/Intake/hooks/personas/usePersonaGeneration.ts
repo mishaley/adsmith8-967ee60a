@@ -35,16 +35,23 @@ export const usePersonaGeneration = () => {
       // Pass the validated count to the API
       const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, validCount);
       
-      // Only set the personas that match the requested count
-      setPersonas(enhancedPersonas.slice(0, validCount));
+      // Convert string ageMin/ageMax values to numbers if needed before setting state
+      const normalizedPersonas = enhancedPersonas.map(persona => ({
+        ...persona,
+        ageMin: typeof persona.ageMin === 'string' ? parseInt(persona.ageMin, 10) : persona.ageMin,
+        ageMax: typeof persona.ageMax === 'string' ? parseInt(persona.ageMax, 10) : persona.ageMax
+      }));
       
-      const newSummary = generatePersonaSummary(offering, enhancedPersonas.slice(0, validCount));
+      // Only set the personas that match the requested count
+      setPersonas(normalizedPersonas.slice(0, validCount));
+      
+      const newSummary = generatePersonaSummary(offering, normalizedPersonas.slice(0, validCount));
       setSummary(newSummary);
       
       toast.success(`${validCount} persona${validCount > 1 ? 's' : ''} generated successfully`);
       
       // Only pass the personas that match the requested count to the callback
-      onPersonasGenerated(enhancedPersonas.slice(0, validCount));
+      onPersonasGenerated(normalizedPersonas.slice(0, validCount));
     } catch (err) {
       toast.error("Something went wrong: " + (err instanceof Error ? err.message : String(err)));
     } finally {
@@ -69,7 +76,14 @@ export const usePersonaGeneration = () => {
       const enhancedPersonas = await generatePersonasApi(offering, selectedCountry, 1);
       
       if (enhancedPersonas && enhancedPersonas.length > 0) {
-        const newPersona = enhancedPersonas[0];
+        // Convert string ageMin/ageMax values to numbers if needed
+        const newPersona = {
+          ...enhancedPersonas[0],
+          ageMin: typeof enhancedPersonas[0].ageMin === 'string' ? 
+            parseInt(enhancedPersonas[0].ageMin as string, 10) : enhancedPersonas[0].ageMin,
+          ageMax: typeof enhancedPersonas[0].ageMax === 'string' ? 
+            parseInt(enhancedPersonas[0].ageMax as string, 10) : enhancedPersonas[0].ageMax
+        };
         
         setPersonas(prevPersonas => {
           const newPersonas = [...prevPersonas];

@@ -48,10 +48,16 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
     // Ensure each persona has exactly two relevant interests
     const enhancedInterests = ensureTwoInterests(persona.interests || [], offering);
     
+    // Convert string age values to numbers
+    const ageMin = typeof persona.ageMin === 'string' ? parseInt(persona.ageMin, 10) : (persona.ageMin || 0);
+    const ageMax = typeof persona.ageMax === 'string' ? parseInt(persona.ageMax, 10) : (persona.ageMax || 0);
+    
     return {
       ...persona,
-      gender: normalizeGender(persona.gender),
-      interests: enhancedInterests
+      gender: normalizeGender(persona.gender || ''), // Ensure gender is never empty
+      interests: enhancedInterests,
+      ageMin,
+      ageMax
     };
   });
 };
