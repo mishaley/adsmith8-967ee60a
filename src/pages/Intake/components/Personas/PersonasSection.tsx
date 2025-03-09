@@ -6,7 +6,7 @@ import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createPortraitPrompt } from "./utils/portraitUtils";
+import { getPortraitPromptTemplate } from "./utils/portraitUtils";
 import { Textarea } from "@/components/ui/textarea";
 
 interface PersonasSectionProps {
@@ -46,14 +46,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     }
   };
   
-  // Update the prompt text whenever personas change
+  // Update the prompt text to show the template with variables instead of actual values
   useEffect(() => {
-    if (hasPersonas && personas[0]) {
-      const samplePrompt = createPortraitPrompt(personas[0]);
-      setPromptText(samplePrompt);
-    } else {
-      setPromptText("");
-    }
+    const templatePrompt = getPortraitPromptTemplate();
+    setPromptText(templatePrompt);
   }, [personas, hasPersonas]);
   
   return <>
@@ -100,8 +96,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 className="w-full h-24 text-sm font-mono"
               />
               <p className="text-xs text-gray-500 mt-1">
-                This is the prompt that will be sent to Ideogram when generating portraits.
-                You can edit it to customize the portrait generation.
+                This prompt template shows variables like [RACE], [GENDER], etc. instead of actual values.
+                These will be replaced with real values when generating portraits.
               </p>
             </div>
           </td>

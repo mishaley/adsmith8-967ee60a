@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader, RefreshCw } from "lucide-react";
 import { Persona } from "./types";
+import { createPortraitPrompt } from "./utils/portraitUtils";
 
 interface PortraitRowProps {
   personas: Persona[];
@@ -19,6 +20,14 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
   onRetryPortrait,
   promptText // Custom prompt text
 }) => {
+  // For retry, we use the actual values (not the template), so we need to create a real prompt
+  const getActualPrompt = (index: number) => {
+    if (personas[index]) {
+      return createPortraitPrompt(personas[index]);
+    }
+    return promptText;
+  };
+  
   return (
     <tr className="h-44 border-transparent">
       <td colSpan={personas.length} className="p-0">
@@ -49,7 +58,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                   variant="outline"
                   size="sm"
                   className="mt-2"
-                  onClick={() => onRetryPortrait(index, promptText)}
+                  onClick={() => onRetryPortrait(index, getActualPrompt(index))}
                   disabled={isGeneratingPortraits}
                 >
                   <RefreshCw className="h-3 w-3 mr-1" />
