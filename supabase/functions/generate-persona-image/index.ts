@@ -17,28 +17,26 @@ serve(async (req) => {
 
   try {
     // Log the request
-    console.log('Received request for image generation');
+    console.log('Received request for persona image generation');
     
     // Parse request body
-    const { prompt, resolution = 'RESOLUTION_1024_1024' } = await req.json();
+    const requestData = await req.json();
+    const { name, gender, age, ageMin, ageMax, race, customPrompt } = requestData;
     
-    if (!prompt) {
-      console.error('Error: No prompt provided');
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'No prompt provided' 
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    // Build the prompt based on provided data or use customPrompt
+    let prompt;
+    
+    if (customPrompt) {
+      prompt = customPrompt;
+      console.log(`Using custom prompt: ${prompt}`);
+    } else {
+      // Construct a default prompt based on persona attributes
+      const ageRange = ageMin && ageMax ? `${ageMin}-${ageMax}` : age || "25-45";
+      prompt = `Portrait photograph, ${race || "diverse"} ${gender || "person"}, age ${ageRange}, studio lighting, neutral background, professional quality, photorealistic, high resolution`;
+      console.log(`Using generated prompt: ${prompt}`);
     }
     
-    console.log(`Processing image generation with prompt: ${prompt}`);
-    console.log(`Using resolution: ${resolution}`);
-    
+    // Validate API key
     if (!IDEOGRAM_API_KEY) {
       console.error('Error: IDEOGRAM_API_KEY not set in environment');
       return new Response(
@@ -55,6 +53,7 @@ serve(async (req) => {
     }
 
     // Call the Ideogram API to generate an image
+    console.log('Calling Ideogram API...');
     const response = await fetch('https://api.ideogram.ai/api/v1/images/generations', {
       method: 'POST',
       headers: {
@@ -63,16 +62,17 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         prompt,
-        resolution,
-        style: "DEFAULT", // Default style or can be passed from request
+        resolution: "RESOLUTION_1024_1024",
+        style: "DEFAULT",
       }),
     });
 
     const data = await response.json();
-    console.log('Ideogram API response:', JSON.stringify(data));
+    console.log('Ideogram API response status:', response.status);
     
     if (!response.ok) {
       console.error(`Error from Ideogram API: ${response.status} ${response.statusText}`);
+      console.error('Response data:', JSON.stringify(data));
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -94,7 +94,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: true, 
-          imageUrl 
+          image_url: imageUrl 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -102,6 +102,7 @@ serve(async (req) => {
       );
     } else {
       console.error('Error: Invalid response format from Ideogram API');
+      console.error('Response data:', JSON.stringify(data));
       return new Response(
         JSON.stringify({ 
           success: false, 

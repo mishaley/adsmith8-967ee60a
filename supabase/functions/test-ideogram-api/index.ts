@@ -34,20 +34,22 @@ serve(async (req) => {
     }
 
     // Just test the API with minimal parameters
-    const response = await fetch('https://api.ideogram.ai/generate', {
+    const response = await fetch('https://api.ideogram.ai/api/v1/images/generations', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt: 'test connection only'
+        prompt: 'test connection only',
+        resolution: "RESOLUTION_1024_1024",
+        style: "DEFAULT"
       }),
     });
 
     const data = await response.json();
     
-    // We're just testing the connection, so we'll cut the response early
+    // We're just testing the connection, so we'll log the response status
     console.log('Ideogram API response status:', response.status);
     
     if (response.ok) {
