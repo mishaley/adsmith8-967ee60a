@@ -10,7 +10,8 @@ const TriggerButton = forwardRef<HTMLButtonElement, TriggerButtonProps>(
     // Render the selected items differently based on single or multi-select
     const renderSelectedContent = () => {
       if (!hasSelection) {
-        return <span className="text-muted-foreground">{placeholder}</span>;
+        // Only show placeholder if it's not empty
+        return placeholder ? <span className="text-muted-foreground">{placeholder}</span> : <span></span>;
       }
       
       if (multiSelect) {
