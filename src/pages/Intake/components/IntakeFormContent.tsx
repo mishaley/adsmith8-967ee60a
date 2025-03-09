@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ChevronDown } from "lucide-react";
@@ -38,13 +39,16 @@ interface IntakeFormContentProps {
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
   
-  selectedCountry: string;
-  setSelectedCountry: (value: string) => void;
   adPlatform: string;
   setAdPlatform: (value: string) => void;
   
-  selectedLanguage: string;
-  setSelectedLanguage: (value: string) => void;
+  // Add multi-select props to match SectionsContainerProps
+  selectedCountries: string[];
+  setSelectedCountries: (values: string[]) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (values: string[]) => void;
+  excludedCountries: string[];
+  setExcludedCountries: (values: string[]) => void;
   
   personas: Persona[];
   summary: string;
@@ -100,7 +104,48 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
       
       <SummaryTable />
       
-      <SectionsContainer {...props} />
+      <SectionsContainer
+        brandName={props.brandName}
+        setBrandName={props.setBrandName}
+        industry={props.industry}
+        setIndustry={props.setIndustry}
+        handleSave={props.handleSave}
+        
+        offering={props.offering}
+        setOffering={props.setOffering}
+        sellingPoints={props.sellingPoints}
+        setSellingPoints={props.setSellingPoints}
+        problemSolved={props.problemSolved}
+        setProblemSolved={props.setProblemSolved}
+        uniqueOffering={props.uniqueOffering}
+        setUniqueOffering={props.setUniqueOffering}
+        
+        adPlatform={props.adPlatform}
+        setAdPlatform={props.setAdPlatform}
+        
+        selectedCountries={props.selectedCountries}
+        setSelectedCountries={props.setSelectedCountries}
+        selectedLanguages={props.selectedLanguages}
+        setSelectedLanguages={props.setSelectedLanguages}
+        excludedCountries={props.excludedCountries}
+        setExcludedCountries={props.setExcludedCountries}
+        
+        personas={props.personas}
+        summary={props.summary}
+        isGeneratingPersonas={props.isGeneratingPersonas}
+        isGeneratingPortraits={props.isGeneratingPortraits}
+        generatePersonas={props.generatePersonas}
+        updatePersona={props.updatePersona}
+        loadingPortraitIndices={props.loadingPortraitIndices}
+        retryPortraitGeneration={props.retryPortraitGeneration}
+        removePersona={props.removePersona}
+        personaCount={props.personaCount}
+        setPersonaCount={props.setPersonaCount}
+        
+        generatedMessages={props.generatedMessages}
+        selectedMessageTypes={props.selectedMessageTypes}
+        handleUpdateMessages={props.handleUpdateMessages}
+      />
       
       <IntakeTop />
       <IntakeFormContainer {...props} />
