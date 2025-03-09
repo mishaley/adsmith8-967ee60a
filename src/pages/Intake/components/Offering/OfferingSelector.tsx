@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
-import { STORAGE_KEYS } from "../../utils/localStorageUtils";
+import { STORAGE_KEYS, isValidJSON } from "../../utils/localStorageUtils";
 
 interface OfferingSelectorProps {
   selectedOfferingId: string;
@@ -20,18 +20,30 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
 }) => {
   // Load from localStorage on initial render
   useEffect(() => {
-    const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
-    if (storedOfferingId && storedOfferingId !== selectedOfferingId && !isOfferingsDisabled) {
-      // Check if the stored ID exists in current options
-      const optionExists = offeringOptions.some(option => option.value === storedOfferingId);
-      
-      // Only apply if the option exists or if it's the special "new-offering" value
-      if (optionExists || storedOfferingId === "new-offering") {
-        console.log(`Applying stored offering ID from localStorage: ${storedOfferingId}`);
-        handleOfferingChange(storedOfferingId);
-      } else {
-        console.log(`Stored offering ID ${storedOfferingId} not found in options, not applying`);
+    try {
+      if (!selectedOfferingId && !isOfferingsDisabled && offeringOptions.length > 0) {
+        const storedValue = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+        
+        // Validate stored value
+        if (storedValue) {
+          // Only apply if it's a valid string (no need for JSON parsing here)
+          // Check if the stored ID exists in current options or is "new-offering"
+          const optionExists = offeringOptions.some(option => option.value === storedValue);
+          
+          if (optionExists || storedValue === "new-offering") {
+            console.log(`Applying stored offering ID from localStorage: ${storedValue}`);
+            handleOfferingChange(storedValue);
+          } else {
+            console.log(`Stored offering ID ${storedValue} not found in options, not applying`);
+            // Clean up invalid stored value
+            localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+          }
+        }
       }
+    } catch (error) {
+      console.error("Error initializing from localStorage in OfferingSelector:", error);
+      // Clean up potentially corrupted data
+      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
     }
   }, [selectedOfferingId, handleOfferingChange, offeringOptions, isOfferingsDisabled]);
 

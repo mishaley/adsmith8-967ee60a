@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { STORAGE_KEYS } from "../../../utils/localStorageUtils";
+import { STORAGE_KEYS, isValidJSON } from "../../../utils/localStorageUtils";
 
 interface UseOfferingSelectionProps {
   selectedOfferingId: string;
@@ -30,22 +30,26 @@ export const useOfferingSelection = ({
   
   // Save selected offering ID to localStorage when it changes
   useEffect(() => {
-    if (selectedOfferingId && selectedOfferingId !== previousOfferingIdRef.current) {
-      console.log(`Saving offering ID in useOfferingSelection: ${selectedOfferingId}`);
-      localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
-      
-      // Dispatch custom event for other components
-      const event = new CustomEvent("offeringChanged", { 
-        detail: { offeringId: selectedOfferingId }
-      });
-      window.dispatchEvent(event);
-      
-      previousOfferingIdRef.current = selectedOfferingId;
-    } else if (!selectedOfferingId && previousOfferingIdRef.current) {
-      // Clear localStorage when offering is reset
-      console.log("Clearing offering selection from localStorage");
-      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
-      previousOfferingIdRef.current = "";
+    try {
+      if (selectedOfferingId && selectedOfferingId !== previousOfferingIdRef.current) {
+        console.log(`Saving offering ID in useOfferingSelection: ${selectedOfferingId}`);
+        localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
+        
+        // Dispatch custom event for other components
+        const event = new CustomEvent("offeringChanged", { 
+          detail: { offeringId: selectedOfferingId }
+        });
+        window.dispatchEvent(event);
+        
+        previousOfferingIdRef.current = selectedOfferingId;
+      } else if (!selectedOfferingId && previousOfferingIdRef.current) {
+        // Clear localStorage when offering is reset
+        console.log("Clearing offering selection from localStorage");
+        localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+        previousOfferingIdRef.current = "";
+      }
+    } catch (error) {
+      console.error("Error saving offering selection to localStorage:", error);
     }
   }, [selectedOfferingId]);
   
@@ -96,34 +100,44 @@ export const useOfferingSelection = ({
     console.log(`Offering selection changed to: ${value}`);
     setSelectedOfferingId(value);
     
-    if (!value) {
-      // Clear fields when no offering is selected
-      setOffering("");
-      setSellingPoints("");
-      setProblemSolved("");
-      setUniqueOffering("");
-      // Clear the localStorage value
-      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
-      previousOfferingIdRef.current = "";
-    } else if (value === "new-offering") {
-      toast({
-        title: "Creating a new offering",
-        description: "Please fill in the offering details below.",
+    try {
+      if (!value) {
+        // Clear fields when no offering is selected
+        setOffering("");
+        setSellingPoints("");
+        setProblemSolved("");
+        setUniqueOffering("");
+        // Clear the localStorage value
+        localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+        previousOfferingIdRef.current = "";
+      } else if (value === "new-offering") {
+        toast({
+          title: "Creating a new offering",
+          description: "Please fill in the offering details below.",
+        });
+        // Store this selection in localStorage too
+        localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
+        previousOfferingIdRef.current = value;
+      } else {
+        // Store selected offering ID
+        localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
+        previousOfferingIdRef.current = value;
+      }
+      
+      // Dispatch custom event
+      const event = new CustomEvent("offeringChanged", { 
+        detail: { offeringId: value }
       });
-      // Store this selection in localStorage too
-      localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
-      previousOfferingIdRef.current = value;
-    } else {
-      // Store selected offering ID
-      localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
-      previousOfferingIdRef.current = value;
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error("Error handling offering change:", error);
+      // Show toast for error
+      toast({
+        title: "Error changing offering",
+        description: "There was a problem selecting this offering. Please try again.",
+        variant: "destructive"
+      });
     }
-    
-    // Dispatch custom event
-    const event = new CustomEvent("offeringChanged", { 
-      detail: { offeringId: value }
-    });
-    window.dispatchEvent(event);
   };
 
   return {

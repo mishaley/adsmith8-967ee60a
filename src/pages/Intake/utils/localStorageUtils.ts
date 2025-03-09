@@ -1,3 +1,4 @@
+
 // Constants for storage keys to avoid typos
 export const STORAGE_KEYS = {
   ORGANIZATION: 'adsmith_organization',
@@ -20,6 +21,13 @@ export const saveToLocalStorage = <T>(key: string, data: T): void => {
     localStorage.setItem(key, JSON.stringify(data));
   } catch (error) {
     console.error(`Error saving to localStorage (${key}):`, error);
+    // If storing fails, attempt to clear this key to prevent inconsistent state
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      // If even removing fails, log but continue
+      console.error(`Failed to clean up invalid localStorage key (${key}):`, e);
+    }
   }
 };
 
@@ -27,9 +35,16 @@ export const saveToLocalStorage = <T>(key: string, data: T): void => {
 export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    if (item === null) return defaultValue;
+    return JSON.parse(item);
   } catch (error) {
     console.error(`Error loading from localStorage (${key}):`, error);
+    // Remove invalid data to prevent future errors
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.error(`Failed to remove invalid localStorage data for key (${key}):`, e);
+    }
     return defaultValue;
   }
 };
@@ -77,4 +92,34 @@ export const clearFormAndRefresh = (): void => {
   clearAllLocalStorage();
   // Refresh the page to reset all state
   window.location.reload();
+};
+
+// Validate if a string is valid JSON
+export const isValidJSON = (str: string | null): boolean => {
+  if (!str) return false;
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Safe clear method that validates keys first
+export const safelyRemoveInvalidLocalStorage = (keyPrefix: string): void => {
+  try {
+    // Find and validate all keys that start with the specified prefix
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(keyPrefix)) {
+        const value = localStorage.getItem(key);
+        if (value !== null && !isValidJSON(value)) {
+          console.warn(`Removing invalid JSON data for key: ${key}`);
+          localStorage.removeItem(key);
+        }
+      }
+    }
+  } catch (error) {
+    console.error(`Error cleaning invalid localStorage data for prefix ${keyPrefix}:`, error);
+  }
 };

@@ -16,16 +16,28 @@ export function useLocalStorageWithEvents<T>({
 }: UseLocalStorageWithEventsProps<T>) {
   // Initialize state with the value from localStorage or the provided initialValue
   const [value, setValue] = useState<T>(() => {
-    const storedValue = localStorage.getItem(key);
-    return storedValue !== null ? JSON.parse(storedValue) : initialValue;
+    try {
+      const storedValue = localStorage.getItem(key);
+      if (storedValue === null) return initialValue;
+      return JSON.parse(storedValue);
+    } catch (error) {
+      console.error(`Error parsing localStorage value for key ${key}:`, error);
+      // Clear the invalid data
+      localStorage.removeItem(key);
+      return initialValue;
+    }
   });
 
   // Sync state to localStorage whenever it changes
   useEffect(() => {
-    if (value !== undefined) {
-      localStorage.setItem(key, JSON.stringify(value));
-    } else {
-      localStorage.removeItem(key);
+    try {
+      if (value !== undefined) {
+        localStorage.setItem(key, JSON.stringify(value));
+      } else {
+        localStorage.removeItem(key);
+      }
+    } catch (error) {
+      console.error(`Error saving to localStorage (${key}):`, error);
     }
   }, [key, value]);
 
@@ -33,8 +45,13 @@ export function useLocalStorageWithEvents<T>({
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === key) {
-        const newValue = event.newValue ? JSON.parse(event.newValue) : initialValue;
-        setValue(newValue);
+        try {
+          const newValue = event.newValue ? JSON.parse(event.newValue) : initialValue;
+          setValue(newValue);
+        } catch (error) {
+          console.error(`Error parsing storage event value for key ${key}:`, error);
+          setValue(initialValue);
+        }
       }
     };
 
@@ -52,10 +69,14 @@ export function useLocalStorageWithEvents<T>({
           setValue(newValue);
           
           // Also update localStorage to ensure consistency
-          if (newValue) {
-            localStorage.setItem(key, JSON.stringify(newValue));
-          } else {
-            localStorage.removeItem(key);
+          try {
+            if (newValue) {
+              localStorage.setItem(key, JSON.stringify(newValue));
+            } else {
+              localStorage.removeItem(key);
+            }
+          } catch (error) {
+            console.error(`Error updating localStorage after custom event (${key}):`, error);
           }
         }
       };

@@ -13,12 +13,21 @@ export const useOfferingSyncEvents = ({
   // Sync between components using window events
   useEffect(() => {
     const handleOfferingChanged = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const { offeringId } = customEvent.detail;
-      
-      if (offeringId && offeringId !== selectedOfferingId) {
-        console.log(`Received offering changed event with ID: ${offeringId}`);
-        setSelectedOfferingId(offeringId);
+      try {
+        const customEvent = event as CustomEvent;
+        if (!customEvent?.detail) {
+          console.warn("Received offeringChanged event with no detail");
+          return;
+        }
+        
+        const { offeringId } = customEvent.detail;
+        
+        if (offeringId !== undefined && offeringId !== selectedOfferingId) {
+          console.log(`Received offering changed event with ID: ${offeringId}`);
+          setSelectedOfferingId(offeringId);
+        }
+      } catch (error) {
+        console.error("Error handling offering changed event:", error);
       }
     };
     
