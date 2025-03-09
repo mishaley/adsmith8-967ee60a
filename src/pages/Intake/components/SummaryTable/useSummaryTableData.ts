@@ -6,6 +6,7 @@ import { STORAGE_KEYS } from "../../utils/localStorageUtils";
 
 export const useSummaryTableData = () => {
   const STORAGE_KEY = "selectedOrganizationId";
+  const OFFERING_STORAGE_KEY = `${STORAGE_KEYS.OFFERING}_selectedId`;
   
   // Initialize with the stored organization ID from localStorage
   const [selectedOrgId, setSelectedOrgId] = useState<string>(
@@ -14,7 +15,7 @@ export const useSummaryTableData = () => {
   
   // Initialize offering selection from localStorage
   const [selectedOfferingId, setSelectedOfferingId] = useState<string>(
-    localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`) || ""
+    localStorage.getItem(OFFERING_STORAGE_KEY) || ""
   );
   
   // Initialize persona and message selections
@@ -31,9 +32,43 @@ export const useSummaryTableData = () => {
     // Set up event listener for localStorage changes
     window.addEventListener('storage', handleStorageChange);
     
+    // Listen for custom organizationChanged events
+    const handleOrgChanged = (event: CustomEvent) => {
+      const { organizationId } = event.detail;
+      setSelectedOrgId(organizationId);
+    };
+
+    window.addEventListener('organizationChanged' as any, handleOrgChanged);
+    
     // Cleanup
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('organizationChanged' as any, handleOrgChanged);
+    };
+  }, []);
+
+  // Watch for changes to the offering in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newOfferingId = localStorage.getItem(OFFERING_STORAGE_KEY) || "";
+      setSelectedOfferingId(newOfferingId);
+    };
+
+    // Set up event listener for localStorage changes that might affect offering
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Listen for custom offeringChanged events
+    const handleOfferingChanged = (event: CustomEvent) => {
+      const { offeringId } = event.detail;
+      setSelectedOfferingId(offeringId);
+    };
+
+    window.addEventListener('offeringChanged' as any, handleOfferingChanged);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('offeringChanged' as any, handleOfferingChanged);
     };
   }, []);
 
@@ -77,17 +112,17 @@ export const useSummaryTableData = () => {
     // When organization is empty or changes, clear offering selection
     if (!selectedOrgId || offerings.length === 0) {
       setSelectedOfferingId("");
-      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+      localStorage.removeItem(OFFERING_STORAGE_KEY);
     } else {
       // If we have a selectedOfferingId from localStorage, check if it's still valid
-      const savedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+      const savedOfferingId = localStorage.getItem(OFFERING_STORAGE_KEY);
       if (savedOfferingId) {
         // Check if the saved offering belongs to the current organization
-        const offeringExists = offerings.some(o => o.offering_id === savedOfferingId);
+        const offeringExists = offerings.some(o => o.offering_id === savedOfferingId) || savedOfferingId === "new-offering";
         if (!offeringExists) {
           // If not, clear the selection
           setSelectedOfferingId("");
-          localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+          localStorage.removeItem(OFFERING_STORAGE_KEY);
         }
       }
     }

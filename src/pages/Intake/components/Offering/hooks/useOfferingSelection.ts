@@ -31,8 +31,22 @@ export const useOfferingSelection = ({
   useEffect(() => {
     if (selectedOfferingId) {
       localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
+      
+      // Dispatch custom event for other components
+      const event = new CustomEvent("offeringChanged", { 
+        detail: { offeringId: selectedOfferingId }
+      });
+      window.dispatchEvent(event);
     }
   }, [selectedOfferingId]);
+  
+  // Initialize from localStorage on component mount
+  useEffect(() => {
+    const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+    if (storedOfferingId && storedOfferingId !== selectedOfferingId) {
+      setSelectedOfferingId(storedOfferingId);
+    }
+  }, []);
   
   // Auto-focus the offering name field when "new-offering" is selected
   useEffect(() => {
@@ -93,7 +107,18 @@ export const useOfferingSelection = ({
         title: "Creating a new offering",
         description: "Please fill in the offering details below.",
       });
+      // Store this selection in localStorage too
+      localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
+    } else {
+      // Store selected offering ID
+      localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
     }
+    
+    // Dispatch custom event
+    const event = new CustomEvent("offeringChanged", { 
+      detail: { offeringId: value }
+    });
+    window.dispatchEvent(event);
   };
 
   return {

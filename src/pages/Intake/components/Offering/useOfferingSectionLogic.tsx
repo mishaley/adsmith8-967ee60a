@@ -3,6 +3,7 @@ import { useSummaryTableData } from "../SummaryTable/useSummaryTableData";
 import { useOfferingDetails } from "../SummaryTable/hooks/useOfferingDetails";
 import { useOfferingSelection } from "./hooks/useOfferingSelection";
 import { useOfferingSave } from "./hooks/useOfferingSave";
+import { useEffect } from "react";
 
 interface UseOfferingSectionLogicProps {
   offering: string;
@@ -66,6 +67,20 @@ export const useOfferingSectionLogic = ({
     uniqueOffering,
     refetchOfferingDetails
   });
+
+  // Load the initial offering from localStorage on mount
+  useEffect(() => {
+    const storedOfferingId = localStorage.getItem("adsmith_offering_selectedId");
+    
+    if (storedOfferingId && storedOfferingId !== selectedOfferingId) {
+      setSelectedOfferingId(storedOfferingId);
+      
+      // If it's a real offering ID (not "new-offering"), we should load its details
+      if (storedOfferingId !== "new-offering") {
+        refetchOfferingDetails();
+      }
+    }
+  }, []);
 
   return {
     selectedOfferingId,
