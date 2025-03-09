@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { logDebug, logError, logInfo, logWarning } from "@/utils/logging";
 
 export const useOrganizationIndustrySync = (
   selectedOrgId: string,
@@ -10,6 +11,7 @@ export const useOrganizationIndustrySync = (
 ) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const prevIndustryRef = useRef(industry);
+  const prevOrgIdRef = useRef(selectedOrgId);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Update industry in Supabase when it changes locally
@@ -19,25 +21,33 @@ export const useOrganizationIndustrySync = (
       return;
     }
     
+    // Validate UUID format to prevent invalid database queries
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedOrgId)) {
+      logError(`Invalid organization ID format: ${selectedOrgId}`);
+      return;
+    }
+    
     setIsUpdating(true);
     try {
+      logInfo(`Updating industry to "${newIndustry}" for org ID: ${selectedOrgId}`);
+      
       const { error } = await supabase
         .from("a1organizations")
         .update({ organization_industry: newIndustry })
         .eq("organization_id", selectedOrgId);
       
       if (error) {
-        console.error("Error updating industry:", error);
+        logError("Error updating industry:", error);
         toast({
           title: "Error updating industry",
           description: error.message,
           variant: "destructive",
         });
       } else {
-        console.log("Industry updated successfully in Supabase");
+        logDebug("Industry updated successfully in Supabase");
       }
     } catch (error) {
-      console.error("Unexpected error updating industry:", error);
+      logError("Unexpected error updating industry:", error);
     } finally {
       setIsUpdating(false);
     }
@@ -50,26 +60,48 @@ export const useOrganizationIndustrySync = (
         return;
       }
 
+      // Skip if org ID didn't actually change
+      if (selectedOrgId === prevOrgIdRef.current) {
+        return;
+      }
+      
+      // Validate UUID format to prevent invalid database queries
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedOrgId)) {
+        logError(`Invalid organization ID format: ${selectedOrgId}`);
+        return;
+      }
+
+      prevOrgIdRef.current = selectedOrgId;
+      
       try {
+        logInfo(`Fetching industry data for org ID: ${selectedOrgId}`);
+        
         const { data, error } = await supabase
           .from("a1organizations")
           .select("organization_industry")
           .eq("organization_id", selectedOrgId)
-          .single();
+          .maybeSingle();
         
         if (error) {
-          console.error("Error fetching industry:", error);
+          logError("Error fetching industry:", error);
           return;
         }
         
-        if (data && data.organization_industry) {
-          console.log("Fetched industry from Supabase:", data.organization_industry);
+        if (data) {
+          const fetchedIndustry = data.organization_industry || '';
+          logDebug(`Fetched industry from Supabase: "${fetchedIndustry}"`);
+          
           // Update local state without triggering the update effect
-          prevIndustryRef.current = data.organization_industry;
-          setIndustry(data.organization_industry);
+          prevIndustryRef.current = fetchedIndustry;
+          setIndustry(fetchedIndustry);
+        } else {
+          logWarning(`No data found for organization ID: ${selectedOrgId}`);
+          // Clear industry if no data is found
+          prevIndustryRef.current = '';
+          setIndustry('');
         }
       } catch (error) {
-        console.error("Unexpected error fetching industry:", error);
+        logError("Unexpected error fetching industry:", error);
       }
     };
 
@@ -83,9 +115,14 @@ export const useOrganizationIndustrySync = (
       isUpdating || 
       !selectedOrgId || 
       selectedOrgId === "new-organization" || 
-      !industry ||
       industry === prevIndustryRef.current
     ) {
+      return;
+    }
+    
+    // When org ID changes, don't update until we've fetched the current industry
+    if (selectedOrgId !== prevOrgIdRef.current) {
+      logDebug(`Organization changed, skipping industry update until data is fetched`);
       return;
     }
     
@@ -96,11 +133,11 @@ export const useOrganizationIndustrySync = (
     
     // Set up new timeout
     timeoutRef.current = setTimeout(() => {
-      console.log("Debounced industry update triggered:", industry);
+      logDebug(`Debounced industry update triggered: "${industry}"`);
       prevIndustryRef.current = industry;
       updateIndustryInSupabase(industry);
       timeoutRef.current = null;
-    }, 1000); // Increase to 1000ms to reduce flashing
+    }, 1000); // 1000ms debounce
     
     // Cleanup function
     return () => {

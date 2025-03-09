@@ -8,6 +8,7 @@ import DropdownContent from "./DropdownContent";
 import { EnhancedDropdownProps } from "./types";
 import { useDropdownState } from "./hooks/useDropdownState";
 import { useKeyboardNavigation } from "./hooks/useKeyboardNavigation";
+import { logDebug } from "@/utils/logging";
 
 export type { DropdownOption } from "./types";
 
@@ -30,6 +31,11 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  
+  // Log selected items for debugging
+  React.useEffect(() => {
+    logDebug(`EnhancedDropdown selected items:`, selectedItems);
+  }, [selectedItems]);
   
   const {
     isOpen,

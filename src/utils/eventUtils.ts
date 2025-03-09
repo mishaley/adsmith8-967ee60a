@@ -1,4 +1,6 @@
 
+import { logDebug, logInfo } from "@/utils/logging";
+
 /**
  * Debounce function to limit how often a function can be called
  */
@@ -40,6 +42,7 @@ export function dispatchDedupedEvent(eventName: string, detail: Record<string, a
   
   // Check if we've recently dispatched this exact event
   if (recentEvents[key] && (now - recentEvents[key].timestamp) < DEDUPLICATION_WINDOW) {
+    logDebug(`Skipping duplicate event: ${eventName} with:`, detail);
     return; // Skip this duplicate event
   }
   
@@ -55,6 +58,7 @@ export function dispatchDedupedEvent(eventName: string, detail: Record<string, a
   }
   
   // Dispatch the event
+  logInfo(`Dispatching event: ${eventName} with:`, detail);
   window.dispatchEvent(new CustomEvent(eventName, { detail }));
 }
 
@@ -68,4 +72,32 @@ function cleanupOldEvents(): void {
       delete recentEvents[key];
     }
   });
+}
+
+/**
+ * Utility to create a strongly-typed event dispatcher
+ */
+export function createEventDispatcher<T>(eventName: string) {
+  return function(detail: T) {
+    dispatchDedupedEvent(eventName, detail as unknown as Record<string, any>);
+  };
+}
+
+/**
+ * Utility to add a strongly-typed event listener
+ */
+export function addTypedEventListener<T>(
+  eventName: string,
+  handler: (detail: T) => void
+): () => void {
+  const wrappedHandler = (event: Event) => {
+    const customEvent = event as CustomEvent;
+    handler(customEvent.detail);
+  };
+  
+  window.addEventListener(eventName, wrappedHandler);
+  
+  return () => {
+    window.removeEventListener(eventName, wrappedHandler);
+  };
 }

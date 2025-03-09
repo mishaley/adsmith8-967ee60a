@@ -1,6 +1,7 @@
 
 import { useState, useEffect, RefObject } from "react";
 import { DropdownOption } from "../types";
+import { logDebug } from "@/utils/logging";
 
 interface UseDropdownStateProps {
   options: DropdownOption[];
@@ -40,6 +41,13 @@ export const useDropdownState = ({
     .map(id => options.find(opt => opt.id === id))
     .filter(Boolean)
     .map(opt => opt as DropdownOption);
+  
+  // Log state changes for debugging
+  useEffect(() => {
+    logDebug(`DropdownState - selectedItems:`, selectedItems);
+    logDebug(`DropdownState - normalizedSelectedItems:`, normalizedSelectedItems);
+    logDebug(`DropdownState - selectedOptionLabels:`, selectedOptionLabels);
+  }, [selectedItems, normalizedSelectedItems, selectedOptionLabels]);
   
   // Update dropdown position when it opens
   useEffect(() => {
@@ -90,10 +98,12 @@ export const useDropdownState = ({
         ? normalizedSelectedItems.filter(item => item !== id)
         : [...normalizedSelectedItems, id];
       
+      logDebug(`Multi-select - new selection:`, newSelection);
       onSelectionChange(newSelection);
       // Don't close dropdown in multi-select mode
     } else {
       // For single select, replace the current selection with just this item
+      logDebug(`Single-select - selected: ${id}`);
       onSelectionChange([id]);
       setIsOpen(false); // Close dropdown after selection in single-select mode
       setSearchTerm("");
@@ -101,6 +111,7 @@ export const useDropdownState = ({
   };
 
   const handleClearSelection = () => {
+    logDebug(`Clearing selection`);
     onSelectionChange([]); // Clear the selection completely
     if (!multiSelect) {
       setIsOpen(false); // Only close for single-select

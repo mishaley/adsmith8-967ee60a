@@ -18,6 +18,7 @@ const ClearButton: React.FC<ClearButtonProps> = ({ selectedItems, onClear, clear
         type="button"
         onClick={onClear}
         className="text-sm text-gray-600 hover:text-gray-900 hover:underline w-full text-left"
+        aria-label="Clear selection"
       >
         {clearButtonText}
       </button>

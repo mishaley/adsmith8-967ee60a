@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { cleanupLocalStorage, validateLocalStorageTypes, isValidJSON } from "../utils/localStorageUtils";
+import { logDebug, logError, logWarning } from "@/utils/logging";
 
 interface UseLocalStorageWithEventsProps<T> {
   key: string;
@@ -33,14 +33,14 @@ export function useLocalStorageWithEvents<T>({
       
       // Special handling for arrays to ensure type safety
       if (Array.isArray(initialValue) && !Array.isArray(parsedValue)) {
-        console.warn(`Expected array for key ${key} but got ${typeof parsedValue}. Using default.`);
+        logWarning(`Expected array for key ${key} but got ${typeof parsedValue}. Using default.`);
         localStorage.removeItem(key);
         return initialValue;
       }
       
       return parsedValue;
     } catch (error) {
-      console.error(`Error parsing localStorage value for key ${key}:`, error);
+      logError(`Error parsing localStorage value for key ${key}:`, error);
       // Clear the invalid data
       localStorage.removeItem(key);
       return initialValue;
@@ -53,16 +53,18 @@ export function useLocalStorageWithEvents<T>({
       if (value !== undefined) {
         // Special handling for arrays to prevent storing non-arrays
         if (Array.isArray(initialValue) && !Array.isArray(value)) {
-          console.error(`Attempted to save non-array to ${key} which expects an array. Ignoring.`);
+          logError(`Attempted to save non-array to ${key} which expects an array. Ignoring.`);
           return;
         }
         
         localStorage.setItem(key, JSON.stringify(value));
+        logDebug(`Saved to localStorage: ${key} =`, value);
       } else {
         localStorage.removeItem(key);
+        logDebug(`Removed from localStorage: ${key}`);
       }
     } catch (error) {
-      console.error(`Error saving to localStorage (${key}):`, error);
+      logError(`Error saving to localStorage (${key}):`, error);
     }
   }, [key, value, initialValue]);
 
@@ -73,13 +75,14 @@ export function useLocalStorageWithEvents<T>({
         try {
           // If null, the key was removed
           if (event.newValue === null) {
+            logDebug(`Storage event: ${key} removed, resetting to default`);
             setValue(initialValue);
             return;
           }
           
           // Make sure it's valid JSON
           if (!isValidJSON(event.newValue)) {
-            console.error(`Invalid JSON received in storage event for key ${key}`);
+            logError(`Invalid JSON received in storage event for key ${key}`);
             setValue(initialValue);
             return;
           }
@@ -88,14 +91,15 @@ export function useLocalStorageWithEvents<T>({
           
           // Type validation for arrays
           if (Array.isArray(initialValue) && !Array.isArray(parsedValue)) {
-            console.warn(`Expected array from storage event for key ${key}`);
+            logWarning(`Expected array from storage event for key ${key}`);
             setValue(initialValue);
             return;
           }
           
+          logDebug(`Storage event: ${key} updated to:`, parsedValue);
           setValue(parsedValue);
         } catch (error) {
-          console.error(`Error parsing storage event value for key ${key}:`, error);
+          logError(`Error parsing storage event value for key ${key}:`, error);
           setValue(initialValue);
         }
       }
@@ -110,32 +114,37 @@ export function useLocalStorageWithEvents<T>({
     if (eventName) {
       const handleCustomEvent = (event: CustomEvent) => {
         if (!event.detail || event.detail[eventDetailKey] === undefined) {
-          console.warn(`Received ${eventName} event with missing or undefined detail[${eventDetailKey}]`);
+          logWarning(`Received ${eventName} event with missing or undefined detail[${eventDetailKey}]`);
           return;
         }
         
         const newValue = event.detail[eventDetailKey];
-        if (newValue !== value) {
-          console.log(`Received ${eventName} event with value:`, newValue);
-          
-          // Type validation for arrays
-          if (Array.isArray(initialValue) && newValue !== null && !Array.isArray(newValue)) {
-            console.warn(`Expected array from custom event for key ${key}`);
-            return;
+        
+        // Skip if value is the same (prevents loops)
+        if (JSON.stringify(newValue) === JSON.stringify(value)) {
+          logDebug(`Skipping ${eventName} event as value is unchanged`);
+          return;
+        }
+        
+        logDebug(`Received ${eventName} event with value:`, newValue);
+        
+        // Type validation for arrays
+        if (Array.isArray(initialValue) && newValue !== null && !Array.isArray(newValue)) {
+          logWarning(`Expected array from custom event for key ${key}, got:`, newValue);
+          return;
+        }
+        
+        setValue(newValue);
+        
+        // Also update localStorage to ensure consistency
+        try {
+          if (newValue !== undefined) {
+            localStorage.setItem(key, JSON.stringify(newValue));
+          } else {
+            localStorage.removeItem(key);
           }
-          
-          setValue(newValue);
-          
-          // Also update localStorage to ensure consistency
-          try {
-            if (newValue !== undefined) {
-              localStorage.setItem(key, JSON.stringify(newValue));
-            } else {
-              localStorage.removeItem(key);
-            }
-          } catch (error) {
-            console.error(`Error updating localStorage after custom event (${key}):`, error);
-          }
+        } catch (error) {
+          logError(`Error updating localStorage after custom event (${key}):`, error);
         }
       };
 
@@ -144,21 +153,22 @@ export function useLocalStorageWithEvents<T>({
     }
   }, [eventName, eventDetailKey, key, value, initialValue]);
 
-  // Function to dispatch custom event
-  const dispatchValueChangeEvent = (newValue: T) => {
-    if (eventName) {
-      const detail = { [eventDetailKey]: newValue };
-      const event = new CustomEvent(eventName, { detail });
-      window.dispatchEvent(event);
-    }
-  };
-
   // Function to update value and trigger events
   const updateValue = (newValue: T) => {
+    // Skip if value is unchanged (prevents loops)
+    if (JSON.stringify(newValue) === JSON.stringify(value)) {
+      return;
+    }
+    
+    logDebug(`Updating ${key} to:`, newValue);
     setValue(newValue);
     
     if (eventName) {
-      dispatchValueChangeEvent(newValue);
+      // Dispatch custom event
+      const detail = { [eventDetailKey]: newValue };
+      logDebug(`Dispatching ${eventName} event with:`, detail);
+      const event = new CustomEvent(eventName, { detail });
+      window.dispatchEvent(event);
     }
   };
 

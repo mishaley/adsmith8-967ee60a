@@ -2,6 +2,7 @@
 import React, { useRef, useEffect } from "react";
 import RecordingField from "../RecordingField";
 import OrganizationSelect from "../SummaryTable/components/OrganizationSelect";
+import { logDebug } from "@/utils/logging";
 
 interface OrganizationFormProps {
   selectedOrgId: string;
@@ -32,6 +33,15 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
   isLoadingOrgData
 }) => {
   const brandNameRef = useRef<HTMLTextAreaElement>(null);
+  const previousOrgIdRef = useRef<string | null>(null);
+  
+  // Track organization changes
+  useEffect(() => {
+    if (previousOrgIdRef.current !== selectedOrgId) {
+      logDebug(`Organization changed from ${previousOrgIdRef.current} to ${selectedOrgId}`);
+      previousOrgIdRef.current = selectedOrgId;
+    }
+  }, [selectedOrgId]);
   
   // Auto-focus the brand name field when "new-organization" is selected
   useEffect(() => {
@@ -74,7 +84,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
               />
               <RecordingField 
                 label="What industry are you in?" 
-                value={industry} 
+                value={industry || ""} 
                 onChange={handleIndustryChange} 
                 placeholder="" 
                 disabled={isUpdating || isLoadingOrgData} 

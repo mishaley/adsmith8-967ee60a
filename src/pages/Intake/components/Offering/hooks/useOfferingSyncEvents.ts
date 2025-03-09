@@ -1,6 +1,7 @@
 
 import { useEffect } from "react";
-import { logDebug, logError } from "@/utils/logging";
+import { logDebug, logError, logInfo } from "@/utils/logging";
+import { dispatchDedupedEvent } from "@/utils/eventUtils";
 
 interface UseOfferingSyncEventsProps {
   selectedOfferingId: string;
@@ -23,10 +24,18 @@ export const useOfferingSyncEvents = ({
         
         const { offeringId } = customEvent.detail;
         
-        if (offeringId !== undefined && offeringId !== selectedOfferingId) {
-          logDebug(`Received offering changed event with ID: ${offeringId}`);
-          setSelectedOfferingId(offeringId);
+        if (offeringId === undefined) {
+          logDebug("Received offeringChanged event with undefined offeringId");
+          return;
         }
+        
+        if (offeringId === selectedOfferingId) {
+          logDebug(`Skipping offeringChanged event as ID is unchanged: ${offeringId}`);
+          return;
+        }
+        
+        logInfo(`Received offering changed event with ID: ${offeringId}`);
+        setSelectedOfferingId(offeringId);
       } catch (error) {
         logError("Error handling offering changed event:", error);
       }
@@ -38,4 +47,16 @@ export const useOfferingSyncEvents = ({
       window.removeEventListener('offeringChanged', handleOfferingChanged as EventListener);
     };
   }, [selectedOfferingId, setSelectedOfferingId]);
+
+  // Helper to notify other components about the offering change
+  const notifyOfferingChange = (offeringId: string) => {
+    if (offeringId === selectedOfferingId) return;
+    
+    logInfo(`Broadcasting offering change to: ${offeringId}`);
+    dispatchDedupedEvent('offeringChanged', { offeringId });
+  };
+  
+  return {
+    notifyOfferingChange
+  };
 };
