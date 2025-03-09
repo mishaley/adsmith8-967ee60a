@@ -4,7 +4,7 @@ import { DropdownOption } from "../types";
 
 interface UseDropdownStateProps {
   options: DropdownOption[];
-  selectedItems: string[];
+  selectedItems: string[] | string | null | undefined;
   onSelectionChange: (selectedIds: string[]) => void;
   multiSelect: boolean;
   contentRef: RefObject<HTMLDivElement>;
@@ -24,6 +24,11 @@ export const useDropdownState = ({
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [contentPosition, setContentPosition] = useState({ top: 0, left: 0, width: 0 });
   
+  // Ensure selectedItems is always an array
+  const normalizedSelectedItems = Array.isArray(selectedItems) 
+    ? selectedItems 
+    : (selectedItems ? [selectedItems] : []);
+  
   // Filter options based on search term
   const filteredOptions = options.filter(option => 
     option.label.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -31,7 +36,7 @@ export const useDropdownState = ({
   );
 
   // Get selected option details for display
-  const selectedOptionLabels = selectedItems
+  const selectedOptionLabels = normalizedSelectedItems
     .map(id => options.find(opt => opt.id === id))
     .filter(Boolean)
     .map(opt => opt as DropdownOption);
@@ -81,9 +86,9 @@ export const useDropdownState = ({
   const handleSelect = (id: string) => {
     if (multiSelect) {
       // Toggle selection - if already selected, remove it, otherwise add it
-      const newSelection = selectedItems.includes(id)
-        ? selectedItems.filter(item => item !== id)
-        : [...selectedItems, id];
+      const newSelection = normalizedSelectedItems.includes(id)
+        ? normalizedSelectedItems.filter(item => item !== id)
+        : [...normalizedSelectedItems, id];
       
       onSelectionChange(newSelection);
       // Don't close dropdown in multi-select mode
@@ -115,6 +120,7 @@ export const useDropdownState = ({
     contentPosition,
     toggleDropdown,
     handleSelect,
-    handleClearSelection
+    handleClearSelection,
+    normalizedSelectedItems
   };
 };

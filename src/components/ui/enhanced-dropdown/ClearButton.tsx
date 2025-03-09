@@ -1,26 +1,24 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 import { ClearButtonProps } from "./types";
 
-const ClearButton: React.FC<ClearButtonProps> = ({
-  selectedItems,
-  onClear,
-  clearButtonText,
-}) => {
+const ClearButton: React.FC<ClearButtonProps> = ({ selectedItems, onClear, clearButtonText }) => {
+  // Ensure selectedItems is an array and check if it has items
+  const hasSelection = Array.isArray(selectedItems) ? selectedItems.length > 0 : Boolean(selectedItems);
+
+  if (!hasSelection) {
+    return null;
+  }
+
   return (
-    <div className="sticky bottom-0 w-full border-t border-gray-200 bg-white">
-      <Button 
-        type="button" 
-        variant="ghost" 
-        className="w-full text-gray-500 flex items-center justify-center py-2"
+    <div className="px-3 py-2 border-t border-gray-200">
+      <button
+        type="button"
         onClick={onClear}
-        disabled={selectedItems.length === 0}
+        className="text-sm text-gray-600 hover:text-gray-900 hover:underline w-full text-left"
       >
-        <X className="h-4 w-4 mr-2" />
         {clearButtonText}
-      </Button>
+      </button>
     </div>
   );
 };

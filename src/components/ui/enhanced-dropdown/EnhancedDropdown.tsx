@@ -13,7 +13,7 @@ export type { DropdownOption } from "./types";
 
 export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   options,
-  selectedItems,
+  selectedItems = [], // Provide default empty array
   onSelectionChange,
   placeholder = "Select...",
   buttonIcon,
@@ -43,7 +43,8 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
     contentPosition,
     toggleDropdown,
     handleSelect,
-    handleClearSelection
+    handleClearSelection,
+    normalizedSelectedItems
   } = useDropdownState({
     options,
     selectedItems,
@@ -107,7 +108,7 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
           
           <OptionList
             filteredOptions={filteredOptions}
-            selectedItems={selectedItems}
+            selectedItems={normalizedSelectedItems}
             highlightedIndex={highlightedIndex}
             setHighlightedIndex={setHighlightedIndex}
             onSelect={handleSelect}
@@ -117,7 +118,7 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
           />
           
           <ClearButton
-            selectedItems={selectedItems}
+            selectedItems={normalizedSelectedItems}
             onClear={handleClearSelection}
             clearButtonText={clearButtonText}
           />

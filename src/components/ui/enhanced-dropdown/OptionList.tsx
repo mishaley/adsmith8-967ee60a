@@ -13,10 +13,13 @@ const OptionList: React.FC<OptionListProps> = ({
   renderOption,
   listRef,
 }) => {
+  // Ensure selectedItems is always an array
+  const normalizedSelectedItems = Array.isArray(selectedItems) ? selectedItems : [];
+
   return (
     <div 
       ref={listRef}
-      className="overflow-y-auto"
+      className="overflow-y-auto bg-white border border-gray-200 shadow-md"
       style={{ maxHeight: '250px' }}
       role="listbox"
       aria-multiselectable={multiSelect}
@@ -28,21 +31,21 @@ const OptionList: React.FC<OptionListProps> = ({
           <div
             key={option.id}
             className={`
-              cursor-pointer
-              ${selectedItems.includes(option.id) ? 'bg-gray-100' : ''}
+              cursor-pointer p-2
+              ${normalizedSelectedItems.includes(option.id) ? 'bg-gray-100' : ''}
               ${highlightedIndex === index ? 'bg-gray-100' : ''}
               hover:bg-gray-100
             `}
             onClick={() => onSelect(option.id)}
             onMouseEnter={() => setHighlightedIndex(index)}
             role="option"
-            aria-selected={selectedItems.includes(option.id)}
+            aria-selected={normalizedSelectedItems.includes(option.id)}
           >
             {renderOption 
-              ? renderOption(option, selectedItems.includes(option.id), highlightedIndex === index) 
+              ? renderOption(option, normalizedSelectedItems.includes(option.id), highlightedIndex === index) 
               : <OptionRenderer 
                   option={option} 
-                  isSelected={selectedItems.includes(option.id)} 
+                  isSelected={normalizedSelectedItems.includes(option.id)} 
                   isHighlighted={highlightedIndex === index}
                   multiSelect={multiSelect}
                 />}
