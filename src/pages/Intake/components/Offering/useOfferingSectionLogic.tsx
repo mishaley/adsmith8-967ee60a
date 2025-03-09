@@ -3,7 +3,8 @@ import { useSummaryTableData } from "../SummaryTable/useSummaryTableData";
 import { useOfferingDetails } from "../SummaryTable/hooks/useOfferingDetails";
 import { useOfferingSelection } from "./hooks/useOfferingSelection";
 import { useOfferingSave } from "./hooks/useOfferingSave";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { STORAGE_KEYS } from "../../utils/localStorageUtils";
 
 interface UseOfferingSectionLogicProps {
   offering: string;
@@ -26,6 +27,9 @@ export const useOfferingSectionLogic = ({
   uniqueOffering,
   setUniqueOffering
 }: UseOfferingSectionLogicProps) => {
+  // Track if initial loading is complete
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
   // Get offering dropdown data and functionality
   const {
     selectedOfferingId,
@@ -68,19 +72,43 @@ export const useOfferingSectionLogic = ({
     refetchOfferingDetails
   });
 
-  // Load the initial offering from localStorage on mount
+  // Load the initial offering from localStorage on mount - only once
   useEffect(() => {
-    const storedOfferingId = localStorage.getItem("adsmith_offering_selectedId");
-    
-    if (storedOfferingId && storedOfferingId !== selectedOfferingId) {
-      setSelectedOfferingId(storedOfferingId);
+    if (!initialLoadComplete) {
+      const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
       
-      // If it's a real offering ID (not "new-offering"), we should load its details
-      if (storedOfferingId !== "new-offering") {
-        refetchOfferingDetails();
+      if (storedOfferingId && !isOfferingsDisabled) {
+        console.log(`Loading initial offering ID from storage: ${storedOfferingId}`);
+        setSelectedOfferingId(storedOfferingId);
+        
+        // If it's a real offering ID (not "new-offering"), we should load its details
+        if (storedOfferingId !== "new-offering") {
+          refetchOfferingDetails();
+        }
       }
+      
+      setInitialLoadComplete(true);
     }
-  }, []);
+  }, [initialLoadComplete, isOfferingsDisabled, refetchOfferingDetails, setSelectedOfferingId]);
+
+  // Sync between components using window events
+  useEffect(() => {
+    const handleOfferingChanged = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { offeringId } = customEvent.detail;
+      
+      if (offeringId && offeringId !== selectedOfferingId) {
+        console.log(`Received offering changed event with ID: ${offeringId}`);
+        setSelectedOfferingId(offeringId);
+      }
+    };
+    
+    window.addEventListener('offeringChanged', handleOfferingChanged as EventListener);
+    
+    return () => {
+      window.removeEventListener('offeringChanged', handleOfferingChanged as EventListener);
+    };
+  }, [selectedOfferingId, setSelectedOfferingId]);
 
   return {
     selectedOfferingId,

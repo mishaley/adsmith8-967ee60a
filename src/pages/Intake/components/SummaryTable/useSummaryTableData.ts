@@ -51,7 +51,10 @@ export const useSummaryTableData = () => {
   useEffect(() => {
     const handleStorageChange = () => {
       const newOfferingId = localStorage.getItem(OFFERING_STORAGE_KEY) || "";
-      setSelectedOfferingId(newOfferingId);
+      if (newOfferingId !== selectedOfferingId) {
+        console.log(`Storage change detected for offering: ${newOfferingId}`);
+        setSelectedOfferingId(newOfferingId);
+      }
     };
 
     // Set up event listener for localStorage changes that might affect offering
@@ -60,7 +63,17 @@ export const useSummaryTableData = () => {
     // Listen for custom offeringChanged events
     const handleOfferingChanged = (event: CustomEvent) => {
       const { offeringId } = event.detail;
-      setSelectedOfferingId(offeringId);
+      if (offeringId !== selectedOfferingId) {
+        console.log(`Event change detected for offering: ${offeringId}`);
+        setSelectedOfferingId(offeringId);
+        
+        // Also update localStorage to ensure consistency
+        if (offeringId) {
+          localStorage.setItem(OFFERING_STORAGE_KEY, offeringId);
+        } else {
+          localStorage.removeItem(OFFERING_STORAGE_KEY);
+        }
+      }
     };
 
     window.addEventListener('offeringChanged' as any, handleOfferingChanged);
@@ -70,7 +83,17 @@ export const useSummaryTableData = () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('offeringChanged' as any, handleOfferingChanged);
     };
-  }, []);
+  }, [selectedOfferingId]);
+
+  // Save selectedOfferingId to localStorage when it changes
+  useEffect(() => {
+    if (selectedOfferingId) {
+      console.log(`Saving offering ID to localStorage: ${selectedOfferingId}`);
+      localStorage.setItem(OFFERING_STORAGE_KEY, selectedOfferingId);
+    } else {
+      localStorage.removeItem(OFFERING_STORAGE_KEY);
+    }
+  }, [selectedOfferingId]);
 
   // Query organizations
   const { data: organizations = [] } = useQuery({
@@ -107,26 +130,26 @@ export const useSummaryTableData = () => {
     enabled: !!selectedOrgId, // Only run query if an organization is selected
   });
 
-  // Reset offering selection when organization changes
+  // Reset offering selection when organization changes or when offerings data changes
   useEffect(() => {
-    // When organization is empty or changes, clear offering selection
-    if (!selectedOrgId || offerings.length === 0) {
-      setSelectedOfferingId("");
-      localStorage.removeItem(OFFERING_STORAGE_KEY);
-    } else {
-      // If we have a selectedOfferingId from localStorage, check if it's still valid
-      const savedOfferingId = localStorage.getItem(OFFERING_STORAGE_KEY);
-      if (savedOfferingId) {
-        // Check if the saved offering belongs to the current organization
-        const offeringExists = offerings.some(o => o.offering_id === savedOfferingId) || savedOfferingId === "new-offering";
-        if (!offeringExists) {
-          // If not, clear the selection
-          setSelectedOfferingId("");
-          localStorage.removeItem(OFFERING_STORAGE_KEY);
-        }
+    // When organization is empty or changes, check if current offering is valid
+    if (offerings.length === 0) {
+      // No offerings available - clear selection unless it's "new-offering"
+      if (selectedOfferingId && selectedOfferingId !== "new-offering") {
+        console.log("Clearing offering selection - no offerings available");
+        setSelectedOfferingId("");
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
+      }
+    } else if (selectedOfferingId && selectedOfferingId !== "new-offering") {
+      // Check if the selected offering still exists in the offerings list
+      const offeringExists = offerings.some(o => o.offering_id === selectedOfferingId);
+      if (!offeringExists) {
+        console.log(`Clearing offering selection - offering ${selectedOfferingId} no longer exists`);
+        setSelectedOfferingId("");
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
     }
-  }, [selectedOrgId, offerings]);
+  }, [selectedOrgId, offerings, selectedOfferingId, setSelectedOfferingId]);
 
   // Format options for the select component
   const offeringOptions = offerings.map(offering => ({

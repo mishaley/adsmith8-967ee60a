@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
+import { STORAGE_KEYS } from "../../utils/localStorageUtils";
 
 interface OfferingSelectorProps {
   selectedOfferingId: string;
@@ -17,13 +18,20 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   isOfferingsDisabled,
   placeholder = ""
 }) => {
-  // Use localStorage value on initial render if available
-  React.useEffect(() => {
-    const storedOfferingId = localStorage.getItem("adsmith_offering_selectedId");
-    if (storedOfferingId && storedOfferingId !== selectedOfferingId && handleOfferingChange) {
-      handleOfferingChange(storedOfferingId);
+  // Load from localStorage on initial render
+  useEffect(() => {
+    const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+    if (storedOfferingId && storedOfferingId !== selectedOfferingId && !isOfferingsDisabled) {
+      // Check if the stored ID exists in current options
+      const optionExists = offeringOptions.some(option => option.value === storedOfferingId);
+      
+      // Only apply if the option exists or if it's the special "new-offering" value
+      if (optionExists || storedOfferingId === "new-offering") {
+        console.log(`Applying stored offering ID from localStorage: ${storedOfferingId}`);
+        handleOfferingChange(storedOfferingId);
+      }
     }
-  }, []);
+  }, [selectedOfferingId, handleOfferingChange, offeringOptions, isOfferingsDisabled]);
 
   return (
     <div className="w-72 mx-auto">

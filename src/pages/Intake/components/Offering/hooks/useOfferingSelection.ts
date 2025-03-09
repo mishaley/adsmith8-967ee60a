@@ -30,6 +30,7 @@ export const useOfferingSelection = ({
   // Save selected offering ID to localStorage when it changes
   useEffect(() => {
     if (selectedOfferingId) {
+      console.log(`Saving offering ID in useOfferingSelection: ${selectedOfferingId}`);
       localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
       
       // Dispatch custom event for other components
@@ -39,14 +40,6 @@ export const useOfferingSelection = ({
       window.dispatchEvent(event);
     }
   }, [selectedOfferingId]);
-  
-  // Initialize from localStorage on component mount
-  useEffect(() => {
-    const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
-    if (storedOfferingId && storedOfferingId !== selectedOfferingId) {
-      setSelectedOfferingId(storedOfferingId);
-    }
-  }, []);
   
   // Auto-focus the offering name field when "new-offering" is selected
   useEffect(() => {
@@ -92,6 +85,7 @@ export const useOfferingSelection = ({
 
   // Handle offering change
   const handleOfferingChange = (value: string) => {
+    console.log(`Offering selection changed to: ${value}`);
     setSelectedOfferingId(value);
     
     if (!value) {
