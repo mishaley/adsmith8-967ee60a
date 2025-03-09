@@ -47,6 +47,11 @@ export const loadPortraitsFromSession = (
   }
 };
 
+// Return the prompt template with variables instead of actual values
+export const getPortraitPromptTemplate = (): string => {
+  return `Portrait style magazine quality photo of a [RACE] [GENDER], age [AGE_RANGE], who is [TITLE]. [INTERESTS_DESCRIPTION] High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
+};
+
 // Create enhanced prompt for portrait generation
 export const createPortraitPrompt = (persona: Persona): string => {
   // Get the age range - either from ageMin/ageMax or split the age if it exists

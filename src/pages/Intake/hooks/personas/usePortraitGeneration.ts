@@ -3,11 +3,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Persona } from "../../components/Personas/types";
 import { generatePersonaPortrait } from "../../components/Personas/services/portraitService";
-import { getRandomRace, savePortraitsToSession } from "../../components/Personas/utils/portraitUtils";
+import { getRandomRace, savePortraitsToSession, getPortraitPromptTemplate } from "../../components/Personas/utils/portraitUtils";
 
 export const usePortraitGeneration = () => {
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
+  const [promptTemplate, setPromptTemplate] = useState(getPortraitPromptTemplate());
 
   const generatePortraitForPersona = async (persona: Persona, index: number, customPrompt?: string) => {
     if (!persona) return null;
@@ -172,6 +173,7 @@ export const usePortraitGeneration = () => {
     isGeneratingPortraits,
     loadingPortraitIndices,
     generatePortraitsForAllPersonas,
-    retryPortraitGeneration
+    retryPortraitGeneration,
+    promptTemplate
   };
 };
