@@ -16,23 +16,60 @@ serve(async (req) => {
   }
 
   try {
-    const { product } = await req.json();
+    const { 
+      product, 
+      count = 1,
+      organization = {}, 
+      offering = {}
+    } = await req.json();
     
     if (!product) {
       throw new Error('Product name is required');
     }
 
-    console.log(`Generating personas for product: ${product}`);
-
-    const prompt = `Generate 5 target customer personas for ${product}. 
-    For each persona, provide:
-    1. A catchy 3-word title
-    2. Gender (IMPORTANT: Choose either Men or Women, do NOT use "Both")
-    3. Age range (min-max)
-    4. Three main interests
+    console.log(`Generating ${count} personas for product: ${product}`);
     
-    Format the response as a JSON array with objects having these fields: 
-    title, gender, ageMin, ageMax, interests (as array of strings)`;
+    // Extract organization and offering details with fallbacks
+    const orgName = organization.name || "Your organization";
+    const orgIndustry = organization.industry || "general";
+    const offeringName = offering.name || product;
+    const keySellingPoints = offering.keySellingPoints || "No information provided";
+    const problemSolved = offering.problemSolved || "No information provided";
+    const uniqueAdvantages = offering.uniqueAdvantages || "No information provided";
+
+    // Build the enhanced prompt
+    const prompt = `
+ROLE: You are a world class marketing strategist.
+TASK: Generate target personas for an offering.
+
+ORGANIZATION
+${orgName}
+
+INDUSTRY
+${orgIndustry}
+
+OFFERING
+${offeringName}
+
+KEY SELLING POINTS
+${keySellingPoints}
+
+PROBLEM SOLVED
+${problemSolved}
+
+UNIQUE ADVANTAGES
+${uniqueAdvantages}
+
+Generate ${count} target customer personas who would be most likely to benefit from this offering.
+
+For each persona, provide:
+1. Gender (IMPORTANT: Choose either Men or Women, do NOT use "Both")
+2. Age range (min-max)
+3. Two main interests that align with the offering's value proposition
+
+Format the response as a JSON array with objects having these fields:
+gender, ageMin, ageMax, interests (as array of strings)
+`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
