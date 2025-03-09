@@ -5,25 +5,19 @@ import SelectionHeader from "./SelectionHeader";
 import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface LanguageSelectionProps {
-  selectedLanguage: string;
-  setSelectedLanguage: (language: string) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (languages: string[]) => void;
   isLoadingCountry: boolean;
   primaryLanguageId: string | null;
   hideLabel?: boolean;
-  multiSelect?: boolean;
-  selectedLanguages?: string[];
-  setSelectedLanguages?: ((languages: string[]) => void) | null;
 }
 
 const LanguageSelection: React.FC<LanguageSelectionProps> = ({
-  selectedLanguage,
-  setSelectedLanguage,
+  selectedLanguages,
+  setSelectedLanguages,
   isLoadingCountry,
   primaryLanguageId,
-  hideLabel = false,
-  multiSelect = false,
-  selectedLanguages = [],
-  setSelectedLanguages = null
+  hideLabel = false
 }) => {
   const { languages, isLoading } = useLanguages();
   const [languageOptions, setLanguageOptions] = useState<DropdownOption[]>([]);
@@ -43,33 +37,8 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
   }, [languages]);
 
   const handleLanguageSelect = (selectedIds: string[]) => {
-    if (selectedIds.length === 0) {
-      // Clear selection for both single and multi-select
-      setSelectedLanguage("");
-      if (multiSelect && setSelectedLanguages) {
-        setSelectedLanguages([]);
-      }
-      return;
-    }
-    
-    // In multi-select mode with setSelectedLanguages provided, use full array handling
-    if (multiSelect && setSelectedLanguages) {
-      setSelectedLanguages(selectedIds);
-      
-      // For backward compatibility, also update single-select
-      if (selectedIds.length > 0) {
-        setSelectedLanguage(selectedIds[0]);
-      } else {
-        setSelectedLanguage("");
-      }
-    } else {
-      // Legacy single-select fallback
-      if (selectedIds.length > 0) {
-        setSelectedLanguage(selectedIds[0]);
-      } else {
-        setSelectedLanguage("");
-      }
-    }
+    // Always update with the full array of selected languages
+    setSelectedLanguages(selectedIds);
   };
 
   return (
@@ -78,12 +47,12 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
       
       <EnhancedDropdown
         options={languageOptions}
-        selectedItems={multiSelect && setSelectedLanguages ? selectedLanguages : (selectedLanguage ? [selectedLanguage] : [])}
+        selectedItems={selectedLanguages}
         onSelectionChange={handleLanguageSelect}
         placeholder="Select language"
         searchPlaceholder="Search languages..."
         disabled={isLoading}
-        multiSelect={multiSelect && setSelectedLanguages !== null}
+        multiSelect={true}
       />
       
       {isLoading && (

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import QuadrantLayout from "@/components/QuadrantLayout";
@@ -33,14 +34,10 @@ const IntakeForm: React.FC = () => {
     setProblemSolved,
     uniqueOffering,
     setUniqueOffering,
-    selectedCountry,
-    setSelectedCountry,
-    adPlatform,
-    setAdPlatform,
-    selectedLanguage,
-    setSelectedLanguage,
     selectedCountries,
     setSelectedCountries,
+    adPlatform,
+    setAdPlatform,
     selectedLanguages,
     setSelectedLanguages,
     excludedCountries,
@@ -65,7 +62,7 @@ const IntakeForm: React.FC = () => {
     removePersona,
     personaCount,
     setPersonaCount,
-  } = usePersonasManager(offering, selectedCountry);
+  } = usePersonasManager(offering, selectedCountries.length > 0 ? selectedCountries[0] : "");
 
   const handleUpdateMessages = (
     updatedMessages: any,
@@ -127,16 +124,11 @@ const IntakeForm: React.FC = () => {
               uniqueOffering={uniqueOffering}
               setUniqueOffering={setUniqueOffering}
               
-              selectedCountry={selectedCountry}
-              setSelectedCountry={setSelectedCountry}
+              selectedCountries={selectedCountries}
+              setSelectedCountries={setSelectedCountries}
               adPlatform={adPlatform}
               setAdPlatform={setAdPlatform}
               
-              selectedLanguage={selectedLanguage}
-              setSelectedLanguage={setSelectedLanguage}
-              
-              selectedCountries={selectedCountries}
-              setSelectedCountries={setSelectedCountries}
               selectedLanguages={selectedLanguages}
               setSelectedLanguages={setSelectedLanguages}
               

@@ -5,27 +5,21 @@ import SelectionHeader from "./SelectionHeader";
 import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface CountrySelectionProps {
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
+  selectedCountries: string[];
+  setSelectedCountries: (countries: string[]) => void;
   setSelectedCountryId?: ((id: string) => void) | null;
   countryName: string | null;
   onClearSelection: () => void;
   hideLabel?: boolean;
-  multiSelect?: boolean;
-  selectedCountries?: string[];
-  setSelectedCountries?: ((countries: string[]) => void) | null;
 }
 
 const CountrySelection: React.FC<CountrySelectionProps> = ({
-  selectedCountry,
-  setSelectedCountry,
+  selectedCountries,
+  setSelectedCountries,
   setSelectedCountryId,
   countryName,
   onClearSelection,
-  hideLabel = false,
-  multiSelect = false,
-  selectedCountries = [],
-  setSelectedCountries = null
+  hideLabel = false
 }) => {
   const { countries, isLoading } = useCountries();
   const [countryOptions, setCountryOptions] = useState<DropdownOption[]>([]);
@@ -58,34 +52,12 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       return;
     }
     
-    // In multi-select mode with setSelectedCountries provided, use full array handling
-    if (multiSelect && setSelectedCountries) {
-      setSelectedCountries(selectedIds);
-      
-      // Update map highlighting for the first country (if applicable)
-      if (setSelectedCountryId && selectedIds.length > 0) {
-        updateMapHighlight(selectedIds[0]);
-      }
-      
-      // For backward compatibility
-      if (selectedIds.length > 0) {
-        setSelectedCountry(selectedIds[0]);
-      } else {
-        setSelectedCountry("");
-      }
-    } else {
-      // Legacy single-select fallback 
-      if (selectedIds.length > 0) {
-        setSelectedCountry(selectedIds[0]);
-        if (setSelectedCountryId) {
-          updateMapHighlight(selectedIds[0]);
-        }
-      } else {
-        setSelectedCountry("");
-        if (setSelectedCountryId) {
-          setSelectedCountryId("");
-        }
-      }
+    // Update the selected countries
+    setSelectedCountries(selectedIds);
+    
+    // Update map highlighting for the first country (if applicable)
+    if (setSelectedCountryId && selectedIds.length > 0) {
+      updateMapHighlight(selectedIds[0]);
     }
   };
   
@@ -123,12 +95,12 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       
       <EnhancedDropdown
         options={countryOptions}
-        selectedItems={multiSelect && setSelectedCountries ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
+        selectedItems={selectedCountries}
         onSelectionChange={handleCountrySelect}
         placeholder="Select country"
         searchPlaceholder="Search countries..."
         disabled={isLoading}
-        multiSelect={multiSelect && setSelectedCountries !== null}
+        multiSelect={true}
       />
       
       {isLoading && (

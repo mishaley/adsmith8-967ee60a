@@ -27,20 +27,12 @@ export const useIntakeForm = () => {
     setUniqueOffering
   } = useOfferingForm();
   
-  // Location
+  // Location - only use multi-select API now
   const {
-    selectedCountry,
-    setSelectedCountry,
-    selectedLanguage,
-    setSelectedLanguage,
-    // Multi-select state
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
     setSelectedLanguages,
-    // Excluded countries
-    excludedCountry,
-    setExcludedCountry,
     excludedCountries,
     setExcludedCountries
   } = useLocationForm();
@@ -78,14 +70,10 @@ export const useIntakeForm = () => {
     sellingPoints, setSellingPoints,
     problemSolved, setProblemSolved,
     uniqueOffering, setUniqueOffering,
-    selectedCountry, setSelectedCountry,
     adPlatform, setAdPlatform,
-    selectedLanguage, setSelectedLanguage,
-    // Multi-select state
+    // Only return multi-select state
     selectedCountries, setSelectedCountries,
     selectedLanguages, setSelectedLanguages,
-    // Excluded countries
-    excludedCountry, setExcludedCountry,
     excludedCountries, setExcludedCountries,
     personas, setPersonas,
     generatedMessages, setGeneratedMessages,

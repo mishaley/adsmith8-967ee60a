@@ -7,71 +7,47 @@ import ExcludeSelection from "./selection/ExcludeSelection";
 import { useExcludedCountry } from "../hooks/useExcludedCountry";
 
 interface SelectionDisplayProps {
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
-  selectedLanguage: string;
-  setSelectedLanguage: (language: string) => void;
+  // Remove single-select props from interface since we'll only use multi-select
+  selectedCountries: string[];
+  setSelectedCountries: (countries: string[]) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (languages: string[]) => void;
   setSelectedCountryId?: ((id: string) => void) | null;
   setExcludedCountryId?: ((id: string) => void) | null;
-  // Add multi-select props
-  selectedCountries?: string[];
-  setSelectedCountries?: ((countries: string[]) => void) | null;
-  selectedLanguages?: string[];
-  setSelectedLanguages?: ((languages: string[]) => void) | null;
-  // Add excluded countries multi-select props
-  excludedCountries?: string[];
-  setExcludedCountries?: ((countries: string[]) => void) | null;
+  excludedCountries: string[];
+  setExcludedCountries: (countries: string[]) => void;
 }
 
 const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
-  selectedCountry,
-  setSelectedCountry,
-  selectedLanguage,
-  setSelectedLanguage,
+  selectedCountries,
+  setSelectedCountries,
+  selectedLanguages,
+  setSelectedLanguages,
   setSelectedCountryId,
   setExcludedCountryId,
-  selectedCountries = [],
-  setSelectedCountries = null,
-  selectedLanguages = [],
-  setSelectedLanguages = null,
-  excludedCountries = [],
-  setExcludedCountries = null
+  excludedCountries,
+  setExcludedCountries
 }) => {
+  // Use the first selected country for backward compatibility with useCountryLanguage
+  const selectedCountry = selectedCountries.length > 0 ? selectedCountries[0] : "";
+  
   const {
     primaryLanguageId,
     countryName,
     isLoading: isLoadingCountry
   } = useCountryLanguage(selectedCountry);
   
-  // We'll continue to use this for backward compatibility
-  const {
-    excludedCountry,
-    setExcludedCountry,
-    excludedCountryFlag,
-    handleClearExclusion
-  } = useExcludedCountry({ setExcludedCountryId });
-  
   const handleClearSelection = () => {
-    // Clear both the country selection and map highlighting
-    setSelectedCountry('');
+    // Clear the countries selection
+    setSelectedCountries([]);
     
-    // Also clear multi-select countries if available
-    if (setSelectedCountries) {
-      setSelectedCountries([]);
-    }
-    
-    // Ensure the map highlight is cleared by explicitly passing empty string
+    // Ensure the map highlight is cleared
     if (setSelectedCountryId) {
       setSelectedCountryId('');
     }
     
-    // Also clear the language when country is cleared
-    setSelectedLanguage('');
-    
-    // Also clear multi-select languages if available
-    if (setSelectedLanguages) {
-      setSelectedLanguages([]);
-    }
+    // Also clear the languages when countries are cleared
+    setSelectedLanguages([]);
   };
   
   return (
@@ -83,15 +59,12 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           <div className="w-24 font-medium">Country</div>
           <div className="flex-1">
             <CountrySelection 
-              selectedCountry={selectedCountry} 
-              setSelectedCountry={setSelectedCountry} 
+              selectedCountries={selectedCountries} 
+              setSelectedCountries={setSelectedCountries} 
               setSelectedCountryId={setSelectedCountryId} 
               countryName={countryName} 
               onClearSelection={handleClearSelection}
               hideLabel={true}
-              multiSelect={!!setSelectedCountries}
-              selectedCountries={selectedCountries}
-              setSelectedCountries={setSelectedCountries}
             />
           </div>
         </div>
@@ -100,15 +73,12 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
         <div className="flex items-center gap-4" style={{ position: 'relative', zIndex: 20 }}>
           <div className="w-24 font-medium">Exclude</div>
           <div className="flex-1">
-            {/* Only render if setExcludedCountries is provided */}
-            {setExcludedCountries && (
-              <ExcludeSelection 
-                excludedCountries={excludedCountries || []}
-                setExcludedCountries={setExcludedCountries}
-                setExcludedCountryId={setExcludedCountryId}
-                hideLabel={true}
-              />
-            )}
+            <ExcludeSelection 
+              excludedCountries={excludedCountries}
+              setExcludedCountries={setExcludedCountries}
+              setExcludedCountryId={setExcludedCountryId}
+              hideLabel={true}
+            />
           </div>
         </div>
 
@@ -117,14 +87,11 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
           <div className="w-24 font-medium">Language</div>
           <div className="flex-1">
             <LanguageSelection 
-              selectedLanguage={selectedLanguage} 
-              setSelectedLanguage={setSelectedLanguage} 
+              selectedLanguages={selectedLanguages}
+              setSelectedLanguages={setSelectedLanguages}
               isLoadingCountry={isLoadingCountry} 
               primaryLanguageId={primaryLanguageId}
               hideLabel={true}
-              multiSelect={!!setSelectedLanguages}
-              selectedLanguages={selectedLanguages}
-              setSelectedLanguages={setSelectedLanguages}
             />
           </div>
         </div>

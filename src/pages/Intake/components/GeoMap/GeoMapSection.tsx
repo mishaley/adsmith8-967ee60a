@@ -4,30 +4,21 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import SelectionDisplay from "./components/SelectionDisplay";
 
 interface GeoMapSectionProps {
-  selectedCountry: string;
-  setSelectedCountry: (country: string) => void;
-  selectedLanguage: string;
-  setSelectedLanguage: (language: string) => void;
-  // Add multi-select props
-  selectedCountries?: string[];
-  setSelectedCountries?: (countries: string[]) => void;
-  selectedLanguages?: string[];
-  setSelectedLanguages?: (languages: string[]) => void;
-  // Add excluded countries props
-  excludedCountries?: string[];
-  setExcludedCountries?: (countries: string[]) => void;
+  // Remove single-select props since we'll only use multi-select
+  selectedCountries: string[];
+  setSelectedCountries: (countries: string[]) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (languages: string[]) => void;
+  excludedCountries: string[];
+  setExcludedCountries: (countries: string[]) => void;
 }
 
 const GeoMapSection: React.FC<GeoMapSectionProps> = ({
-  selectedCountry,
-  setSelectedCountry,
-  selectedLanguage,
-  setSelectedLanguage,
-  selectedCountries = [],
+  selectedCountries,
   setSelectedCountries,
-  selectedLanguages = [],
+  selectedLanguages,
   setSelectedLanguages,
-  excludedCountries = [],
+  excludedCountries,
   setExcludedCountries
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -63,16 +54,12 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
     <div className="flex flex-col" style={{ position: 'static', overflow: 'visible' }}>
       <div className="w-full max-w-md mx-auto" style={{ position: 'static', overflow: 'visible' }}>
         <SelectionDisplay 
-          selectedCountry={selectedCountry}
-          setSelectedCountry={setSelectedCountry}
-          selectedLanguage={selectedLanguage}
-          setSelectedLanguage={setSelectedLanguage}
-          setSelectedCountryId={setSelectedCountryId}
-          setExcludedCountryId={setExcludedCountryId}
           selectedCountries={selectedCountries}
           setSelectedCountries={setSelectedCountries}
           selectedLanguages={selectedLanguages}
           setSelectedLanguages={setSelectedLanguages}
+          setSelectedCountryId={setSelectedCountryId}
+          setExcludedCountryId={setExcludedCountryId}
           excludedCountries={excludedCountries}
           setExcludedCountries={setExcludedCountries}
         />

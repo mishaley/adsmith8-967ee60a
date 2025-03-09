@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -27,21 +28,17 @@ interface SectionsContainerProps {
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
   
-  selectedCountry: string;
-  setSelectedCountry: (value: string) => void;
+  // Remove single-select props
   adPlatform: string;
   setAdPlatform: (value: string) => void;
   
-  selectedLanguage: string;
-  setSelectedLanguage: (value: string) => void;
-  
-  selectedCountries?: string[];
-  setSelectedCountries?: (values: string[]) => void;
-  selectedLanguages?: string[];
-  setSelectedLanguages?: (values: string[]) => void;
-  
-  excludedCountries?: string[];
-  setExcludedCountries?: (values: string[]) => void;
+  // Only use multi-select props
+  selectedCountries: string[];
+  setSelectedCountries: (values: string[]) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (values: string[]) => void;
+  excludedCountries: string[];
+  setExcludedCountries: (values: string[]) => void;
   
   personas: Persona[];
   summary: string;
@@ -77,19 +74,13 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     uniqueOffering,
     setUniqueOffering,
     
-    selectedCountry,
-    setSelectedCountry,
     adPlatform,
     setAdPlatform,
-    
-    selectedLanguage,
-    setSelectedLanguage,
     
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
     setSelectedLanguages,
-    
     excludedCountries,
     setExcludedCountries,
     
@@ -132,10 +123,6 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
       />
       
       <LocationsContainer
-        selectedCountry={selectedCountry}
-        setSelectedCountry={setSelectedCountry}
-        selectedLanguage={selectedLanguage}
-        setSelectedLanguage={setSelectedLanguage}
         selectedCountries={selectedCountries}
         setSelectedCountries={setSelectedCountries}
         selectedLanguages={selectedLanguages}
