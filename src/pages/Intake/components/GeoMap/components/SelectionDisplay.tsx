@@ -51,22 +51,20 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     handleClearExclusion
   } = useExcludedCountry({ setExcludedCountryId });
   
-  // Removed the effect that was forcing English for Worldwide selection
-  
   const handleClearSelection = () => {
     // Clear both the country selection and map highlighting
     setSelectedCountry('');
-
+    
     // Also clear multi-select countries if available
     if (setSelectedCountries) {
       setSelectedCountries([]);
     }
-
+    
     // Ensure the map highlight is cleared by explicitly passing empty string
     if (setSelectedCountryId) {
       setSelectedCountryId('');
     }
-
+    
     // Also clear the language when country is cleared
     setSelectedLanguage('');
     

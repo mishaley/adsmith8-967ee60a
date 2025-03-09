@@ -53,8 +53,6 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   });
   */
 
-  // Removed the effect that was enforcing English for worldwide selection
-
   // Commented out map-related variables and functionality
   const loading = false;
   const error = null;

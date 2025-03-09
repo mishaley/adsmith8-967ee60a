@@ -88,7 +88,7 @@ export const useDropdownState = ({
       onSelectionChange(newSelection);
       // Don't close dropdown in multi-select mode
     } else {
-      // For single select, replace the current selection
+      // For single select, replace the current selection with just this item
       onSelectionChange([id]);
       setIsOpen(false); // Close dropdown after selection in single-select mode
       setSearchTerm("");
@@ -96,7 +96,7 @@ export const useDropdownState = ({
   };
 
   const handleClearSelection = () => {
-    onSelectionChange([]); // Clear the selection
+    onSelectionChange([]); // Clear the selection completely
     if (!multiSelect) {
       setIsOpen(false); // Only close for single-select
     }

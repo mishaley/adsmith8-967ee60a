@@ -58,35 +58,42 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       return;
     }
     
+    // In multi-select mode with setSelectedCountries provided, use full array handling
     if (multiSelect && setSelectedCountries) {
-      // In multi-select mode, update the full array of countries
       setSelectedCountries(selectedIds);
       
-      // For backward compatibility and map display, use the first country
+      // Update map highlighting for the first country (if applicable)
+      if (setSelectedCountryId && selectedIds.length > 0) {
+        updateMapHighlight(selectedIds[0]);
+      }
+      
+      // For backward compatibility
       if (selectedIds.length > 0) {
-        const firstCountryId = selectedIds[0];
-        setSelectedCountry(firstCountryId);
-        
-        // Also update the map selection
-        if (setSelectedCountryId) {
-          updateMapHighlight(firstCountryId);
-        }
+        setSelectedCountry(selectedIds[0]);
+      } else {
+        setSelectedCountry("");
       }
     } else {
-      // In single-select mode (legacy)
-      const countryId = selectedIds[0];
-      setSelectedCountry(countryId);
-      
-      // Update map selection
-      if (setSelectedCountryId) {
-        updateMapHighlight(countryId);
+      // Legacy single-select fallback 
+      if (selectedIds.length > 0) {
+        setSelectedCountry(selectedIds[0]);
+        if (setSelectedCountryId) {
+          updateMapHighlight(selectedIds[0]);
+        }
+      } else {
+        setSelectedCountry("");
+        if (setSelectedCountryId) {
+          setSelectedCountryId("");
+        }
       }
     }
   };
   
   const updateMapHighlight = (countryId: string) => {
+    if (!setSelectedCountryId) return;
+    
     if (countryId === "worldwide") {
-      setSelectedCountryId!("worldwide");
+      setSelectedCountryId("worldwide");
       return;
     }
     
@@ -97,16 +104,16 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       // Use ISO3 code for map highlighting as it matches the GeoJSON features better
       if (selectedCountry.country_iso3) {
         console.log(`Using ISO3 code for highlighting: ${selectedCountry.country_iso3}`);
-        setSelectedCountryId!(selectedCountry.country_iso3);
+        setSelectedCountryId(selectedCountry.country_iso3);
       } else if (selectedCountry.country_iso2) {
         console.log(`Using ISO2 code for highlighting: ${selectedCountry.country_iso2}`);
-        setSelectedCountryId!(selectedCountry.country_iso2);
+        setSelectedCountryId(selectedCountry.country_iso2);
       } else {
         console.log(`No ISO code found, using country_id: ${countryId}`);
-        setSelectedCountryId!(countryId);
+        setSelectedCountryId(countryId);
       }
     } else {
-      setSelectedCountryId!(countryId);
+      setSelectedCountryId(countryId);
     }
   };
 
@@ -116,12 +123,12 @@ const CountrySelection: React.FC<CountrySelectionProps> = ({
       
       <EnhancedDropdown
         options={countryOptions}
-        selectedItems={multiSelect ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
+        selectedItems={multiSelect && setSelectedCountries ? selectedCountries : (selectedCountry ? [selectedCountry] : [])}
         onSelectionChange={handleCountrySelect}
         placeholder="Select country"
         searchPlaceholder="Search countries..."
         disabled={isLoading}
-        multiSelect={multiSelect}
+        multiSelect={multiSelect && setSelectedCountries !== null}
       />
       
       {isLoading && (

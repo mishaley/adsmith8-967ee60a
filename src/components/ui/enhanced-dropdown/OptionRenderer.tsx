@@ -12,48 +12,46 @@ interface OptionRendererProps {
 
 const OptionRenderer: React.FC<OptionRendererProps> = ({ 
   option, 
-  isSelected, 
+  isSelected,
   isHighlighted,
-  multiSelect
+  multiSelect,
 }) => {
   return (
     <div 
       className={`
-        flex items-center justify-between px-4 py-2 
-        ${isSelected ? 'bg-gray-100' : ''}
-        ${isHighlighted ? 'bg-gray-50' : ''}
+        flex items-center justify-between p-2 px-3
+        ${isHighlighted ? 'bg-accent' : ''}
+        ${isSelected ? 'bg-accent/40' : ''}
       `}
     >
-      <div className="flex items-center gap-2">
-        {option.icon && (
-          <span className="flex-shrink-0">
-            {typeof option.icon === 'string' ? option.icon : option.icon}
-          </span>
-        )}
+      <div className="flex items-center gap-2 truncate">
+        {/* Render icon/emoji if present */}
+        {typeof option.icon === 'string' ? (
+          <span className="mr-1">{option.icon}</span>
+        ) : option.icon ? (
+          <span className="mr-1">{option.icon}</span>
+        ) : null}
         
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">{option.label}</span>
+        {/* Main option content */}
+        <div className="flex flex-col truncate">
+          <span className="text-sm font-medium truncate">{option.label}</span>
           {option.secondary && (
-            <span className="text-xs text-gray-500">{option.secondary}</span>
+            <span className="text-xs text-muted-foreground truncate">{option.secondary}</span>
           )}
         </div>
       </div>
       
+      {/* Selection indicator */}
       {isSelected && (
-        <span className="flex-shrink-0 text-blue-500">
+        <div className="flex-shrink-0 ml-2">
           {multiSelect ? (
-            <div className="h-4 w-4 rounded-sm border border-blue-500 bg-blue-500 flex items-center justify-center">
+            <div className="h-4 w-4 rounded-sm border border-primary flex items-center justify-center bg-primary">
               <Check className="h-3 w-3 text-white" />
             </div>
           ) : (
-            <Check className="h-4 w-4" />
+            <Check className="h-4 w-4 text-primary" />
           )}
-        </span>
-      )}
-      
-      {/* Empty checkbox for non-selected items in multi-select mode */}
-      {!isSelected && multiSelect && (
-        <div className="h-4 w-4 rounded-sm border border-gray-300"></div>
+        </div>
       )}
     </div>
   );

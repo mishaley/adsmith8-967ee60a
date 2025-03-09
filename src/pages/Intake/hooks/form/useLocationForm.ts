@@ -3,26 +3,26 @@ import { STORAGE_KEYS } from "../../utils/localStorageUtils";
 import { useLocalStorageState } from "./useLocalStorageState";
 
 export const useLocationForm = () => {
-  // Changed from string to string[] to support multi-select
+  // Multi-select countries state
   const [selectedCountries, setSelectedCountries] = useLocalStorageState<string[]>(
     `${STORAGE_KEYS.LOCATION}_countries`, 
     []
   );
   
-  // Changed from string to string[] to support multi-select
+  // Multi-select languages state
   const [selectedLanguages, setSelectedLanguages] = useLocalStorageState<string[]>(
     `${STORAGE_KEYS.LANGUAGE}_selected`, 
     []
   );
   
-  // Added state for excluded countries with multi-select support
+  // Multi-select excluded countries state
   const [excludedCountries, setExcludedCountries] = useLocalStorageState<string[]>(
     `${STORAGE_KEYS.LOCATION}_excluded_countries`,
     []
   );
   
-  // Backward compatibility: provide single-select getters/setters
-  // This helps during transition to avoid breaking existing code
+  // Backward compatibility - define single-select accessors based on the multi-select arrays
+  // This helps with compatibility for components that still expect single values
   const selectedCountry = selectedCountries.length > 0 ? selectedCountries[0] : "";
   const setSelectedCountry = (country: string) => {
     setSelectedCountries(country ? [country] : []);
@@ -39,7 +39,7 @@ export const useLocationForm = () => {
   };
   
   return {
-    // Multi-select API
+    // Multi-select API (primary implementation)
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,

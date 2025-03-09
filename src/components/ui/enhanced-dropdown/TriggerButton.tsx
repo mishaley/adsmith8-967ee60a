@@ -1,53 +1,91 @@
 
 import React, { forwardRef } from "react";
 import { TriggerButtonProps } from "./types";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 
 const TriggerButton = forwardRef<HTMLButtonElement, TriggerButtonProps>(
   ({ placeholder, buttonIcon, selectedOptionLabels, multiSelect, onToggle, disabled, buttonClassName }, ref) => {
-    // Determine what to display in the button
     const hasSelection = selectedOptionLabels.length > 0;
     
-    // Format the display text based on selection count
-    const getDisplayText = () => {
-      if (!hasSelection) return placeholder;
+    // Render the selected items differently based on single or multi-select
+    const renderSelectedContent = () => {
+      if (!hasSelection) {
+        return <span className="text-muted-foreground">{placeholder}</span>;
+      }
       
       if (multiSelect) {
-        if (selectedOptionLabels.length === 1) {
-          return selectedOptionLabels[0].label;
+        // For multi-select, show the number of items selected and the first item
+        if (selectedOptionLabels.length > 1) {
+          const firstOption = selectedOptionLabels[0];
+          return (
+            <div className="flex items-center gap-1 truncate">
+              <span className="flex items-center gap-1 truncate">
+                {typeof firstOption.icon === 'string' ? (
+                  <span className="mr-1">{firstOption.icon}</span>
+                ) : firstOption.icon ? (
+                  <span className="mr-1">{firstOption.icon}</span>
+                ) : null}
+                {firstOption.label}
+              </span>
+              <span className="text-muted-foreground">+{selectedOptionLabels.length - 1} more</span>
+            </div>
+          );
         } else {
-          return `${selectedOptionLabels.length} selected`;
+          // Only one item selected in multi-select
+          const option = selectedOptionLabels[0];
+          return (
+            <span className="flex items-center gap-1 truncate">
+              {typeof option.icon === 'string' ? (
+                <span className="mr-1">{option.icon}</span>
+              ) : option.icon ? (
+                <span className="mr-1">{option.icon}</span>
+              ) : null}
+              {option.label}
+            </span>
+          );
         }
       } else {
-        return selectedOptionLabels[0].label;
+        // For single-select, show just the selected item
+        const option = selectedOptionLabels[0];
+        return (
+          <span className="flex items-center gap-1 truncate">
+            {typeof option.icon === 'string' ? (
+              <span className="mr-1">{option.icon}</span>
+            ) : option.icon ? (
+              <span className="mr-1">{option.icon}</span>
+            ) : null}
+            {option.label}
+          </span>
+        );
       }
     };
-    
-    // Get the icon to display (either from the first selected option or the provided buttonIcon)
-    const displayIcon = hasSelection && selectedOptionLabels[0].icon 
-      ? selectedOptionLabels[0].icon 
-      : buttonIcon;
-      
-    // For multi-select with multiple items, show count instead of an icon
-    const showMultiCount = multiSelect && selectedOptionLabels.length > 1;
     
     return (
       <button
         ref={ref}
         type="button"
-        onClick={onToggle}
+        onClick={() => onToggle()}
         disabled={disabled}
-        className={`flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${buttonClassName}`}
+        className={`
+          w-full px-3 py-2 text-left flex items-center justify-between
+          border border-input rounded-md bg-background
+          hover:bg-accent hover:text-accent-foreground
+          focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
+          disabled:cursor-not-allowed disabled:opacity-50
+          ${buttonClassName}
+        `}
+        aria-haspopup="listbox"
+        aria-expanded="true"
       >
-        <div className="flex items-center">
-          {!showMultiCount && displayIcon && (
-            <span className="mr-2 flex items-center">
-              {typeof displayIcon === "string" ? displayIcon : displayIcon}
-            </span>
-          )}
-          <span className="truncate">{getDisplayText()}</span>
+        <div className="truncate flex-1 flex items-center">
+          {buttonIcon && <span className="mr-2">{buttonIcon}</span>}
+          {renderSelectedContent()}
         </div>
-        <ChevronDown className="h-4 w-4 text-gray-500" />
+        
+        <div className="flex items-center">
+          {hasSelection && <X className="h-4 w-4 mr-1 opacity-60" />}
+          {hasSelection ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </div>
       </button>
     );
   }
