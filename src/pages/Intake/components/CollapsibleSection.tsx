@@ -7,12 +7,14 @@ interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
   className?: string;
+  selectedValue?: string;
 }
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   children,
-  className = "bg-[#e9f2fe] p-4 mb-6 rounded-lg"
+  className = "bg-[#e9f2fe] p-4 mb-6 rounded-lg",
+  selectedValue
 }) => {
   // Create a unique key for this section in localStorage
   const storageKey = `${STORAGE_KEYS.SECTION_STATES}_${title.toLowerCase().replace(/\s+/g, '_')}`;
@@ -34,6 +36,11 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
     setIsCollapsed(!isCollapsed);
   };
 
+  // Create display title based on collapse state and selectedValue
+  const displayTitle = isCollapsed && selectedValue 
+    ? `${title} - ${selectedValue}` 
+    : title;
+
   return (
     <div className={className} style={{ position: 'relative' }}>
       {/* Make the entire header div clickable */}
@@ -51,7 +58,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         }}
       >
         <h2 className="text-center w-full text-gray-700 font-bold text-xl">
-          {title}
+          {displayTitle}
         </h2>
         <div className="flex-shrink-0">
           {isCollapsed ? (

@@ -62,8 +62,25 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   
   const isButtonDisabled = isCreatingOrg || isUpdating || isLoadingOrgData;
 
+  // Determine the display name for the organization when collapsed
+  const getDisplayName = () => {
+    if (selectedOrgId === "new-organization") {
+      return brandName || "New Organization";
+    }
+    
+    if (currentOrganization?.organization_name) {
+      return currentOrganization.organization_name;
+    }
+    
+    const selectedOrg = organizations.find(org => org.organization_id === selectedOrgId);
+    return selectedOrg?.organization_name || brandName || "";
+  };
+
+  // Only show the selected value if we have an organization selected
+  const selectedValue = isOrgSelected ? getDisplayName() : "";
+
   return (
-    <CollapsibleSection title="ORGANIZATION">
+    <CollapsibleSection title="ORGANIZATION" selectedValue={selectedValue}>
       <OrganizationForm
         selectedOrgId={selectedOrgId}
         organizations={organizations}
