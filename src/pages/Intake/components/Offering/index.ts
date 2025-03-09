@@ -5,7 +5,12 @@ import OfferingFields from './OfferingFields';
 import OfferingSectionContent from './OfferingSectionContent';
 import OfferingSectionButton from './OfferingButton';
 import { useOfferingSectionLogic } from './useOfferingSectionLogic';
-import { useOfferingSelection, useOfferingSave } from './hooks';
+import { 
+  useOfferingSelection, 
+  useOfferingSave, 
+  useOfferingInitialization, 
+  useOfferingSyncEvents 
+} from './hooks';
 
 export { 
   OfferingSection, 
@@ -15,5 +20,7 @@ export {
   OfferingSectionButton,
   useOfferingSectionLogic,
   useOfferingSelection,
-  useOfferingSave
+  useOfferingSave,
+  useOfferingInitialization,
+  useOfferingSyncEvents
 };

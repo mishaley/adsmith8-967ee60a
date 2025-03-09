@@ -1,10 +1,11 @@
 
-import { useSummaryTableData } from "../SummaryTable/useSummaryTableData";
-import { useOfferingDetails } from "../SummaryTable/hooks/useOfferingDetails";
+import { useOfferingInitialization } from "./hooks/useOfferingInitialization";
+import { useOfferingSyncEvents } from "./hooks/useOfferingSyncEvents";
+import { useOfferingForm } from "../../hooks/form/useOfferingForm";
 import { useOfferingSelection } from "./hooks/useOfferingSelection";
 import { useOfferingSave } from "./hooks/useOfferingSave";
-import { useEffect, useState } from "react";
-import { STORAGE_KEYS } from "../../utils/localStorageUtils";
+import { useSummaryTableData } from "../SummaryTable/useSummaryTableData";
+import { useOfferingDetails } from "../SummaryTable/hooks/useOfferingDetails";
 
 interface UseOfferingSectionLogicProps {
   offering: string;
@@ -27,10 +28,6 @@ export const useOfferingSectionLogic = ({
   uniqueOffering,
   setUniqueOffering
 }: UseOfferingSectionLogicProps) => {
-  // Track if initial loading is complete
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  const [isLoadingFromStorage, setIsLoadingFromStorage] = useState(true);
-
   // Get offering dropdown data and functionality
   const {
     selectedOfferingId,
@@ -73,69 +70,21 @@ export const useOfferingSectionLogic = ({
     refetchOfferingDetails
   });
 
-  // Load the initial offering from localStorage on mount - only once
-  useEffect(() => {
-    if (isLoadingFromStorage && !initialLoadComplete && offeringOptions.length > 0) {
-      const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
-      
-      if (storedOfferingId && !isOfferingsDisabled) {
-        console.log(`Attempting to load initial offering ID from storage: ${storedOfferingId}`);
-        
-        // Validate if the stored offering ID exists in the current options
-        const offeringExists = offeringOptions.some(option => option.value === storedOfferingId);
-        
-        if (offeringExists || storedOfferingId === "new-offering") {
-          console.log(`Valid offering ID found in storage: ${storedOfferingId}`);
-          setSelectedOfferingId(storedOfferingId);
-          
-          // If it's a real offering ID (not "new-offering"), we should load its details
-          if (storedOfferingId !== "new-offering") {
-            refetchOfferingDetails();
-          }
-        } else {
-          console.log(`Stored offering ID ${storedOfferingId} not found in options, not applying`);
-          // Clear invalid stored offering ID
-          localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
-        }
-      }
-      
-      setInitialLoadComplete(true);
-      setIsLoadingFromStorage(false);
-    }
-  }, [
-    initialLoadComplete, 
-    isOfferingsDisabled, 
+  // Handle initial offering loading from localStorage
+  useOfferingInitialization({
     offeringOptions,
-    refetchOfferingDetails, 
-    setSelectedOfferingId, 
-    isLoadingFromStorage
-  ]);
+    isOfferingsDisabled,
+    selectedOfferingId,
+    setSelectedOfferingId,
+    refetchOfferingDetails,
+    selectedOrgId
+  });
 
-  // Reset the loading state when organization changes
-  useEffect(() => {
-    if (selectedOrgId && initialLoadComplete) {
-      setIsLoadingFromStorage(true);
-    }
-  }, [selectedOrgId, initialLoadComplete]);
-
-  // Sync between components using window events
-  useEffect(() => {
-    const handleOfferingChanged = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const { offeringId } = customEvent.detail;
-      
-      if (offeringId && offeringId !== selectedOfferingId) {
-        console.log(`Received offering changed event with ID: ${offeringId}`);
-        setSelectedOfferingId(offeringId);
-      }
-    };
-    
-    window.addEventListener('offeringChanged', handleOfferingChanged as EventListener);
-    
-    return () => {
-      window.removeEventListener('offeringChanged', handleOfferingChanged as EventListener);
-    };
-  }, [selectedOfferingId, setSelectedOfferingId]);
+  // Handle window events for synchronization
+  useOfferingSyncEvents({
+    selectedOfferingId,
+    setSelectedOfferingId
+  });
 
   return {
     selectedOfferingId,
