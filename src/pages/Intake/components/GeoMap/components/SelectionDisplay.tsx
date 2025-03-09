@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useCountryLanguage } from "../../Languages/hooks/useCountryLanguage";
 import CountrySelection from "./selection/CountrySelection";
 import LanguageSelection from "./selection/LanguageSelection";
@@ -51,18 +51,7 @@ const SelectionDisplay: React.FC<SelectionDisplayProps> = ({
     handleClearExclusion
   } = useExcludedCountry({ setExcludedCountryId });
   
-  // Make sure if Worldwide is selected, English is set as the language
-  useEffect(() => {
-    if (selectedCountry === "worldwide" && selectedLanguage !== "en") {
-      console.log("SelectionDisplay: Enforcing English for Worldwide selection");
-      setSelectedLanguage("en");
-      
-      // Also update multi-select languages if available
-      if (setSelectedLanguages) {
-        setSelectedLanguages(["en"]);
-      }
-    }
-  }, [selectedCountry, selectedLanguage, setSelectedLanguage, setSelectedLanguages]);
+  // Removed the effect that was forcing English for Worldwide selection
   
   const handleClearSelection = () => {
     // Clear both the country selection and map highlighting

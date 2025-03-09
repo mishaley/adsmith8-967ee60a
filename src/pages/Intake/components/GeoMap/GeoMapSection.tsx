@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import SelectionDisplay from "./components/SelectionDisplay";
 
@@ -53,13 +53,7 @@ const GeoMapSection: React.FC<GeoMapSectionProps> = ({
   });
   */
 
-  // Ensure the language is set properly when country is set to worldwide
-  useEffect(() => {
-    if (selectedCountry === "worldwide" && selectedLanguage !== "en") {
-      console.log("GeoMapSection: Ensuring English is set for Worldwide selection");
-      setSelectedLanguage("en");
-    }
-  }, [selectedCountry, selectedLanguage, setSelectedLanguage]);
+  // Removed the effect that was enforcing English for worldwide selection
 
   // Commented out map-related variables and functionality
   const loading = false;

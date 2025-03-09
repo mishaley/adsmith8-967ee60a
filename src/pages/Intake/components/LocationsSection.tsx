@@ -41,27 +41,8 @@ const LocationsSection: React.FC<LocationsSectionProps> = ({
     countryName
   } = useCountryLanguage(selectedCountry);
 
-  // Effect to set the language based on the selected country
-  useEffect(() => {
-    console.log("LocationsSection: Country changed to", {
-      country: selectedCountry,
-      isWorldwide: selectedCountry === "worldwide",
-      primaryLanguageId,
-      currentLanguage: selectedLanguage
-    });
-    
-    if (selectedCountry === "worldwide") {
-      // Always set English as the default language for Worldwide
-      setSelectedLanguage("en");
-      console.log("LocationsSection: Setting English as default language for Worldwide selection");
-    } else if (primaryLanguageId) {
-      setSelectedLanguage(primaryLanguageId);
-      console.log(`LocationsSection: Auto-selecting language: ${primaryLanguageId} based on country: ${countryName}`);
-    } else if (!selectedCountry) {
-      // Clear language selection when no country is selected
-      setSelectedLanguage("");
-    }
-  }, [primaryLanguageId, selectedCountry, setSelectedLanguage, countryName]);
+  // Remove the effect that sets language based on country selection
+  // This was the automatic behavior we want to remove
 
   // Save location group name when it changes
   useEffect(() => {
