@@ -23,10 +23,15 @@ interface IntakeFormContainerProps {
   setUniqueOffering: (value: string) => void;
   adPlatform: string;
   setAdPlatform: (value: string) => void;
-  selectedCountry: string;
-  setSelectedCountry: (value: string) => void;
-  selectedLanguage: string;
-  setSelectedLanguage: (value: string) => void;
+  
+  // Replace single-select with multi-select props
+  selectedCountries: string[];
+  setSelectedCountries: (values: string[]) => void;
+  selectedLanguages: string[];
+  setSelectedLanguages: (values: string[]) => void;
+  excludedCountries: string[];
+  setExcludedCountries: (values: string[]) => void;
+  
   handleSave: () => void;
 
   // Personas
@@ -67,10 +72,15 @@ const IntakeFormContainer: IntakeFormContainerType = ({
   setUniqueOffering,
   adPlatform,
   setAdPlatform,
-  selectedCountry,
-  setSelectedCountry,
-  selectedLanguage,
-  setSelectedLanguage,
+  
+  // Using multi-select props now
+  selectedCountries,
+  setSelectedCountries,
+  selectedLanguages,
+  setSelectedLanguages,
+  excludedCountries,
+  setExcludedCountries,
+  
   handleSave,
   // Personas
   personas,
