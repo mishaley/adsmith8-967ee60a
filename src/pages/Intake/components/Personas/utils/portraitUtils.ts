@@ -1,68 +1,78 @@
 
 import { Persona } from "../types";
 
-// Race distribution as specified
-const RACE_DISTRIBUTION = [
-  "White", "White", "White", "Latino", "Latino", 
-  "Black", "Black", "Asian", "Indian-American", "Biracial"
-];
-
-// Function to randomly select a race from the distribution
-export const getRandomRace = (): string => {
-  const randomIndex = Math.floor(Math.random() * RACE_DISTRIBUTION.length);
-  return RACE_DISTRIBUTION[randomIndex];
-};
-
-// Save portrait URLs to session storage
-export const savePortraitsToSession = (personaList: Persona[]) => {
-  try {
-    const portraitUrls = personaList.map(p => p.portraitUrl || p.imageUrl || "");
-    sessionStorage.setItem("personaPortraits", JSON.stringify(portraitUrls));
-  } catch (error) {
-    console.error("Error saving portraits to session storage:", error);
-  }
-};
-
-// Load portraits from session storage
-export const loadPortraitsFromSession = (
-  personas: Persona[],
-  updatePersona?: (index: number, updatedPersona: Persona) => void
-): void => {
-  if (personas.length === 0 || !updatePersona) return;
-  
-  try {
-    const storedPortraits = sessionStorage.getItem("personaPortraits");
-    if (storedPortraits) {
-      const portraitsData = JSON.parse(storedPortraits);
-      
-      // Update personas with stored portrait URLs
-      personas.forEach((persona, index) => {
-        if (portraitsData[index]) {
-          updatePersona(index, { ...persona, portraitUrl: portraitsData[index] });
-        }
-      });
-    }
-  } catch (error) {
-    console.error("Error loading portraits from session storage:", error);
-  }
-};
-
-// Return the prompt template with variables instead of actual values
+/**
+ * Default portrait prompt template with placeholders for persona details
+ */
 export const getPortraitPromptTemplate = (): string => {
-  return `Portrait style magazine quality photo of a [RACE] [GENDER], age [AGE_RANGE], who is [TITLE]. [INTERESTS_DESCRIPTION] High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
+  return `Portrait photograph, [RACE] [GENDER], age [AGE_MIN]-[AGE_MAX], studio lighting, neutral background, professional quality, photorealistic, high resolution`;
 };
 
-// Create enhanced prompt for portrait generation
+/**
+ * Create a portrait prompt based on a persona
+ */
 export const createPortraitPrompt = (persona: Persona): string => {
-  // Get the age range - either from ageMin/ageMax or split the age if it exists
-  const ageRange = (persona.ageMin && persona.ageMax) 
-    ? `${persona.ageMin}-${persona.ageMax}` 
-    : persona.age || "25-35"; // Default age range if none provided
+  const race = persona.race || "diverse";
+  const gender = persona.gender || "diverse";
+  const ageMin = persona.ageMin || 25;
+  const ageMax = persona.ageMax || 45;
   
-  // Enhanced prompt that incorporates interests in a more exaggerated, interesting way
-  const interestsDescription = persona.interests && persona.interests.length > 0 
-    ? `Their personality visibly reflects their passions: ${persona.interests.join(", ")}. They are seen wearing or holding items related to these interests, with subtle visual cues in the background.` 
-    : "";
-    
-  return `Portrait style magazine quality photo of a ${persona.race} ${persona.gender}, age ${ageRange}, who is ${persona.title.toLowerCase()}. ${interestsDescription} High-end fashion magazine photoshoot with creative dramatic lighting, expressive facial features, artistic composition, vibrant colors, headshot with character, pristine quality.`;
+  // Replace the placeholders with actual values
+  return getPortraitPromptTemplate()
+    .replace("[RACE]", race)
+    .replace("[GENDER]", gender)
+    .replace("[AGE_MIN]", String(ageMin))
+    .replace("[AGE_MAX]", String(ageMax));
+};
+
+/**
+ * Generate a random race for personas
+ */
+export const getRandomRace = (): string => {
+  const races = [
+    "Caucasian",
+    "Asian",
+    "Hispanic",
+    "African American",
+    "South Asian",
+    "Middle Eastern",
+    "East Asian",
+    "Mediterranean"
+  ];
+  
+  return races[Math.floor(Math.random() * races.length)];
+};
+
+/**
+ * Save portrait URLs to session storage
+ */
+export const savePortraitsToSession = (personas: Persona[]): void => {
+  try {
+    // Store each persona's portrait URL independently for persistence
+    personas.forEach((persona, index) => {
+      if (persona.portraitUrl) {
+        sessionStorage.setItem(`persona_${index}_portrait`, persona.portraitUrl);
+      }
+    });
+  } catch (e) {
+    console.warn('Failed to save portrait URLs to session storage:', e);
+  }
+};
+
+/**
+ * Load portrait URLs from session storage
+ */
+export const loadPortraitsFromSession = (personas: Persona[]): Persona[] => {
+  try {
+    return personas.map((persona, index) => {
+      const savedUrl = sessionStorage.getItem(`persona_${index}_portrait`);
+      if (savedUrl && !persona.portraitUrl) {
+        return { ...persona, portraitUrl: savedUrl };
+      }
+      return persona;
+    });
+  } catch (e) {
+    console.warn('Failed to load portrait URLs from session storage:', e);
+    return personas;
+  }
 };
