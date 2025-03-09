@@ -16,7 +16,7 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   handleOfferingChange,
   offeringOptions,
   isOfferingsDisabled,
-  placeholder = ""
+  placeholder = "Select an offering"
 }) => {
   // Load from localStorage on initial render
   useEffect(() => {
@@ -29,6 +29,8 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
       if (optionExists || storedOfferingId === "new-offering") {
         console.log(`Applying stored offering ID from localStorage: ${storedOfferingId}`);
         handleOfferingChange(storedOfferingId);
+      } else {
+        console.log(`Stored offering ID ${storedOfferingId} not found in options, not applying`);
       }
     }
   }, [selectedOfferingId, handleOfferingChange, offeringOptions, isOfferingsDisabled]);

@@ -29,6 +29,7 @@ export const useOfferingSectionLogic = ({
 }: UseOfferingSectionLogicProps) => {
   // Track if initial loading is complete
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [isLoadingFromStorage, setIsLoadingFromStorage] = useState(true);
 
   // Get offering dropdown data and functionality
   const {
@@ -74,22 +75,48 @@ export const useOfferingSectionLogic = ({
 
   // Load the initial offering from localStorage on mount - only once
   useEffect(() => {
-    if (!initialLoadComplete) {
+    if (isLoadingFromStorage && !initialLoadComplete && offeringOptions.length > 0) {
       const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
       
       if (storedOfferingId && !isOfferingsDisabled) {
-        console.log(`Loading initial offering ID from storage: ${storedOfferingId}`);
-        setSelectedOfferingId(storedOfferingId);
+        console.log(`Attempting to load initial offering ID from storage: ${storedOfferingId}`);
         
-        // If it's a real offering ID (not "new-offering"), we should load its details
-        if (storedOfferingId !== "new-offering") {
-          refetchOfferingDetails();
+        // Validate if the stored offering ID exists in the current options
+        const offeringExists = offeringOptions.some(option => option.value === storedOfferingId);
+        
+        if (offeringExists || storedOfferingId === "new-offering") {
+          console.log(`Valid offering ID found in storage: ${storedOfferingId}`);
+          setSelectedOfferingId(storedOfferingId);
+          
+          // If it's a real offering ID (not "new-offering"), we should load its details
+          if (storedOfferingId !== "new-offering") {
+            refetchOfferingDetails();
+          }
+        } else {
+          console.log(`Stored offering ID ${storedOfferingId} not found in options, not applying`);
+          // Clear invalid stored offering ID
+          localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
         }
       }
       
       setInitialLoadComplete(true);
+      setIsLoadingFromStorage(false);
     }
-  }, [initialLoadComplete, isOfferingsDisabled, refetchOfferingDetails, setSelectedOfferingId]);
+  }, [
+    initialLoadComplete, 
+    isOfferingsDisabled, 
+    offeringOptions,
+    refetchOfferingDetails, 
+    setSelectedOfferingId, 
+    isLoadingFromStorage
+  ]);
+
+  // Reset the loading state when organization changes
+  useEffect(() => {
+    if (selectedOrgId && initialLoadComplete) {
+      setIsLoadingFromStorage(true);
+    }
+  }, [selectedOrgId, initialLoadComplete]);
 
   // Sync between components using window events
   useEffect(() => {

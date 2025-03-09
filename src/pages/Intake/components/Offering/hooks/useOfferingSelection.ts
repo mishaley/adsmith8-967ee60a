@@ -26,10 +26,11 @@ export const useOfferingSelection = ({
 }: UseOfferingSelectionProps) => {
   const { toast } = useToast();
   const offeringInputRef = useRef<HTMLTextAreaElement>(null);
+  const previousOfferingIdRef = useRef<string>(selectedOfferingId);
   
   // Save selected offering ID to localStorage when it changes
   useEffect(() => {
-    if (selectedOfferingId) {
+    if (selectedOfferingId && selectedOfferingId !== previousOfferingIdRef.current) {
       console.log(`Saving offering ID in useOfferingSelection: ${selectedOfferingId}`);
       localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
       
@@ -38,6 +39,13 @@ export const useOfferingSelection = ({
         detail: { offeringId: selectedOfferingId }
       });
       window.dispatchEvent(event);
+      
+      previousOfferingIdRef.current = selectedOfferingId;
+    } else if (!selectedOfferingId && previousOfferingIdRef.current) {
+      // Clear localStorage when offering is reset
+      console.log("Clearing offering selection from localStorage");
+      localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+      previousOfferingIdRef.current = "";
     }
   }, [selectedOfferingId]);
   
@@ -96,6 +104,7 @@ export const useOfferingSelection = ({
       setUniqueOffering("");
       // Clear the localStorage value
       localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+      previousOfferingIdRef.current = "";
     } else if (value === "new-offering") {
       toast({
         title: "Creating a new offering",
@@ -103,9 +112,11 @@ export const useOfferingSelection = ({
       });
       // Store this selection in localStorage too
       localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
+      previousOfferingIdRef.current = value;
     } else {
       // Store selected offering ID
       localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, value);
+      previousOfferingIdRef.current = value;
     }
     
     // Dispatch custom event
