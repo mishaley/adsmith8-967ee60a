@@ -1,7 +1,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { STORAGE_KEYS, isValidJSON } from "../../../utils/localStorageUtils";
+import { STORAGE_KEYS } from "../../../utils/localStorageUtils";
+import { dispatchDedupedEvent } from "@/utils/eventUtils";
+import { logDebug, logError } from "@/utils/logging";
 
 interface UseOfferingSelectionProps {
   selectedOfferingId: string;
@@ -32,24 +34,21 @@ export const useOfferingSelection = ({
   useEffect(() => {
     try {
       if (selectedOfferingId && selectedOfferingId !== previousOfferingIdRef.current) {
-        console.log(`Saving offering ID in useOfferingSelection: ${selectedOfferingId}`);
+        logDebug(`Saving offering ID in useOfferingSelection: ${selectedOfferingId}`);
         localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, selectedOfferingId);
         
-        // Dispatch custom event for other components
-        const event = new CustomEvent("offeringChanged", { 
-          detail: { offeringId: selectedOfferingId }
-        });
-        window.dispatchEvent(event);
+        // Dispatch custom event for other components with deduplication
+        dispatchDedupedEvent("offeringChanged", { offeringId: selectedOfferingId });
         
         previousOfferingIdRef.current = selectedOfferingId;
       } else if (!selectedOfferingId && previousOfferingIdRef.current) {
         // Clear localStorage when offering is reset
-        console.log("Clearing offering selection from localStorage");
+        logDebug("Clearing offering selection from localStorage");
         localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
         previousOfferingIdRef.current = "";
       }
     } catch (error) {
-      console.error("Error saving offering selection to localStorage:", error);
+      logError("Error saving offering selection to localStorage:", error);
     }
   }, [selectedOfferingId]);
   
@@ -97,7 +96,7 @@ export const useOfferingSelection = ({
 
   // Handle offering change
   const handleOfferingChange = (value: string) => {
-    console.log(`Offering selection changed to: ${value}`);
+    logDebug(`Offering selection changed to: ${value}`);
     setSelectedOfferingId(value);
     
     try {
@@ -124,13 +123,10 @@ export const useOfferingSelection = ({
         previousOfferingIdRef.current = value;
       }
       
-      // Dispatch custom event
-      const event = new CustomEvent("offeringChanged", { 
-        detail: { offeringId: value }
-      });
-      window.dispatchEvent(event);
+      // Dispatch custom event with deduplication
+      dispatchDedupedEvent("offeringChanged", { offeringId: value });
     } catch (error) {
-      console.error("Error handling offering change:", error);
+      logError("Error handling offering change:", error);
       // Show toast for error
       toast({
         title: "Error changing offering",

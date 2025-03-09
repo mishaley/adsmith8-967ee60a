@@ -13,8 +13,10 @@ const OptionList: React.FC<OptionListProps> = ({
   renderOption,
   listRef,
 }) => {
-  // Ensure selectedItems is always an array
-  const normalizedSelectedItems = Array.isArray(selectedItems) ? selectedItems : [];
+  // Ensure selectedItems is always an array for consistent handling
+  const normalizedSelectedItems = Array.isArray(selectedItems) 
+    ? selectedItems 
+    : (selectedItems ? [selectedItems] : []);
 
   return (
     <div 

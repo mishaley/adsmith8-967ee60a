@@ -1,5 +1,6 @@
 
 import { useEffect } from "react";
+import { logDebug, logError } from "@/utils/logging";
 
 interface UseOfferingSyncEventsProps {
   selectedOfferingId: string;
@@ -16,18 +17,18 @@ export const useOfferingSyncEvents = ({
       try {
         const customEvent = event as CustomEvent;
         if (!customEvent?.detail) {
-          console.warn("Received offeringChanged event with no detail");
+          logDebug("Received offeringChanged event with no detail");
           return;
         }
         
         const { offeringId } = customEvent.detail;
         
         if (offeringId !== undefined && offeringId !== selectedOfferingId) {
-          console.log(`Received offering changed event with ID: ${offeringId}`);
+          logDebug(`Received offering changed event with ID: ${offeringId}`);
           setSelectedOfferingId(offeringId);
         }
       } catch (error) {
-        console.error("Error handling offering changed event:", error);
+        logError("Error handling offering changed event:", error);
       }
     };
     

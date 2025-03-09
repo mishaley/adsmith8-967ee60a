@@ -2,9 +2,11 @@
 import React from "react";
 import { ClearButtonProps } from "./types";
 
-const ClearButton: React.FC<ClearButtonProps> = ({ selectedItems, onClear, clearButtonText }) => {
+const ClearButton: React.FC<ClearButtonProps> = ({ selectedItems, onClear, clearButtonText = "Clear selection" }) => {
   // Ensure selectedItems is an array and check if it has items
-  const hasSelection = Array.isArray(selectedItems) ? selectedItems.length > 0 : Boolean(selectedItems);
+  const hasSelection = Array.isArray(selectedItems) 
+    ? selectedItems.length > 0 
+    : (selectedItems !== null && selectedItems !== undefined && selectedItems !== "");
 
   if (!hasSelection) {
     return null;

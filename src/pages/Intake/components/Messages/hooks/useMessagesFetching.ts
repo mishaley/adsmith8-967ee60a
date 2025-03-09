@@ -1,7 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { logError, logWarning, logDebug } from "@/utils/logging";
 
 export interface Message {
   id?: string;
@@ -16,6 +16,13 @@ export interface Message {
   message_status?: string; // Added for compatibility
 }
 
+// Helper to check if a string looks like a UUID
+const isValidUUID = (id: string): boolean => {
+  if (!id || typeof id !== 'string') return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+};
+
 export const useMessagesFetching = (personaId: string | null, messageTypes: string[]) => {
   const enabled = !!personaId && messageTypes.length > 0;
   
@@ -26,6 +33,15 @@ export const useMessagesFetching = (personaId: string | null, messageTypes: stri
         return [];
       }
       
+      // Check if personaId is a UUID - many errors in the console come from trying to use
+      // non-UUID values like "persona-0" with Supabase
+      if (!isValidUUID(personaId)) {
+        logWarning(`Attempted to fetch messages with non-UUID persona ID: ${personaId}`);
+        return []; // Return empty array instead of making the query
+      }
+      
+      logDebug(`Fetching messages for persona ${personaId} with types ${messageTypes.join(', ')}`);
+      
       const { data, error } = await supabase
         .from("d1messages")
         .select("*")
@@ -33,12 +49,20 @@ export const useMessagesFetching = (personaId: string | null, messageTypes: stri
         .in("message_type", messageTypes as any); // Cast to any to bypass the type check
       
       if (error) {
-        console.error("Error fetching messages:", error);
+        logError("Error fetching messages:", error);
         throw error;
       }
       
       return data || [];
     },
-    enabled
+    enabled,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: (failureCount, error) => {
+      // Don't retry certain types of errors
+      if (error?.message?.includes('invalid input syntax for type uuid')) {
+        return false;
+      }
+      return failureCount < 3;
+    }
   });
 };
