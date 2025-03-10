@@ -36,7 +36,7 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
           style={{ width: getColumnWidth() }}
         >
           {personas[index] ? (
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center justify-center">
               <Avatar className="border border-gray-200">
                 {personas[index].portraitUrl ? (
                   <AvatarImage 
@@ -51,28 +51,6 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
                   <AvatarFallback>{personas[index].gender?.[0] || "?"}</AvatarFallback>
                 )}
               </Avatar>
-              <div>
-                {onRetryPortrait ? 
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => onRetryPortrait(index)}
-                    disabled={isGeneratingPortraits && !isLoading(index)}
-                  >
-                    {isLoading(index) ? (
-                      <>
-                        <Loader className="mr-2 h-4 w-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        {personas[index].portraitUrl ? "Regenerate" : "Generate Portrait"}
-                      </>
-                    )}
-                  </Button> 
-                : null}
-              </div>
             </div>
           ) : null}
         </td>

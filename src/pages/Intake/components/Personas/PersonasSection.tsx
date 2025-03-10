@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
@@ -25,7 +25,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   personas,
   summary,
   isGeneratingPersonas,
-  isGeneratingPortraits,
+  isGeneratingPortraits = false,
   generatePersonas,
   updatePersona,
   loadingPortraitIndices = [],
@@ -62,7 +62,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 </Select>
               </div>}
             
-            <Button onClick={generatePersonas} disabled={isGeneratingPersonas || isGeneratingPortraits} size="sm">
+            <Button onClick={generatePersonas} disabled={isGeneratingPersonas} size="sm">
               {isGeneratingPersonas ? <>
                   <Loader className="h-4 w-4 animate-spin mr-2" />
                   Generating Personas...
@@ -90,8 +90,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                   <PortraitRow 
                     personas={personas} 
                     isGeneratingPortraits={isGeneratingPortraits} 
-                    loadingIndices={loadingPortraitIndices} 
-                    onRetryPortrait={retryPortraitGeneration}
+                    loadingIndices={loadingIndices} 
                     personaCount={personaCount}
                   />
                 </tbody>
