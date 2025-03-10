@@ -52,7 +52,9 @@ export const usePersonaGeneration = () => {
           ageMax: typeof persona.ageMax === 'string' ? parseInt(persona.ageMax, 10) : persona.ageMax,
           // Ensure interests is an array
           interests: Array.isArray(persona.interests) ? persona.interests : 
-                    (persona.interests ? [persona.interests.toString()] : ["Product offering", "Services"])
+                    (persona.interests ? 
+                      (typeof persona.interests === 'string' ? [persona.interests] : [String(persona.interests)]) 
+                      : ["Product offering", "Services"])
         };
       });
       
@@ -109,7 +111,10 @@ export const usePersonaGeneration = () => {
             parseInt(enhancedPersonas[0].ageMax as string, 10) : enhancedPersonas[0].ageMax,
           // Ensure interests is an array
           interests: Array.isArray(enhancedPersonas[0].interests) ? enhancedPersonas[0].interests : 
-                    (enhancedPersonas[0].interests ? [enhancedPersonas[0].interests.toString()] : ["Product offering", "Services"])
+                    (enhancedPersonas[0].interests ? 
+                      (typeof enhancedPersonas[0].interests === 'string' ? 
+                        [enhancedPersonas[0].interests] : [String(enhancedPersonas[0].interests)]) 
+                      : ["Product offering", "Services"])
         };
         
         setPersonas(prevPersonas => {
