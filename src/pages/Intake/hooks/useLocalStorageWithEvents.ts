@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { cleanupLocalStorage, validateLocalStorageTypes, isValidJSON } from "../utils/localStorageUtils";
 import { logDebug, logError, logWarning } from "@/utils/logging";
@@ -68,14 +69,14 @@ export function useLocalStorageWithEvents<T>({
     }
   }, [key, value, initialValue]);
 
-  // Listen for localStorage changes in other tabs/windows
+  // Listen for localStorage changes in other tabs/windows and form clearing
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === key) {
         try {
-          // If null, the key was removed
+          // If null, the key was removed (e.g., during form clearing)
           if (event.newValue === null) {
-            logDebug(`Storage event: ${key} removed, resetting to default`);
+            logDebug(`Storage event: ${key} removed (form clearing), resetting to default`);
             setValue(initialValue);
             return;
           }
@@ -100,6 +101,17 @@ export function useLocalStorageWithEvents<T>({
           setValue(parsedValue);
         } catch (error) {
           logError(`Error parsing storage event value for key ${key}:`, error);
+          setValue(initialValue);
+        }
+      }
+      
+      // Also detect form clearing by checking if multiple keys are being removed
+      // in rapid succession (which happens during form clearing)
+      if (event.key !== key && event.newValue === null) {
+        // Check if our key was also recently removed
+        const ourValue = localStorage.getItem(key);
+        if (ourValue === null) {
+          logDebug(`Form clearing detected, resetting ${key} to default`);
           setValue(initialValue);
         }
       }
@@ -152,6 +164,17 @@ export function useLocalStorageWithEvents<T>({
       return () => window.removeEventListener(eventName as any, handleCustomEvent as EventListener);
     }
   }, [eventName, eventDetailKey, key, value, initialValue]);
+
+  // Also listen for special "clearForm" event
+  useEffect(() => {
+    const handleClearForm = () => {
+      logDebug(`Clear form event detected, resetting ${key} to default`);
+      setValue(initialValue);
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => window.removeEventListener('clearForm', handleClearForm);
+  }, [key, initialValue]);
 
   // Function to update value and trigger events
   const updateValue = (newValue: T) => {

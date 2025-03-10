@@ -16,6 +16,24 @@ serve(async (req) => {
   }
 
   try {
+    // Check if function was triggered by the clear form action
+    const url = new URL(req.url);
+    const isClearingForm = url.searchParams.get('clear_form') === 'true';
+
+    if (isClearingForm) {
+      // Handle form clearing specifically
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Cleared portrait generation resources' 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200 
+        }
+      );
+    }
+
     // Return a simple disabled response without excessive logging
     return new Response(
       JSON.stringify({ 

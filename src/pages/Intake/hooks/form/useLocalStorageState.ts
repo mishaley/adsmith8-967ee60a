@@ -70,5 +70,19 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     }
   }, [key, state, initialValue]);
 
+  // Listen for storage events (including when clear form is triggered)
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      // If this key was removed from localStorage (e.g. during form clearing)
+      if (event.key === key && event.newValue === null) {
+        // Reset our state to the initial value
+        setState(initialValue);
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [key, initialValue]);
+
   return [state, setState] as const;
 }

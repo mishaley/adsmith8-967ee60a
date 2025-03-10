@@ -1,12 +1,13 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SectionsContainer from "./components/Containers/SectionsContainer"; 
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
 import { OrganizationSelector } from "@/components/OrganizationSelector";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +22,9 @@ import {
 import { clearFormAndRefresh } from "./utils/localStorageUtils";
 
 const IntakeForm: React.FC = () => {
+  const { toast } = useToast();
+  const [isClearingForm, setIsClearingForm] = useState(false);
+  
   const {
     brandName,
     setBrandName,
@@ -72,6 +76,30 @@ const IntakeForm: React.FC = () => {
     setSelectedMessageTypes(updatedTypes);
   };
 
+  const handleClearForm = () => {
+    try {
+      setIsClearingForm(true);
+      // Show a toast notification
+      toast({
+        title: "Clearing form data",
+        description: "Removing all form data and resetting the page...",
+      });
+      
+      // Small delay to allow the UI to update before refresh
+      setTimeout(() => {
+        clearFormAndRefresh();
+      }, 300);
+    } catch (error) {
+      console.error("Error clearing form:", error);
+      toast({
+        title: "Error clearing form",
+        description: "There was a problem clearing the form data. Please try again.",
+        variant: "destructive"
+      });
+      setIsClearingForm(false);
+    }
+  };
+
   return (
     <QuadrantLayout>
       {{
@@ -89,20 +117,27 @@ const IntakeForm: React.FC = () => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <RefreshCw className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" />
                     Clear Form
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Clear Form Data</AlertDialogTitle>
+                    <AlertDialogTitle>Clear All Form Data</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will clear all your form data and reset the form. This action cannot be undone.
+                      This will clear all your form data including your organization details, offering, 
+                      personas, messages, and other selections. This action cannot be undone.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={clearFormAndRefresh}>Clear Data</AlertDialogAction>
+                    <AlertDialogCancel disabled={isClearingForm}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleClearForm} 
+                      disabled={isClearingForm}
+                      className="bg-destructive hover:bg-destructive/90"
+                    >
+                      {isClearingForm ? "Clearing..." : "Clear All Data"}
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

@@ -1,4 +1,3 @@
-
 // Constants for storage keys to avoid typos
 export const STORAGE_KEYS = {
   ORGANIZATION: 'adsmith_organization',
@@ -75,39 +74,94 @@ export const clearLocalStorageItem = (key: string): void => {
   }
 };
 
-// Clear all cache
+// Clear all intake form data
 export const clearAllLocalStorage = (): void => {
   try {
-    // Clear all keys and their sub-keys
-    Object.values(STORAGE_KEYS).forEach(baseKey => {
-      // Skip clearing section states when clearing form data
-      if (baseKey === STORAGE_KEYS.SECTION_STATES) {
-        return;
-      }
+    // Create an array of all form-related keys we want to clear
+    const keysToRemove = [
+      // Organization keys
+      STORAGE_KEYS.ORGANIZATION,
+      `${STORAGE_KEYS.ORGANIZATION}_brandName`,
+      `${STORAGE_KEYS.ORGANIZATION}_industry`,
       
-      // Clear the base key itself
-      localStorage.removeItem(baseKey);
+      // Offering keys
+      STORAGE_KEYS.OFFERING,
+      `${STORAGE_KEYS.OFFERING}_name`,
+      `${STORAGE_KEYS.OFFERING}_sellingPoints`,
+      `${STORAGE_KEYS.OFFERING}_problem`,
+      `${STORAGE_KEYS.OFFERING}_unique`,
+      `${STORAGE_KEYS.OFFERING}_selectedId`,
       
-      // Find and clear all keys that start with the base key followed by underscore
-      // This catches keys like ORGANIZATION_brandName, ORGANIZATION_industry, etc.
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(`${baseKey}_`)) {
-          localStorage.removeItem(key);
-        }
-      }
+      // Location keys
+      STORAGE_KEYS.LOCATION,
+      `${STORAGE_KEYS.LOCATION}_countries`,
+      `${STORAGE_KEYS.LOCATION}_excluded_countries`,
+      
+      // Language keys
+      STORAGE_KEYS.LANGUAGE,
+      `${STORAGE_KEYS.LANGUAGE}_selected`,
+      
+      // Persona keys
+      STORAGE_KEYS.PERSONAS,
+      `${STORAGE_KEYS.PERSONAS}_data`,
+      `${STORAGE_KEYS.PERSONAS}_count`,
+      `${STORAGE_KEYS.PERSONAS}_summary`,
+      
+      // Messages keys
+      STORAGE_KEYS.MESSAGES,
+      `${STORAGE_KEYS.MESSAGES}_generated`,
+      `${STORAGE_KEYS.MESSAGES}_types`,
+      `${STORAGE_KEYS.MESSAGES}_userProvided`,
+      `${STORAGE_KEYS.MESSAGES}_tableVisible`,
+      
+      // Platform keys
+      STORAGE_KEYS.PLATFORMS,
+      `${STORAGE_KEYS.PLATFORMS}_selected`,
+      
+      // Images keys
+      STORAGE_KEYS.IMAGES,
+      
+      // Captions and Parameters keys
+      STORAGE_KEYS.CAPTIONS,
+      STORAGE_KEYS.PARAMETERS
+    ];
+    
+    // Clear all listed keys
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`Cleared ${key} from localStorage`);
     });
     
-    console.log("All localStorage items cleared successfully");
+    // Also scan for any keys that start with our prefixes
+    // (this catches any dynamically generated keys we might have missed)
+    const prefixes = Object.values(STORAGE_KEYS);
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) {
+        // Check if this key starts with any of our prefixes
+        const matchesPrefix = prefixes.some(prefix => 
+          key.startsWith(prefix) || key.startsWith(`${prefix}_`)
+        );
+        
+        if (matchesPrefix) {
+          localStorage.removeItem(key);
+          console.log(`Cleared dynamic key ${key} from localStorage`);
+        }
+      }
+    }
+    
+    console.log("All intake form localStorage items cleared successfully");
   } catch (error) {
-    console.error('Error clearing all localStorage items:', error);
+    console.error('Error clearing localStorage items:', error);
   }
 };
 
 // Clear form and refresh the page
 export const clearFormAndRefresh = (): void => {
+  // First clear all localStorage
   clearAllLocalStorage();
-  // Refresh the page to reset all state
+  
+  // Then trigger a page refresh to reset all React state
   window.location.reload();
 };
 
