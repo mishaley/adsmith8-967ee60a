@@ -17,11 +17,11 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   handleOfferingChange,
   offeringOptions,
   isOfferingsDisabled,
-  placeholder = ""  // Empty string placeholder
+  placeholder = ""
 }) => {
   // Debug logs
   useEffect(() => {
-    logDebug(`OfferingSelector rendered: isDisabled=${isOfferingsDisabled}, options=${offeringOptions.length}, selectedId=${selectedOfferingId || "none"}`);
+    logDebug(`OfferingSelector rendered: isDisabled=${isOfferingsDisabled}, options=${offeringOptions.length}, selectedId=${selectedOfferingId || "none"}`, 'ui');
   }, [isOfferingsDisabled, offeringOptions.length, selectedOfferingId]);
 
   // Load from localStorage on initial render
@@ -31,17 +31,17 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
         const storedValue = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
         
         if (storedValue) {
-          logInfo(`Found stored offering ID: ${storedValue}, checking if valid`);
+          logInfo(`Found stored offering ID: ${storedValue}, checking if valid`, 'ui');
           
           // Validate stored value
           // Check if the stored ID exists in current options or is "new-offering"
           const optionExists = offeringOptions.some(option => option.value === storedValue);
           
           if (optionExists || storedValue === "new-offering") {
-            logInfo(`Applying stored offering ID from localStorage: ${storedValue}`);
+            logInfo(`Applying stored offering ID from localStorage: ${storedValue}`, 'ui');
             handleOfferingChange(storedValue);
           } else {
-            logInfo(`Stored offering ID ${storedValue} not found in options, not applying`);
+            logInfo(`Stored offering ID ${storedValue} not found in options, not applying`, 'ui');
             // Clean up invalid stored value
             localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
           }
@@ -57,7 +57,7 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   // Listen for clear form event
   useEffect(() => {
     const handleClearForm = () => {
-      logDebug("Clear form event detected in OfferingSelector");
+      logDebug("Clear form event detected in OfferingSelector", 'ui');
       if (selectedOfferingId) {
         handleOfferingChange("");
       }

@@ -59,9 +59,9 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             {setPersonaCount && <div className="w-20 mr-4">
                 <Select value={personaCount.toString()} onValueChange={handleCountChange}>
                   <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="" />
+                    <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
+                  <SelectContent className="bg-white z-[100]">
                     <SelectItem value="1">1</SelectItem>
                     <SelectItem value="2">2</SelectItem>
                     <SelectItem value="3">3</SelectItem>

@@ -25,13 +25,13 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   value,
   onChange,
   disabled = false,
-  placeholder = "", // Empty string placeholder
+  placeholder = "",
   showNewOption = false,
   newOptionLabel = "+ NEW"
 }) => {
   // Log for debugging
   React.useEffect(() => {
-    logDebug(`SingleSelectField rendered: disabled=${disabled}, options=${options.length}, value=${value || "empty"}`);
+    logDebug(`SingleSelectField rendered: disabled=${disabled}, options=${options.length}, value=${value || "empty"}`, 'ui');
   }, [disabled, options.length, value]);
 
   const handleSelectChange = (selectedValue: string) => {
@@ -49,7 +49,7 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent 
-        className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit z-50"
+        className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit z-[100]"
         position="popper"
         sideOffset={5}
       >
