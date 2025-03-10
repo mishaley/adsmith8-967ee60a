@@ -44,27 +44,31 @@ export const useOfferingData = (selectedOrgId: string) => {
       return data || [];
     },
     enabled: !!selectedOrgId, // Only run query if an organization is selected
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
 
-  // Reset offering selection when organization changes
+  // Handle organization changes
   useEffect(() => {
-    if (selectedOrgId) {
-      logDebug(`Organization changed to ${selectedOrgId}, checking offerings`);
-    } else {
-      logDebug("Organization selection cleared");
+    logDebug(`Organization ID changed to: ${selectedOrgId || "none"}`);
+    
+    if (!selectedOrgId) {
+      // Organization selection cleared - clear offering selection
       if (selectedOfferingId) {
         logInfo("Clearing offering selection as organization was cleared");
         setSelectedOfferingId("");
         localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
-      return;
     }
+  }, [selectedOrgId, selectedOfferingId, OFFERING_STORAGE_KEY]);
+
+  // Validate offering selection when offerings data changes
+  useEffect(() => {
+    if (!selectedOrgId || offerings.length === 0) return;
     
-    if (offerings.length === 0 && selectedOfferingId && selectedOfferingId !== "new-offering") {
-      logInfo("Clearing offering selection - no offerings available for this organization");
-      setSelectedOfferingId("");
-      localStorage.removeItem(OFFERING_STORAGE_KEY);
-    } else if (selectedOfferingId && selectedOfferingId !== "new-offering") {
+    logDebug(`Validating offering selection against ${offerings.length} offerings`);
+    
+    if (selectedOfferingId && selectedOfferingId !== "new-offering") {
       // Check if the selected offering still exists in the offerings list
       const offeringExists = offerings.some(o => o.offering_id === selectedOfferingId);
       if (!offeringExists) {
@@ -73,7 +77,7 @@ export const useOfferingData = (selectedOrgId: string) => {
         localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
     }
-  }, [selectedOrgId, offerings, selectedOfferingId]);
+  }, [offerings, selectedOfferingId, selectedOrgId, OFFERING_STORAGE_KEY]);
 
   // Update localStorage when offering selection changes
   useEffect(() => {

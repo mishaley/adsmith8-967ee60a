@@ -8,6 +8,7 @@ import {
   SelectValue,
   SelectSeparator,
 } from "@/components/ui/select";
+import { logDebug } from "@/utils/logging";
 
 interface SingleSelectFieldProps {
   options: { value: string; label: string }[];
@@ -24,10 +25,15 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   value,
   onChange,
   disabled = false,
-  placeholder = "", // Changed default from "Select an option" to empty string
+  placeholder = "", // Empty string placeholder
   showNewOption = false,
   newOptionLabel = "+ NEW"
 }) => {
+  // Log for debugging
+  React.useEffect(() => {
+    logDebug(`SingleSelectField rendered: disabled=${disabled}, options=${options.length}, value=${value || "empty"}`);
+  }, [disabled, options.length, value]);
+
   const handleSelectChange = (selectedValue: string) => {
     // Clear selection if "clear-selection" is chosen
     if (selectedValue === "clear-selection") {

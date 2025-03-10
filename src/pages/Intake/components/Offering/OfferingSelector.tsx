@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
-import { STORAGE_KEYS, isValidJSON } from "../../utils/localStorage";
+import { STORAGE_KEYS } from "../../utils/localStorage";
 import { logDebug, logError, logWarning } from "@/utils/logging";
 
 interface OfferingSelectorProps {
@@ -17,8 +17,13 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   handleOfferingChange,
   offeringOptions,
   isOfferingsDisabled,
-  placeholder = ""  // Changed default from "Select an offering" to empty string
+  placeholder = ""  // Empty string placeholder
 }) => {
+  // Debug logs
+  useEffect(() => {
+    logDebug(`OfferingSelector rendered: isDisabled=${isOfferingsDisabled}, options=${offeringOptions.length}, selectedId=${selectedOfferingId || "none"}`);
+  }, [isOfferingsDisabled, offeringOptions.length, selectedOfferingId]);
+
   // Load from localStorage on initial render
   useEffect(() => {
     try {
