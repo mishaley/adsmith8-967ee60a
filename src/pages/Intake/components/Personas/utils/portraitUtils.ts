@@ -5,7 +5,7 @@ import { Persona } from "../types";
  * Default portrait prompt template with placeholders for persona details
  */
 export const getPortraitPromptTemplate = (): string => {
-  return `Portrait photograph, [RACE] [GENDER], age [AGE_MIN]-[AGE_MAX], studio lighting, neutral background, professional quality, photorealistic, high resolution`;
+  return `Portrait photograph, [RACE] [GENDER], age [AGE_MIN]-[AGE_MAX], interested in [INTEREST1] and [INTEREST2], studio lighting, neutral background, professional quality, photorealistic, high resolution`;
 };
 
 /**
@@ -17,12 +17,19 @@ export const createPortraitPrompt = (persona: Persona): string => {
   const ageMin = persona.ageMin || 25;
   const ageMax = persona.ageMax || 45;
   
+  // Get the first two interests or provide defaults
+  const interests = persona.interests || [];
+  const interest1 = interests.length > 0 ? interests[0] : "technology";
+  const interest2 = interests.length > 1 ? interests[1] : "culture";
+  
   // Replace the placeholders with actual values
   return getPortraitPromptTemplate()
     .replace("[RACE]", race)
     .replace("[GENDER]", gender)
     .replace("[AGE_MIN]", String(ageMin))
-    .replace("[AGE_MAX]", String(ageMax));
+    .replace("[AGE_MAX]", String(ageMax))
+    .replace("[INTEREST1]", interest1)
+    .replace("[INTEREST2]", interest2);
 };
 
 /**
