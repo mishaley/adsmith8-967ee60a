@@ -1,6 +1,11 @@
 
 import { useState, useEffect } from "react";
-import { saveToLocalStorage, loadFromLocalStorage, cleanupLocalStorage, validateLocalStorageTypes } from "../../utils/localStorageUtils";
+import { 
+  saveToLocalStorage, 
+  loadFromLocalStorage, 
+  cleanupLocalStorage, 
+  validateLocalStorageTypes 
+} from "../../utils/localStorage";
 import { logError, logWarning, logDebug } from "@/utils/logging";
 
 /**

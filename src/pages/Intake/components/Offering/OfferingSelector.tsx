@@ -1,7 +1,7 @@
 
 import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
-import { STORAGE_KEYS, isValidJSON } from "../../utils/localStorageUtils";
+import { STORAGE_KEYS, isValidJSON } from "../../utils/localStorage";
 import { logDebug, logError, logWarning } from "@/utils/logging";
 
 interface OfferingSelectorProps {

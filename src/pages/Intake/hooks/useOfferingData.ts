@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { STORAGE_KEYS } from "../utils/localStorageUtils";
+import { STORAGE_KEYS } from "../utils/localStorage";
 import { logDebug, logError, logInfo } from "@/utils/logging";
 
 export const useOfferingData = (selectedOrgId: string) => {

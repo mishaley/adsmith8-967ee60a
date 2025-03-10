@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { STORAGE_KEYS } from "../../../utils/localStorageUtils";
+import { STORAGE_KEYS } from "../../../utils/localStorage";
 import { logDebug, logInfo } from "@/utils/logging";
 
 interface UseOfferingInitializationProps {

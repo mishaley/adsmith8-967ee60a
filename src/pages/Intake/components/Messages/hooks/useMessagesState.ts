@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Persona } from "../../Personas/types";
 import { Message } from "./useMessagesFetching";
-import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../../utils/localStorageUtils";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../../utils/localStorage";
 
 // Use a simpler type for the generated messages record
 export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;

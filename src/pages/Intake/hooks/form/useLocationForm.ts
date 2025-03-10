@@ -1,5 +1,5 @@
 
-import { STORAGE_KEYS } from "../../utils/localStorageUtils";
+import { STORAGE_KEYS } from "../../utils/localStorage";
 import { useLocalStorageState } from "./useLocalStorageState";
 
 export const useLocationForm = () => {
