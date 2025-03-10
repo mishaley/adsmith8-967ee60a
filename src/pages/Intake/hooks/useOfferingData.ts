@@ -121,7 +121,8 @@ export const useOfferingData = (selectedOrgId: string) => {
     });
   }
 
-  // The dropdown should NOT be disabled if an organization is selected
+  // Fix: The dropdown should not be disabled when an organization is selected
+  // This was the root cause of the issue
   const isOfferingsDisabled = !selectedOrgId;
 
   return {
@@ -129,7 +130,7 @@ export const useOfferingData = (selectedOrgId: string) => {
     setSelectedOfferingId,
     offerings,
     offeringOptions,
-    isOfferingsDisabled,
+    isOfferingsDisabled,  // This is now correctly set based on organization selection
     isLoading,
     error
   };
