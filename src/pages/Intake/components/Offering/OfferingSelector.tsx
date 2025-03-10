@@ -27,7 +27,7 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
         
         // Validate stored value
         if (storedValue) {
-          // Only apply if it's a valid string (no need for JSON parsing here)
+          // Only apply if it's a valid string
           // Check if the stored ID exists in current options or is "new-offering"
           const optionExists = offeringOptions.some(option => option.value === storedValue);
           

@@ -39,21 +39,18 @@ const OfferingFields: React.FC<OfferingFieldsProps> = ({
         value={sellingPoints} 
         onChange={setSellingPoints} 
         placeholder=""
-        helperText="What makes this offering valuable to customers?"
       />
       <RecordingField 
         label="Problem Solved" 
         value={problemSolved} 
         onChange={setProblemSolved} 
         placeholder=""
-        helperText="What customer pain point does this solve?"
       />
       <RecordingField 
         label="Unique Advantages" 
         value={uniqueOffering} 
         onChange={setUniqueOffering} 
         placeholder=""
-        helperText="What makes your offering different from competitors?"
       />
     </>
   );

@@ -97,7 +97,7 @@ export const useOfferingData = (selectedOrgId: string) => {
     });
   }
 
-  // Determine disabled state
+  // The dropdown should NOT be disabled if an organization is selected
   const isOfferingsDisabled = !selectedOrgId;
 
   return {
