@@ -6,7 +6,7 @@ import { usePersonaPortraits } from "./usePersonaPortraits";
 import { Persona } from "../../components/Personas/types";
 import { useCallback, useState, useEffect, useMemo } from "react";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../utils/localStorageUtils";
-import { logDebug, logError } from "@/utils/logging";
+import { logDebug, logError, logInfo } from "@/utils/logging";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
   // Load personaCount from localStorage with default of 1
@@ -96,6 +96,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
 
   // The most important function - generate personas and IMMEDIATELY trigger portrait generation
   const generatePersonas = useCallback(() => {
+    logInfo(`Generating personas with count: ${personaCount}`);
     // Make sure we're passing the correct personaCount to the generation function
     return generatePersonasBase(offering, selectedCountry, personaCount, (newPersonas) => {
       if (!newPersonas || newPersonas.length === 0) {
@@ -103,7 +104,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
         return;
       }
       
-      logDebug(`Generated ${newPersonas.length} personas, now triggering portrait generation`);
+      logInfo(`Successfully generated ${newPersonas.length} personas, now triggering portrait generation`);
       
       // Only generate portraits for the personas that were generated
       // which should match the personaCount
@@ -118,7 +119,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     }
     
     const visible = loadedPersonas.slice(0, personaCount);
-    logDebug(`Showing ${visible.length} of ${loadedPersonas.length} personas`);
+    logInfo(`Showing ${visible.length} of ${loadedPersonas.length} personas`);
     return visible;
   }, [loadedPersonas, personaCount]);
 

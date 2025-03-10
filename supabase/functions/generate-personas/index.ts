@@ -67,7 +67,7 @@ For each persona, provide:
 2. Age range (min-max)
 3. Two main interests that align with the offering's value proposition
 
-Format the response as a JSON array with objects having these fields:
+Format the response as a JSON object with a "personas" key containing an array of persona objects, each having these fields:
 gender, ageMin, ageMax, interests (as array of strings)
 `;
 
@@ -101,19 +101,56 @@ gender, ageMin, ageMax, interests (as array of strings)
     }
     
     const generatedText = data.choices[0].message.content;
+    console.log('Generated text:', generatedText);
     
     // Parse the JSON content
     const parsedData = JSON.parse(generatedText);
-    console.log('Personas data parsed successfully.');
+    console.log('Parsed data:', JSON.stringify(parsedData));
     
-    // Wrap the personas in the expected format
-    const personasData = {
-      personas: parsedData.personas || parsedData.customer_personas || parsedData
-    };
+    // Extract personas from the response - handle multiple potential formats
+    let personasArray;
+    if (Array.isArray(parsedData)) {
+      console.log('Parsed data is an array');
+      personasArray = parsedData;
+    } else if (parsedData.personas && Array.isArray(parsedData.personas)) {
+      console.log('Found personas array in parsedData.personas');
+      personasArray = parsedData.personas;
+    } else if (parsedData.customer_personas && Array.isArray(parsedData.customer_personas)) {
+      console.log('Found personas array in parsedData.customer_personas');
+      personasArray = parsedData.customer_personas;
+    } else {
+      console.error('Could not find personas array in response');
+      throw new Error('Could not find personas array in response');
+    }
     
-    console.log(`Sending response with ${personasData.personas ? personasData.personas.length : 0} personas`);
+    // Ensure each persona has the required fields
+    const validatedPersonas = personasArray.map((persona, index) => {
+      // Ensure each persona has an id
+      if (!persona.id) {
+        persona.id = `persona-${index}`;
+      }
+      
+      // Ensure each persona has a title
+      if (!persona.title) {
+        persona.title = `Persona ${index + 1}`;
+      }
+      
+      // Ensure each persona has a description
+      if (!persona.description) {
+        persona.description = `A ${persona.ageMin}-${persona.ageMax} year old ${persona.gender.toLowerCase()} interested in ${persona.interests?.join(" and ") || "this offering"}.`;
+      }
+      
+      // Ensure interests is an array
+      if (!persona.interests || !Array.isArray(persona.interests)) {
+        persona.interests = ["Product offering", "Related services"];
+      }
+      
+      return persona;
+    });
+    
+    console.log(`Sending response with ${validatedPersonas.length} personas`);
 
-    return new Response(JSON.stringify(personasData), {
+    return new Response(JSON.stringify({ personas: validatedPersonas }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

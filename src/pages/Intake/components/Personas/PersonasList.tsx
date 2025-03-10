@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Persona } from "./types";
 import { Trash2 } from "lucide-react";
+import { logDebug } from "@/utils/logging";
 
 interface PersonasListProps {
   personas: Persona[];
@@ -15,6 +16,14 @@ const PersonasList: React.FC<PersonasListProps> = ({
   personaCount = 5 // Default to 5 for backward compatibility
 }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  // Debug log when personas change
+  useEffect(() => {
+    logDebug(`PersonasList rendered with ${personas?.length || 0} personas, showing max ${personaCount}`);
+    if (personas?.length > 0) {
+      logDebug("First persona in list:", JSON.stringify(personas[0]));
+    }
+  }, [personas, personaCount]);
 
   // Format interests to display on two rows if needed
   const formatInterests = (interests: string[]): React.ReactNode => {

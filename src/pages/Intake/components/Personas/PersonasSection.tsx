@@ -6,6 +6,7 @@ import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { logDebug } from "@/utils/logging";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -36,6 +37,14 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
 }) => {
   const hasPersonas = personas && personas.length > 0;
   
+  // Log personas data for debugging
+  React.useEffect(() => {
+    logDebug(`PersonasSection rendered with ${personas?.length || 0} personas, hasPersonas=${hasPersonas}`);
+    if (personas?.length > 0) {
+      logDebug("First persona data:", JSON.stringify(personas[0]));
+    }
+  }, [personas, hasPersonas]);
+  
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
       const count = parseInt(value, 10);
@@ -50,7 +59,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             {setPersonaCount && <div className="w-20 mr-4">
                 <Select value={personaCount.toString()} onValueChange={handleCountChange}>
                   <SelectTrigger className="bg-white">
-                    <SelectValue placeholder="Count" />
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     <SelectItem value="1">1</SelectItem>

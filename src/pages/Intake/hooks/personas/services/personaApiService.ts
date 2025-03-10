@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Persona } from "../../../components/Personas/types";
 import { normalizeGender, ensureTwoInterests } from "../../../utils/personaUtils";
 import { getRandomRace } from "../utils/personaGenerationUtils";
-import { logWarning, logError, logDebug } from "@/utils/logging";
+import { logWarning, logError, logDebug, logInfo } from "@/utils/logging";
 
 /**
  * Validates if a string is a valid UUID
@@ -78,7 +78,7 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
   // Validate count to ensure it's a positive number
   const validCount = Math.max(1, Math.min(5, count || 1));
   
-  logDebug(`Generating ${validCount} personas for offering: ${offering}`);
+  logInfo(`Generating ${validCount} personas for offering: ${offering}`);
   
   const { data, error } = await supabase.functions.invoke('generate-personas', {
     body: { 
@@ -96,22 +96,25 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
   }
 
   if (!data) {
+    logError("No data received from the server");
     throw new Error("No data received from the server");
   }
+
+  logInfo("Received response from generate-personas function:", JSON.stringify(data));
 
   // Improved response handling to work with both formats
   let personasData;
   if (data.personas) {
     // Response is already correctly wrapped
-    logDebug("Received correctly formatted personas response");
+    logInfo("Received correctly formatted personas response with", data.personas.length, "personas");
     personasData = data.personas;
   } else if (data.customer_personas) {
     // Alternative field name
-    logDebug("Received personas in customer_personas field");
+    logInfo("Received personas in customer_personas field");
     personasData = data.customer_personas;
   } else if (Array.isArray(data)) {
     // Direct array response
-    logDebug("Received personas as direct array");
+    logInfo("Received personas as direct array");
     personasData = data;
   } else {
     // Unknown format - log it for debugging
@@ -119,13 +122,16 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
     throw new Error("Invalid data format received from server");
   }
   
-  if (!Array.isArray(personasData)) {
-    logError("Personas data is not an array:", personasData);
-    throw new Error("Invalid personas data format");
+  if (!Array.isArray(personasData) || personasData.length === 0) {
+    logError("Personas data is not a valid array:", personasData);
+    throw new Error("Invalid personas data format or empty array");
   }
   
-  logDebug(`Successfully parsed ${personasData.length} personas`);
-  return enhancePersonas(personasData, offering);
+  logInfo(`Successfully parsed ${personasData.length} personas`);
+  const enhancedPersonas = enhancePersonas(personasData, offering);
+  logInfo(`Enhanced ${enhancedPersonas.length} personas with additional data`);
+  
+  return enhancedPersonas;
 };
 
 /**
@@ -133,6 +139,9 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
  */
 const enhancePersonas = (personasData: Persona[], offering: string): Persona[] => {
   return personasData.map((persona: Persona, index: number) => {
+    // Log the incoming persona data
+    logDebug(`Enhancing persona ${index}:`, JSON.stringify(persona));
+    
     // Ensure we have valid data and add any missing fields
     if (!persona.race) {
       const randomRace = getRandomRace();
@@ -153,7 +162,7 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
     
     // Add description if missing
     if (!persona.description) {
-      persona.description = `A ${persona.ageMin}-${persona.ageMax} year old ${persona.gender.toLowerCase()} interested in ${persona.interests.join(" and ")}.`;
+      persona.description = `A ${persona.ageMin}-${persona.ageMax} year old ${persona.gender.toLowerCase()} interested in ${persona.interests ? persona.interests.join(" and ") : "this product"}.`;
     }
     
     // Ensure each persona has an ID that's compatible with Supabase
@@ -166,6 +175,9 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
       persona.id = `persona-${index}`;
     }
     
+    // Ensure gender is normalized
+    const normalizedGender = normalizeGender(persona.gender || '');
+    
     // Ensure each persona has exactly two relevant interests
     const enhancedInterests = ensureTwoInterests(persona.interests || [], offering);
     
@@ -173,12 +185,17 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
     const ageMin = typeof persona.ageMin === 'string' ? parseInt(persona.ageMin, 10) : (persona.ageMin || 0);
     const ageMax = typeof persona.ageMax === 'string' ? parseInt(persona.ageMax, 10) : (persona.ageMax || 0);
     
-    return {
+    const enhancedPersona = {
       ...persona,
-      gender: normalizeGender(persona.gender || ''), // Ensure gender is never empty
+      gender: normalizedGender, // Ensure gender is never empty
       interests: enhancedInterests, // This is now guaranteed to be a non-empty array
       ageMin,
       ageMax
     };
+    
+    // Log the enhanced persona
+    logDebug(`Enhanced persona ${index}:`, JSON.stringify(enhancedPersona));
+    
+    return enhancedPersona;
   });
 };
