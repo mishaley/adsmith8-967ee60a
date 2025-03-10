@@ -4,6 +4,7 @@ export * from './constants';
 export * from './core';
 export * from './cleanup';
 export * from './formClear';
-// Re-export validation functions with a different approach to avoid ambiguity
-import * as validationFunctions from './validation';
-export { validationFunctions };
+
+// Re-export validation functions using a namespace to avoid naming conflicts
+import * as validationFuncs from './validation';
+export const validationFunctions = validationFuncs;

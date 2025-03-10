@@ -4,14 +4,20 @@ import { usePortraitGeneration } from "./usePortraitGeneration";
 import { usePersonaRegeneration } from "./usePersonaRegeneration";
 import { usePersonaPortraits } from "./usePersonaPortraits";
 import { Persona } from "../../components/Personas/types";
-import { useCallback, useState, useEffect, useMemo } from "react";
-import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../utils/localStorageUtils";
+import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../utils/localStorage";
 import { logDebug, logError, logInfo } from "@/utils/logging";
 
 export const usePersonasManager = (offering: string, selectedCountry: string) => {
+  // Reference to track if localStorage has been read
+  const hasLoadedFromStorage = useRef(false);
+
   // Load personaCount from localStorage with default of 1
-  const [personaCount, setPersonaCount] = useState<number>(() => 
-    loadFromLocalStorage<number>(STORAGE_KEYS.PERSONAS + "_count", 1));
+  const [personaCount, setPersonaCount] = useState<number>(() => {
+    const count = loadFromLocalStorage<number>(STORAGE_KEYS.PERSONAS + "_count", 1);
+    logDebug(`Loaded initial persona count: ${count}`, 'localStorage');
+    return count;
+  });
   
   const {
     personas: loadedPersonas,
@@ -25,33 +31,47 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
 
   // On initial load, attempt to load personas from localStorage
   useEffect(() => {
+    if (hasLoadedFromStorage.current) return;
+    
     try {
       const savedPersonas = loadFromLocalStorage<Persona[]>(STORAGE_KEYS.PERSONAS + "_data", []);
       const savedSummary = loadFromLocalStorage<string>(STORAGE_KEYS.PERSONAS + "_summary", "");
       
       // Only set if we have saved personas
       if (savedPersonas.length > 0) {
-        logDebug(`Loaded ${savedPersonas.length} personas from localStorage`);
+        logDebug(`Loaded ${savedPersonas.length} personas from localStorage`, 'localStorage');
         setPersonas(savedPersonas);
+        hasLoadedFromStorage.current = true;
       } else {
-        logDebug("No saved personas found in localStorage");
+        logDebug("No saved personas found in localStorage", 'localStorage');
       }
     } catch (error) {
-      logError("Error loading personas from localStorage:", error);
+      logError("Error loading personas from localStorage:", 'localStorage', error);
     }
   }, [setPersonas]);
+
+  // Previous personas ref to avoid redundant saves
+  const prevPersonasRef = useRef<string>("");
 
   // Persist personas whenever they change - improved to check if they have changed before saving
   useEffect(() => {
     try {
       if (loadedPersonas.length > 0) {
-        // Only save if we actually have personas to save
-        saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_data", loadedPersonas);
-        saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_summary", summary);
-        logDebug(`Saved ${loadedPersonas.length} personas to localStorage`);
+        // Stringify to compare with previous value
+        const personasJSON = JSON.stringify(loadedPersonas);
+        
+        // Only save if changed
+        if (personasJSON !== prevPersonasRef.current) {
+          saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_data", loadedPersonas);
+          saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_summary", summary);
+          logDebug(`Saved ${loadedPersonas.length} personas to localStorage`, 'localStorage');
+          
+          // Update ref
+          prevPersonasRef.current = personasJSON;
+        }
       }
     } catch (error) {
-      logError("Error saving personas to localStorage:", error);
+      logError("Error saving personas to localStorage:", 'localStorage', error);
     }
   }, [loadedPersonas, summary]);
 
@@ -96,15 +116,15 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
 
   // The most important function - generate personas and IMMEDIATELY trigger portrait generation
   const generatePersonas = useCallback(() => {
-    logInfo(`Generating personas with count: ${personaCount}`);
+    logInfo(`Generating personas with count: ${personaCount}`, 'api');
     // Make sure we're passing the correct personaCount to the generation function
     return generatePersonasBase(offering, selectedCountry, personaCount, (newPersonas) => {
       if (!newPersonas || newPersonas.length === 0) {
-        logError("No personas were generated");
+        logError("No personas were generated", 'api');
         return;
       }
       
-      logInfo(`Successfully generated ${newPersonas.length} personas, now triggering portrait generation`);
+      logInfo(`Successfully generated ${newPersonas.length} personas, now triggering portrait generation`, 'api');
       
       // Only generate portraits for the personas that were generated
       // which should match the personaCount
@@ -119,7 +139,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     }
     
     const visible = loadedPersonas.slice(0, personaCount);
-    logInfo(`Showing ${visible.length} of ${loadedPersonas.length} personas`);
+    logDebug(`Showing ${visible.length} of ${loadedPersonas.length} personas`, 'ui');
     return visible;
   }, [loadedPersonas, personaCount]);
 

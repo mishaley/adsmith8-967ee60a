@@ -11,9 +11,12 @@ export const usePersonaForm = () => {
     []
   );
   
-  // Debug log when personas change
+  // Debug log when personas change (moved to debug level to reduce noise)
   useEffect(() => {
-    logDebug(`usePersonaForm: personas state updated, count: ${personas.length}`);
+    // Only log if personas exist and have length
+    if (personas && personas.length > 0) {
+      logDebug(`usePersonaForm: personas state updated, count: ${personas.length}`, 'ui');
+    }
   }, [personas]);
   
   return {

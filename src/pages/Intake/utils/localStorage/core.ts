@@ -1,37 +1,37 @@
 
+import { logDebug, logWarning, logError, logInfo } from "@/utils/logging";
+
 /**
  * Generic save function with validation and error handling
  */
 export const saveToLocalStorage = <T>(key: string, data: T): void => {
   try {
     if (data === undefined) {
-      console.warn(`Attempted to save undefined data to localStorage (${key}). Removing key instead.`);
+      logWarning(`Attempted to save undefined data to localStorage (${key}). Removing key instead.`, 'localStorage');
       localStorage.removeItem(key);
       return;
     }
     
-    // Special handling for empty arrays or objects
-    if (Array.isArray(data) && data.length === 0) {
-      console.log(`Saving empty array to localStorage (${key})`);
-      // We still save empty arrays as they're valid states
-    }
+    // Skip redundant logging of empty arrays or empty objects
+    // (these are common and cause too much console noise)
+    const isEmptyArrayOrObj = 
+      (Array.isArray(data) && data.length === 0) || 
+      (data !== null && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 0);
     
-    // For objects, check if they're empty but still valid
-    if (data !== null && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 0) {
-      console.log(`Saving empty object to localStorage (${key})`);
-      // We still save empty objects as they're valid states
+    if (!isEmptyArrayOrObj) {
+      logDebug(`Saving to localStorage: ${key}`, 'localStorage');
     }
     
     const serialized = JSON.stringify(data);
     localStorage.setItem(key, serialized);
   } catch (error) {
-    console.error(`Error saving to localStorage (${key}):`, error);
+    logError(`Error saving to localStorage (${key}):`, 'localStorage', error);
     // If storing fails, attempt to clear this key to prevent inconsistent state
     try {
       localStorage.removeItem(key);
     } catch (e) {
       // If even removing fails, log but continue
-      console.error(`Failed to clean up invalid localStorage key (${key}):`, e);
+      logError(`Failed to clean up invalid localStorage key (${key}):`, 'localStorage', e);
     }
   }
 };
@@ -49,7 +49,7 @@ export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
     
     // Special handling for arrays - ensure they're actually arrays
     if (Array.isArray(defaultValue) && !Array.isArray(parsed)) {
-      console.warn(`Expected array for key ${key} but got ${typeof parsed}. Using default.`);
+      logWarning(`Expected array for key ${key} but got ${typeof parsed}. Using default.`, 'localStorage');
       localStorage.removeItem(key); // Remove invalid data
       return defaultValue;
     }
@@ -57,7 +57,7 @@ export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
     // Special handling for objects - ensure they're actually objects
     if (defaultValue !== null && typeof defaultValue === 'object' && !Array.isArray(defaultValue)) {
       if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        console.warn(`Expected object for key ${key} but got ${typeof parsed}. Using default.`);
+        logWarning(`Expected object for key ${key} but got ${typeof parsed}. Using default.`, 'localStorage');
         localStorage.removeItem(key); // Remove invalid data
         return defaultValue;
       }
@@ -65,12 +65,12 @@ export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
     
     return parsed;
   } catch (error) {
-    console.error(`Error loading from localStorage (${key}):`, error);
+    logError(`Error loading from localStorage (${key}):`, 'localStorage', error);
     // Remove invalid data to prevent future errors
     try {
       localStorage.removeItem(key);
     } catch (e) {
-      console.error(`Failed to remove invalid localStorage data for key (${key}):`, e);
+      logError(`Failed to remove invalid localStorage data for key (${key}):`, 'localStorage', e);
     }
     return defaultValue;
   }
@@ -82,8 +82,9 @@ export const loadFromLocalStorage = <T>(key: string, defaultValue: T): T => {
 export const clearLocalStorageItem = (key: string): void => {
   try {
     localStorage.removeItem(key);
+    logDebug(`Removed localStorage item: ${key}`, 'localStorage');
   } catch (error) {
-    console.error(`Error clearing localStorage item (${key}):`, error);
+    logError(`Error clearing localStorage item (${key}):`, 'localStorage', error);
   }
 };
 
@@ -106,9 +107,9 @@ export const clearLocalStorageByPrefix = (prefix: string): void => {
       localStorage.removeItem(key);
     });
     
-    console.log(`Cleared ${keysToRemove.length} localStorage items with prefix "${prefix}"`);
+    logInfo(`Cleared ${keysToRemove.length} localStorage items with prefix "${prefix}"`, 'localStorage');
   } catch (error) {
-    console.error(`Error clearing localStorage items with prefix "${prefix}":`, error);
+    logError(`Error clearing localStorage items with prefix "${prefix}":`, 'localStorage', error);
   }
 };
 
@@ -119,7 +120,7 @@ export const localStorageHasKey = (key: string): boolean => {
   try {
     return localStorage.getItem(key) !== null;
   } catch (error) {
-    console.error(`Error checking localStorage key (${key}):`, error);
+    logError(`Error checking localStorage key (${key}):`, 'localStorage', error);
     return false;
   }
 };

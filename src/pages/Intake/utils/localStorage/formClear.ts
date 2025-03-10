@@ -1,6 +1,6 @@
 
 import { STORAGE_KEYS } from './constants';
-import { logInfo } from '@/utils/logging';
+import { logInfo, logError } from '@/utils/logging';
 import { dispatchDedupedEvent } from '@/utils/eventUtils';
 
 /**
@@ -8,16 +8,20 @@ import { dispatchDedupedEvent } from '@/utils/eventUtils';
  */
 export const clearFormAndRefresh = () => {
   try {
-    logInfo('Starting form data clear');
+    logInfo('Starting form data clear', 'localStorage');
     
     // First, clear all form-related keys
     Object.values(STORAGE_KEYS).forEach(prefix => {
+      let clearedCount = 0;
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith(prefix)) {
           localStorage.removeItem(key);
-          logInfo(`Cleared key: ${key}`);
+          clearedCount++;
         }
+      }
+      if (clearedCount > 0) {
+        logInfo(`Cleared ${clearedCount} keys with prefix: ${prefix}`, 'localStorage');
       }
     });
     
@@ -32,7 +36,7 @@ export const clearFormAndRefresh = () => {
       window.location.reload();
     }, 300);
   } catch (error) {
-    console.error('Error during form clear:', error);
+    logError('Error during form clear:', 'localStorage', error);
     // Try to refresh anyway
     window.location.reload();
   }

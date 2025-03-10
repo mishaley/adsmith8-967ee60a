@@ -12,7 +12,7 @@ export const useOrganizationData = () => {
   const [selectedOrgId, setSelectedOrgId] = useState<string>(() => {
     try {
       const storedValue = localStorage.getItem(STORAGE_KEY);
-      logDebug(`Initial organization ID from localStorage: ${storedValue || "none"}`);
+      logDebug(`Initial organization ID from localStorage: ${storedValue || "none"}`, 'localStorage');
       return storedValue || "";
     } catch (e) {
       console.error("Error reading from localStorage:", e);
@@ -24,13 +24,13 @@ export const useOrganizationData = () => {
   const { data: organizations = [], isLoading: isLoadingOrganizations } = useQuery({
     queryKey: ["organizations"],
     queryFn: async () => {
-      logInfo("Fetching organizations from database");
+      logInfo("Fetching organizations from database", 'api');
       const { data, error } = await supabase
         .from("a1organizations")
         .select("organization_id, organization_name, organization_industry");
       
       if (error) throw error;
-      logInfo(`Fetched ${data?.length || 0} organizations`);
+      logInfo(`Fetched ${data?.length || 0} organizations`, 'api');
       return data || [];
     },
   });
@@ -42,17 +42,17 @@ export const useOrganizationData = () => {
 
   // Function to handle organization change
   const handleOrgChange = (value: string) => {
-    logInfo(`Setting organization ID to: ${value || "none"}`);
+    logInfo(`Setting organization ID to: ${value || "none"}`, 'ui');
     setSelectedOrgId(value);
     
     // Save to localStorage
     try {
       if (value) {
         localStorage.setItem(STORAGE_KEY, value);
-        logDebug(`Saved organization ID to localStorage: ${value}`);
+        logDebug(`Saved organization ID to localStorage: ${value}`, 'localStorage');
       } else {
         localStorage.removeItem(STORAGE_KEY);
-        logDebug("Removed organization ID from localStorage");
+        logDebug("Removed organization ID from localStorage", 'localStorage');
       }
     } catch (e) {
       console.error("Error saving to localStorage:", e);
@@ -62,7 +62,7 @@ export const useOrganizationData = () => {
   // Listen for form clearing
   useEffect(() => {
     const handleClearForm = () => {
-      logInfo("Clear form event detected in useOrganizationData");
+      logDebug("Clear form event detected in useOrganizationData", 'localStorage');
       setSelectedOrgId("");
       localStorage.removeItem(STORAGE_KEY);
     };
@@ -73,12 +73,12 @@ export const useOrganizationData = () => {
     };
   }, []);
 
-  // Debug log when current organization changes
+  // Debug log when current organization changes (reduced to debug level)
   useEffect(() => {
     if (currentOrganization) {
-      logDebug(`Current organization: ${currentOrganization.organization_name}, Industry: ${currentOrganization.organization_industry || "none"}`);
+      logDebug(`Current organization: ${currentOrganization.organization_name}, Industry: ${currentOrganization.organization_industry || "none"}`, 'ui');
     } else if (selectedOrgId) {
-      logDebug(`Organization ID ${selectedOrgId} selected but data not loaded yet`);
+      logDebug(`Organization ID ${selectedOrgId} selected but data not loaded yet`, 'ui');
     }
   }, [currentOrganization, selectedOrgId]);
 

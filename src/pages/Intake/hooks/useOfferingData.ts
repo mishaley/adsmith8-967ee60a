@@ -13,7 +13,7 @@ export const useOfferingData = (selectedOrgId: string) => {
   const [selectedOfferingId, setSelectedOfferingId] = useState<string>(() => {
     try {
       const storedValue = localStorage.getItem(STORAGE_KEY);
-      logDebug(`Initial offering ID from localStorage: ${storedValue || "none"}`);
+      logDebug(`Initial offering ID from localStorage: ${storedValue || "none"}`, 'localStorage');
       return storedValue || "";
     } catch (e) {
       console.error("Error reading from localStorage:", e);
@@ -26,7 +26,7 @@ export const useOfferingData = (selectedOrgId: string) => {
     if (!selectedOrgId) {
       // Clear offering when org is cleared
       if (selectedOfferingId) {
-        logInfo("Clearing offering selection as organization was cleared");
+        logInfo("Clearing offering selection as organization was cleared", 'localStorage');
         setSelectedOfferingId("");
         localStorage.removeItem(STORAGE_KEY);
       }
@@ -39,14 +39,14 @@ export const useOfferingData = (selectedOrgId: string) => {
     queryFn: async () => {
       if (!selectedOrgId || selectedOrgId === "new-organization") return [];
       
-      logInfo(`Fetching offerings for org ID: ${selectedOrgId}`);
+      logInfo(`Fetching offerings for org ID: ${selectedOrgId}`, 'api');
       const { data, error } = await supabase
         .from("b1offerings")
         .select("offering_id, offering_name")
         .eq("organization_id", selectedOrgId);
       
       if (error) throw error;
-      logInfo(`Fetched ${data?.length || 0} offerings`);
+      logInfo(`Fetched ${data?.length || 0} offerings`, 'api');
       return data || [];
     },
     enabled: !!selectedOrgId && selectedOrgId !== "new-organization",
@@ -64,7 +64,7 @@ export const useOfferingData = (selectedOrgId: string) => {
   // Listen for form clearing
   useEffect(() => {
     const handleClearForm = () => {
-      logInfo("Clear form event detected in useOfferingData");
+      logDebug("Clear form event detected in useOfferingData", 'localStorage');
       setSelectedOfferingId("");
       localStorage.removeItem(STORAGE_KEY);
     };
@@ -80,13 +80,13 @@ export const useOfferingData = (selectedOrgId: string) => {
     try {
       if (selectedOfferingId) {
         localStorage.setItem(STORAGE_KEY, selectedOfferingId);
-        logDebug(`Saved offering ID to localStorage: ${selectedOfferingId}`);
+        logDebug(`Saved offering ID to localStorage: ${selectedOfferingId}`, 'localStorage');
       } else {
         localStorage.removeItem(STORAGE_KEY);
-        logDebug("Removed offering ID from localStorage");
+        logDebug("Removed offering ID from localStorage", 'localStorage');
       }
     } catch (e) {
-      console.error("Error saving to localStorage:", e);
+      logError("Error saving to localStorage:", 'localStorage', e);
     }
   }, [selectedOfferingId]);
 
