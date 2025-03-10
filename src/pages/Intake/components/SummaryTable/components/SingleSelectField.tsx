@@ -35,7 +35,7 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   }, [disabled, options.length, value]);
 
   const handleSelectChange = (selectedValue: string) => {
-    // Clear selection if "clear-selection" is chosen
+    logDebug(`Select change: ${selectedValue}`, 'ui');
     if (selectedValue === "clear-selection") {
       onChange("");
     } else {
@@ -44,19 +44,23 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   };
 
   return (
-    <Select value={value || ""} onValueChange={handleSelectChange} disabled={disabled}>
-      <SelectTrigger className="w-full bg-white">
+    <Select 
+      value={value} 
+      onValueChange={handleSelectChange} 
+      disabled={disabled}
+    >
+      <SelectTrigger className="w-full bg-white border border-input hover:bg-accent hover:text-accent-foreground">
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent 
-        className="bg-white min-w-[var(--radix-select-trigger-width)] w-fit z-[100]"
+        className="bg-white border rounded-md shadow-md min-w-[var(--radix-select-trigger-width)] w-fit z-[100]"
         position="popper"
-        sideOffset={5}
+        align="center"
+        sideOffset={4}
       >
-        {/* New option at the top if enabled */}
         {showNewOption && (
           <>
-            <SelectItem value="new-offering" className="font-semibold text-blue-600">
+            <SelectItem value="new-offering" className="font-semibold text-blue-600 cursor-pointer">
               {newOptionLabel}
             </SelectItem>
             <SelectSeparator className="my-1" />
@@ -67,14 +71,20 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
           <SelectItem 
             key={option.value}
             value={option.value}
+            className="cursor-pointer"
           >
             {option.label}
           </SelectItem>
         ))}
-        <SelectSeparator className="my-1" />
-        <SelectItem value="clear-selection" className="text-gray-500">
-          Clear
-        </SelectItem>
+        
+        {value && (
+          <>
+            <SelectSeparator className="my-1" />
+            <SelectItem value="clear-selection" className="text-gray-500 cursor-pointer">
+              Clear
+            </SelectItem>
+          </>
+        )}
       </SelectContent>
     </Select>
   );

@@ -21,7 +21,10 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
 }) => {
   // Debug logs
   useEffect(() => {
-    logDebug(`OfferingSelector rendered: isDisabled=${isOfferingsDisabled}, options=${offeringOptions.length}, selectedId=${selectedOfferingId || "none"}`, 'ui');
+    logDebug(`OfferingSelector rendered with state:`, 'ui');
+    logDebug(`- Selected ID: ${selectedOfferingId || "none"}`, 'ui');
+    logDebug(`- Disabled: ${isOfferingsDisabled}`, 'ui');
+    logDebug(`- Options count: ${offeringOptions.length}`, 'ui');
   }, [isOfferingsDisabled, offeringOptions.length, selectedOfferingId]);
 
   // Load from localStorage on initial render
@@ -33,23 +36,21 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
         if (storedValue) {
           logInfo(`Found stored offering ID: ${storedValue}, checking if valid`, 'ui');
           
-          // Validate stored value
-          // Check if the stored ID exists in current options or is "new-offering"
-          const optionExists = offeringOptions.some(option => option.value === storedValue);
+          // Validate stored value exists in current options or is "new-offering"
+          const isValidOption = offeringOptions.some(option => option.value === storedValue) || 
+                              storedValue === "new-offering";
           
-          if (optionExists || storedValue === "new-offering") {
-            logInfo(`Applying stored offering ID from localStorage: ${storedValue}`, 'ui');
+          if (isValidOption) {
+            logInfo(`Applying stored offering ID: ${storedValue}`, 'ui');
             handleOfferingChange(storedValue);
           } else {
-            logInfo(`Stored offering ID ${storedValue} not found in options, not applying`, 'ui');
-            // Clean up invalid stored value
+            logInfo(`Stored offering ID ${storedValue} not found in options, clearing`, 'ui');
             localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
           }
         }
       }
     } catch (error) {
-      logError("Error initializing from localStorage in OfferingSelector:", error);
-      // Clean up potentially corrupted data
+      logError("Error initializing from localStorage", 'ui');
       localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
     }
   }, [selectedOfferingId, handleOfferingChange, offeringOptions, isOfferingsDisabled]);
