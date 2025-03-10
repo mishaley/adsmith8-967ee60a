@@ -90,7 +90,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                   <PortraitRow 
                     personas={personas} 
                     isGeneratingPortraits={isGeneratingPortraits} 
-                    loadingIndices={loadingIndices} 
+                    loadingIndices={loadingPortraitIndices} 
                     personaCount={personaCount}
                   />
                 </tbody>
