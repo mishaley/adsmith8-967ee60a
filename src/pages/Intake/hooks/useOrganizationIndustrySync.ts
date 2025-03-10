@@ -21,6 +21,9 @@ export const useOrganizationIndustrySync = (
       return;
     }
     
+    // For existing organizations, we now prevent database updates for safety
+    // This function will mainly be used for new organizations
+    
     // Validate UUID format to prevent invalid database queries
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedOrgId)) {
       logError(`Invalid organization ID format: ${selectedOrgId}`);
@@ -108,13 +111,13 @@ export const useOrganizationIndustrySync = (
     fetchIndustry();
   }, [selectedOrgId, setIndustry]);
   
-  // Properly debounced industry update
+  // Properly debounced industry update - only for new organizations now
   useEffect(() => {
     // Skip if currently updating, no org is selected, or industry hasn't changed
     if (
       isUpdating || 
       !selectedOrgId || 
-      selectedOrgId === "new-organization" || 
+      selectedOrgId !== "new-organization" || // Only update for new organizations
       industry === prevIndustryRef.current
     ) {
       return;

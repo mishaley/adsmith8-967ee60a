@@ -12,6 +12,7 @@ interface OfferingFieldsProps {
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
   offeringInputRef: React.RefObject<HTMLTextAreaElement>;
+  isReadOnly: boolean;
 }
 
 const OfferingFields: React.FC<OfferingFieldsProps> = ({
@@ -23,7 +24,8 @@ const OfferingFields: React.FC<OfferingFieldsProps> = ({
   setProblemSolved,
   uniqueOffering,
   setUniqueOffering,
-  offeringInputRef
+  offeringInputRef,
+  isReadOnly
 }) => {
   return (
     <>
@@ -33,24 +35,28 @@ const OfferingFields: React.FC<OfferingFieldsProps> = ({
         onChange={setOffering} 
         ref={offeringInputRef}
         placeholder=""
+        disabled={isReadOnly}
       />
       <RecordingField 
         label="Key Selling Points" 
         value={sellingPoints} 
         onChange={setSellingPoints} 
         placeholder=""
+        disabled={isReadOnly}
       />
       <RecordingField 
         label="Problem Solved" 
         value={problemSolved} 
         onChange={setProblemSolved} 
         placeholder=""
+        disabled={isReadOnly}
       />
       <RecordingField 
         label="Unique Advantages" 
         value={uniqueOffering} 
         onChange={setUniqueOffering} 
         placeholder=""
+        disabled={isReadOnly}
       />
     </>
   );

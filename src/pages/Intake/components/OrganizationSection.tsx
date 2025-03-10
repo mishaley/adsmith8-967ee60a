@@ -49,11 +49,16 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleOrgChange
   });
 
-  const isOrgSelected = !!selectedOrgId || selectedOrgId === "new-organization";
-  const isReadOnly = !!selectedOrgId && selectedOrgId !== "new-organization";
+  // Determine if fields should be read-only
+  // Fields should be read-only when an existing organization is selected
+  const isOrgSelected = !!selectedOrgId;
+  const isReadOnly = isOrgSelected && selectedOrgId !== "new-organization";
 
   const handleIndustryChange = (value: string) => {
-    setIndustry(value);
+    // Only allow changes if not read-only
+    if (!isReadOnly) {
+      setIndustry(value);
+    }
   };
 
   const onButtonClick = () => {

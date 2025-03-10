@@ -80,28 +80,15 @@ export const useOfferingSave = ({
           description: "Your new offering has been created successfully."
         });
       } 
-      // Handle updating an existing offering
+      // For existing offerings, we should just proceed to the next step without saving changes
+      // This prevents accidental overwrites when fields are read-only
       else if (selectedOfferingId && selectedOfferingId !== "new-offering") {
-        const { error } = await supabase
-          .from("b1offerings")
-          .update({
-            offering_name: offering.trim(),
-            offering_keysellingpoints: sellingPoints.trim() || null,
-            offering_problemsolved: problemSolved.trim() || null,
-            offering_uniqueadvantages: uniqueOffering.trim() || null
-          })
-          .eq("offering_id", selectedOfferingId);
-        
-        if (error) {
-          throw error;
-        }
-        
-        // Refetch to ensure we have the latest data
+        // Just refetch the offering details without saving
         refetchOfferingDetails();
         
         toast({
-          title: "Offering updated",
-          description: "Your offering has been updated successfully."
+          title: "Continuing with existing offering",
+          description: "Moving to the next step with your selected offering."
         });
       }
     } catch (error: any) {

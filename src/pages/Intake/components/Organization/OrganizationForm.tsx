@@ -87,7 +87,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
                 value={industry || ""} 
                 onChange={handleIndustryChange} 
                 placeholder="" 
-                disabled={isUpdating || isLoadingOrgData} 
+                disabled={isReadOnly || isUpdating || isLoadingOrgData} 
               />
             </>
           )}
