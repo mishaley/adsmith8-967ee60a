@@ -1,28 +1,13 @@
 
 import { useState, useEffect } from "react";
 import { Persona } from "../../components/Personas/types";
-import { logInfo, logError } from "@/utils/logging";
-import { STORAGE_KEYS, loadFromLocalStorage } from "../../utils/localStorageUtils";
+import { createPortraitPrompt } from "../../components/Personas/utils/portraitUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { logDebug, logError, logInfo } from "@/utils/logging";
 
 export const usePortraitGeneration = () => {
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
-
-  // Listen for localStorage changes (specifically when form is cleared)
-  useEffect(() => {
-    const handleStorage = () => {
-      // Check if the personas data was cleared
-      const personasData = loadFromLocalStorage<Persona[]>(`${STORAGE_KEYS.PERSONAS}_data`, []);
-      if (personasData.length === 0) {
-        // Reset our local state
-        setIsGeneratingPortraits(false);
-        setLoadingPortraitIndices([]);
-      }
-    };
-
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   // Listen for clear form event
   useEffect(() => {
@@ -36,34 +21,81 @@ export const usePortraitGeneration = () => {
     return () => window.removeEventListener('clearForm', handleClearForm);
   }, []);
 
-  // Simplified implementation with portrait generation disabled
-  const generatePortraitsForAllPersonas = async (
-    personas?: Persona[],
-    updatePersonaCallback?: (index: number, updatedPersona: Persona) => void,
-    customPrompt?: string
-  ) => {
-    // Portrait generation is intentionally disabled
-    logInfo("Portrait generation is currently disabled");
-    return;
-  };
-
-  // Simplified implementation with retry functionality disabled
-  const retryPortraitGeneration = async (
+  const generatePortraitForPersona = async (
     persona: Persona,
     index: number,
     updatePersonaCallback: (index: number, updatedPersona: Persona) => void,
     customPrompt?: string
   ) => {
-    // Portrait generation retry is intentionally disabled
-    logInfo("Portrait regeneration is currently disabled");
-    return;
+    try {
+      setLoadingPortraitIndices(prev => [...prev, index]);
+
+      const prompt = customPrompt || createPortraitPrompt(persona);
+      logDebug(`Generating portrait for persona ${index} with prompt: ${prompt}`);
+
+      const { data, error } = await supabase.functions.invoke('generate-persona-image', {
+        body: { prompt }
+      });
+
+      if (error) {
+        logError(`Error generating portrait for persona ${index}:`, 'api', error);
+        throw new Error(`Failed to generate portrait: ${error.message}`);
+      }
+
+      if (!data.success || !data.imageUrl) {
+        const errorMsg = data.error || 'No image URL returned';
+        logError(`Portrait generation failed for persona ${index}: ${errorMsg}`);
+        throw new Error(errorMsg);
+      }
+
+      logInfo(`Successfully generated portrait for persona ${index}`);
+      
+      // Update the persona with the new portrait URL
+      const updatedPersona = {
+        ...persona,
+        portraitUrl: data.imageUrl
+      };
+      
+      updatePersonaCallback(index, updatedPersona);
+
+    } catch (error) {
+      logError(`Portrait generation error for persona ${index}:`, 'api', error);
+      // We don't rethrow here to allow other portraits to continue generating
+    } finally {
+      setLoadingPortraitIndices(prev => prev.filter(i => i !== index));
+    }
+  };
+
+  const generatePortraitsForAllPersonas = async (
+    personas: Persona[],
+    updatePersonaCallback: (index: number, updatedPersona: Persona) => void,
+    customPrompt?: string
+  ) => {
+    if (!personas || personas.length === 0) {
+      logInfo("No personas provided for portrait generation");
+      return;
+    }
+
+    setIsGeneratingPortraits(true);
+    logInfo(`Starting portrait generation for ${personas.length} personas`);
+
+    try {
+      // Generate portraits sequentially to avoid overwhelming the API
+      for (let i = 0; i < personas.length; i++) {
+        const persona = personas[i];
+        if (!persona.portraitUrl) { // Only generate if no portrait exists
+          await generatePortraitForPersona(persona, i, updatePersonaCallback, customPrompt);
+        }
+      }
+    } finally {
+      setIsGeneratingPortraits(false);
+    }
   };
 
   return {
     isGeneratingPortraits,
     loadingPortraitIndices,
     generatePortraitsForAllPersonas,
-    retryPortraitGeneration,
-    promptTemplate: ""
+    retryPortraitGeneration: generatePortraitForPersona
   };
 };
