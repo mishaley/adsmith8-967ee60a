@@ -1,4 +1,3 @@
-
 // Constants for storage keys to avoid typos
 export const STORAGE_KEYS = {
   ORGANIZATION: 'adsmith_organization',
@@ -169,10 +168,10 @@ export const clearFormAndRefresh = (): void => {
   
   // Attempt to invalidate React Query cache if it's available
   try {
-    // This will be caught if React Query isn't available in this scope
-    const queryClient = window.queryClient;
-    if (queryClient && typeof queryClient.invalidateQueries === 'function') {
-      queryClient.invalidateQueries();
+    // Use a type assertion to avoid TypeScript errors
+    const win = window as any;
+    if (win.queryClient && typeof win.queryClient.invalidateQueries === 'function') {
+      win.queryClient.invalidateQueries();
       console.log('React Query cache invalidated');
     }
   } catch (error) {
