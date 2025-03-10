@@ -25,7 +25,7 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
   
   try {
     // Get organization ID from localStorage
-    const orgId = localStorage.getItem("selectedOrganizationId");
+    const orgId = localStorage.getItem("intake_selectedOrganizationId");
     if (orgId) {
       const { data: orgData } = await supabase
         .from("a1organizations")
@@ -99,13 +99,32 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
     throw new Error("No data received from the server");
   }
 
-  const personasData = data.personas || data.customer_personas;
-  
-  if (!personasData || !Array.isArray(personasData)) {
-    logError("Invalid personas data format received:", data);
+  // Improved response handling to work with both formats
+  let personasData;
+  if (data.personas) {
+    // Response is already correctly wrapped
+    logDebug("Received correctly formatted personas response");
+    personasData = data.personas;
+  } else if (data.customer_personas) {
+    // Alternative field name
+    logDebug("Received personas in customer_personas field");
+    personasData = data.customer_personas;
+  } else if (Array.isArray(data)) {
+    // Direct array response
+    logDebug("Received personas as direct array");
+    personasData = data;
+  } else {
+    // Unknown format - log it for debugging
+    logError("Unknown personas data format received:", data);
     throw new Error("Invalid data format received from server");
   }
-
+  
+  if (!Array.isArray(personasData)) {
+    logError("Personas data is not an array:", personasData);
+    throw new Error("Invalid personas data format");
+  }
+  
+  logDebug(`Successfully parsed ${personasData.length} personas`);
   return enhancePersonas(personasData, offering);
 };
 

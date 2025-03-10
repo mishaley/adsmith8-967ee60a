@@ -103,8 +103,15 @@ gender, ageMin, ageMax, interests (as array of strings)
     const generatedText = data.choices[0].message.content;
     
     // Parse the JSON content
-    const personasData = JSON.parse(generatedText);
-    console.log('Personas data parsed successfully. Sending response.');
+    const parsedData = JSON.parse(generatedText);
+    console.log('Personas data parsed successfully.');
+    
+    // Wrap the personas in the expected format
+    const personasData = {
+      personas: parsedData.personas || parsedData.customer_personas || parsedData
+    };
+    
+    console.log(`Sending response with ${personasData.personas ? personasData.personas.length : 0} personas`);
 
     return new Response(JSON.stringify(personasData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
