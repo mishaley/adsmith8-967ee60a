@@ -1,6 +1,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { logDebug, logError, logInfo } from "@/utils/logging";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UseOrganizationEffectsProps {
   currentOrganization: {
@@ -31,7 +32,50 @@ export const useOrganizationEffects = ({
       return;
     }
 
-    if (currentOrganization) {
+    if (selectedOrgId && selectedOrgId !== "new-organization" && !currentOrganization) {
+      // Organization ID is selected but data isn't loaded yet - fetch it directly
+      const fetchOrgData = async () => {
+        try {
+          logInfo(`Directly fetching data for organization ID: ${selectedOrgId}`);
+          setIsLoadingOrgData(true);
+          
+          const { data, error } = await supabase
+            .from("a1organizations")
+            .select("organization_name, organization_industry")
+            .eq("organization_id", selectedOrgId)
+            .maybeSingle();
+          
+          if (error) {
+            logError("Error fetching organization data:", error);
+            return;
+          }
+          
+          if (data) {
+            // Update brand name if available
+            if (data.organization_name) {
+              setBrandName(data.organization_name);
+            }
+
+            // Update industry if available, otherwise clear it
+            if (data.organization_industry) {
+              logDebug(`Setting industry directly to: ${data.organization_industry}`);
+              setIndustry(data.organization_industry);
+            } else {
+              logDebug('Clearing industry field as organization has no industry set');
+              setIndustry('');
+            }
+            
+            setLastSyncedOrgId(selectedOrgId);
+          }
+        } catch (error) {
+          logError("Unexpected error fetching organization data:", error);
+        } finally {
+          setIsLoadingOrgData(false);
+        }
+      };
+      
+      fetchOrgData();
+    } else if (currentOrganization) {
       logInfo(`Syncing data for organization: ${currentOrganization.organization_name}`);
       
       // Update brand name if available

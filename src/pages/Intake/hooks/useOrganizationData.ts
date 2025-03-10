@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { logDebug, logInfo } from "@/utils/logging";
 
 export const useOrganizationData = () => {
   // Use a different storage key for the intake form organization
@@ -10,7 +11,9 @@ export const useOrganizationData = () => {
   // Initialize with localStorage 
   const [selectedOrgId, setSelectedOrgId] = useState<string>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || "";
+      const storedValue = localStorage.getItem(STORAGE_KEY);
+      logDebug(`Initial organization ID from localStorage: ${storedValue || "none"}`);
+      return storedValue || "";
     } catch (e) {
       console.error("Error reading from localStorage:", e);
       return "";
@@ -18,14 +21,16 @@ export const useOrganizationData = () => {
   });
 
   // Query organizations
-  const { data: organizations = [] } = useQuery({
+  const { data: organizations = [], isLoading: isLoadingOrganizations } = useQuery({
     queryKey: ["organizations"],
     queryFn: async () => {
+      logInfo("Fetching organizations from database");
       const { data, error } = await supabase
         .from("a1organizations")
         .select("organization_id, organization_name, organization_industry");
       
       if (error) throw error;
+      logInfo(`Fetched ${data?.length || 0} organizations`);
       return data || [];
     },
   });
@@ -37,14 +42,17 @@ export const useOrganizationData = () => {
 
   // Function to handle organization change
   const handleOrgChange = (value: string) => {
+    logInfo(`Setting organization ID to: ${value || "none"}`);
     setSelectedOrgId(value);
     
     // Save to localStorage
     try {
       if (value) {
         localStorage.setItem(STORAGE_KEY, value);
+        logDebug(`Saved organization ID to localStorage: ${value}`);
       } else {
         localStorage.removeItem(STORAGE_KEY);
+        logDebug("Removed organization ID from localStorage");
       }
     } catch (e) {
       console.error("Error saving to localStorage:", e);
@@ -54,7 +62,7 @@ export const useOrganizationData = () => {
   // Listen for form clearing
   useEffect(() => {
     const handleClearForm = () => {
-      console.log("Clear form event detected in useOrganizationData");
+      logInfo("Clear form event detected in useOrganizationData");
       setSelectedOrgId("");
       localStorage.removeItem(STORAGE_KEY);
     };
@@ -65,11 +73,21 @@ export const useOrganizationData = () => {
     };
   }, []);
 
+  // Debug log when current organization changes
+  useEffect(() => {
+    if (currentOrganization) {
+      logDebug(`Current organization: ${currentOrganization.organization_name}, Industry: ${currentOrganization.organization_industry || "none"}`);
+    } else if (selectedOrgId) {
+      logDebug(`Organization ID ${selectedOrgId} selected but data not loaded yet`);
+    }
+  }, [currentOrganization, selectedOrgId]);
+
   return {
     selectedOrgId,
     setSelectedOrgId,
     organizations,
     currentOrganization,
-    handleOrgChange
+    handleOrgChange,
+    isLoadingOrganizations
   };
 };

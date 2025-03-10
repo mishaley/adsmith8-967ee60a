@@ -6,6 +6,7 @@ import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySyn
 import { useOrganizationCreation } from "../hooks/useOrganizationCreation";
 import { useOrganizationEffects } from "../hooks/useOrganizationEffects";
 import { OrganizationForm, OrganizationButton } from "./Organization";
+import { logDebug } from "@/utils/logging";
 
 interface OrganizationSectionProps {
   brandName: string;
@@ -26,8 +27,17 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     selectedOrgId,
     organizations,
     handleOrgChange,
-    currentOrganization
+    currentOrganization,
+    isLoadingOrganizations
   } = useSummaryTableData();
+
+  // Log the industry value for debugging
+  React.useEffect(() => {
+    logDebug(`OrganizationSection industry value: ${industry || "none"}`);
+    if (currentOrganization) {
+      logDebug(`Current organization industry in Supabase: ${currentOrganization.organization_industry || "none"}`);
+    }
+  }, [industry, currentOrganization]);
 
   const {
     isUpdating
@@ -65,7 +75,8 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     handleSaveClick(selectedOrgId);
   };
   
-  const isButtonDisabled = isCreatingOrg || isUpdating || isLoadingOrgData;
+  const isButtonDisabled = isCreatingOrg || isUpdating || isLoadingOrgData || isLoadingOrganizations;
+  const isLoading = isLoadingOrgData || isLoadingOrganizations;
 
   // Determine the display name for the organization when collapsed
   const getDisplayName = () => {
@@ -96,7 +107,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
         handleIndustryChange={handleIndustryChange}
         isReadOnly={isReadOnly}
         isUpdating={isUpdating}
-        isLoadingOrgData={isLoadingOrgData}
+        isLoadingOrgData={isLoading}
       />
       
       {isOrgSelected && (
