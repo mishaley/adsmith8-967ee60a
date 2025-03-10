@@ -10,7 +10,8 @@ export const useSummaryTableData = () => {
     setSelectedOrgId,
     organizations,
     currentOrganization,
-    handleOrgChange
+    handleOrgChange,
+    isLoadingOrganizations
   } = useOrganizationData();
 
   // Get offering data based on selected organization
@@ -41,6 +42,7 @@ export const useSummaryTableData = () => {
     organizations,
     currentOrganization,
     handleOrgChange,
+    isLoadingOrganizations,
     
     // Offering data
     selectedOfferingId,
