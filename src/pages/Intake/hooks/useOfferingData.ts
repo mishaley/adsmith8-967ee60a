@@ -1,19 +1,22 @@
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useLocalStorageWithEvents } from "./useLocalStorageWithEvents";
 import { STORAGE_KEYS } from "../utils/localStorageUtils";
+import { logDebug, logError, logInfo } from "@/utils/logging";
 
 export const useOfferingData = (selectedOrgId: string) => {
   const OFFERING_STORAGE_KEY = `${STORAGE_KEYS.OFFERING}_selectedId`;
 
-  // Initialize with localStorage and event integration
-  const [selectedOfferingId, setSelectedOfferingId] = useLocalStorageWithEvents({
-    key: OFFERING_STORAGE_KEY,
-    initialValue: "",
-    eventName: "offeringChanged",
-    eventDetailKey: "offeringId"
+  // Initialize with localStorage
+  const [selectedOfferingId, setSelectedOfferingId] = useState<string>(() => {
+    try {
+      const storedValue = localStorage.getItem(OFFERING_STORAGE_KEY);
+      return storedValue || "";
+    } catch (error) {
+      logError(`Error initializing from localStorage (${OFFERING_STORAGE_KEY}):`, error);
+      return "";
+    }
   });
 
   // Query offerings based on selected organization
@@ -39,18 +42,46 @@ export const useOfferingData = (selectedOrgId: string) => {
     if (offerings.length === 0) {
       // No offerings available - clear selection unless it's "new-offering"
       if (selectedOfferingId && selectedOfferingId !== "new-offering") {
-        console.log("Clearing offering selection - no offerings available");
+        logInfo("Clearing offering selection - no offerings available");
         setSelectedOfferingId("");
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
     } else if (selectedOfferingId && selectedOfferingId !== "new-offering") {
       // Check if the selected offering still exists in the offerings list
       const offeringExists = offerings.some(o => o.offering_id === selectedOfferingId);
       if (!offeringExists) {
-        console.log(`Clearing offering selection - offering ${selectedOfferingId} no longer exists`);
+        logInfo(`Clearing offering selection - offering ${selectedOfferingId} no longer exists`);
         setSelectedOfferingId("");
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
     }
-  }, [selectedOrgId, offerings, selectedOfferingId, setSelectedOfferingId]);
+  }, [selectedOrgId, offerings, selectedOfferingId]);
+
+  // Update localStorage when offering selection changes
+  useEffect(() => {
+    try {
+      if (selectedOfferingId) {
+        localStorage.setItem(OFFERING_STORAGE_KEY, selectedOfferingId);
+        logDebug(`Saved offering ID to localStorage: ${selectedOfferingId}`);
+      } else {
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
+        logDebug("Removed offering ID from localStorage");
+      }
+    } catch (error) {
+      logError("Error saving offering ID to localStorage:", error);
+    }
+  }, [selectedOfferingId, OFFERING_STORAGE_KEY]);
+
+  // Listen for clear form event
+  useEffect(() => {
+    const handleClearForm = () => {
+      logInfo("Clear form event detected in useOfferingData");
+      setSelectedOfferingId("");
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => window.removeEventListener('clearForm', handleClearForm);
+  }, []);
 
   // Format options for the select component
   const offeringOptions = offerings.map(offering => ({

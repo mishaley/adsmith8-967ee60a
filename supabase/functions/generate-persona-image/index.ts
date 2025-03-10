@@ -21,6 +21,8 @@ serve(async (req) => {
     const isClearingForm = url.searchParams.get('clear_form') === 'true';
 
     if (isClearingForm) {
+      console.log("Received clear form request, cleaning up portrait generation resources");
+      
       // Handle form clearing specifically
       return new Response(
         JSON.stringify({ 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { cleanupLocalStorage, validateLocalStorageTypes, isValidJSON } from "../utils/localStorageUtils";
 import { logDebug, logError, logWarning } from "@/utils/logging";
@@ -104,66 +103,11 @@ export function useLocalStorageWithEvents<T>({
           setValue(initialValue);
         }
       }
-      
-      // Also detect form clearing by checking if multiple keys are being removed
-      // in rapid succession (which happens during form clearing)
-      if (event.key !== key && event.newValue === null) {
-        // Check if our key was also recently removed
-        const ourValue = localStorage.getItem(key);
-        if (ourValue === null) {
-          logDebug(`Form clearing detected, resetting ${key} to default`);
-          setValue(initialValue);
-        }
-      }
     };
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [initialValue, key]);
-
-  // Handle custom events if eventName is provided
-  useEffect(() => {
-    if (eventName) {
-      const handleCustomEvent = (event: CustomEvent) => {
-        if (!event.detail || event.detail[eventDetailKey] === undefined) {
-          logWarning(`Received ${eventName} event with missing or undefined detail[${eventDetailKey}]`);
-          return;
-        }
-        
-        const newValue = event.detail[eventDetailKey];
-        
-        // Skip if value is the same (prevents loops)
-        if (JSON.stringify(newValue) === JSON.stringify(value)) {
-          logDebug(`Skipping ${eventName} event as value is unchanged`);
-          return;
-        }
-        
-        logDebug(`Received ${eventName} event with value:`, newValue);
-        
-        // Type validation for arrays
-        if (Array.isArray(initialValue) && newValue !== null && !Array.isArray(newValue)) {
-          logWarning(`Expected array from custom event for key ${key}, got:`, newValue);
-          return;
-        }
-        
-        setValue(newValue);
-        
-        // Also update localStorage to ensure consistency
-        try {
-          if (newValue !== undefined) {
-            localStorage.setItem(key, JSON.stringify(newValue));
-          } else {
-            localStorage.removeItem(key);
-          }
-        } catch (error) {
-          logError(`Error updating localStorage after custom event (${key}):`, error);
-        }
-      };
-
-      window.addEventListener(eventName as any, handleCustomEvent as EventListener);
-      return () => window.removeEventListener(eventName as any, handleCustomEvent as EventListener);
-    }
-  }, [eventName, eventDetailKey, key, value, initialValue]);
 
   // Also listen for special "clearForm" event
   useEffect(() => {
@@ -176,7 +120,7 @@ export function useLocalStorageWithEvents<T>({
     return () => window.removeEventListener('clearForm', handleClearForm);
   }, [key, initialValue]);
 
-  // Function to update value and trigger events
+  // Function to update value
   const updateValue = (newValue: T) => {
     // Skip if value is unchanged (prevents loops)
     if (JSON.stringify(newValue) === JSON.stringify(value)) {
@@ -186,13 +130,7 @@ export function useLocalStorageWithEvents<T>({
     logDebug(`Updating ${key} to:`, newValue);
     setValue(newValue);
     
-    if (eventName) {
-      // Dispatch custom event
-      const detail = { [eventDetailKey]: newValue };
-      logDebug(`Dispatching ${eventName} event with:`, detail);
-      const event = new CustomEvent(eventName, { detail });
-      window.dispatchEvent(event);
-    }
+    // We're no longer dispatching custom events for cross-component syncing
   };
 
   return [value, updateValue] as const;

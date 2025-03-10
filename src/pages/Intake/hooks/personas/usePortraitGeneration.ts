@@ -24,6 +24,18 @@ export const usePortraitGeneration = () => {
     return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
+  // Listen for clear form event
+  useEffect(() => {
+    const handleClearForm = () => {
+      logInfo("Clear form event detected in usePortraitGeneration");
+      setIsGeneratingPortraits(false);
+      setLoadingPortraitIndices([]);
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => window.removeEventListener('clearForm', handleClearForm);
+  }, []);
+
   // Simplified implementation with portrait generation disabled
   const generatePortraitsForAllPersonas = async (
     personas?: Persona[],

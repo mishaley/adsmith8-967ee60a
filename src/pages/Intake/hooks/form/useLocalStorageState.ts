@@ -84,5 +84,16 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, [key, initialValue]);
 
+  // Listen for clearForm events
+  useEffect(() => {
+    const handleClearForm = () => {
+      logDebug(`Clear form event detected in useLocalStorageState for ${key}`);
+      setState(initialValue);
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => window.removeEventListener('clearForm', handleClearForm);
+  }, [initialValue, key]);
+
   return [state, setState] as const;
 }

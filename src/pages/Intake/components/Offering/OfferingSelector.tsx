@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
 import { STORAGE_KEYS, isValidJSON } from "../../utils/localStorageUtils";
+import { logDebug, logError, logWarning } from "@/utils/logging";
 
 interface OfferingSelectorProps {
   selectedOfferingId: string;
@@ -31,21 +32,34 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
           const optionExists = offeringOptions.some(option => option.value === storedValue);
           
           if (optionExists || storedValue === "new-offering") {
-            console.log(`Applying stored offering ID from localStorage: ${storedValue}`);
+            logDebug(`Applying stored offering ID from localStorage: ${storedValue}`);
             handleOfferingChange(storedValue);
           } else {
-            console.log(`Stored offering ID ${storedValue} not found in options, not applying`);
+            logWarning(`Stored offering ID ${storedValue} not found in options, not applying`);
             // Clean up invalid stored value
             localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
           }
         }
       }
     } catch (error) {
-      console.error("Error initializing from localStorage in OfferingSelector:", error);
+      logError("Error initializing from localStorage in OfferingSelector:", error);
       // Clean up potentially corrupted data
       localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
     }
   }, [selectedOfferingId, handleOfferingChange, offeringOptions, isOfferingsDisabled]);
+
+  // Listen for clear form event
+  useEffect(() => {
+    const handleClearForm = () => {
+      logDebug("Clear form event detected in OfferingSelector");
+      if (selectedOfferingId) {
+        handleOfferingChange("");
+      }
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => window.removeEventListener('clearForm', handleClearForm);
+  }, [selectedOfferingId, handleOfferingChange]);
 
   return (
     <div className="w-72 mx-auto">

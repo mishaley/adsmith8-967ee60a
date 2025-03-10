@@ -1,3 +1,4 @@
+
 // Constants for storage keys to avoid typos
 export const STORAGE_KEYS = {
   ORGANIZATION: 'adsmith_organization',
@@ -83,6 +84,7 @@ export const clearAllLocalStorage = (): void => {
       STORAGE_KEYS.ORGANIZATION,
       `${STORAGE_KEYS.ORGANIZATION}_brandName`,
       `${STORAGE_KEYS.ORGANIZATION}_industry`,
+      'selectedOrganizationId', // Add the key used by OrganizationSelector
       
       // Offering keys
       STORAGE_KEYS.OFFERING,
@@ -134,7 +136,7 @@ export const clearAllLocalStorage = (): void => {
     
     // Also scan for any keys that start with our prefixes
     // (this catches any dynamically generated keys we might have missed)
-    const prefixes = Object.values(STORAGE_KEYS);
+    const prefixes = [...Object.values(STORAGE_KEYS), 'selectedOrganization'];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key) {
@@ -149,6 +151,10 @@ export const clearAllLocalStorage = (): void => {
         }
       }
     }
+
+    // Dispatch form clearing event
+    const clearEvent = new Event('clearForm');
+    window.dispatchEvent(clearEvent);
     
     console.log("All intake form localStorage items cleared successfully");
   } catch (error) {
@@ -160,6 +166,18 @@ export const clearAllLocalStorage = (): void => {
 export const clearFormAndRefresh = (): void => {
   // First clear all localStorage
   clearAllLocalStorage();
+  
+  // Attempt to invalidate React Query cache if it's available
+  try {
+    // This will be caught if React Query isn't available in this scope
+    const queryClient = window.queryClient;
+    if (queryClient && typeof queryClient.invalidateQueries === 'function') {
+      queryClient.invalidateQueries();
+      console.log('React Query cache invalidated');
+    }
+  } catch (error) {
+    console.warn('Could not access queryClient to invalidate cache');
+  }
   
   // Then trigger a page refresh to reset all React state
   window.location.reload();

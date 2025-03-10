@@ -1,6 +1,6 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
+import { useQueryClient } from "@tanstack/react-query";
 import QuadrantLayout from "@/components/QuadrantLayout";
 import SectionsContainer from "./components/Containers/SectionsContainer"; 
 import { usePersonasManager } from "./hooks/personas/usePersonasManager";
@@ -23,7 +23,17 @@ import { clearFormAndRefresh } from "./utils/localStorageUtils";
 
 const IntakeForm: React.FC = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isClearingForm, setIsClearingForm] = useState(false);
+  
+  useEffect(() => {
+    // @ts-ignore
+    window.queryClient = queryClient;
+    return () => {
+      // @ts-ignore
+      delete window.queryClient;
+    };
+  }, [queryClient]);
   
   const {
     brandName,
@@ -84,6 +94,9 @@ const IntakeForm: React.FC = () => {
         title: "Clearing form data",
         description: "Removing all form data and resetting the page...",
       });
+      
+      // Invalidate query cache first
+      queryClient.invalidateQueries();
       
       // Small delay to allow the UI to update before refresh
       setTimeout(() => {

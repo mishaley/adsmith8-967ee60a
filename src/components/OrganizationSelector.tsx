@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 
-const STORAGE_KEY = "selectedOrganizationId";
+// Use a different storage key to make this independent
+const STORAGE_KEY = "q1_selectedOrganizationId";
 const DEFAULT_ORG_ID = "cc1a6523-c628-4863-89f2-0ff5c979d4ec";
 
 export const OrganizationSelector = () => {
@@ -33,22 +34,31 @@ export const OrganizationSelector = () => {
     (org) => org.organization_id === selectedOrgId
   );
 
-  // Update localStorage and dispatch a custom event when organization changes
+  // Update localStorage when organization changes
   const handleOrgChange = (orgId: string) => {
-    console.log("Organization changed in selector to:", orgId);
+    console.log("Organization changed in Q1 selector to:", orgId);
     setSelectedOrgId(orgId);
     localStorage.setItem(STORAGE_KEY, orgId);
-    
-    // Dispatch a custom event that other components can listen for
-    const event = new CustomEvent("organizationChanged", { 
-      detail: { organizationId: orgId }
-    });
-    window.dispatchEvent(event);
+    // No longer dispatch events to sync with other components
   };
+
+  // Listen for the clearForm event
+  useEffect(() => {
+    const handleClearForm = () => {
+      console.log("Clear form event detected in Q1 selector");
+      setSelectedOrgId(DEFAULT_ORG_ID);
+      localStorage.setItem(STORAGE_KEY, DEFAULT_ORG_ID);
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => {
+      window.removeEventListener('clearForm', handleClearForm);
+    };
+  }, []);
 
   useEffect(() => {
     // Debug logging
-    console.log("OrganizationSelector - Current org:", selectedOrg?.organization_name);
+    console.log("OrganizationSelector (Q1) - Current org:", selectedOrg?.organization_name);
   }, [selectedOrg]);
 
   return (

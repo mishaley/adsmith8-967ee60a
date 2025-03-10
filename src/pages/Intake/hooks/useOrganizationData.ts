@@ -1,17 +1,20 @@
 
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useLocalStorageWithEvents } from "./useLocalStorageWithEvents";
 
 export const useOrganizationData = () => {
-  const STORAGE_KEY = "selectedOrganizationId";
+  // Use a different storage key for the intake form organization
+  const STORAGE_KEY = "intake_selectedOrganizationId";
   
-  // Initialize with localStorage and event integration
-  const [selectedOrgId, setSelectedOrgId] = useLocalStorageWithEvents({
-    key: STORAGE_KEY,
-    initialValue: "",
-    eventName: "organizationChanged",
-    eventDetailKey: "organizationId"
+  // Initialize with localStorage 
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) || "";
+    } catch (e) {
+      console.error("Error reading from localStorage:", e);
+      return "";
+    }
   });
 
   // Query organizations
@@ -35,7 +38,32 @@ export const useOrganizationData = () => {
   // Function to handle organization change
   const handleOrgChange = (value: string) => {
     setSelectedOrgId(value);
+    
+    // Save to localStorage
+    try {
+      if (value) {
+        localStorage.setItem(STORAGE_KEY, value);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch (e) {
+      console.error("Error saving to localStorage:", e);
+    }
   };
+
+  // Listen for form clearing
+  useEffect(() => {
+    const handleClearForm = () => {
+      console.log("Clear form event detected in useOrganizationData");
+      setSelectedOrgId("");
+      localStorage.removeItem(STORAGE_KEY);
+    };
+    
+    window.addEventListener('clearForm', handleClearForm);
+    return () => {
+      window.removeEventListener('clearForm', handleClearForm);
+    };
+  }, []);
 
   return {
     selectedOrgId,
