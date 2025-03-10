@@ -39,9 +39,9 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   
   // Log personas data for debugging
   React.useEffect(() => {
-    logDebug(`PersonasSection rendered with ${personas?.length || 0} personas, hasPersonas=${hasPersonas}`);
+    logDebug(`PersonasSection rendered with ${personas?.length || 0} personas, hasPersonas=${hasPersonas}`, 'ui');
     if (personas?.length > 0) {
-      logDebug("First persona data:", JSON.stringify(personas[0]));
+      logDebug("First persona data:" + JSON.stringify(personas[0]), 'ui');
     }
   }, [personas, hasPersonas]);
   
