@@ -1,14 +1,11 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getPortraitPromptTemplate } from "./utils/portraitUtils";
-import { getPersonaPromptTemplate } from "./utils/personaUtils";
-import { Textarea } from "@/components/ui/textarea";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -38,8 +35,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   setPersonaCount
 }) => {
   const hasPersonas = personas && personas.length > 0;
-  const [portraitPromptText, setPortraitPromptText] = useState<string>("");
-  const [personaPromptText, setPersonaPromptText] = useState<string>("");
   
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
@@ -47,15 +42,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       setPersonaCount(count);
     }
   };
-  
-  // Update the prompt texts to show the templates with variables
-  useEffect(() => {
-    const templatePortraitPrompt = getPortraitPromptTemplate();
-    setPortraitPromptText(templatePortraitPrompt);
-    
-    const templatePersonaPrompt = getPersonaPromptTemplate();
-    setPersonaPromptText(templatePersonaPrompt);
-  }, [personas, hasPersonas]);
   
   return <>
       <tr className="border-transparent">
@@ -86,52 +72,6 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
         </td>
       </tr>
       
-      {/* Persona Prompt Text Area */}
-      {hasPersonas && (
-        <tr className="border-transparent">
-          <td colSpan={2} className="pb-4">
-            <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Persona Generation Prompt:
-              </label>
-              <Textarea
-                value={personaPromptText}
-                readOnly
-                placeholder="Persona generation prompt will appear here..."
-                className="w-full h-24 text-sm font-mono"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This prompt template shows variables like [COUNT], [AGE_MIN], [AGE_MAX], etc. instead of actual values.
-                These will be replaced with real values when generating personas.
-              </p>
-            </div>
-          </td>
-        </tr>
-      )}
-      
-      {/* Portrait Prompt Text Area */}
-      {hasPersonas && (
-        <tr className="border-transparent">
-          <td colSpan={2} className="pb-4">
-            <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Portrait Generation Prompt:
-              </label>
-              <Textarea
-                value={portraitPromptText}
-                onChange={(e) => setPortraitPromptText(e.target.value)}
-                placeholder="Portrait generation prompt will appear here..."
-                className="w-full h-24 text-sm font-mono"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This prompt template shows variables like [RACE], [GENDER], etc. instead of actual values.
-                These will be replaced with real values when generating portraits.
-              </p>
-            </div>
-          </td>
-        </tr>
-      )}
-      
       {isGeneratingPersonas && !hasPersonas ? <tr className="border-transparent">
           <td colSpan={2} className="py-8 text-center bg-transparent">
             <Loader className="h-8 w-8 animate-spin mx-auto" />
@@ -147,8 +87,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                     personas={personas} 
                     isGeneratingPortraits={isGeneratingPortraits} 
                     loadingIndices={loadingPortraitIndices} 
-                    onRetryPortrait={retryPortraitGeneration} 
-                    promptText={portraitPromptText}
+                    onRetryPortrait={retryPortraitGeneration}
                   />
                 </tbody>
               </table>
