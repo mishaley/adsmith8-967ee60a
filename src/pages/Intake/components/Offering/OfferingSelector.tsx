@@ -17,7 +17,7 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   handleOfferingChange,
   offeringOptions,
   isOfferingsDisabled,
-  placeholder = "Select an offering"
+  placeholder = ""  // Changed default from "Select an offering" to empty string
 }) => {
   // Load from localStorage on initial render
   useEffect(() => {

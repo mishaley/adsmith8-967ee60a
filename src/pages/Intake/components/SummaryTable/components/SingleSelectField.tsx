@@ -24,7 +24,7 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   value,
   onChange,
   disabled = false,
-  placeholder = "Select an option",
+  placeholder = "", // Changed default from "Select an option" to empty string
   showNewOption = false,
   newOptionLabel = "+ NEW"
 }) => {

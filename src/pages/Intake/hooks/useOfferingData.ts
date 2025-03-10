@@ -20,37 +20,55 @@ export const useOfferingData = (selectedOrgId: string) => {
   });
 
   // Query offerings based on selected organization
-  const { data: offerings = [] } = useQuery({
+  const { data: offerings = [], isLoading, error } = useQuery({
     queryKey: ["offerings", selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return [];
+      if (!selectedOrgId) {
+        logDebug("No organization selected, returning empty offerings array");
+        return [];
+      }
+      
+      logDebug(`Fetching offerings for organization: ${selectedOrgId}`);
       
       const { data, error } = await supabase
         .from("b1offerings")
         .select("offering_id, offering_name")
         .eq("organization_id", selectedOrgId);
       
-      if (error) throw error;
+      if (error) {
+        logError(`Error fetching offerings for org ${selectedOrgId}:`, error);
+        throw error;
+      }
+      
+      logDebug(`Retrieved ${data?.length || 0} offerings for organization ${selectedOrgId}`);
       return data || [];
     },
     enabled: !!selectedOrgId, // Only run query if an organization is selected
   });
 
-  // Reset offering selection when organization changes or when offerings data changes
+  // Reset offering selection when organization changes
   useEffect(() => {
-    // When organization is empty or changes, check if current offering is valid
-    if (offerings.length === 0) {
-      // No offerings available - clear selection unless it's "new-offering"
-      if (selectedOfferingId && selectedOfferingId !== "new-offering") {
-        logInfo("Clearing offering selection - no offerings available");
+    if (selectedOrgId) {
+      logDebug(`Organization changed to ${selectedOrgId}, checking offerings`);
+    } else {
+      logDebug("Organization selection cleared");
+      if (selectedOfferingId) {
+        logInfo("Clearing offering selection as organization was cleared");
         setSelectedOfferingId("");
         localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
+      return;
+    }
+    
+    if (offerings.length === 0 && selectedOfferingId && selectedOfferingId !== "new-offering") {
+      logInfo("Clearing offering selection - no offerings available for this organization");
+      setSelectedOfferingId("");
+      localStorage.removeItem(OFFERING_STORAGE_KEY);
     } else if (selectedOfferingId && selectedOfferingId !== "new-offering") {
       // Check if the selected offering still exists in the offerings list
       const offeringExists = offerings.some(o => o.offering_id === selectedOfferingId);
       if (!offeringExists) {
-        logInfo(`Clearing offering selection - offering ${selectedOfferingId} no longer exists`);
+        logInfo(`Clearing offering selection - offering ${selectedOfferingId} no longer exists for this organization`);
         setSelectedOfferingId("");
         localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
@@ -80,7 +98,9 @@ export const useOfferingData = (selectedOrgId: string) => {
     };
     
     window.addEventListener('clearForm', handleClearForm);
-    return () => window.removeEventListener('clearForm', handleClearForm);
+    return () => {
+      window.removeEventListener('clearForm', handleClearForm);
+    };
   }, []);
 
   // Format options for the select component
@@ -105,6 +125,8 @@ export const useOfferingData = (selectedOrgId: string) => {
     setSelectedOfferingId,
     offerings,
     offeringOptions,
-    isOfferingsDisabled
+    isOfferingsDisabled,
+    isLoading,
+    error
   };
 };
