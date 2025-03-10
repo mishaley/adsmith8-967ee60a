@@ -1,7 +1,8 @@
 
 import { useCallback } from "react";
 import { Persona } from "../../components/Personas/types";
-import { handlePortraitUpdateCallback, updateSessionWithPersonas } from "./utils/personaManagerUtils";
+import { updateSessionWithPersonas } from "./utils/personaManagerUtils";
+import { logInfo } from "@/utils/logging";
 
 export const usePersonaRegeneration = (
   personas: Persona[],
@@ -11,16 +12,14 @@ export const usePersonaRegeneration = (
   retryPortraitGeneration: (persona: Persona, index: number, callback: (index: number, updatedPersona: Persona) => void) => void,
   updatePersona: (index: number, updatedPersona: Persona | null) => void,
 ) => {
-  // Regenerate a single persona and its portrait
+  // Regenerate a single persona and its portrait - simplified implementation
   const regeneratePersona = useCallback(async (index: number) => {
     // First regenerate the persona
     const newPersona = await regenerateSinglePersona(index, offering, selectedCountry);
     
     if (newPersona) {
-      // Then generate a portrait for it
-      retryPortraitGeneration(newPersona, index, (idx, updatedPersona) => {
-        handlePortraitUpdateCallback(idx, updatedPersona, personas, updatePersona);
-      });
+      // Portrait generation is disabled, so just log and return
+      logInfo(`Persona ${index} regenerated, but portrait generation is disabled`);
     }
   }, [personas, offering, selectedCountry, regenerateSinglePersona, retryPortraitGeneration, updatePersona]);
 

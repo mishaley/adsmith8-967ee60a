@@ -1,15 +1,15 @@
 
 import { useCallback } from "react";
 import { Persona } from "../../components/Personas/types";
-import { generatePersonaPortrait } from "../../components/Personas/services/portraitService";
 import { getRandomRace, savePortraitsToSession } from "../../components/Personas/utils/portraitUtils";
+import { logInfo } from "@/utils/logging";
 
 export const usePersonaPortraits = (
   personas: Persona[],
   retryPortraitGenerationBase: (persona: Persona, index: number, updatePersonaCallback: (index: number, updatedPersona: Persona) => void, customPrompt?: string) => Promise<void>,
   updatePersona: (index: number, updatedPersona: Persona) => void
 ) => {
-  // Generate portraits for all personas
+  // Generate portraits for all personas - simplified implementation
   const generatePortraitsForAll = useCallback(
     async (
       personasList: Persona[],
@@ -20,36 +20,21 @@ export const usePersonaPortraits = (
         return;
       }
 
-      // Assign random races if not present
-      const enhancedPersonas = personasList.map(persona => {
-        if (!persona.race) {
-          return { ...persona, race: getRandomRace() };
-        }
-        return persona;
-      });
-
-      // Update personas with races
-      enhancedPersonas.forEach((persona, index) => {
-        updatePersona(index, persona);
-      });
-
-      // Generate portraits
-      await generatePortraitsFunction(enhancedPersonas, updatePersona, customPrompt);
-
-      // Save to session
-      savePortraitsToSession(enhancedPersonas);
+      // Portrait generation is intentionally disabled
+      logInfo("Automatic portrait generation is disabled");
     },
     [updatePersona]
   );
 
-  // Retry portrait generation for a specific persona
+  // Retry portrait generation for a specific persona - simplified implementation
   const retryPortraitGeneration = useCallback(
     (index: number, customPrompt?: string) => {
       if (!personas || !personas[index]) {
         return;
       }
-
-      retryPortraitGenerationBase(personas[index], index, updatePersona, customPrompt);
+      
+      // Portrait regeneration is intentionally disabled
+      logInfo("Portrait regeneration is disabled");
     },
     [personas, retryPortraitGenerationBase, updatePersona]
   );

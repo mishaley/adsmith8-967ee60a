@@ -4,7 +4,7 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 // Set the minimum log level (can be changed based on environment)
 let currentLogLevel: LogLevel = process.env.NODE_ENV === 'production' ? 'warn' : 'info';
 
-// Flag to control verbose debug logging
+// Flag to control verbose debug logging - default to false to reduce console output
 let debugMode = false;
 
 // Map log levels to numeric values for comparison
@@ -49,11 +49,12 @@ export const logDebug = (message: string, ...args: any[]): void => {
 };
 
 /**
- * Logger function for informational messages
+ * Logger function for informational messages - minimal output
  */
 export const logInfo = (message: string, ...args: any[]): void => {
   if (shouldLog('info')) {
-    console.info(`[INFO] ${message}`, ...args);
+    // Only log the message without args to reduce console noise
+    console.info(`[INFO] ${message}`);
   }
 };
 
@@ -67,10 +68,11 @@ export const logWarning = (message: string, ...args: any[]): void => {
 };
 
 /**
- * Logger function for error messages
+ * Logger function for error messages - simplified to reduce output
  */
 export const logError = (message: string, error?: any, ...args: any[]): void => {
   if (shouldLog('error')) {
-    console.error(`[ERROR] ${message}`, error, ...args);
+    // Only log the message and error message, not the full error object
+    console.error(`[ERROR] ${message}`, error?.message || error);
   }
 };

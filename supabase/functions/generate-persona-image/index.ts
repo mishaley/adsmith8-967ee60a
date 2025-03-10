@@ -16,10 +16,7 @@ serve(async (req) => {
   }
 
   try {
-    // Log the request
-    console.log('Received request for persona image generation');
-    
-    // For now, return a placeholder response since we're disabling portrait generation
+    // Return a simple disabled response without excessive logging
     return new Response(
       JSON.stringify({ 
         success: false, 
@@ -31,12 +28,11 @@ serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Error in generate-persona-image function:', error);
+    console.error('Error in generate-persona-image function:', error.message);
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Unknown error', 
-        stack: error.stack 
+        error: 'An error occurred' 
       }),
       { 
         status: 500, 
