@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { STORAGE_KEYS } from "../utils/localStorage";
@@ -12,6 +12,7 @@ export const useOfferingData = (selectedOrgId: string) => {
   const [selectedOfferingId, setSelectedOfferingId] = useState<string>(() => {
     try {
       const storedValue = localStorage.getItem(OFFERING_STORAGE_KEY);
+      logInfo(`Initial offering ID from localStorage: ${storedValue || "none"}`);
       return storedValue || "";
     } catch (error) {
       logError(`Error initializing from localStorage (${OFFERING_STORAGE_KEY}):`, error);
@@ -20,7 +21,7 @@ export const useOfferingData = (selectedOrgId: string) => {
   });
 
   // Query offerings based on selected organization
-  const { data: offerings = [], isLoading, error } = useQuery({
+  const { data: offerings = [], isLoading, error, refetch } = useQuery({
     queryKey: ["offerings", selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) {
@@ -48,6 +49,75 @@ export const useOfferingData = (selectedOrgId: string) => {
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
 
+  // Save offering selection to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      if (selectedOfferingId) {
+        logInfo(`Saving offering ID to localStorage: ${selectedOfferingId}`);
+        localStorage.setItem(OFFERING_STORAGE_KEY, selectedOfferingId);
+      } else {
+        logInfo("Removing offering ID from localStorage");
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
+      }
+    } catch (error) {
+      logError("Error saving offering ID to localStorage:", error);
+    }
+  }, [selectedOfferingId, OFFERING_STORAGE_KEY]);
+
+  // Validate the stored offering selection when organization or offerings change
+  useEffect(() => {
+    const validateStoredOffering = async () => {
+      if (!selectedOrgId) {
+        // If no organization is selected, clear offering selection
+        if (selectedOfferingId) {
+          logInfo("Clearing offering selection as organization was cleared");
+          setSelectedOfferingId("");
+        }
+        return;
+      }
+
+      // Check if we have a stored offering ID but no current selection
+      try {
+        const storedOffering = localStorage.getItem(OFFERING_STORAGE_KEY);
+        
+        if (storedOffering && !selectedOfferingId) {
+          logInfo(`Found stored offering ID: ${storedOffering}, checking if valid for current org`);
+          
+          // Check if this offering belongs to the current organization
+          if (offerings.length > 0) {
+            // Check if the stored offering exists in the offerings list
+            const isValidOffering = storedOffering === "new-offering" || 
+                                   offerings.some(o => o.offering_id === storedOffering);
+            
+            if (isValidOffering) {
+              logInfo(`Restoring valid stored offering: ${storedOffering}`);
+              setSelectedOfferingId(storedOffering);
+            } else {
+              logInfo(`Stored offering ${storedOffering} not valid for current org, clearing`);
+              localStorage.removeItem(OFFERING_STORAGE_KEY);
+            }
+          } else if (offerings.length === 0 && isLoading) {
+            // Offerings are still loading, wait for them
+            logDebug("Offerings still loading, will validate stored selection when loaded");
+          } else {
+            // No offerings found for this org, but stored value is "new-offering"
+            if (storedOffering === "new-offering") {
+              logInfo("Restoring 'new-offering' selection");
+              setSelectedOfferingId("new-offering");
+            } else {
+              logInfo("No offerings found for this org, clearing stored offering");
+              localStorage.removeItem(OFFERING_STORAGE_KEY);
+            }
+          }
+        }
+      } catch (error) {
+        logError("Error validating stored offering:", error);
+      }
+    };
+
+    validateStoredOffering();
+  }, [selectedOrgId, offerings, selectedOfferingId, isLoading, OFFERING_STORAGE_KEY]);
+
   // Handle organization changes
   useEffect(() => {
     logDebug(`Organization ID changed to: ${selectedOrgId || "none"}`);
@@ -59,53 +129,25 @@ export const useOfferingData = (selectedOrgId: string) => {
         setSelectedOfferingId("");
         localStorage.removeItem(OFFERING_STORAGE_KEY);
       }
+    } else {
+      // Organization changed - refetch offerings
+      refetch();
     }
-  }, [selectedOrgId, selectedOfferingId, OFFERING_STORAGE_KEY]);
-
-  // Validate offering selection when offerings data changes
-  useEffect(() => {
-    if (!selectedOrgId || offerings.length === 0) return;
-    
-    logDebug(`Validating offering selection against ${offerings.length} offerings`);
-    
-    if (selectedOfferingId && selectedOfferingId !== "new-offering") {
-      // Check if the selected offering still exists in the offerings list
-      const offeringExists = offerings.some(o => o.offering_id === selectedOfferingId);
-      if (!offeringExists) {
-        logInfo(`Clearing offering selection - offering ${selectedOfferingId} no longer exists for this organization`);
-        setSelectedOfferingId("");
-        localStorage.removeItem(OFFERING_STORAGE_KEY);
-      }
-    }
-  }, [offerings, selectedOfferingId, selectedOrgId, OFFERING_STORAGE_KEY]);
-
-  // Update localStorage when offering selection changes
-  useEffect(() => {
-    try {
-      if (selectedOfferingId) {
-        localStorage.setItem(OFFERING_STORAGE_KEY, selectedOfferingId);
-        logDebug(`Saved offering ID to localStorage: ${selectedOfferingId}`);
-      } else {
-        localStorage.removeItem(OFFERING_STORAGE_KEY);
-        logDebug("Removed offering ID from localStorage");
-      }
-    } catch (error) {
-      logError("Error saving offering ID to localStorage:", error);
-    }
-  }, [selectedOfferingId, OFFERING_STORAGE_KEY]);
+  }, [selectedOrgId, selectedOfferingId, OFFERING_STORAGE_KEY, refetch]);
 
   // Listen for clear form event
   useEffect(() => {
     const handleClearForm = () => {
       logInfo("Clear form event detected in useOfferingData");
       setSelectedOfferingId("");
+      localStorage.removeItem(OFFERING_STORAGE_KEY);
     };
     
     window.addEventListener('clearForm', handleClearForm);
     return () => {
       window.removeEventListener('clearForm', handleClearForm);
     };
-  }, []);
+  }, [OFFERING_STORAGE_KEY]);
 
   // Format options for the select component
   const offeringOptions = offerings.map(offering => ({
@@ -121,16 +163,30 @@ export const useOfferingData = (selectedOrgId: string) => {
     });
   }
 
-  // Fix: The dropdown should not be disabled when an organization is selected
-  // This was the root cause of the issue
+  // The dropdown should be disabled when no organization is selected
   const isOfferingsDisabled = !selectedOrgId;
+
+  const setSelectedOfferingWithStorage = useCallback((value: string) => {
+    logInfo(`Setting offering ID to: ${value || "none"}`);
+    setSelectedOfferingId(value);
+    
+    try {
+      if (value) {
+        localStorage.setItem(OFFERING_STORAGE_KEY, value);
+      } else {
+        localStorage.removeItem(OFFERING_STORAGE_KEY);
+      }
+    } catch (error) {
+      logError("Error updating offering ID in localStorage:", error);
+    }
+  }, [OFFERING_STORAGE_KEY]);
 
   return {
     selectedOfferingId,
-    setSelectedOfferingId,
+    setSelectedOfferingId: setSelectedOfferingWithStorage,
     offerings,
     offeringOptions,
-    isOfferingsDisabled,  // This is now correctly set based on organization selection
+    isOfferingsDisabled,
     isLoading,
     error
   };

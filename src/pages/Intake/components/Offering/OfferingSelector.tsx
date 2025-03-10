@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
 import { STORAGE_KEYS } from "../../utils/localStorage";
-import { logDebug, logError, logWarning } from "@/utils/logging";
+import { logDebug, logError, logInfo } from "@/utils/logging";
 
 interface OfferingSelectorProps {
   selectedOfferingId: string;
@@ -30,17 +30,18 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
       if (!selectedOfferingId && !isOfferingsDisabled && offeringOptions.length > 0) {
         const storedValue = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
         
-        // Validate stored value
         if (storedValue) {
-          // Only apply if it's a valid string
+          logInfo(`Found stored offering ID: ${storedValue}, checking if valid`);
+          
+          // Validate stored value
           // Check if the stored ID exists in current options or is "new-offering"
           const optionExists = offeringOptions.some(option => option.value === storedValue);
           
           if (optionExists || storedValue === "new-offering") {
-            logDebug(`Applying stored offering ID from localStorage: ${storedValue}`);
+            logInfo(`Applying stored offering ID from localStorage: ${storedValue}`);
             handleOfferingChange(storedValue);
           } else {
-            logWarning(`Stored offering ID ${storedValue} not found in options, not applying`);
+            logInfo(`Stored offering ID ${storedValue} not found in options, not applying`);
             // Clean up invalid stored value
             localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
           }

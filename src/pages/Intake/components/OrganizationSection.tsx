@@ -28,7 +28,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     organizations,
     handleOrgChange,
     currentOrganization,
-    isLoadingOrganizations
+    isLoading: isLoadingOrganizations // Fix: renamed from isLoadingOrganizations to isLoading to match the actual prop name
   } = useSummaryTableData();
 
   // Log the industry value for debugging
