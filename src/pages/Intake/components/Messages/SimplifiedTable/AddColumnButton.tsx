@@ -1,12 +1,12 @@
 
 import React, { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { EnhancedDropdown, DropdownOption } from "@/components/ui/enhanced-dropdown";
 
 interface AddColumnButtonProps {
-  selectedTypes?: string[]; // Made optional for backward compatibility
-  onTypeChange?: (types: string[]) => void; // Made optional for backward compatibility
-  onAddType?: (type: string) => void; // Added for alternative API
+  selectedTypes?: string[];
+  onTypeChange?: (types: string[]) => void;
+  onAddType?: (type: string) => void;
 }
 
 const AddColumnButton: React.FC<AddColumnButtonProps> = ({
@@ -33,7 +33,6 @@ const AddColumnButton: React.FC<AddColumnButtonProps> = ({
   }));
   
   const handleTypeSelection = (selectedIds: string[]) => {
-    // Reset the adding state
     setIsAdding(false);
     
     if (selectedIds.length > 0) {
@@ -48,11 +47,11 @@ const AddColumnButton: React.FC<AddColumnButtonProps> = ({
   
   // If no more types are available, don't show the button
   if (availableTypes.length === 0) {
-    return <th className="border p-2 w-10"></th>;
+    return <th className="border p-2 w-10 bg-gray-50"></th>;
   }
   
   return (
-    <th className="border p-2 w-10">
+    <th className="border p-2 w-10 bg-gray-50">
       {isAdding ? (
         <div className="min-w-[150px]">
           <EnhancedDropdown
@@ -70,7 +69,7 @@ const AddColumnButton: React.FC<AddColumnButtonProps> = ({
           className="p-1 rounded hover:bg-gray-100 transition-colors flex items-center justify-center w-full"
           title="Add message type"
         >
-          <PlusCircle className="h-5 w-5 text-gray-500" />
+          <Plus className="h-5 w-5 text-gray-500" />
         </button>
       )}
     </th>

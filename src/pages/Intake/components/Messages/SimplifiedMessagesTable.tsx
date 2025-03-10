@@ -65,7 +65,7 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
               />
             ))}
             
-            {/* Add column button cell */}
+            {/* Add column button cell - always visible in the header */}
             <AddColumnButton 
               selectedTypes={selectedMessageTypes}
               onTypeChange={onMessageTypeChange}
@@ -75,15 +75,11 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
         <tbody>
           {personas.length > 0 ? (
             personas.map((persona, index) => {
-              // Generate a unique ID for this persona
               const personaId = persona?.id ? String(persona.id) : `persona-${index}`;
               
               return (
                 <tr key={personaId}>
-                  {/* Persona cell */}
                   <PersonaCell persona={persona} />
-                  
-                  {/* Message cells for each column */}
                   {columns.map(column => (
                     <MessageCell 
                       key={`${personaId}-${column.id}`}
@@ -91,8 +87,6 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
                       personaId={personaId}
                     />
                   ))}
-                  
-                  {/* Empty cell to match the add column button */}
                   <td className="border p-1"></td>
                 </tr>
               );
