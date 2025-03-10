@@ -3,22 +3,20 @@ import React from "react";
 import { Persona } from "./types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, RefreshCw } from "lucide-react";
 
 interface PortraitRowProps {
   personas: Persona[];
   isGeneratingPortraits: boolean;
   loadingIndices: number[];
   onRetryPortrait?: (index: number) => void;
-  promptText?: string; // Add this prop
 }
 
 const PortraitRow: React.FC<PortraitRowProps> = ({ 
   personas, 
   isGeneratingPortraits, 
   loadingIndices, 
-  onRetryPortrait,
-  promptText  // Use this prop
+  onRetryPortrait
 }) => {
   const isLoading = (index: number) => loadingIndices.includes(index);
   
@@ -28,9 +26,19 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
         <tr key={index} className="border-transparent">
           <td className="w-1/2 py-2 px-4 border-transparent">
             <div className="flex items-center space-x-3">
-              <Avatar>
-                {persona.portraitUrl ? <AvatarImage src={persona.portraitUrl} alt={persona.gender} /> : <AvatarFallback>{persona.gender}</AvatarFallback>}
-                
+              <Avatar className="border border-gray-200">
+                {persona.portraitUrl ? (
+                  <AvatarImage 
+                    src={persona.portraitUrl} 
+                    alt={persona.gender} 
+                    onError={(e) => {
+                      console.error(`Error loading portrait for persona ${index}`, e);
+                      e.currentTarget.src = ""; // Clear the src to show fallback
+                    }}
+                  />
+                ) : (
+                  <AvatarFallback>{persona.gender?.[0] || "?"}</AvatarFallback>
+                )}
               </Avatar>
               <div>
                 <div className="font-bold">{persona.gender}</div>
@@ -39,17 +47,26 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
             </div>
           </td>
           <td className="w-1/2 py-2 px-4 border-transparent">
-            {onRetryPortrait ? <Button 
+            {onRetryPortrait ? 
+              <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => onRetryPortrait(index)}
                 disabled={isGeneratingPortraits && !isLoading(index)}
               >
-                {isLoading(index) ? <>
+                {isLoading(index) ? (
+                  <>
                     <Loader className="mr-2 h-4 w-4 animate-spin" />
                     Generating...
-                  </> : "Retry Portrait"}
-              </Button> : null}
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    {persona.portraitUrl ? "Regenerate" : "Generate Portrait"}
+                  </>
+                )}
+              </Button> 
+            : null}
           </td>
         </tr>
       ))}

@@ -67,8 +67,12 @@ serve(async (req) => {
       }),
     });
 
-    const data = await response.json();
+    // Log the raw response status for debugging
     console.log('Ideogram API response status:', response.status);
+    console.log('Ideogram API response headers:', Object.fromEntries(response.headers.entries()));
+    
+    const data = await response.json();
+    console.log('Ideogram API response data (preview):', JSON.stringify(data).substring(0, 200) + '...');
     
     if (!response.ok) {
       console.error(`Error from Ideogram API: ${response.status} ${response.statusText}`);
@@ -80,8 +84,8 @@ serve(async (req) => {
           details: data 
         }),
         { 
-          status: 502, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 502 
         }
       );
     }
@@ -103,6 +107,22 @@ serve(async (req) => {
     } else {
       console.error('Error: Invalid response format from Ideogram API');
       console.error('Response data:', JSON.stringify(data));
+      
+      // More detailed error for empty results
+      if (data && data.data && data.data.length === 0) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Ideogram API returned empty results', 
+            details: data 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 502 
+          }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -110,8 +130,8 @@ serve(async (req) => {
           details: data 
         }),
         { 
-          status: 502, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 502 
         }
       );
     }

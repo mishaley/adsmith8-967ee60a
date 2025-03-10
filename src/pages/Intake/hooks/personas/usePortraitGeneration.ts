@@ -9,6 +9,10 @@ export const usePortraitGeneration = () => {
   const [isGeneratingPortraits, setIsGeneratingPortraits] = useState(false);
   const [loadingPortraitIndices, setLoadingPortraitIndices] = useState<number[]>([]);
   const [promptTemplate, setPromptTemplate] = useState(getPortraitPromptTemplate());
+  const [retryCount, setRetryCount] = useState<Record<number, number>>({});
+
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 2000; // 2 seconds
 
   const generatePortraitForPersona = async (persona: Persona, index: number, customPrompt?: string) => {
     if (!persona) return null;
@@ -22,6 +26,9 @@ export const usePortraitGeneration = () => {
     });
     
     try {
+      // Track retry count for this index
+      const currentRetries = retryCount[index] || 0;
+      
       // Assign a random race if not already present
       let personaToUse = { ...persona };
       if (!personaToUse.race) {
@@ -31,6 +38,8 @@ export const usePortraitGeneration = () => {
         };
       }
       
+      console.log(`Generating portrait for persona ${index} (attempt ${currentRetries + 1}/${MAX_RETRIES + 1})`);
+      
       // Generate the portrait
       const { imageUrl, error } = await generatePersonaPortrait(personaToUse, customPrompt);
       
@@ -38,6 +47,9 @@ export const usePortraitGeneration = () => {
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
       
       if (imageUrl) {
+        // Reset retry count on success
+        setRetryCount(prev => ({...prev, [index]: 0}));
+        
         return { 
           success: true, 
           error: null, 
@@ -47,11 +59,29 @@ export const usePortraitGeneration = () => {
           }
         };
       } else if (error) {
+        console.error(`Portrait generation error for persona ${index}:`, error);
+        
+        // Check if we should retry
+        if (currentRetries < MAX_RETRIES) {
+          console.log(`Will retry portrait generation for persona ${index} in ${RETRY_DELAY}ms`);
+          
+          // Increment retry count
+          setRetryCount(prev => ({...prev, [index]: currentRetries + 1}));
+          
+          // Wait before retrying
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          
+          // Retry recursively
+          return generatePortraitForPersona(persona, index, customPrompt);
+        }
+        
+        // If we've exhausted retries, return the error
         return { success: false, error, updatedPersona: null };
       }
       
       return null;
     } catch (error) {
+      console.error(`Exception in portrait generation for persona ${index}:`, error);
       setLoadingPortraitIndices(prev => prev.filter(idx => idx !== index));
       return { 
         success: false, 
@@ -81,59 +111,49 @@ export const usePortraitGeneration = () => {
     setLoadingPortraitIndices(initialLoadingIndices);
     
     try {
-      // Generate all portraits in parallel
-      const portraitPromises = personasList.map(async (persona, index) => {
+      // Reset retry counts
+      setRetryCount({});
+      
+      // Process personas in batches to avoid overwhelming the API
+      // Here we use sequential processing instead of parallel
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (let index = 0; index < personasList.length; index++) {
+        const persona = personasList[index];
+        
         // Skip if portrait already exists
         if (persona.portraitUrl) {
-          return { index, success: true, updatedPersona: persona };
+          continue;
         }
         
         const result = await generatePortraitForPersona(persona, index, customPrompt);
         
         if (result?.success && result.updatedPersona) {
-          return { index, success: true, updatedPersona: result.updatedPersona };
-        } else {
-          // Make a second attempt right away
-          const secondAttempt = await generatePortraitForPersona(persona, index, customPrompt);
-          
-          if (secondAttempt?.success && secondAttempt.updatedPersona) {
-            return { index, success: true, updatedPersona: secondAttempt.updatedPersona };
-          } else {
-            return { index, success: false, updatedPersona: null };
-          }
-        }
-      });
-      
-      // Wait for all portrait generation attempts to complete
-      const results = await Promise.all(portraitPromises);
-      
-      // Process results and update the UI
-      const successCount = results.filter(r => r.success && r.updatedPersona).length;
-      const errorCount = results.filter(r => !r.success || !r.updatedPersona).length;
-      
-      // Update personas with their portraits
-      const updatedPersonasList = [...personasList];
-      results.forEach(result => {
-        if (result.success && result.updatedPersona) {
           // Update persona in the parent state
-          updatePersonaCallback(result.index, result.updatedPersona);
-          
-          // Also update our local copy
-          updatedPersonasList[result.index] = result.updatedPersona;
+          updatePersonaCallback(index, result.updatedPersona);
+          successCount++;
+        } else {
+          errorCount++;
+          // Log the error for debugging
+          console.warn(`Failed to generate portrait for persona ${index}:`, result?.error);
         }
-      });
+      }
       
-      // Save all portraits to session storage
-      savePortraitsToSession(updatedPersonasList.filter(Boolean));
-      
+      // Generate status message
       if (errorCount === 0 && successCount > 0) {
         toast.success("All portraits have been generated");
       } else if (successCount > 0 && errorCount > 0) {
-        toast.warning(`Generated ${successCount} out of ${personasList.length} portraits. Click 'Retry Manually' for failed ones.`);
+        toast.warning(`Generated ${successCount} out of ${initialLoadingIndices.length} portraits. Click 'Retry' for failed ones.`);
       } else if (successCount === 0) {
-        toast.error("Failed to generate any portraits. Please try again or click 'Retry Manually'.");
+        toast.error("Failed to generate any portraits. Please try again.");
       }
+      
+      // Save successfully generated portraits to session storage
+      savePortraitsToSession(personasList);
+      
     } catch (error) {
+      console.error("Exception in generatePortraitsForAllPersonas:", error);
       toast.error(error instanceof Error ? error.toString() : String(error));
     } finally {
       setIsGeneratingPortraits(false);
@@ -144,28 +164,18 @@ export const usePortraitGeneration = () => {
 
   // Function to retry a single portrait generation
   const retryPortraitGeneration = async (
-    persona: Persona, 
     index: number, 
     updatePersonaCallback: (index: number, updatedPersona: Persona) => void,
     customPrompt?: string
   ) => {
-    if (!persona) return;
-
+    const persona = null; // This will be provided by the parent component
+    
     try {
       toast.info(`Retrying portrait for persona ${index + 1}`);
-      setIsGeneratingPortraits(true);
-      const result = await generatePortraitForPersona(persona, index, customPrompt);
-      
-      if (result?.success && result.updatedPersona) {
-        updatePersonaCallback(index, result.updatedPersona);
-        toast.success(`Portrait for persona ${index + 1} has been generated`);
-      } else {
-        toast.error(`Failed to generate portrait for persona ${index + 1}. Please try again.`);
-      }
+      setRetryCount({}); // Reset retry count for fresh attempt
+      // The actual implementation will be completed when this function is called
     } catch (error) {
       toast.error(error instanceof Error ? error.toString() : String(error));
-    } finally {
-      setIsGeneratingPortraits(false);
     }
   };
 
@@ -173,7 +183,33 @@ export const usePortraitGeneration = () => {
     isGeneratingPortraits,
     loadingPortraitIndices,
     generatePortraitsForAllPersonas,
-    retryPortraitGeneration,
+    retryPortraitGeneration: async (
+      persona: Persona, 
+      index: number, 
+      updatePersonaCallback: (index: number, updatedPersona: Persona) => void,
+      customPrompt?: string
+    ) => {
+      if (!persona) return;
+
+      try {
+        toast.info(`Retrying portrait for persona ${index + 1}`);
+        setIsGeneratingPortraits(true);
+        setRetryCount({}); // Reset retry count for fresh attempt
+        
+        const result = await generatePortraitForPersona(persona, index, customPrompt);
+        
+        if (result?.success && result.updatedPersona) {
+          updatePersonaCallback(index, result.updatedPersona);
+          toast.success(`Portrait for persona ${index + 1} has been generated`);
+        } else {
+          toast.error(`Failed to generate portrait for persona ${index + 1}. Please try again.`);
+        }
+      } catch (error) {
+        toast.error(error instanceof Error ? error.toString() : String(error));
+      } finally {
+        setIsGeneratingPortraits(false);
+      }
+    },
     promptTemplate
   };
 };
