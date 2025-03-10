@@ -36,11 +36,11 @@ export const useMessagesFetching = (personaId: string | null, messageTypes: stri
       // Check if personaId is a UUID - many errors in the console come from trying to use
       // non-UUID values like "persona-0" with Supabase
       if (!isValidUUID(personaId)) {
-        logWarning(`Attempted to fetch messages with non-UUID persona ID: ${personaId}`);
+        logWarning(`Attempted to fetch messages with non-UUID persona ID: ${personaId}`, 'api');
         return []; // Return empty array instead of making the query
       }
       
-      logDebug(`Fetching messages for persona ${personaId} with types ${messageTypes.join(', ')}`);
+      logDebug(`Fetching messages for persona ${personaId} with types ${messageTypes.join(', ')}`, 'api');
       
       const { data, error } = await supabase
         .from("d1messages")
@@ -49,7 +49,7 @@ export const useMessagesFetching = (personaId: string | null, messageTypes: stri
         .in("message_type", messageTypes as any); // Cast to any to bypass the type check
       
       if (error) {
-        logError("Error fetching messages:", error);
+        logError("Error fetching messages:", 'api', error);
         throw error;
       }
       

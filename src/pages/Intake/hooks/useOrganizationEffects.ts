@@ -28,7 +28,7 @@ export const useOrganizationEffects = ({
   useEffect(() => {
     // Skip if we've already synced this organization's data
     if (lastSyncedOrgId === selectedOrgId) {
-      logDebug(`Organization data already synced for org ID: ${selectedOrgId}`);
+      logDebug(`Organization data already synced for org ID: ${selectedOrgId}`, 'ui');
       return;
     }
 
@@ -36,7 +36,7 @@ export const useOrganizationEffects = ({
       // Organization ID is selected but data isn't loaded yet - fetch it directly
       const fetchOrgData = async () => {
         try {
-          logInfo(`Directly fetching data for organization ID: ${selectedOrgId}`);
+          logInfo(`Directly fetching data for organization ID: ${selectedOrgId}`, 'api');
           setIsLoadingOrgData(true);
           
           const { data, error } = await supabase
@@ -46,7 +46,7 @@ export const useOrganizationEffects = ({
             .maybeSingle();
           
           if (error) {
-            logError("Error fetching organization data:", error);
+            logError("Error fetching organization data:", 'api', error);
             return;
           }
           
@@ -58,17 +58,17 @@ export const useOrganizationEffects = ({
 
             // Update industry if available, otherwise clear it
             if (data.organization_industry) {
-              logDebug(`Setting industry directly to: ${data.organization_industry}`);
+              logDebug(`Setting industry directly to: ${data.organization_industry}`, 'ui');
               setIndustry(data.organization_industry);
             } else {
-              logDebug('Clearing industry field as organization has no industry set');
+              logDebug('Clearing industry field as organization has no industry set', 'ui');
               setIndustry('');
             }
             
             setLastSyncedOrgId(selectedOrgId);
           }
         } catch (error) {
-          logError("Unexpected error fetching organization data:", error);
+          logError("Unexpected error fetching organization data:", 'api', error);
         } finally {
           setIsLoadingOrgData(false);
         }
@@ -76,7 +76,7 @@ export const useOrganizationEffects = ({
       
       fetchOrgData();
     } else if (currentOrganization) {
-      logInfo(`Syncing data for organization: ${currentOrganization.organization_name}`);
+      logInfo(`Syncing data for organization: ${currentOrganization.organization_name}`, 'ui');
       
       // Update brand name if available
       if (currentOrganization.organization_name) {
@@ -85,17 +85,17 @@ export const useOrganizationEffects = ({
 
       // Update industry if available, otherwise clear it
       if (currentOrganization.organization_industry) {
-        logDebug(`Setting industry to: ${currentOrganization.organization_industry}`);
+        logDebug(`Setting industry to: ${currentOrganization.organization_industry}`, 'ui');
         setIndustry(currentOrganization.organization_industry);
       } else {
-        logDebug('Clearing industry field as organization has no industry set');
+        logDebug('Clearing industry field as organization has no industry set', 'ui');
         setIndustry('');
       }
 
       setLastSyncedOrgId(selectedOrgId);
       setIsLoadingOrgData(false);
     } else if (selectedOrgId === "new-organization") {
-      logInfo('Creating new organization, clearing fields');
+      logInfo('Creating new organization, clearing fields', 'ui');
       setBrandName("");
       setIndustry("");
       setLastSyncedOrgId(selectedOrgId);
@@ -110,18 +110,18 @@ export const useOrganizationEffects = ({
         const newOrgId = event.detail.organizationId;
         
         if (!newOrgId) {
-          logError("Received organizationChanged event with missing organizationId");
+          logError("Received organizationChanged event with missing organizationId", 'ui');
           return;
         }
 
         if (newOrgId !== selectedOrgId) {
-          logInfo(`External organization change detected: ${newOrgId}`);
+          logInfo(`External organization change detected: ${newOrgId}`, 'ui');
           setIsLoadingOrgData(true);
           setLastSyncedOrgId(null); // Reset to force data sync
           handleOrgChange(newOrgId);
         }
       } catch (error) {
-        logError("Error handling external organization change event:", error);
+        logError("Error handling external organization change event:", 'ui', error);
       }
     };
 
@@ -134,7 +134,7 @@ export const useOrganizationEffects = ({
 
   const handleOrganizationChange = useCallback((value: string) => {
     if (value !== selectedOrgId) {
-      logInfo(`Changing organization to: ${value}`);
+      logInfo(`Changing organization to: ${value}`, 'ui');
       setIsLoadingOrgData(true);
       setLastSyncedOrgId(null); // Reset to force data sync
       handleOrgChange(value);

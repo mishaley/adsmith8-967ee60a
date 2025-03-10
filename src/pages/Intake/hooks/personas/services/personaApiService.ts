@@ -41,7 +41,7 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
       }
     }
   } catch (error) {
-    logWarning("Could not fetch organization details:", error);
+    logWarning("Could not fetch organization details:", 'api', error);
   }
   
   // Try to fetch offering details
@@ -72,13 +72,13 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
       }
     }
   } catch (error) {
-    logWarning("Could not fetch offering details:", error);
+    logWarning("Could not fetch offering details:", 'api', error);
   }
   
   // Validate count to ensure it's a positive number
   const validCount = Math.max(1, Math.min(5, count || 1));
   
-  logInfo(`Generating ${validCount} personas for offering: ${offering}`);
+  logInfo(`Generating ${validCount} personas for offering: ${offering}`, 'api');
   
   const { data, error } = await supabase.functions.invoke('generate-personas', {
     body: { 
@@ -91,45 +91,45 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
   });
 
   if (error) {
-    logError("Error generating personas:", error);
+    logError("Error generating personas:", 'api', error);
     throw new Error("Failed to generate personas: " + error.message);
   }
 
   if (!data) {
-    logError("No data received from the server");
+    logError("No data received from the server", 'api');
     throw new Error("No data received from the server");
   }
 
-  logInfo("Received response from generate-personas function:", JSON.stringify(data));
+  logInfo("Received response from generate-personas function", 'api');
 
   // Improved response handling to work with both formats
   let personasData;
   if (data.personas) {
     // Response is already correctly wrapped
-    logInfo("Received correctly formatted personas response with", data.personas.length, "personas");
+    logInfo(`Received correctly formatted personas response with ${data.personas.length} personas`, 'api');
     personasData = data.personas;
   } else if (data.customer_personas) {
     // Alternative field name
-    logInfo("Received personas in customer_personas field");
+    logInfo("Received personas in customer_personas field", 'api');
     personasData = data.customer_personas;
   } else if (Array.isArray(data)) {
     // Direct array response
-    logInfo("Received personas as direct array");
+    logInfo("Received personas as direct array", 'api');
     personasData = data;
   } else {
     // Unknown format - log it for debugging
-    logError("Unknown personas data format received:", data);
+    logError("Unknown personas data format received", 'api', data);
     throw new Error("Invalid data format received from server");
   }
   
   if (!Array.isArray(personasData) || personasData.length === 0) {
-    logError("Personas data is not a valid array:", personasData);
+    logError("Personas data is not a valid array", 'api', personasData);
     throw new Error("Invalid personas data format or empty array");
   }
   
-  logInfo(`Successfully parsed ${personasData.length} personas`);
+  logInfo(`Successfully parsed ${personasData.length} personas`, 'api');
   const enhancedPersonas = enhancePersonas(personasData, offering);
-  logInfo(`Enhanced ${enhancedPersonas.length} personas with additional data`);
+  logInfo(`Enhanced ${enhancedPersonas.length} personas with additional data`, 'api');
   
   return enhancedPersonas;
 };
@@ -140,7 +140,7 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
 const enhancePersonas = (personasData: Persona[], offering: string): Persona[] => {
   return personasData.map((persona: Persona, index: number) => {
     // Log the incoming persona data
-    logDebug(`Enhancing persona ${index}:`, JSON.stringify(persona));
+    logDebug(`Enhancing persona ${index}`, 'api');
     
     // Ensure we have valid data and add any missing fields
     if (!persona.race) {
@@ -171,7 +171,7 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
       persona.id = `persona-${index}`;
     } else if (typeof persona.id === 'string' && !isValidUUID(persona.id) && persona.id.indexOf('persona-') !== 0) {
       // If it's not a valid UUID and not already in our persona-X format, use our synthetic ID format
-      logDebug(`Converting non-UUID persona ID ${persona.id} to synthetic format`);
+      logDebug(`Converting non-UUID persona ID ${persona.id} to synthetic format`, 'api');
       persona.id = `persona-${index}`;
     }
     
@@ -194,7 +194,7 @@ const enhancePersonas = (personasData: Persona[], offering: string): Persona[] =
     };
     
     // Log the enhanced persona
-    logDebug(`Enhanced persona ${index}:`, JSON.stringify(enhancedPersona));
+    logDebug(`Enhanced persona ${index}`, 'api');
     
     return enhancedPersona;
   });

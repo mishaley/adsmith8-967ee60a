@@ -19,9 +19,9 @@ const PersonasList: React.FC<PersonasListProps> = ({
 
   // Debug log when personas change
   useEffect(() => {
-    logDebug(`PersonasList rendered with ${personas?.length || 0} personas, showing max ${personaCount}`);
+    logDebug(`PersonasList rendered with ${personas?.length || 0} personas, showing max ${personaCount}`, 'ui');
     if (personas?.length > 0) {
-      logDebug("First persona in list:", JSON.stringify(personas[0]));
+      logDebug("First persona in list: " + JSON.stringify(personas[0]), 'ui');
     }
   }, [personas, personaCount]);
 

@@ -26,13 +26,13 @@ export const useOrganizationIndustrySync = (
     
     // Validate UUID format to prevent invalid database queries
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedOrgId)) {
-      logError(`Invalid organization ID format: ${selectedOrgId}`);
+      logError(`Invalid organization ID format: ${selectedOrgId}`, 'api');
       return;
     }
     
     setIsUpdating(true);
     try {
-      logInfo(`Updating industry to "${newIndustry}" for org ID: ${selectedOrgId}`);
+      logInfo(`Updating industry to "${newIndustry}" for org ID: ${selectedOrgId}`, 'api');
       
       const { error } = await supabase
         .from("a1organizations")
@@ -40,17 +40,17 @@ export const useOrganizationIndustrySync = (
         .eq("organization_id", selectedOrgId);
       
       if (error) {
-        logError("Error updating industry:", error);
+        logError("Error updating industry:", 'api', error);
         toast({
           title: "Error updating industry",
           description: error.message,
           variant: "destructive",
         });
       } else {
-        logDebug("Industry updated successfully in Supabase");
+        logDebug("Industry updated successfully in Supabase", 'api');
       }
     } catch (error) {
-      logError("Unexpected error updating industry:", error);
+      logError("Unexpected error updating industry:", 'api', error);
     } finally {
       setIsUpdating(false);
     }
@@ -70,14 +70,14 @@ export const useOrganizationIndustrySync = (
       
       // Validate UUID format to prevent invalid database queries
       if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedOrgId)) {
-        logError(`Invalid organization ID format: ${selectedOrgId}`);
+        logError(`Invalid organization ID format: ${selectedOrgId}`, 'api');
         return;
       }
 
       prevOrgIdRef.current = selectedOrgId;
       
       try {
-        logInfo(`Fetching industry data for org ID: ${selectedOrgId}`);
+        logInfo(`Fetching industry data for org ID: ${selectedOrgId}`, 'api');
         
         const { data, error } = await supabase
           .from("a1organizations")
@@ -86,25 +86,25 @@ export const useOrganizationIndustrySync = (
           .maybeSingle();
         
         if (error) {
-          logError("Error fetching industry:", error);
+          logError("Error fetching industry:", 'api', error);
           return;
         }
         
         if (data) {
           const fetchedIndustry = data.organization_industry || '';
-          logDebug(`Fetched industry from Supabase: "${fetchedIndustry}"`);
+          logDebug(`Fetched industry from Supabase: "${fetchedIndustry}"`, 'api');
           
           // Update local state without triggering the update effect
           prevIndustryRef.current = fetchedIndustry;
           setIndustry(fetchedIndustry);
         } else {
-          logWarning(`No data found for organization ID: ${selectedOrgId}`);
+          logWarning(`No data found for organization ID: ${selectedOrgId}`, 'api');
           // Clear industry if no data is found
           prevIndustryRef.current = '';
           setIndustry('');
         }
       } catch (error) {
-        logError("Unexpected error fetching industry:", error);
+        logError("Unexpected error fetching industry:", 'api', error);
       }
     };
 
@@ -125,7 +125,7 @@ export const useOrganizationIndustrySync = (
     
     // When org ID changes, don't update until we've fetched the current industry
     if (selectedOrgId !== prevOrgIdRef.current) {
-      logDebug(`Organization changed, skipping industry update until data is fetched`);
+      logDebug(`Organization changed, skipping industry update until data is fetched`, 'ui');
       return;
     }
     
@@ -136,7 +136,7 @@ export const useOrganizationIndustrySync = (
     
     // Set up new timeout
     timeoutRef.current = setTimeout(() => {
-      logDebug(`Debounced industry update triggered: "${industry}"`);
+      logDebug(`Debounced industry update triggered: "${industry}"`, 'ui');
       prevIndustryRef.current = industry;
       updateIndustryInSupabase(industry);
       timeoutRef.current = null;

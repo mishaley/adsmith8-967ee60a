@@ -34,7 +34,7 @@ export const EnhancedDropdown: React.FC<EnhancedDropdownProps> = ({
   
   // Log selected items for debugging
   React.useEffect(() => {
-    logDebug(`EnhancedDropdown selected items:`, selectedItems);
+    logDebug(`EnhancedDropdown selected items: ${JSON.stringify(selectedItems)}`, 'ui');
   }, [selectedItems]);
   
   const {
