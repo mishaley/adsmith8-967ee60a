@@ -1,5 +1,7 @@
+
 import { useState, useEffect } from "react";
-import { cleanupLocalStorage, validateLocalStorageTypes, isValidJSON } from "../utils/localStorageUtils";
+import { cleanupLocalStorage } from "../utils/localStorage";
+import { validationFunctions } from "../utils/localStorage";
 import { logDebug, logError, logWarning } from "@/utils/logging";
 
 interface UseLocalStorageWithEventsProps<T> {
@@ -19,7 +21,7 @@ export function useLocalStorageWithEvents<T>({
   useEffect(() => {
     // Only run once on initial mount
     cleanupLocalStorage();
-    validateLocalStorageTypes();
+    validationFunctions.validateLocalStorageTypes();
   }, []);
 
   // Initialize state with the value from localStorage or the provided initialValue
@@ -81,7 +83,7 @@ export function useLocalStorageWithEvents<T>({
           }
           
           // Make sure it's valid JSON
-          if (!isValidJSON(event.newValue)) {
+          if (!validationFunctions.isValidJSON(event.newValue)) {
             logError(`Invalid JSON received in storage event for key ${key}`);
             setValue(initialValue);
             return;
