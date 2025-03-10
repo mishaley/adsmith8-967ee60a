@@ -1,12 +1,13 @@
 
-import { useEffect } from "react";
-import { STORAGE_KEYS, safelyRemoveInvalidLocalStorage } from "../utils/localStorageUtils";
+import { useState, useEffect, useCallback } from "react";
+import { STORAGE_KEYS } from "../utils/localStorage";
+import { logDebug, logInfo, logWarning } from "@/utils/logging";
 
 interface UseOfferingInitializationProps {
   offeringOptions: { value: string; label: string }[];
   isOfferingsDisabled: boolean;
   selectedOfferingId: string;
-  setSelectedOfferingId: (id: string) => void;
+  setSelectedOfferingId: (value: string) => void;
   refetchOfferingDetails: () => void;
   selectedOrgId: string;
 }
@@ -19,49 +20,84 @@ export const useOfferingInitialization = ({
   refetchOfferingDetails,
   selectedOrgId
 }: UseOfferingInitializationProps) => {
-  // Clean up invalid localStorage entries on component mount
-  useEffect(() => {
-    // This will check and remove any invalid JSON in localStorage for offering keys
-    safelyRemoveInvalidLocalStorage(STORAGE_KEYS.OFFERING);
-  }, []);
+  // Track if initial loading is complete
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [isLoadingFromStorage, setIsLoadingFromStorage] = useState(true);
 
-  // Load from localStorage on initial render if nothing is selected
+  // Load the initial offering from localStorage on mount or when org changes
   useEffect(() => {
-    // Only attempt to load from localStorage if no offering is currently selected
-    // and options are available (meaning an org is selected)
-    if (!selectedOfferingId && !isOfferingsDisabled && offeringOptions.length > 0) {
-      try {
-        const storedOfferingId = localStorage.getItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+    const STORAGE_KEY = `${STORAGE_KEYS.OFFERING}_selectedId`;
+    
+    if (selectedOrgId && (isLoadingFromStorage || !initialLoadComplete) && offeringOptions.length > 0) {
+      const storedOfferingId = localStorage.getItem(STORAGE_KEY);
+      
+      if (storedOfferingId) {
+        logInfo(`Attempting to load initial offering ID from storage: ${storedOfferingId}`);
         
-        // Check if we have a stored ID and it exists in current options
-        if (storedOfferingId) {
-          // For "new-offering" we can always apply it if an org is selected
-          if (storedOfferingId === "new-offering") {
-            if (selectedOrgId) {
-              console.log(`Applying stored "new-offering" value since org is selected`);
-              setSelectedOfferingId(storedOfferingId);
-            }
-          } else {
-            // For existing offerings, make sure the ID exists in the options
-            const optionExists = offeringOptions.some(option => option.value === storedOfferingId);
-            if (optionExists) {
-              console.log(`Initializing with stored offering ID: ${storedOfferingId}`);
-              setSelectedOfferingId(storedOfferingId);
-              
-              // If we're selecting an existing offering, fetch its details
+        // Validate if the stored offering ID exists in the current options
+        const offeringExists = offeringOptions.some(option => option.value === storedOfferingId);
+        
+        if (offeringExists || storedOfferingId === "new-offering") {
+          logInfo(`Valid offering ID found in storage: ${storedOfferingId}`);
+          
+          if (storedOfferingId !== selectedOfferingId) {
+            logInfo(`Setting offering ID to stored value: ${storedOfferingId}`);
+            setSelectedOfferingId(storedOfferingId);
+            
+            // If it's a real offering ID (not "new-offering"), we should load its details
+            if (storedOfferingId !== "new-offering") {
+              logDebug("Fetching details for stored offering");
               refetchOfferingDetails();
-            } else {
-              console.log(`Stored offering ID ${storedOfferingId} not found in options`);
-              // Clear invalid stored ID
-              localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
             }
           }
+        } else {
+          logWarning(`Stored offering ID ${storedOfferingId} not found in options, not applying`);
+          // Clear invalid stored offering ID
+          localStorage.removeItem(STORAGE_KEY);
         }
-      } catch (error) {
-        console.error("Error initializing offering from localStorage:", error);
-        // If there's an error, remove potentially corrupted data
-        localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+      } else {
+        logDebug("No stored offering ID found");
+      }
+      
+      setInitialLoadComplete(true);
+      setIsLoadingFromStorage(false);
+    }
+  }, [
+    isLoadingFromStorage,
+    initialLoadComplete, 
+    isOfferingsDisabled, 
+    offeringOptions,
+    refetchOfferingDetails, 
+    selectedOfferingId,
+    setSelectedOfferingId,
+    selectedOrgId
+  ]);
+
+  // Reset the loading state when organization changes
+  useEffect(() => {
+    if (selectedOrgId) {
+      logInfo(`Organization changed to ${selectedOrgId}, resetting offering initialization state`);
+      setIsLoadingFromStorage(true);
+      setInitialLoadComplete(false);
+    } else {
+      // Clear offering when org is cleared
+      if (selectedOfferingId) {
+        logInfo("Clearing offering selection as organization was cleared");
+        setSelectedOfferingId("");
       }
     }
-  }, [selectedOfferingId, isOfferingsDisabled, offeringOptions, selectedOrgId, setSelectedOfferingId, refetchOfferingDetails]);
+  }, [selectedOrgId, selectedOfferingId, setSelectedOfferingId]);
+
+  // Helper function to manually trigger reload from storage
+  const reloadFromStorage = useCallback(() => {
+    logInfo("Manually triggering reload from storage");
+    setIsLoadingFromStorage(true);
+    setInitialLoadComplete(false);
+  }, []);
+
+  return {
+    initialLoadComplete,
+    isLoadingFromStorage,
+    reloadFromStorage
+  };
 };

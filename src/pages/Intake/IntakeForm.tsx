@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { clearFormAndRefresh } from "./utils/localStorageUtils";
+import { clearFormAndRefresh } from "./utils/localStorage";
 
 const IntakeForm: React.FC = () => {
   const { toast } = useToast();

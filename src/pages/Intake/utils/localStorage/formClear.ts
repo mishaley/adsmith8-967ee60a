@@ -1,6 +1,7 @@
 
 import { STORAGE_KEYS } from './constants';
 import { logInfo } from '@/utils/logging';
+import { dispatchDedupedEvent } from '@/utils/eventUtils';
 
 /**
  * Clear all form-related data from localStorage and refresh the page
@@ -24,7 +25,7 @@ export const clearFormAndRefresh = () => {
     localStorage.setItem('last_form_clear', Date.now().toString());
     
     // Dispatch an event to notify components about the clear
-    window.dispatchEvent(new Event('clearForm'));
+    dispatchDedupedEvent('clearForm', {});
     
     // Give a small delay for components to react, then refresh
     setTimeout(() => {

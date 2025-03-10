@@ -41,7 +41,7 @@ export const useOfferingData = (selectedOrgId: string) => {
       
       logInfo(`Fetching offerings for org ID: ${selectedOrgId}`);
       const { data, error } = await supabase
-        .from("a1offerings")
+        .from("b1offerings")
         .select("offering_id, offering_name")
         .eq("organization_id", selectedOrgId);
       
