@@ -6,9 +6,14 @@ import { Trash2 } from "lucide-react";
 interface PersonasListProps {
   personas: Persona[];
   onRemovePersona?: (index: number) => void;
+  personaCount?: number;
 }
 
-const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }) => {
+const PersonasList: React.FC<PersonasListProps> = ({ 
+  personas, 
+  onRemovePersona,
+  personaCount = 5 // Default to 5 for backward compatibility
+}) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   // Format interests to display on two rows if needed
@@ -28,14 +33,19 @@ const PersonasList: React.FC<PersonasListProps> = ({ personas, onRemovePersona }
     );
   };
 
-  // Always render 5 columns, populated with personas data when available
+  // Calculate width percentage based on persona count
+  const getColumnWidth = () => {
+    return `${100 / personaCount}%`;
+  };
+
+  // Render only the requested number of columns
   return (
     <tr className="border-transparent">
-      {Array.from({ length: 5 }).map((_, index) => (
+      {Array.from({ length: personaCount }).map((_, index) => (
         <td 
           key={index} 
           className="py-3 px-3 align-top relative border-transparent" 
-          style={{ width: "20%" }}
+          style={{ width: getColumnWidth() }}
           onMouseEnter={() => setHoveredIndex(index)}
           onMouseLeave={() => setHoveredIndex(null)}
         >

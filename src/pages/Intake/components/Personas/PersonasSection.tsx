@@ -82,12 +82,17 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
             <div className="w-full">
               <table className="w-full border-collapse border-transparent">
                 <tbody>
-                  <PersonasList personas={personas} onRemovePersona={removePersona} />
+                  <PersonasList 
+                    personas={personas} 
+                    onRemovePersona={removePersona}
+                    personaCount={personaCount}
+                  />
                   <PortraitRow 
                     personas={personas} 
                     isGeneratingPortraits={isGeneratingPortraits} 
                     loadingIndices={loadingPortraitIndices} 
                     onRetryPortrait={retryPortraitGeneration}
+                    personaCount={personaCount}
                   />
                 </tbody>
               </table>
