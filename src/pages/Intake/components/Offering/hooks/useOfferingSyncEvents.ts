@@ -1,7 +1,6 @@
-
 import { useEffect } from "react";
-import { logDebug, logError, logInfo } from "@/utils/logging";
-import { dispatchDedupedEvent } from "@/utils/eventUtils";
+import { logDebug, logInfo } from "@/utils/logging";
+import { STORAGE_KEYS } from "../../../utils/localStorage";
 
 interface UseOfferingSyncEventsProps {
   selectedOfferingId: string;
@@ -12,51 +11,62 @@ export const useOfferingSyncEvents = ({
   selectedOfferingId,
   setSelectedOfferingId
 }: UseOfferingSyncEventsProps) => {
-  // Sync between components using window events
+  // Listen for offering selection changes from other components
   useEffect(() => {
-    const handleOfferingChanged = (event: Event) => {
+    const handleOfferingChanged = (event: CustomEvent) => {
       try {
-        const customEvent = event as CustomEvent;
-        if (!customEvent?.detail) {
-          logDebug("Received offeringChanged event with no detail");
+        const { offeringId } = event.detail;
+        
+        if (!offeringId) {
+          logDebug("Received offeringChanged event with missing offeringId");
           return;
         }
-        
-        const { offeringId } = customEvent.detail;
-        
-        if (offeringId === undefined) {
-          logDebug("Received offeringChanged event with undefined offeringId");
-          return;
+
+        if (offeringId !== selectedOfferingId) {
+          logInfo(`External offering change detected: ${offeringId}`);
+          setSelectedOfferingId(offeringId);
+          
+          // Also update localStorage to keep things in sync
+          try {
+            localStorage.setItem(`${STORAGE_KEYS.OFFERING}_selectedId`, offeringId);
+          } catch (e) {
+            console.error("Error saving external offering change to localStorage:", e);
+          }
         }
-        
-        if (offeringId === selectedOfferingId) {
-          logDebug(`Skipping offeringChanged event as ID is unchanged: ${offeringId}`);
-          return;
-        }
-        
-        logInfo(`Received offering changed event with ID: ${offeringId}`);
-        setSelectedOfferingId(offeringId);
       } catch (error) {
-        logError("Error handling offering changed event:", error);
+        console.error("Error handling external offering change event:", error);
       }
     };
-    
+
     window.addEventListener('offeringChanged', handleOfferingChanged as EventListener);
-    
+
     return () => {
       window.removeEventListener('offeringChanged', handleOfferingChanged as EventListener);
     };
   }, [selectedOfferingId, setSelectedOfferingId]);
 
-  // Helper to notify other components about the offering change
-  const notifyOfferingChange = (offeringId: string) => {
-    if (offeringId === selectedOfferingId) return;
+  // Listen for clear form events
+  useEffect(() => {
+    const handleClearForm = () => {
+      if (selectedOfferingId) {
+        logInfo("Clearing offering selection due to form clear event");
+        setSelectedOfferingId("");
+        
+        // Also update localStorage to keep things in sync
+        try {
+          localStorage.removeItem(`${STORAGE_KEYS.OFFERING}_selectedId`);
+        } catch (e) {
+          console.error("Error removing offering from localStorage during clear:", e);
+        }
+      }
+    };
     
-    logInfo(`Broadcasting offering change to: ${offeringId}`);
-    dispatchDedupedEvent('offeringChanged', { offeringId });
-  };
-  
-  return {
-    notifyOfferingChange
-  };
+    window.addEventListener('clearForm', handleClearForm);
+    
+    return () => {
+      window.removeEventListener('clearForm', handleClearForm);
+    };
+  }, [selectedOfferingId, setSelectedOfferingId]);
+
+  return null; // This hook doesn't return anything
 };

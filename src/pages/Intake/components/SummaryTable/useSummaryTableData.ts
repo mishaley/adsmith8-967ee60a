@@ -20,7 +20,8 @@ export const useSummaryTableData = () => {
     setSelectedOfferingId,
     offerings,
     offeringOptions,
-    isOfferingsDisabled
+    isOfferingsDisabled,
+    isOfferingsLoading
   } = useOfferingData(selectedOrgId);
 
   // Get persona and message data
@@ -50,6 +51,7 @@ export const useSummaryTableData = () => {
     offerings,
     offeringOptions,
     isOfferingsDisabled,
+    isOfferingsLoading,
     
     // Persona and message data
     selectedPersonaIds,

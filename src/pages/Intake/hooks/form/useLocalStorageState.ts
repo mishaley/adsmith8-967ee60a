@@ -1,36 +1,35 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   saveToLocalStorage, 
   loadFromLocalStorage, 
-  cleanupLocalStorage, 
-  validateLocalStorageTypes 
+  clearLocalStorageItem, 
+  localStorageHasKey,
+  clearLocalStorageByPrefix
 } from "../../utils/localStorage";
-import { logError, logWarning, logDebug } from "@/utils/logging";
+import { logDebug, logWarning, logError, logInfo } from "@/utils/logging";
 
 /**
  * A custom hook for managing state that's synced with localStorage
+ * with improved error handling and data validation
  */
 export function useLocalStorageState<T>(key: string, initialValue: T) {
-  // Run cleanup on first mount
-  useEffect(() => {
-    // Only run once on initial mount
-    cleanupLocalStorage();
-    validateLocalStorageTypes();
-  }, []);
+  // Reference to track if this is the first mount
+  const isFirstMount = useRef(true);
 
   // Initialize state with value from localStorage or the provided initialValue
   const [state, setState] = useState<T>(() => {
     try {
+      // Don't log during initialization to reduce console noise
       const storedValue = loadFromLocalStorage(key, initialValue);
       
-      // Additional type validation for arrays
+      // Type validation for arrays
       if (Array.isArray(initialValue) && !Array.isArray(storedValue)) {
         logWarning(`Expected array for key ${key} but got ${typeof storedValue}. Using default.`);
         return initialValue;
       }
       
-      // Additional checks for null/undefined when we expect an object
+      // Type validation for objects
       if (
         initialValue !== null && 
         typeof initialValue === 'object' && 
@@ -51,12 +50,24 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     }
   });
 
+  // Log on first mount
+  useEffect(() => {
+    if (isFirstMount.current) {
+      const exists = localStorageHasKey(key);
+      logDebug(`useLocalStorageState initialized for ${key}: ${exists ? 'loaded from storage' : 'using default value'}`);
+      isFirstMount.current = false;
+    }
+  }, [key]);
+
   // Sync state changes to localStorage
   useEffect(() => {
     try {
+      // Skip first render to avoid duplicate storage
+      if (isFirstMount.current) return;
+      
       // Special handling for undefined (don't store it)
       if (state === undefined) {
-        localStorage.removeItem(key);
+        clearLocalStorageItem(key);
         return;
       }
       
@@ -82,6 +93,17 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
       if (event.key === key && event.newValue === null) {
         // Reset our state to the initial value
         setState(initialValue);
+        logInfo(`Storage event detected: ${key} was removed, resetting state`);
+      } 
+      // If this key was updated from another tab
+      else if (event.key === key && event.newValue !== null) {
+        try {
+          const newValue = JSON.parse(event.newValue);
+          setState(newValue);
+          logInfo(`Storage event detected: ${key} was updated, syncing state`);
+        } catch (e) {
+          logError(`Error parsing storage event value for ${key}`, e);
+        }
       }
     };
     
@@ -100,5 +122,10 @@ export function useLocalStorageState<T>(key: string, initialValue: T) {
     return () => window.removeEventListener('clearForm', handleClearForm);
   }, [initialValue, key]);
 
-  return [state, setState] as const;
+  // Enhanced setState that also updates localStorage
+  const setStateAndStorage = (value: T | ((prev: T) => T)) => {
+    setState(value);
+  };
+
+  return [state, setStateAndStorage] as const;
 }

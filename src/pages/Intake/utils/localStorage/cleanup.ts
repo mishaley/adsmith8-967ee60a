@@ -1,65 +1,96 @@
 
-import { isValidJSON } from './validation';
+import { STORAGE_KEYS } from './constants';
+import { logInfo } from '@/utils/logging';
 
 /**
- * Safe clear method that validates keys first
+ * Clean up expired or inconsistent localStorage data
  */
-export const safelyRemoveInvalidLocalStorage = (keyPrefix: string): void => {
+export const cleanupLocalStorage = () => {
   try {
-    // Find and validate all keys that start with the specified prefix
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(keyPrefix)) {
-        const value = localStorage.getItem(key);
-        if (value !== null && !isValidJSON(value)) {
-          console.warn(`Removing invalid JSON data for key: ${key}`);
-          localStorage.removeItem(key);
+    // Get the last form clear timestamp
+    const lastClearTimestamp = localStorage.getItem('last_form_clear');
+    
+    // If there's no timestamp, no need to clean up
+    if (!lastClearTimestamp) return;
+    
+    // Parse the timestamp and compare with current time
+    const clearTime = parseInt(lastClearTimestamp, 10);
+    const now = Date.now();
+    
+    // If the clear happened in the last 5 seconds, do extra cleanup
+    if (now - clearTime < 5000) {
+      // Perform a more thorough cleanup to catch any missed keys
+      logInfo('Performing post-clear cleanup');
+      
+      // Check each key in localStorage and remove any that belongs to our form
+      Object.values(STORAGE_KEYS).forEach(prefix => {
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(prefix)) {
+            localStorage.removeItem(key);
+            logInfo(`Cleanup removed key: ${key}`);
+          }
         }
-      }
+      });
     }
   } catch (error) {
-    console.error(`Error cleaning invalid localStorage data for prefix ${keyPrefix}:`, error);
+    console.error('Error during localStorage cleanup:', error);
   }
 };
 
 /**
- * Clean up localStorage - remove any invalid JSON
+ * Validate the types of data in localStorage
+ * to ensure they match what we expect
  */
-export const cleanupLocalStorage = (): void => {
+export const validateLocalStorageTypes = () => {
   try {
-    const keysToRemove: string[] = [];
+    // Check array types
+    const arrayKeys = [
+      `${STORAGE_KEYS.LOCATION}_countries`,
+      `${STORAGE_KEYS.LANGUAGE}_selected`,
+      `${STORAGE_KEYS.LOCATION}_excluded_countries`,
+      `${STORAGE_KEYS.MESSAGES}_types`,
+      `${STORAGE_KEYS.PERSONAS}_data`
+    ];
     
-    // First collect all keys with invalid data
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key) {
-        const value = localStorage.getItem(key);
-        if (value !== null) {
-          try {
-            JSON.parse(value);
-          } catch (e) {
-            // Add to keys to remove if JSON parsing fails
-            keysToRemove.push(key);
-            console.warn(`Found invalid JSON in localStorage key: ${key}`);
+    arrayKeys.forEach(key => {
+      const item = localStorage.getItem(key);
+      if (item) {
+        try {
+          const parsed = JSON.parse(item);
+          if (!Array.isArray(parsed)) {
+            logInfo(`Found invalid type for ${key}, expected array but got ${typeof parsed}. Removing.`);
+            localStorage.removeItem(key);
           }
+        } catch (e) {
+          logInfo(`Found invalid JSON for ${key}, removing`);
+          localStorage.removeItem(key);
         }
-      }
-    }
-    
-    // Then remove them all
-    keysToRemove.forEach(key => {
-      try {
-        localStorage.removeItem(key);
-        console.info(`Removed invalid localStorage key: ${key}`);
-      } catch (e) {
-        console.error(`Failed to remove invalid localStorage key: ${key}`, e);
       }
     });
     
-    if (keysToRemove.length > 0) {
-      console.info(`Cleaned up ${keysToRemove.length} invalid localStorage items`);
-    }
+    // Check object types
+    const objectKeys = [
+      `${STORAGE_KEYS.MESSAGES}_generated`,
+      `${STORAGE_KEYS.SECTION_STATES}`
+    ];
+    
+    objectKeys.forEach(key => {
+      const item = localStorage.getItem(key);
+      if (item) {
+        try {
+          const parsed = JSON.parse(item);
+          if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+            logInfo(`Found invalid type for ${key}, expected object but got ${typeof parsed}. Removing.`);
+            localStorage.removeItem(key);
+          }
+        } catch (e) {
+          logInfo(`Found invalid JSON for ${key}, removing`);
+          localStorage.removeItem(key);
+        }
+      }
+    });
   } catch (error) {
-    console.error('Error during localStorage cleanup:', error);
+    console.error('Error during localStorage type validation:', error);
   }
 };

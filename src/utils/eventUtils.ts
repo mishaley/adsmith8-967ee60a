@@ -1,103 +1,60 @@
 
-import { logDebug, logInfo } from "@/utils/logging";
-
 /**
- * Debounce function to limit how often a function can be called
+ * Dispatch an event with deduplication to avoid multiple identical events
+ * @param eventName The name of the event to dispatch
+ * @param detail The data to include with the event
+ * @param dedupeTimeout Time in ms to dedupe identical events (default: 100ms)
  */
-export function debounce<T extends (...args: any[]) => void>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: number | undefined;
-  
-  return function(...args: Parameters<T>): void {
-    const later = () => {
-      timeout = undefined;
-      func(...args);
-    };
-    
-    clearTimeout(timeout);
-    timeout = window.setTimeout(later, wait);
-  };
-}
-
-type EventRecord = {
-  value: string;
-  timestamp: number;
-};
-
-// Track recent events to prevent duplicates
-const recentEvents: Record<string, EventRecord> = {};
-
-// How long to consider an event a duplicate (in ms)
-const DEDUPLICATION_WINDOW = 1000;
-
-/**
- * Dispatch a custom event with deduplication
- * Only dispatches if the same event+value hasn't been sent in the last second
- */
-export function dispatchDedupedEvent(eventName: string, detail: Record<string, any>): void {
-  const key = `${eventName}-${JSON.stringify(detail)}`;
-  const now = Date.now();
+export const dispatchDedupedEvent = (
+  eventName: string, 
+  detail: Record<string, any>, 
+  dedupeTimeout = 100
+) => {
+  // Create a unique identifier for this event based on its name and data
+  const eventId = `${eventName}-${JSON.stringify(detail)}`;
   
   // Check if we've recently dispatched this exact event
-  if (recentEvents[key] && (now - recentEvents[key].timestamp) < DEDUPLICATION_WINDOW) {
-    logDebug(`Skipping duplicate event: ${eventName} with:`, detail);
-    return; // Skip this duplicate event
+  if (window._lastDispatchedEvents && window._lastDispatchedEvents[eventId]) {
+    const lastDispatched = window._lastDispatchedEvents[eventId];
+    const now = Date.now();
+    
+    // If the same event was dispatched less than dedupeTimeout ms ago, skip it
+    if (now - lastDispatched < dedupeTimeout) {
+      return;
+    }
   }
   
-  // Record this event
-  recentEvents[key] = {
-    value: JSON.stringify(detail),
-    timestamp: now
-  };
-  
-  // Clean up old events occasionally
-  if (Object.keys(recentEvents).length > 50) {
-    cleanupOldEvents();
+  // Initialize the tracking object if it doesn't exist
+  if (!window._lastDispatchedEvents) {
+    window._lastDispatchedEvents = {};
   }
+  
+  // Record this event dispatch
+  window._lastDispatchedEvents[eventId] = Date.now();
   
   // Dispatch the event
-  logInfo(`Dispatching event: ${eventName} with:`, detail);
   window.dispatchEvent(new CustomEvent(eventName, { detail }));
-}
-
-/**
- * Clean up old event records
- */
-function cleanupOldEvents(): void {
-  const now = Date.now();
-  Object.keys(recentEvents).forEach(key => {
-    if (now - recentEvents[key].timestamp > DEDUPLICATION_WINDOW) {
-      delete recentEvents[key];
-    }
-  });
-}
-
-/**
- * Utility to create a strongly-typed event dispatcher
- */
-export function createEventDispatcher<T>(eventName: string) {
-  return function(detail: T) {
-    dispatchDedupedEvent(eventName, detail as unknown as Record<string, any>);
-  };
-}
-
-/**
- * Utility to add a strongly-typed event listener
- */
-export function addTypedEventListener<T>(
-  eventName: string,
-  handler: (detail: T) => void
-): () => void {
-  const wrappedHandler = (event: Event) => {
-    const customEvent = event as CustomEvent;
-    handler(customEvent.detail);
-  };
   
-  window.addEventListener(eventName, wrappedHandler);
-  
-  return () => {
-    window.removeEventListener(eventName, wrappedHandler);
-  };
+  // Clean up the tracking object after a while to prevent memory leaks
+  const maxEvents = 100;
+  const keys = Object.keys(window._lastDispatchedEvents);
+  if (keys.length > maxEvents) {
+    // Remove the oldest entries
+    const sortedKeys = keys.sort((a, b) => 
+      window._lastDispatchedEvents[a] - window._lastDispatchedEvents[b]
+    );
+    
+    // Remove the oldest half of the entries
+    const toRemove = sortedKeys.slice(0, Math.floor(maxEvents / 2));
+    toRemove.forEach(key => {
+      delete window._lastDispatchedEvents[key];
+    });
+  }
+};
+
+// Augment the Window interface to include our tracking object
+declare global {
+  interface Window {
+    _lastDispatchedEvents?: Record<string, number>;
+  }
 }
