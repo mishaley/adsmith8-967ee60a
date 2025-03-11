@@ -78,6 +78,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
     <CollapsibleSection title="IMAGES">
       {currentPersona ? (
         <div className="border-transparent rounded-md overflow-hidden bg-transparent">
+          {/* Format selector moved to the top and centered */}
           <div className="p-4 border-transparent bg-transparent">
             <FormatSelector 
               selectedFormat={selectedFormat} 
@@ -101,6 +102,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
               currentPersona={currentPersona} 
               adPlatform={adPlatform}
               offering={offering}
+              imageFormat={selectedFormat}
             />
           </div>
         </div>

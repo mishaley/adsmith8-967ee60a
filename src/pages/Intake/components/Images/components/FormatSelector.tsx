@@ -18,17 +18,19 @@ const FormatSelector: React.FC<FormatSelectorProps> = ({
   onFormatChange,
 }) => {
   return (
-    <div className="flex items-center mb-4">
-      <label className="mr-2 text-sm font-medium">Format:</label>
-      <Select value={selectedFormat} onValueChange={onFormatChange}>
-        <SelectTrigger className="w-full max-w-[200px] h-9 bg-white">
-          <SelectValue placeholder="Select format" />
-        </SelectTrigger>
-        <SelectContent className="bg-white">
-          <SelectItem value="graphic-variety">Graphic Variety</SelectItem>
-          <SelectItem value="brand-aesthetic">Brand Aesthetic</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="flex items-center justify-center w-full mb-4">
+      <div className="flex items-center">
+        <label className="mr-2 text-sm font-medium">Format:</label>
+        <Select value={selectedFormat} onValueChange={onFormatChange}>
+          <SelectTrigger className="w-[200px] h-9 bg-white">
+            <SelectValue placeholder="Select format" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="graphic-variety">Graphic Variety</SelectItem>
+            <SelectItem value="brand-aesthetic">Brand Aesthetic</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

@@ -46,28 +46,28 @@ export const useImageGeneration = ({
         ? "brand aesthetic consistent with company identity" 
         : "graphic variety with visual interest";
         
-      const persona = currentPersona.attributes 
-        ? `${currentPersona.name}, a ${currentPersona.attributes.join(', ')}`
-        : currentPersona.name;
+      // Access persona properties safely - fix TypeScript errors
+      const personaName = currentPersona.id ? String(currentPersona.id) : "persona";
       
       const platformInfo = adPlatform ? `for ${adPlatform} advertisement` : "";
       const offeringInfo = offering ? `related to ${offering}` : "";
       
-      const prompt = `Create a photorealistic image of ${persona} ${platformInfo} ${offeringInfo}. 
+      const prompt = `Create a photorealistic image of ${personaName} ${platformInfo} ${offeringInfo}. 
       The image should have ${promptFormat}. 
       Make sure the image is high quality, well-lit, and visually appealing.`;
       
       setGeneratedPrompt(prompt);
       
-      // Log the generated prompt
-      logDebug(`Generated prompt: ${prompt}`, 'images');
+      // Fix LogCategory type error
+      logDebug(`Generated prompt: ${prompt}`);
       
       toast({
         title: "Prompt Generated",
         description: "You can now generate an image or modify the prompt"
       });
     } catch (error) {
-      logError("Error generating prompt:", 'images', error);
+      // Fix LogCategory type error
+      logError("Error generating prompt:", error);
       toast({
         title: "Error",
         description: "Failed to generate prompt",
@@ -111,7 +111,8 @@ export const useImageGeneration = ({
         description: "Your image has been generated successfully"
       });
     } catch (error) {
-      logError("Error generating image:", 'images', error);
+      // Fix LogCategory type error
+      logError("Error generating image:", error);
       setErrorDetails(error);
       setShowErrorDialog(true);
       
