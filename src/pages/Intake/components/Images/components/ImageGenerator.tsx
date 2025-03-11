@@ -11,12 +11,14 @@ interface ImageGeneratorProps {
   currentPersona: Persona;
   adPlatform: string;
   offering?: string;
+  imageFormat?: string;
 }
 
 const ImageGenerator: React.FC<ImageGeneratorProps> = ({ 
   currentPersona, 
   adPlatform,
-  offering = ""
+  offering = "",
+  imageFormat = "graphic-variety"
 }) => {
   const { toast } = useToast();
   
@@ -35,7 +37,8 @@ const ImageGenerator: React.FC<ImageGeneratorProps> = ({
     currentPersona, 
     adPlatform, 
     toast,
-    offering
+    offering,
+    imageFormat
   });
 
   return (

@@ -1,184 +1,135 @@
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { generateRandomPhrase, getRandomApprovedStyle } from "../utils/imageGenerationUtils";
-import { Persona } from "../../Personas/types";
-import { getRandomRace } from "../../Personas/utils/portraitUtils";
 
-interface UseImageGenerationProps {
-  currentPersona: Persona | null;
-  adPlatform: string | null;
+import { useState, useCallback } from "react";
+import { Persona } from "../../Personas/types";
+import { supabase } from "@/integrations/supabase/client";
+import { logDebug, logError } from "@/utils/logging";
+
+interface UseImageGenerationParams {
+  currentPersona: Persona;
+  adPlatform: string;
   toast: any;
   offering?: string;
+  imageFormat?: string;
 }
 
-export const useImageGeneration = ({ currentPersona, adPlatform, toast, offering = "" }: UseImageGenerationProps) => {
-  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
-  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
-  const [errorDetails, setErrorDetails] = useState<string | null>(null);
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
+export const useImageGeneration = ({
+  currentPersona,
+  adPlatform,
+  toast,
+  offering = "",
+  imageFormat = "graphic-variety"
+}: UseImageGenerationParams) => {
   const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
-  
-  const getResolutionsForPlatform = () => {
-    const platformResolutions = {
-      "Google": [
-        { label: "1:1", value: "RESOLUTION_1024_1024" },
-        { label: "4:5", value: "RESOLUTION_896_1120" },
-        { label: "21:11", value: "RESOLUTION_1344_704" }
-      ],
-      "Meta": [
-        { label: "1:1", value: "RESOLUTION_1024_1024" },
-        { label: "4:5", value: "RESOLUTION_896_1120" },
-        { label: "9:16", value: "RESOLUTION_720_1280" }
-      ]
-    };
-    
-    return adPlatform && platformResolutions[adPlatform] ? platformResolutions[adPlatform] : [];
-  };
-  
-  const handleGeneratePrompt = async () => {
-    if (!currentPersona) return;
-    
+  const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [generatedImageUrl, setGeneratedImageUrl] = useState("");
+  const [errorDetails, setErrorDetails] = useState<any>(null);
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+
+  // Generate prompt based on persona and message
+  const handleGeneratePrompt = useCallback(async () => {
+    if (!currentPersona) {
+      toast({
+        title: "Error",
+        description: "No persona selected",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsGeneratingPrompt(true);
-    setErrorDetails(null);
+    setGeneratedPrompt("");
     
     try {
-      console.log("Starting prompt generation process...");
-      const style = await getRandomApprovedStyle();
-      console.log("Successfully retrieved style:", style);
+      // Construct a prompt for image generation
+      const promptFormat = imageFormat === "brand-aesthetic" 
+        ? "brand aesthetic consistent with company identity" 
+        : "graphic variety with visual interest";
+        
+      const persona = currentPersona.attributes 
+        ? `${currentPersona.name}, a ${currentPersona.attributes.join(', ')}`
+        : currentPersona.name;
       
-      const message = currentPersona.title || generateRandomPhrase();
-      const race = getRandomRace();
-      const gender = currentPersona.gender === "Men" ? "Man" : 
-                     currentPersona.gender === "Women" ? "Woman" : 
-                     currentPersona.gender;
+      const platformInfo = adPlatform ? `for ${adPlatform} advertisement` : "";
+      const offeringInfo = offering ? `related to ${offering}` : "";
       
-      const interests = currentPersona.interests || [];
-      const interest1 = interests.length > 0 ? interests[0] : "Urban style";
-      const interest2 = interests.length > 1 ? interests[1] : "Fashion";
-      
-      const ageRange = (currentPersona.ageMin && currentPersona.ageMax) 
-        ? `${currentPersona.ageMin}-${currentPersona.ageMax}` 
-        : currentPersona.age || "25-35";
-      
-      const prompt = `Style: ${style}\nMessage: '${message}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${ageRange}`;
+      const prompt = `Create a photorealistic image of ${persona} ${platformInfo} ${offeringInfo}. 
+      The image should have ${promptFormat}. 
+      Make sure the image is high quality, well-lit, and visually appealing.`;
       
       setGeneratedPrompt(prompt);
       
+      // Log the generated prompt
+      logDebug(`Generated prompt: ${prompt}`, 'images');
+      
       toast({
         title: "Prompt Generated",
-        description: "Image prompt has been created.",
+        description: "You can now generate an image or modify the prompt"
       });
     } catch (error) {
-      console.error('Error generating prompt:', error);
-      
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error('Error message:', errorMessage);
-      
+      logError("Error generating prompt:", 'images', error);
       toast({
-        title: "Prompt Generation Failed",
-        description: errorMessage,
-        variant: "destructive",
+        title: "Error",
+        description: "Failed to generate prompt",
+        variant: "destructive"
       });
-      
-      setErrorDetails(`Failed to generate prompt: ${errorMessage}`);
-      setShowErrorDialog(true);
     } finally {
       setIsGeneratingPrompt(false);
     }
-  };
-  
-  const handleGenerateImages = async () => {
-    if (!currentPersona || !adPlatform) return;
+  }, [currentPersona, adPlatform, offering, toast, imageFormat]);
+
+  // Generate image using the prompt
+  const handleGenerateImages = useCallback(async () => {
+    if (!generatedPrompt) {
+      // If no prompt exists, generate one first
+      await handleGeneratePrompt();
+      return;
+    }
     
     setIsGeneratingImages(true);
-    setGeneratedImageUrl(null);
+    setGeneratedImageUrl("");
     setErrorDetails(null);
     
     try {
-      let prompt = generatedPrompt;
-      if (!prompt) {
-        console.log("No prompt available, generating a new one...");
-        const style = await getRandomApprovedStyle();
-        const race = getRandomRace();
-        const gender = currentPersona.gender === "Men" ? "Man" : 
-                       currentPersona.gender === "Women" ? "Woman" : 
-                       currentPersona.gender;
-        
-        const interests = currentPersona.interests || [];
-        const interest1 = interests.length > 0 ? interests[0] : "Urban style";
-        const interest2 = interests.length > 1 ? interests[1] : "Fashion";
-        
-        const ageRange = (currentPersona.ageMin && currentPersona.ageMax) 
-          ? `${currentPersona.ageMin}-${currentPersona.ageMax}` 
-          : currentPersona.age || "25-35";
-        
-        prompt = `Style: ${style}\nMessage: '${currentPersona.title || generateRandomPhrase()}'\nThemes: ${offering}, ${interest1}, ${interest2}\nModel: ${race} ${gender}, age ${ageRange}`;
-      }
-
-      console.log("Image generation prompt:", prompt);
-      
-      const platformResolutions = getResolutionsForPlatform();
-      const resolution = platformResolutions.length > 0 ? platformResolutions[0].value : "RESOLUTION_1024_1024";
-
+      // Call Supabase Edge Function to generate image
       const { data, error } = await supabase.functions.invoke('generate-persona-image', {
-        body: { 
-          prompt, 
-          resolution 
-        }
+        body: { prompt: generatedPrompt }
       });
       
-      console.log('Image generation response:', { data, error });
-      
       if (error) {
-        const errorMessage = error.message || "Failed to generate image";
-        console.error('Error calling edge function:', errorMessage);
-        setErrorDetails(`Edge Function Error: ${errorMessage}`);
-        setShowErrorDialog(true);
-        throw new Error(errorMessage);
+        throw error;
       }
       
-      if (data && data.success && data.imageUrl) {
-        setGeneratedImageUrl(data.imageUrl);
-        toast({
-          title: "Image Generated",
-          description: "Image has been successfully generated.",
-        });
-      } else {
-        const errorMsg = data?.error || "Unknown error occurred";
-        const details = data?.details ? JSON.stringify(data.details, null, 2) : "No details available";
-        const fullError = `Error: ${errorMsg}\n\nDetails: ${details}`;
-        console.error('Error generating image:', fullError);
-        setErrorDetails(fullError);
-        setShowErrorDialog(true);
-        throw new Error(errorMsg);
+      if (!data.success) {
+        throw new Error(data.error || "Failed to generate image");
       }
-    } catch (error) {
-      console.error('Exception in image generation:', error);
       
-      if (!errorDetails) {
-        setErrorDetails(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
-      }
+      setGeneratedImageUrl(data.imageUrl);
       
       toast({
-        title: "Generation Failed",
-        description: "Click 'View Details' for more information.",
-        variant: "destructive",
-        action: {
-          label: "View Details",
-          onClick: () => setShowErrorDialog(true)
-        }
+        title: "Image Generated",
+        description: "Your image has been generated successfully"
+      });
+    } catch (error) {
+      logError("Error generating image:", 'images', error);
+      setErrorDetails(error);
+      setShowErrorDialog(true);
+      
+      toast({
+        title: "Error",
+        description: "Failed to generate image",
+        variant: "destructive"
       });
     } finally {
       setIsGeneratingImages(false);
     }
-  };
+  }, [generatedPrompt, handleGeneratePrompt, toast]);
 
   return {
-    isGeneratingImages,
     isGeneratingPrompt,
-    generatedImageUrl,
+    isGeneratingImages,
     generatedPrompt,
+    generatedImageUrl,
     errorDetails,
     showErrorDialog,
     handleGeneratePrompt,

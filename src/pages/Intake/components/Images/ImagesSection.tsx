@@ -6,6 +6,7 @@ import PersonaDisplay from "./components/PersonaDisplay";
 import ResolutionOptions from "./components/ResolutionOptions";
 import ImageGenerator from "./components/ImageGenerator";
 import CollapsibleSection from "../CollapsibleSection";
+import FormatSelector from "./components/FormatSelector";
 
 interface ImagesSectionProps {
   personas: Persona[];
@@ -22,6 +23,9 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
   adPlatform,
   offering = ""
 }) => {
+  // Format selection state
+  const [selectedFormat, setSelectedFormat] = useState<string>("graphic-variety");
+  
   // Filter out any null or undefined personas and messages
   const validPersonas = useMemo(() => personas.filter(Boolean), [personas]);
   const validMessageTypes = useMemo(() => selectedMessageTypes.filter(Boolean), [selectedMessageTypes]);
@@ -75,6 +79,10 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
       {currentPersona ? (
         <div className="border-transparent rounded-md overflow-hidden bg-transparent">
           <div className="p-4 border-transparent bg-transparent">
+            <FormatSelector 
+              selectedFormat={selectedFormat} 
+              onFormatChange={setSelectedFormat} 
+            />
             <PersonaDisplay 
               currentPersona={currentPersona}
               currentMessageType={currentMessageType}
