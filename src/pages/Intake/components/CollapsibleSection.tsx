@@ -1,29 +1,36 @@
-
 import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { STORAGE_KEYS, saveToLocalStorage, loadFromLocalStorage } from "../utils/localStorageUtils";
+import {
+  STORAGE_KEYS,
+  saveToLocalStorage,
+  loadFromLocalStorage,
+} from "../utils/localStorageUtils";
 
 interface CollapsibleSectionProps {
   title: string;
   children: React.ReactNode;
   className?: string;
   selectedValue?: string;
+  organization?: boolean;
 }
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   title,
   children,
   className = "bg-[#e9f2fe] p-4 mb-6 rounded-lg",
-  selectedValue
+  selectedValue,
+  organization,
 }) => {
   // Create a unique key for this section in localStorage
-  const storageKey = `${STORAGE_KEYS.SECTION_STATES}_${title.toLowerCase().replace(/\s+/g, '_')}`;
-  
+  const storageKey = `${STORAGE_KEYS.SECTION_STATES}_${title
+    .toLowerCase()
+    .replace(/\s+/g, "_")}`;
+
   // Initialize state from localStorage or default to not collapsed
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const savedState = loadFromLocalStorage<boolean | null>(storageKey, null);
     // Only return the saved state if it's a boolean
-    return typeof savedState === 'boolean' ? savedState : false;
+    return typeof savedState === "boolean" ? savedState : false;
   });
 
   // Update localStorage when state changes
@@ -37,12 +44,17 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
   };
 
   // Create display title based on collapse state and selectedValue
-  const displayTitle = isCollapsed && selectedValue 
-    ? `${title} - ${selectedValue}` 
-    : title;
+  const displayTitle =
+    isCollapsed && selectedValue ? `${title} - ${selectedValue}` : title;
+
+  useEffect(() => {
+    if (organization) {
+      setIsCollapsed(!isCollapsed);
+    }
+  }, [organization]);
 
   return (
-    <div className={className} style={{ position: 'relative' }}>
+    <div className={className} style={{ position: "relative" }}>
       {/* Make the entire header div clickable */}
       <div
         className="flex justify-between items-center cursor-pointer py-2 w-full"
@@ -51,7 +63,7 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
         tabIndex={0}
         aria-expanded={!isCollapsed}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === "Enter" || e.key === " ") {
             toggleCollapse();
             e.preventDefault();
           }
@@ -68,10 +80,12 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
           )}
         </div>
       </div>
-      
-      <div 
+
+      <div
         className={`overflow-hidden transition-all duration-300 ${
-          isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[5000px] opacity-100 mt-2'
+          isCollapsed
+            ? "max-h-0 opacity-0 mt-0"
+            : "max-h-[5000px] opacity-100 mt-2"
         }`}
       >
         {children}

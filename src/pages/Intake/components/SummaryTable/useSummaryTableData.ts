@@ -44,7 +44,6 @@ export const useSummaryTableData = () => {
     currentOrganization,
     handleOrgChange,
     isLoadingOrganizations,
-    
     // Offering data
     selectedOfferingId,
     setSelectedOfferingId,
