@@ -12,13 +12,15 @@ interface SimplifiedMessagesTableProps {
   selectedMessageTypes: string[];
   generatedMessages: Record<string, Record<string, any>>;
   onMessageTypeChange?: (types: string[]) => void;
+  isSegmented?: boolean;
 }
 
 const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ 
   personas, 
   selectedMessageTypes,
   generatedMessages,
-  onMessageTypeChange
+  onMessageTypeChange,
+  isSegmented = true
 }) => {
   // Don't render if no message types are selected
   if (!selectedMessageTypes || selectedMessageTypes.length === 0) {
@@ -73,7 +75,29 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {personas.length > 0 ? (
+          {/* Show general population row when isSegmented is false */}
+          {!isSegmented ? (
+            <tr>
+              <td className="border p-2">
+                <div className="flex items-center">
+                  <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center mr-2 overflow-hidden">
+                    {/* Empty state for general population */}
+                  </div>
+                  <div className="text-sm">
+                    Both, age 18-65
+                  </div>
+                </div>
+              </td>
+              {columns.map(column => (
+                <MessageCell 
+                  key={`general-population-${column.id}`}
+                  column={column}
+                  personaId="general-population"
+                />
+              ))}
+              <td className="border p-1"></td>
+            </tr>
+          ) : personas.length > 0 ? (
             personas.map((persona, index) => {
               const personaId = persona?.id ? String(persona.id) : `persona-${index}`;
               

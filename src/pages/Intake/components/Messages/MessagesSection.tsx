@@ -10,11 +10,13 @@ import CollapsibleSection from "../CollapsibleSection";
 interface MessagesSectionProps {
   personas: Persona[];
   onUpdateMessages?: (generatedMessages: Record<string, Record<string, any>>, selectedTypes: string[]) => void;
+  isSegmented?: boolean;
 }
 
 const MessagesSection: React.FC<MessagesSectionProps> = ({
   personas,
-  onUpdateMessages
+  onUpdateMessages,
+  isSegmented = true
 }) => {
   // Make sure we handle null personas properly
   const safePersonas = personas.filter(Boolean);
@@ -78,6 +80,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
           onMessageTypeChange={(types) => {
             setSelectedMessageTypes(types);
           }}
+          isSegmented={isSegmented}
         />
       </div>
     </CollapsibleSection>

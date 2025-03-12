@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -28,11 +27,9 @@ interface SectionsContainerProps {
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
   
-  // Remove single-select props
   adPlatform: string;
   setAdPlatform: (value: string) => void;
   
-  // Only use multi-select props
   selectedCountries: string[];
   setSelectedCountries: (values: string[]) => void;
   selectedLanguages: string[];
@@ -52,7 +49,6 @@ interface SectionsContainerProps {
   personaCount: number;
   setPersonaCount: (count: number) => void;
   
-  // Add the new isSegmented props
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
   
@@ -158,6 +154,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         handleUpdateMessages={handleUpdateMessages}
+        isSegmented={isSegmented}
       />
       
       <PlatformsContainer
