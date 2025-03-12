@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
@@ -7,6 +7,7 @@ import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { logDebug } from "@/utils/logging";
+import PersonaToggle from "./components/PersonaToggle";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -20,6 +21,8 @@ interface PersonasSectionProps {
   removePersona?: (index: number) => void;
   personaCount?: number;
   setPersonaCount?: (count: number) => void;
+  isSegmented?: boolean;
+  setIsSegmented?: (isSegmented: boolean) => void;
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -33,7 +36,9 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   retryPortraitGeneration,
   removePersona,
   personaCount = 1,
-  setPersonaCount
+  setPersonaCount,
+  isSegmented = true,
+  setIsSegmented
 }) => {
   const hasPersonas = personas && personas.length > 0;
   
@@ -53,6 +58,18 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   };
   
   return <>
+      {/* Add the Persona Toggle */}
+      <tr className="border-transparent">
+        <td colSpan={2} className="py-2 text-center">
+          {setIsSegmented && (
+            <PersonaToggle 
+              isSegmented={isSegmented} 
+              onToggleChange={setIsSegmented} 
+            />
+          )}
+        </td>
+      </tr>
+      
       <tr className="border-transparent">
         <td colSpan={2} className="py-4 text-center">
           <div className="w-full flex justify-center items-center">

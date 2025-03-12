@@ -15,6 +15,8 @@ interface PersonasContainerProps {
   removePersona: (index: number) => void;
   personaCount: number;
   setPersonaCount: (count: number) => void;
+  isSegmented?: boolean;
+  setIsSegmented?: (isSegmented: boolean) => void;
 }
 
 const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {

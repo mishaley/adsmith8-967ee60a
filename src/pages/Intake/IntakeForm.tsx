@@ -76,6 +76,8 @@ const IntakeForm: React.FC = () => {
     removePersona,
     personaCount,
     setPersonaCount,
+    isSegmented,
+    setIsSegmented,
   } = usePersonasManager(offering, selectedCountries.length > 0 ? selectedCountries[0] : "");
 
   const handleUpdateMessages = (
@@ -198,6 +200,9 @@ const IntakeForm: React.FC = () => {
               generatedMessages={generatedMessages}
               selectedMessageTypes={selectedMessageTypes}
               handleUpdateMessages={handleUpdateMessages}
+              
+              isSegmented={isSegmented}
+              setIsSegmented={setIsSegmented}
             />
           </div>
         )

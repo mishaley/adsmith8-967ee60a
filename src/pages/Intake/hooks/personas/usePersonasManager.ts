@@ -19,6 +19,17 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     return count;
   });
   
+  // Add state for isSegmented
+  const [isSegmented, setIsSegmented] = useState<boolean>(() => {
+    const segmented = loadFromLocalStorage<boolean>(STORAGE_KEYS.PERSONAS + "_segmented", true);
+    return segmented;
+  });
+  
+  // Persist isSegmented whenever it changes
+  useEffect(() => {
+    saveToLocalStorage(STORAGE_KEYS.PERSONAS + "_segmented", isSegmented);
+  }, [isSegmented]);
+  
   const {
     personas: loadedPersonas,
     summary,
@@ -162,6 +173,8 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     regeneratePersona,
     removePersona,
     personaCount,
-    setPersonaCount
+    setPersonaCount,
+    isSegmented,
+    setIsSegmented
   };
 };

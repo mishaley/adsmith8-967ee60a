@@ -16,6 +16,8 @@ interface PersonasSectionProps {
   removePersona: (index: number) => void;
   personaCount: number;
   setPersonaCount: (count: number) => void;
+  isSegmented?: boolean;
+  setIsSegmented?: (isSegmented: boolean) => void;
 }
 
 const PersonasContainer: React.FC<PersonasSectionProps> = ({
@@ -29,7 +31,9 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
   retryPortraitGeneration,
   removePersona,
   personaCount,
-  setPersonaCount
+  setPersonaCount,
+  isSegmented,
+  setIsSegmented
 }) => {
   return (
     <CollapsibleSection title="PERSONAS">
@@ -47,6 +51,8 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
             removePersona={removePersona}
             personaCount={personaCount}
             setPersonaCount={setPersonaCount}
+            isSegmented={isSegmented}
+            setIsSegmented={setIsSegmented}
           />
         </tbody>
       </table>
