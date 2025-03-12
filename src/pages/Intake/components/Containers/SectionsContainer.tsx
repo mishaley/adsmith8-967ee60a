@@ -52,6 +52,10 @@ interface SectionsContainerProps {
   personaCount: number;
   setPersonaCount: (count: number) => void;
   
+  // Add the new isSegmented props
+  isSegmented?: boolean;
+  setIsSegmented?: (isSegmented: boolean) => void;
+  
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
@@ -95,6 +99,8 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     removePersona,
     personaCount,
     setPersonaCount,
+    isSegmented,
+    setIsSegmented,
     
     generatedMessages,
     selectedMessageTypes,
@@ -143,6 +149,8 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         removePersona={removePersona}
         personaCount={personaCount}
         setPersonaCount={setPersonaCount}
+        isSegmented={isSegmented}
+        setIsSegmented={setIsSegmented}
       />
       
       <MessagesContainer
