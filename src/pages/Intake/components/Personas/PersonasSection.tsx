@@ -130,14 +130,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
         </>
       )}
       
-      {/* Display a message when General Population is selected */}
+      {/* Empty space when General Population is selected */}
       {!isSegmented && (
         <tr className="border-transparent">
-          <td colSpan={2} className="py-8 text-center">
-            <div className="text-gray-500">
-              Using general population targeting. No specific personas needed.
-            </div>
-          </td>
+          <td colSpan={2} className="py-8"></td>
         </tr>
       )}
     </>;
