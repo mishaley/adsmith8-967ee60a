@@ -71,7 +71,7 @@ const OrganizationForm: React.FC<OrganizationFormProps> = ({
             </td>
           </tr>
           
-          {selectedOrgId && (
+          {selectedOrgId === "new-organization" && (
             <>
               <RecordingField 
                 ref={brandNameRef}

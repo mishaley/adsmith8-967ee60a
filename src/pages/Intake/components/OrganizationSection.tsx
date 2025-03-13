@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import CollapsibleSection from "./CollapsibleSection";
 import { useSummaryTableData } from "./SummaryTable/useSummaryTableData";
 import { useOrganizationIndustrySync } from "../hooks/useOrganizationIndustrySync";
@@ -21,43 +20,50 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   setBrandName,
   industry,
   setIndustry,
-  handleSave
+  handleSave,
 }) => {
   const {
     selectedOrgId,
     organizations,
     handleOrgChange,
     currentOrganization,
-    isLoadingOrganizations
+    isLoadingOrganizations,
   } = useSummaryTableData();
 
   // Log the industry value for debugging
   React.useEffect(() => {
     logDebug(`OrganizationSection industry value: ${industry || "none"}`);
     if (currentOrganization) {
-      logDebug(`Current organization industry in Supabase: ${currentOrganization.organization_industry || "none"}`);
+      logDebug(
+        `Current organization industry in Supabase: ${
+          currentOrganization.organization_industry || "none"
+        }`
+      );
     }
   }, [industry, currentOrganization]);
 
-  const {
-    isUpdating
-  } = useOrganizationIndustrySync(selectedOrgId, industry, setIndustry);
-  
-  const {
-    isCreatingOrg,
-    handleSaveClick
-  } = useOrganizationCreation(brandName, industry, handleOrgChange, handleSave);
-  
-  const {
-    isLoadingOrgData,
-    handleOrganizationChange
-  } = useOrganizationEffects({
-    currentOrganization,
+  const { isUpdating } = useOrganizationIndustrySync(
     selectedOrgId,
-    setBrandName,
-    setIndustry,
-    handleOrgChange
-  });
+    industry,
+    setIndustry
+  );
+
+  const { isCreatingOrg, handleSaveClick } = useOrganizationCreation(
+    brandName,
+    industry,
+    handleOrgChange,
+    handleSave
+  );
+
+  const { isLoadingOrgData, handleOrganizationChange } = useOrganizationEffects(
+    {
+      currentOrganization,
+      selectedOrgId,
+      setBrandName,
+      setIndustry,
+      handleOrgChange,
+    }
+  );
 
   // Determine if fields should be read-only
   // Fields should be read-only when an existing organization is selected
@@ -74,8 +80,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
   const onButtonClick = () => {
     handleSaveClick(selectedOrgId);
   };
-  
-  const isButtonDisabled = isCreatingOrg || isUpdating || isLoadingOrgData || isLoadingOrganizations;
+
+  const isButtonDisabled =
+    isCreatingOrg || isUpdating || isLoadingOrgData || isLoadingOrganizations;
   const isLoading = isLoadingOrgData || isLoadingOrganizations;
 
   // Determine the display name for the organization when collapsed
@@ -83,20 +90,25 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
     if (selectedOrgId === "new-organization") {
       return brandName || "New Organization";
     }
-    
+
     if (currentOrganization?.organization_name) {
       return currentOrganization.organization_name;
     }
-    
-    const selectedOrg = organizations.find(org => org.organization_id === selectedOrgId);
+
+    const selectedOrg = organizations.find(
+      (org) => org.organization_id === selectedOrgId
+    );
     return selectedOrg?.organization_name || brandName || "";
   };
 
   // Only show the selected value if we have an organization selected
   const selectedValue = isOrgSelected ? getDisplayName() : "";
-
   return (
-    <CollapsibleSection title="ORGANIZATION" selectedValue={selectedValue}>
+    <CollapsibleSection
+      title="ORGANIZATION"
+      selectedValue={selectedValue}
+      organization={isCreatingOrg}
+    >
       <OrganizationForm
         selectedOrgId={selectedOrgId}
         organizations={organizations}
@@ -109,9 +121,9 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
         isUpdating={isUpdating}
         isLoadingOrgData={isLoading}
       />
-      
+
       {isOrgSelected && (
-        <OrganizationButton 
+        <OrganizationButton
           onClick={onButtonClick}
           isDisabled={isButtonDisabled}
           isCreating={isCreatingOrg}
