@@ -34,7 +34,7 @@ export const useOfferingData = (selectedOrgId: string) => {
   }, [selectedOrgId, selectedOfferingId]);
 
   // Query offerings based on selected organization
-  const { data: offerings = [], isLoading: isOfferingsLoading } = useQuery({
+  const { data: offerings = [], isLoading: isOfferingsLoading, refetch } = useQuery({
     queryKey: ["offerings", selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId || selectedOrgId === "new-organization") return [];
@@ -51,6 +51,12 @@ export const useOfferingData = (selectedOrgId: string) => {
     },
     enabled: !!selectedOrgId && selectedOrgId !== "new-organization",
   });
+
+  useEffect(() => {
+    if (selectedOrgId && selectedOrgId !== "new-organization") {
+      refetch();
+    }
+  }, [selectedOrgId, isOfferingsLoading]);
 
   // Transform offerings data into select options
   const offeringOptions = offerings.map(offering => ({

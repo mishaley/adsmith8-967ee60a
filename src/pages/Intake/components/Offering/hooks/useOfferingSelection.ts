@@ -81,10 +81,6 @@ export const useOfferingSelection = ({
   }, [
     offeringDetails, 
     selectedOfferingId, 
-    setOffering, 
-    setSellingPoints, 
-    setProblemSolved, 
-    setUniqueOffering
   ]);
 
   // Effect to refetch offering details when the user selects a different offering
