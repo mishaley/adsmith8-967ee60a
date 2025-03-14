@@ -2,12 +2,26 @@ import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { logDebug, logInfo } from "@/utils/logging";
-import { useLocalStorage } from "@uidotdev/usehooks";
+
 export const useOrganizationData = () => {
   const STORAGE_KEY = "intake_selectedOrganizationId";
   const queryClient = useQueryClient();
-  const [selectedOrgId, setSelectedOrgId] = useLocalStorage(STORAGE_KEY, "");
 
+  const [selectedOrgId, setSelectedOrgId] = useState<string>(() => {
+    try {
+      const storedValue = localStorage.getItem(STORAGE_KEY);
+      logDebug(
+        `Initial organization ID from localStorage: ${storedValue || "none"}`,
+        "localStorage"
+      );
+      return storedValue || "";
+    } catch (e) {
+      console.error("Error reading from localStorage:", e);
+      return "";
+    }
+  });
+
+  // Query organizations
   const {
     data: organizations = [],
     isLoading: isLoadingOrganizations,
@@ -85,8 +99,38 @@ export const useOrganizationData = () => {
   const handleOrgChange = (value: string) => {
     logInfo(`Setting organization ID to: ${value || "none"}`, "ui");
     setSelectedOrgId(value);
+
+    try {
+      if (value) {
+        localStorage.setItem(STORAGE_KEY, value);
+        logDebug(
+          `Saved organization ID to localStorage: ${value}`,
+          "localStorage"
+        );
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+        logDebug("Removed organization ID from localStorage", "localStorage");
+      }
+    } catch (e) {
+      console.error("Error saving to localStorage:", e);
+    }
   };
 
+  useEffect(() => {
+    const handleClearForm = () => {
+      logDebug(
+        "Clear form event detected in useOrganizationData",
+        "localStorage"
+      );
+      setSelectedOrgId("");
+      localStorage.removeItem(STORAGE_KEY);
+    };
+
+    window.addEventListener("clearForm", handleClearForm);
+    return () => {
+      window.removeEventListener("clearForm", handleClearForm);
+    };
+  }, []);
 
   useEffect(() => {
     if (currentOrganization) {

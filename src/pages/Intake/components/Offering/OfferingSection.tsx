@@ -33,9 +33,10 @@ const OfferingSection: React.FC<OfferingSectionProps> = (props) => {
   // Only show selected value if an offering is actually selected
   const selectedValue = selectedOfferingId ? (selectedOffering || props.offering) : "";
 
+  console.log("Rendering OfferingSection with title: OFFERING");
 
   return (
-    <CollapsibleSection title="OFFERING" selectedValue={selectedValue} organization={isSaving}>
+    <CollapsibleSection title="OFFERING" selectedValue={selectedValue}>
       <OfferingSectionContent
         selectedOfferingId={selectedOfferingId}
         offeringOptions={offeringOptions}
