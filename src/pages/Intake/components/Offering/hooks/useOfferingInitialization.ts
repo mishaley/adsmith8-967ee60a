@@ -73,22 +73,6 @@ export const useOfferingInitialization = ({
     selectedOrgId
   ]);
 
-  // Reset the loading state when organization changes
-  useEffect(() => {
-    if (selectedOrgId) {
-      logInfo(`Organization changed to ${selectedOrgId}, resetting offering initialization state`);
-      setIsLoadingFromStorage(true);
-      setInitialLoadComplete(false);
-    } else {
-      // Clear offering when org is cleared
-      if (selectedOfferingId) {
-        logInfo("Clearing offering selection as organization was cleared");
-        setSelectedOfferingId("");
-      }
-    }
-  }, [selectedOrgId, selectedOfferingId, setSelectedOfferingId]);
-
-  // Helper function to manually trigger reload from storage
   const reloadFromStorage = useCallback(() => {
     logInfo("Manually triggering reload from storage");
     setIsLoadingFromStorage(true);

@@ -56,7 +56,6 @@ const IntakeForm: React.FC = () => {
     setSelectedLanguages,
     excludedCountries,
     setExcludedCountries,
-    personas,
     setPersonas,
     generatedMessages,
     setGeneratedMessages,
@@ -66,6 +65,7 @@ const IntakeForm: React.FC = () => {
   } = useIntakeForm();
 
   const {
+    personas: loadedPersonas,
     summary,
     isGeneratingPersonas,
     isGeneratingPortraits,
@@ -185,7 +185,7 @@ const IntakeForm: React.FC = () => {
               excludedCountries={excludedCountries}
               setExcludedCountries={setExcludedCountries}
               
-              personas={personas}
+              personas={loadedPersonas}
               summary={summary}
               isGeneratingPersonas={isGeneratingPersonas}
               isGeneratingPortraits={isGeneratingPortraits}
