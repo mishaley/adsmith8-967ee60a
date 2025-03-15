@@ -1,4 +1,3 @@
-
 import { usePersonaGeneration } from "./usePersonaGeneration";
 import { usePortraitGeneration } from "./usePortraitGeneration";
 import { usePersonaRegeneration } from "./usePersonaRegeneration";
@@ -19,9 +18,9 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     return count;
   });
   
-  // Add state for isSegmented
+  // Add state for isSegmented - DEFAULT is now FALSE (General Population)
   const [isSegmented, setIsSegmented] = useState<boolean>(() => {
-    const segmented = loadFromLocalStorage<boolean>(STORAGE_KEYS.PERSONAS + "_segmented", true);
+    const segmented = loadFromLocalStorage<boolean>(STORAGE_KEYS.PERSONAS + "_segmented", false);
     return segmented;
   });
   
