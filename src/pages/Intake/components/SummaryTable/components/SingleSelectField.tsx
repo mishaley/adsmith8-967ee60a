@@ -47,7 +47,7 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
     <Select 
       value={value} 
       onValueChange={handleSelectChange} 
-      // disabled={disabled}
+      disabled={disabled}
     >
       <SelectTrigger className="w-full bg-white border border-input hover:bg-accent hover:text-accent-foreground">
         <SelectValue placeholder={placeholder} />

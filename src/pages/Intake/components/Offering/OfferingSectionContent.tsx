@@ -43,7 +43,7 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
 }) => {
   // Determine if fields should be read-only based on offering selection
   const isReadOnly = selectedOfferingId !== "" && selectedOfferingId !== "new-offering";
-
+  
   return (
     <>
       <div className="flex justify-center">
@@ -60,7 +60,7 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
               </td>
             </tr>
             
-            {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
+            {(selectedOfferingId === "new-offering") && (
               <OfferingFields
                 offering={offering}
                 setOffering={setOffering}

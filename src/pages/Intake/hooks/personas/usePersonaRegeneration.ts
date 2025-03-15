@@ -36,9 +36,6 @@ export const usePersonaRegeneration = (
     
     // Save updated personas to session
     updateSessionWithPersonas(personas, index, null);
-    
-    // Immediately regenerate a new persona for this slot
-    regeneratePersona(index);
   }, [personas, updatePersona, regeneratePersona]);
 
   return {
