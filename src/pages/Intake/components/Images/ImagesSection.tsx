@@ -107,9 +107,7 @@ const ImagesSection: React.FC<ImagesSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500 bg-white rounded-md">
-          No personas available to display
-        </div>
+        <div className="p-4 bg-white rounded-md"></div>
       )}
     </CollapsibleSection>
   );

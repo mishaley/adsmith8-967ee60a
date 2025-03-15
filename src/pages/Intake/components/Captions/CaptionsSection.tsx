@@ -180,9 +180,7 @@ const CaptionsSection: React.FC<CaptionsSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 text-center text-gray-500 bg-transparent rounded-md shadow-none">
-          No personas available to display
-        </div>
+        <div className="p-4 bg-transparent rounded-md shadow-none"></div>
       )}
     </CollapsibleSection>
   );
