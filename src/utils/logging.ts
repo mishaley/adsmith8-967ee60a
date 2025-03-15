@@ -1,6 +1,6 @@
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-export type LogCategory = 'localStorage' | 'api' | 'ui' | 'general';
+export type LogCategory = 'localStorage' | 'api' | 'ui' | 'general' | 'realtime';
 
 // Set the minimum log level (can be changed based on environment)
 let currentLogLevel: LogLevel = process.env.NODE_ENV === 'production' ? 'warn' : 'info';
@@ -13,7 +13,8 @@ const enabledCategories: Record<LogCategory, boolean> = {
   localStorage: true,
   api: true,
   ui: true,
-  general: true
+  general: true,
+  realtime: true
 };
 
 // Map log levels to numeric values for comparison
