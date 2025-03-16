@@ -10,6 +10,7 @@ import PlatformsContainer from "./PlatformsContainer";
 import ImagesContainer from "./ImagesContainer";
 import ParametersCaptionsContainer from "./ParametersCaptionsContainer";
 import { ParametersSection } from "../Parameters";
+import { LaunchSection } from "../Launch";
 
 interface SectionsContainerProps {
   brandName: string;
@@ -177,6 +178,8 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
       />
       
       <ParametersSection />
+      
+      <LaunchSection />
     </>
   );
 };
