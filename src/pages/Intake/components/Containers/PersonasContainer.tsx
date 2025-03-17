@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Persona } from "../Personas/types";
 import PersonasSectionContainer from "../PersonasSection";
+import { logDebug } from "@/utils/logging";
 
 interface PersonasContainerProps {
   personas: Persona[];
@@ -17,15 +18,16 @@ interface PersonasContainerProps {
   setPersonaCount: (count: number) => void;
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
-  selectedOfferingId?: string;  // Make sure this prop exists
+  selectedOfferingId?: string;
 }
 
 const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {
-  // Explicitly check and log the selectedOfferingId for debugging
-  React.useEffect(() => {
-    console.log("PersonasContainer received selectedOfferingId:", props.selectedOfferingId);
+  // Log the selectedOfferingId to help with debugging
+  useEffect(() => {
+    logDebug(`PersonasContainer - selectedOfferingId: ${props.selectedOfferingId || 'not set'}`, 'ui');
   }, [props.selectedOfferingId]);
 
+  // Ensure the selectedOfferingId is passed to PersonasSectionContainer
   return (
     <PersonasSectionContainer {...props} />
   );

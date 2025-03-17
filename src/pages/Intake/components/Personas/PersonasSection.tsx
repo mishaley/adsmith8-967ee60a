@@ -1,15 +1,16 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, AlertCircle } from "lucide-react";
 import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { logDebug } from "@/utils/logging";
+import { logDebug, logError } from "@/utils/logging";
 import PersonaToggle from "./components/PersonaToggle";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
 import { usePersonaSelection } from "../SummaryTable/hooks/usePersonaSelection";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -25,7 +26,7 @@ interface PersonasSectionProps {
   setPersonaCount?: (count: number) => void;
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
-  selectedOfferingId?: string;  // Selected offering ID prop
+  selectedOfferingId?: string;
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -42,31 +43,46 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   setPersonaCount,
   isSegmented = true,
   setIsSegmented,
-  selectedOfferingId = ""  // Default to empty string
+  selectedOfferingId = ""
 }) => {
+  const { toast } = useToast();
   const hasPersonas = personas && personas.length > 0;
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
   
-  // Use the persona selection hook
+  // Use the persona selection hook with proper offering ID
   const { 
     personaOptions, 
     isPersonasDisabled,
-    isLoading 
-  } = usePersonaSelection(selectedOfferingId, !selectedOfferingId);
+    isLoading,
+    isError,
+    error
+  } = usePersonaSelection(selectedOfferingId);
   
-  // Log personas data for debugging
-  React.useEffect(() => {
-    logDebug(`PersonasSection rendered with ${personas?.length || 0} personas, hasPersonas=${hasPersonas}`, 'ui');
-    if (personas?.length > 0) {
-      logDebug("First persona data:" + JSON.stringify(personas[0]), 'ui');
-    }
-  }, [personas, hasPersonas]);
-
   // Reset selected persona when offering changes
   useEffect(() => {
     setSelectedPersonaId("");
   }, [selectedOfferingId]);
   
+  // Log debug information
+  useEffect(() => {
+    logDebug(`PersonasSection rendered:`, 'ui');
+    logDebug(`- selectedOfferingId: ${selectedOfferingId}`, 'ui');
+    logDebug(`- isPersonasDisabled: ${isPersonasDisabled}`, 'ui');
+    logDebug(`- personaOptions: ${personaOptions.length}`, 'ui');
+  }, [selectedOfferingId, isPersonasDisabled, personaOptions.length]);
+  
+  // Handle errors with toast notification
+  useEffect(() => {
+    if (isError && error) {
+      toast({
+        title: "Error loading personas",
+        description: "There was a problem loading personas. Please try again.",
+        variant: "destructive"
+      });
+      logError("Persona loading error:", 'ui', error);
+    }
+  }, [isError, error, toast]);
+
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
       const count = parseInt(value, 10);
@@ -75,8 +91,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   };
 
   const handlePersonaChange = (value: string) => {
+    logDebug(`Persona selection changed to: ${value}`, 'ui');
     setSelectedPersonaId(value);
-    // Here you would handle loading the selected persona data
   };
 
   const showPersonaCreationContent = selectedPersonaId === "new-offering";
@@ -91,6 +107,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 <Loader className="h-4 w-4 animate-spin mr-2" />
                 <span>Loading personas...</span>
               </div>
+            ) : isError ? (
+              <div className="flex items-center justify-center py-2 text-red-500">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                <span>Error loading personas</span>
+              </div>
             ) : (
               <SingleSelectField
                 options={personaOptions}
@@ -98,7 +119,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                 onChange={handlePersonaChange}
                 disabled={isPersonasDisabled}
                 placeholder=""
-                showNewOption={true}
+                showNewOption={!isPersonasDisabled}
                 newOptionLabel="+ NEW PERSONA"
               />
             )}

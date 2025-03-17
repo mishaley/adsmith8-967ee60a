@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -29,10 +29,14 @@ const SingleSelectField: React.FC<SingleSelectFieldProps> = ({
   showNewOption = false,
   newOptionLabel = "+ NEW"
 }) => {
-  // Log for debugging
-  React.useEffect(() => {
-    logDebug(`SingleSelectField rendered: disabled=${disabled}, options=${options.length}, value=${value || "empty"}`, 'ui');
-  }, [disabled, options.length, value]);
+  // Log component state for debugging
+  useEffect(() => {
+    logDebug(`SingleSelectField rendered:`, 'ui');
+    logDebug(`- disabled=${disabled}`, 'ui');
+    logDebug(`- options=${options.length}`, 'ui');
+    logDebug(`- value=${value || "empty"}`, 'ui');
+    logDebug(`- showNewOption=${showNewOption}`, 'ui');
+  }, [disabled, options.length, value, showNewOption]);
 
   const handleSelectChange = (selectedValue: string) => {
     logDebug(`Select change: ${selectedValue}`, 'ui');
