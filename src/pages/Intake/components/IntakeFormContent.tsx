@@ -67,6 +67,8 @@ interface IntakeFormContentProps {
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
   
   handleClearForm: () => void;
+  
+  selectedOfferingId?: string;  // Add the selected offering ID prop
 }
 
 const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
@@ -145,6 +147,11 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
         generatedMessages={props.generatedMessages}
         selectedMessageTypes={props.selectedMessageTypes}
         handleUpdateMessages={props.handleUpdateMessages}
+        
+        isSegmented={props.isSegmented}
+        setIsSegmented={props.setIsSegmented}
+        
+        selectedOfferingId={props.selectedOfferingId}
       />
       
       <IntakeTop />

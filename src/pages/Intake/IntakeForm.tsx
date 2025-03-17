@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,11 +21,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { clearFormAndRefresh } from "./utils/localStorage";
+import { useOrganizationData } from "./hooks/useOrganizationData";
+import { useOfferingData } from "./hooks/useOfferingData";
 
 const IntakeForm: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isClearingForm, setIsClearingForm] = useState(false);
+  
+  // Get organization and offering data
+  const { selectedOrgId } = useOrganizationData();
+  const { selectedOfferingId } = useOfferingData(selectedOrgId);
   
   useEffect(() => {
     // @ts-ignore
@@ -203,6 +210,8 @@ const IntakeForm: React.FC = () => {
               
               isSegmented={isSegmented}
               setIsSegmented={setIsSegmented}
+              
+              selectedOfferingId={selectedOfferingId}
             />
           </div>
         )
