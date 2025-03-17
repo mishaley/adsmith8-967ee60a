@@ -24,7 +24,8 @@ const OfferingSection: React.FC<OfferingSectionProps> = (props) => {
     offeringInputRef,
     handleOfferingChange,
     handleNextClick,
-    isSaving
+    isSaving,
+    selectedOrgId,
   } = useOfferingSectionLogic(props);
 
   // Get the selected offering name to display when collapsed
@@ -45,6 +46,7 @@ const OfferingSection: React.FC<OfferingSectionProps> = (props) => {
         handleOfferingChange={handleOfferingChange}
         handleNextClick={handleNextClick}
         isSaving={isSaving}
+        selectedOrgId={selectedOrgId}
         {...props}
       />
     </CollapsibleSection>
