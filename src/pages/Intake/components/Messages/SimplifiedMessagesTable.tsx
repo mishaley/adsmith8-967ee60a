@@ -1,5 +1,5 @@
 
-import React, { memo, useMemo } from "react";
+import React, { Dispatch, memo, SetStateAction, useMemo } from "react";
 import { Persona } from "../Personas/types";
 import MessageColumnHeader from "./SimplifiedTable/MessageColumnHeader";
 import PersonaCell from "./SimplifiedTable/PersonaCell";
@@ -8,6 +8,7 @@ import AddColumnButton from "./SimplifiedTable/AddColumnButton";
 import PersonaPlaceholderCell from "./SimplifiedTable/PersonaPlaceholderCell";
 
 interface SimplifiedMessagesTableProps {
+  handleColumnGeneration: (messageType: string) => Promise<void>;
   personas: Persona[];
   selectedMessageTypes: string[];
   generatedMessages: Record<string, Record<string, any>>;
@@ -16,14 +17,15 @@ interface SimplifiedMessagesTableProps {
 }
 
 const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({ 
-  personas, 
+  personas,
+  handleColumnGeneration,
   selectedMessageTypes,
   generatedMessages,
   onMessageTypeChange,
   isSegmented = true
 }) => {
   // Don't render if no message types are selected
-  if (!selectedMessageTypes || selectedMessageTypes.length === 0) {
+  if (personas.length === 0) {
     return null;
   }
   
@@ -52,11 +54,15 @@ const SimplifiedMessagesTable: React.FC<SimplifiedMessagesTableProps> = ({
             {/* Message type header cells */}
             {columns.map(column => (
               <MessageColumnHeader 
+              onGenerateClick={handleColumnGeneration}
                 key={column.id}
                 columnId={column.id}
                 columnType={column.type}
                 onTypeChange={(columnId, newType) => {
-                  // This is not currently supported but could be implemented
+                  if (onMessageTypeChange) {
+                    const newTypes = selectedMessageTypes.map(type => type === columnId ? newType : type);
+                    onMessageTypeChange(newTypes);
+                  }
                 }}
                 onRemoveColumn={() => {
                   if (onMessageTypeChange) {
