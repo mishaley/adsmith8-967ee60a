@@ -26,8 +26,6 @@ interface IntakeFormContentProps {
   setBrandName: (value: string) => void;
   industry: string;
   setIndustry: (value: string) => void;
-  businessDescription: string;
-  setBusinessDescription: (value: string) => void;
   handleSave: () => void;
   
   offering: string;
@@ -67,6 +65,10 @@ interface IntakeFormContentProps {
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
   
   handleClearForm: () => void;
+  
+  // Add the missing props that were causing TypeScript errors
+  isSegmented?: boolean;
+  setIsSegmented?: (isSegmented: boolean) => void;
   
   selectedOfferingId?: string;  // Add the selected offering ID prop
 }
