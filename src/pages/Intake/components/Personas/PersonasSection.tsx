@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import PersonasList from "./PersonasList";
@@ -25,7 +25,7 @@ interface PersonasSectionProps {
   setPersonaCount?: (count: number) => void;
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
-  selectedOfferingId?: string;  // Add the selected offering ID prop
+  selectedOfferingId?: string;  // Selected offering ID prop
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -50,7 +50,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   // Use the persona selection hook
   const { 
     personaOptions, 
-    isPersonasDisabled 
+    isPersonasDisabled,
+    isLoading 
   } = usePersonaSelection(selectedOfferingId, !selectedOfferingId);
   
   // Log personas data for debugging
@@ -60,6 +61,11 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       logDebug("First persona data:" + JSON.stringify(personas[0]), 'ui');
     }
   }, [personas, hasPersonas]);
+
+  // Reset selected persona when offering changes
+  useEffect(() => {
+    setSelectedPersonaId("");
+  }, [selectedOfferingId]);
   
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {
@@ -71,103 +77,117 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   const handlePersonaChange = (value: string) => {
     setSelectedPersonaId(value);
     // Here you would handle loading the selected persona data
-    // This would require additional implementation
   };
+
+  const showPersonaCreationContent = selectedPersonaId === "new-offering";
   
   return <>
       {/* Add the Persona Dropdown */}
       <tr className="border-transparent">
         <td colSpan={2} className="py-2 text-center">
           <div className="w-72 mx-auto">
-            <SingleSelectField
-              options={personaOptions}
-              value={selectedPersonaId}
-              onChange={handlePersonaChange}
-              disabled={isPersonasDisabled}
-              placeholder=""
-              showNewOption={true}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center py-2">
+                <Loader className="h-4 w-4 animate-spin mr-2" />
+                <span>Loading personas...</span>
+              </div>
+            ) : (
+              <SingleSelectField
+                options={personaOptions}
+                value={selectedPersonaId}
+                onChange={handlePersonaChange}
+                disabled={isPersonasDisabled}
+                placeholder=""
+                showNewOption={true}
+                newOptionLabel="+ NEW PERSONA"
+              />
+            )}
           </div>
         </td>
       </tr>
       
-      {/* Add the Persona Toggle */}
-      <tr className="border-transparent">
-        <td colSpan={2} className="py-2 text-center">
-          {setIsSegmented && (
-            <PersonaToggle 
-              isSegmented={isSegmented} 
-              onToggleChange={setIsSegmented} 
-            />
-          )}
-        </td>
-      </tr>
-      
-      {/* Only show the content when isSegmented is true */}
-      {isSegmented && (
+      {/* Only show the toggle and content when "NEW PERSONA" is selected */}
+      {showPersonaCreationContent && (
         <>
+          {/* Add the Persona Toggle */}
           <tr className="border-transparent">
-            <td colSpan={2} className="py-4 text-center">
-              <div className="w-full flex justify-center items-center">
-                {setPersonaCount && <div className="w-20 mr-4">
-                    <Select value={personaCount.toString()} onValueChange={handleCountChange}>
-                      <SelectTrigger className="bg-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white z-[100]">
-                        <SelectItem value="1">1</SelectItem>
-                        <SelectItem value="2">2</SelectItem>
-                        <SelectItem value="3">3</SelectItem>
-                        <SelectItem value="4">4</SelectItem>
-                        <SelectItem value="5">5</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>}
-                
-                <Button onClick={generatePersonas} disabled={isGeneratingPersonas} size="sm">
-                  {isGeneratingPersonas ? <>
-                      <Loader className="h-4 w-4 animate-spin mr-2" />
-                      Generating Personas...
-                    </> : "Generate"}
-                </Button>
-              </div>
+            <td colSpan={2} className="py-2 text-center">
+              {setIsSegmented && (
+                <PersonaToggle 
+                  isSegmented={isSegmented} 
+                  onToggleChange={setIsSegmented} 
+                />
+              )}
             </td>
           </tr>
           
-          {isGeneratingPersonas && !hasPersonas ? <tr className="border-transparent">
-              <td colSpan={2} className="py-8 text-center bg-transparent">
-                <Loader className="h-8 w-8 animate-spin mx-auto" />
-                <div className="mt-4 text-gray-500">Generating personas...</div>
-              </td>
-            </tr> : hasPersonas ? <tr className="border-transparent">
-              <td colSpan={2} className="p-0">
-                <div className="w-full">
-                  <table className="w-full border-collapse border-transparent">
-                    <tbody>
-                      <PersonasList 
-                        personas={personas} 
-                        onRemovePersona={removePersona}
-                        personaCount={personaCount}
-                      />
-                      <PortraitRow 
-                        personas={personas} 
-                        isGeneratingPortraits={isGeneratingPortraits} 
-                        loadingIndices={loadingPortraitIndices} 
-                        personaCount={personaCount}
-                      />
-                    </tbody>
-                  </table>
-                </div>
-              </td>
-            </tr> : null}
+          {/* Only show the content when isSegmented is true */}
+          {isSegmented && (
+            <>
+              <tr className="border-transparent">
+                <td colSpan={2} className="py-4 text-center">
+                  <div className="w-full flex justify-center items-center">
+                    {setPersonaCount && <div className="w-20 mr-4">
+                        <Select value={personaCount.toString()} onValueChange={handleCountChange}>
+                          <SelectTrigger className="bg-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white z-[100]">
+                            <SelectItem value="1">1</SelectItem>
+                            <SelectItem value="2">2</SelectItem>
+                            <SelectItem value="3">3</SelectItem>
+                            <SelectItem value="4">4</SelectItem>
+                            <SelectItem value="5">5</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>}
+                    
+                    <Button onClick={generatePersonas} disabled={isGeneratingPersonas} size="sm">
+                      {isGeneratingPersonas ? <>
+                          <Loader className="h-4 w-4 animate-spin mr-2" />
+                          Generating Personas...
+                        </> : "Generate"}
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+              
+              {isGeneratingPersonas && !hasPersonas ? <tr className="border-transparent">
+                  <td colSpan={2} className="py-8 text-center bg-transparent">
+                    <Loader className="h-8 w-8 animate-spin mx-auto" />
+                    <div className="mt-4 text-gray-500">Generating personas...</div>
+                  </td>
+                </tr> : hasPersonas ? <tr className="border-transparent">
+                  <td colSpan={2} className="p-0">
+                    <div className="w-full">
+                      <table className="w-full border-collapse border-transparent">
+                        <tbody>
+                          <PersonasList 
+                            personas={personas} 
+                            onRemovePersona={removePersona}
+                            personaCount={personaCount}
+                          />
+                          <PortraitRow 
+                            personas={personas} 
+                            isGeneratingPortraits={isGeneratingPortraits} 
+                            loadingIndices={loadingPortraitIndices} 
+                            personaCount={personaCount}
+                          />
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr> : null}
+            </>
+          )}
+          
+          {/* Empty space when General Population is selected */}
+          {!isSegmented && (
+            <tr className="border-transparent">
+              <td colSpan={2} className="py-8"></td>
+            </tr>
+          )}
         </>
-      )}
-      
-      {/* Empty space when General Population is selected */}
-      {!isSegmented && (
-        <tr className="border-transparent">
-          <td colSpan={2} className="py-8"></td>
-        </tr>
       )}
     </>;
 };

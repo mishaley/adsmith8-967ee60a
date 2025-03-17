@@ -17,10 +17,15 @@ interface PersonasContainerProps {
   setPersonaCount: (count: number) => void;
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
-  selectedOfferingId?: string;  // Add this new prop
+  selectedOfferingId?: string;  // Make sure this prop exists
 }
 
 const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {
+  // Explicitly check and log the selectedOfferingId for debugging
+  React.useEffect(() => {
+    console.log("PersonasContainer received selectedOfferingId:", props.selectedOfferingId);
+  }, [props.selectedOfferingId]);
+
   return (
     <PersonasSectionContainer {...props} />
   );
