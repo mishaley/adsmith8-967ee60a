@@ -84,7 +84,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
               value={selectedPersonaId}
               onChange={handlePersonaChange}
               disabled={isPersonasDisabled}
-              placeholder="Select a persona"
+              placeholder=""
               showNewOption={true}
             />
           </div>
