@@ -1,3 +1,4 @@
+
 import {useEffect, useRef, useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -38,6 +39,18 @@ export default function LaunchSection() {
     const [selectedAssetGroup, setSelectedAssetGroup] = useState<string>("");
     const createFileInputRef = useRef<HTMLInputElement>(null);
     const updateFileInputRef = useRef<HTMLInputElement>(null);
+
+    // Form state
+    const [campaignId, setCampaignId] = useState("");
+    const [customerId, setCustomerId] = useState("");
+    const [assetGroupName, setAssetGroupName] = useState("");
+    const [headlines, setHeadlines] = useState("");
+    const [descriptions, setDescriptions] = useState("");
+    const [finalUrls, setFinalUrls] = useState("");
+    const [businessName, setBusinessName] = useState("");
+    const [callToAction, setCallToAction] = useState("");
+    const [imagePrompt, setImagePrompt] = useState("");
+    const [imageStyle, setImageStyle] = useState("");
 
     // Simulating fetching asset groups from API
     useEffect(() => {
@@ -84,22 +97,18 @@ export default function LaunchSection() {
             // Prepare form data for uploading files
             const formData = new FormData();
 
-            // Add common text fields
-            formData.append("assetGroupName", document.getElementById("assetGroupName")?.value || "");
-            formData.append("headlines", document.getElementById("headlines")?.value || "");
-            formData.append("descriptions", document.getElementById("descriptions")?.value || "");
-
-            // Add newly required fields
-            formData.append("finalUrls", document.getElementById("finalUrls")?.value || "");
-            formData.append("businessName", document.getElementById("businessName")?.value || "");
-            formData.append("callToAction", document.getElementById("callToAction")?.value || "");
-
-            // Add customer ID - typically handled at auth level but including for completeness
-            formData.append("customerId", document.getElementById("customerId")?.value || "");
+            // Add common text fields using state variables instead of DOM queries
+            formData.append("assetGroupName", assetGroupName);
+            formData.append("headlines", headlines);
+            formData.append("descriptions", descriptions);
+            formData.append("finalUrls", finalUrls);
+            formData.append("businessName", businessName);
+            formData.append("callToAction", callToAction);
+            formData.append("customerId", customerId);
 
             // Add action-specific fields
             if (action === "create") {
-                formData.append("campaignId", document.getElementById("campaignId")?.value || "");
+                formData.append("campaignId", campaignId);
 
                 // Add create images
                 createImages.forEach((file, index) => {
@@ -116,8 +125,8 @@ export default function LaunchSection() {
             }
 
             // Add optional image generation fields
-            formData.append("imagePrompt", document.getElementById("imagePrompt")?.value || "");
-            formData.append("imageStyle", document.getElementById("imageStyle")?.value || "");
+            formData.append("imagePrompt", imagePrompt);
+            formData.append("imageStyle", imageStyle);
 
             // Log formData content
             console.log(`${action === "create" ? "Creating" : "Updating"} asset group with formData:`,
@@ -177,8 +186,7 @@ export default function LaunchSection() {
                 <CardContent>
                     <TabsContent value="create">
                         <div className="space-y-4">
-                            <Alert variant="outline"
-                                   className="bg-amber-50 text-amber-800 border-amber-200">
+                            <Alert className="bg-amber-50 text-amber-800 border-amber-200">
                                 <AlertDescription>
                                     Fill in all required fields to create a new asset group
                                 </AlertDescription>
@@ -189,38 +197,59 @@ export default function LaunchSection() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label htmlFor="campaignId">Campaign ID *</label>
-                                        <Input id="campaignId" placeholder="Enter campaign ID"/>
+                                        <Input 
+                                            id="campaignId" 
+                                            placeholder="Enter campaign ID"
+                                            value={campaignId}
+                                            onChange={(e) => setCampaignId(e.target.value)}
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <label htmlFor="customerId">Customer ID *</label>
-                                        <Input id="customerId"
-                                               placeholder="Enter Google Ads account ID"/>
+                                        <Input 
+                                            id="customerId"
+                                            placeholder="Enter Google Ads account ID"
+                                            value={customerId}
+                                            onChange={(e) => setCustomerId(e.target.value)}
+                                        />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="assetGroupName">Asset Group Name *</label>
-                                    <Input id="assetGroupName"
-                                           placeholder="Enter a name for your asset group"/>
+                                    <Input 
+                                        id="assetGroupName"
+                                        placeholder="Enter a name for your asset group"
+                                        value={assetGroupName}
+                                        onChange={(e) => setAssetGroupName(e.target.value)}
+                                    />
                                 </div>
 
                                 {/* New required fields */}
                                 <div className="space-y-2">
                                     <label htmlFor="businessName">Business Name *</label>
-                                    <Input id="businessName"
-                                           placeholder="Enter your business name"/>
+                                    <Input 
+                                        id="businessName"
+                                        placeholder="Enter your business name"
+                                        value={businessName}
+                                        onChange={(e) => setBusinessName(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="finalUrls">Final URLs *</label>
-                                    <Textarea id="finalUrls"
-                                              placeholder="Enter landing page URLs (one per line)"
-                                              rows={2}/>
+                                    <Textarea 
+                                        id="finalUrls"
+                                        placeholder="Enter landing page URLs (one per line)"
+                                        rows={2}
+                                        value={finalUrls}
+                                        onChange={(e) => setFinalUrls(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="callToAction">Call to Action *</label>
-                                    <Select>
+                                    <Select value={callToAction} onValueChange={setCallToAction}>
                                         <SelectTrigger id="callToAction">
                                             <SelectValue placeholder="Select a call to action"/>
                                         </SelectTrigger>
@@ -238,16 +267,24 @@ export default function LaunchSection() {
 
                                 <div className="space-y-2">
                                     <label htmlFor="headlines">Headlines *</label>
-                                    <Textarea id="headlines"
-                                              placeholder="Enter headlines (one per line, up to 5)"
-                                              rows={3}/>
+                                    <Textarea 
+                                        id="headlines"
+                                        placeholder="Enter headlines (one per line, up to 5)"
+                                        rows={3}
+                                        value={headlines}
+                                        onChange={(e) => setHeadlines(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="descriptions">Descriptions *</label>
-                                    <Textarea id="descriptions"
-                                              placeholder="Enter descriptions (one per line, up to 5)"
-                                              rows={3}/>
+                                    <Textarea 
+                                        id="descriptions"
+                                        placeholder="Enter descriptions (one per line, up to 5)"
+                                        rows={3}
+                                        value={descriptions}
+                                        onChange={(e) => setDescriptions(e.target.value)}
+                                    />
                                 </div>
 
                                 {/* Image Upload Section */}
@@ -278,8 +315,7 @@ export default function LaunchSection() {
 
                     <TabsContent value="update">
                         <div className="space-y-4">
-                            <Alert variant="outline"
-                                   className="bg-blue-50 text-blue-800 border-blue-200">
+                            <Alert className="bg-blue-50 text-blue-800 border-blue-200">
                                 <AlertDescription>
                                     Select an asset group to update its properties
                                 </AlertDescription>
@@ -309,27 +345,39 @@ export default function LaunchSection() {
 
                                 <div className="space-y-2">
                                     <label htmlFor="assetGroupName">Asset Group Name</label>
-                                    <Input id="assetGroupName"
-                                           placeholder="Update asset group name (optional)"/>
+                                    <Input 
+                                        id="assetGroupName"
+                                        placeholder="Update asset group name (optional)"
+                                        value={assetGroupName}
+                                        onChange={(e) => setAssetGroupName(e.target.value)}
+                                    />
                                 </div>
 
                                 {/* New fields for update */}
                                 <div className="space-y-2">
                                     <label htmlFor="businessName">Business Name</label>
-                                    <Input id="businessName"
-                                           placeholder="Update business name (optional)"/>
+                                    <Input 
+                                        id="businessName"
+                                        placeholder="Update business name (optional)"
+                                        value={businessName}
+                                        onChange={(e) => setBusinessName(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="finalUrls">Final URLs</label>
-                                    <Textarea id="finalUrls"
-                                              placeholder="Update landing page URLs (one per line, optional)"
-                                              rows={2}/>
+                                    <Textarea 
+                                        id="finalUrls"
+                                        placeholder="Update landing page URLs (one per line, optional)"
+                                        rows={2}
+                                        value={finalUrls}
+                                        onChange={(e) => setFinalUrls(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="callToAction">Call to Action</label>
-                                    <Select>
+                                    <Select value={callToAction} onValueChange={setCallToAction}>
                                         <SelectTrigger id="callToAction">
                                             <SelectValue
                                                 placeholder="Update call to action (optional)"/>
@@ -348,16 +396,24 @@ export default function LaunchSection() {
 
                                 <div className="space-y-2">
                                     <label htmlFor="headlines">Headlines</label>
-                                    <Textarea id="headlines"
-                                              placeholder="Update headlines (one per line, optional)"
-                                              rows={3}/>
+                                    <Textarea 
+                                        id="headlines"
+                                        placeholder="Update headlines (one per line, optional)"
+                                        rows={3}
+                                        value={headlines}
+                                        onChange={(e) => setHeadlines(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label htmlFor="descriptions">Descriptions</label>
-                                    <Textarea id="descriptions"
-                                              placeholder="Update descriptions (one per line, optional)"
-                                              rows={3}/>
+                                    <Textarea 
+                                        id="descriptions"
+                                        placeholder="Update descriptions (one per line, optional)"
+                                        rows={3}
+                                        value={descriptions}
+                                        onChange={(e) => setDescriptions(e.target.value)}
+                                    />
                                 </div>
 
                                 {/* Image Upload Section for Update */}
