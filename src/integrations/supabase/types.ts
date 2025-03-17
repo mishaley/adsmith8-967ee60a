@@ -36,7 +36,9 @@ export type Database = {
       b1offerings: {
         Row: {
           created_at: string
+          offering_category: string | null
           offering_id: string
+          offering_idclient: string | null
           offering_keysellingpoints: string | null
           offering_name: string
           offering_objective: Database["public"]["Enums"]["offering_objective"]
@@ -47,7 +49,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          offering_category?: string | null
           offering_id?: string
+          offering_idclient?: string | null
           offering_keysellingpoints?: string | null
           offering_name: string
           offering_objective: Database["public"]["Enums"]["offering_objective"]
@@ -58,7 +62,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          offering_category?: string | null
           offering_id?: string
+          offering_idclient?: string | null
           offering_keysellingpoints?: string | null
           offering_name?: string
           offering_objective?: Database["public"]["Enums"]["offering_objective"]

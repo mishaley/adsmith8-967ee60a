@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -56,6 +57,8 @@ interface SectionsContainerProps {
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
+  
+  selectedOfferingId?: string;  // Add this new prop
 }
 
 const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
@@ -101,7 +104,9 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     
     generatedMessages,
     selectedMessageTypes,
-    handleUpdateMessages
+    handleUpdateMessages,
+    
+    selectedOfferingId
   } = props;
 
   return (
@@ -148,6 +153,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         setPersonaCount={setPersonaCount}
         isSegmented={isSegmented}
         setIsSegmented={setIsSegmented}
+        selectedOfferingId={selectedOfferingId}
       />
       
       <MessagesContainer

@@ -17,6 +17,7 @@ interface PersonasContainerProps {
   setPersonaCount: (count: number) => void;
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
+  selectedOfferingId?: string;  // Add this new prop
 }
 
 const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {

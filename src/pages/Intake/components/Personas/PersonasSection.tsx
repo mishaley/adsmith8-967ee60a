@@ -8,6 +8,8 @@ import { Persona } from "./types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { logDebug } from "@/utils/logging";
 import PersonaToggle from "./components/PersonaToggle";
+import SingleSelectField from "../SummaryTable/components/SingleSelectField";
+import { usePersonaSelection } from "../SummaryTable/hooks/usePersonaSelection";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -23,6 +25,7 @@ interface PersonasSectionProps {
   setPersonaCount?: (count: number) => void;
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
+  selectedOfferingId?: string;  // Add the selected offering ID prop
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -38,9 +41,17 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   personaCount = 1,
   setPersonaCount,
   isSegmented = true,
-  setIsSegmented
+  setIsSegmented,
+  selectedOfferingId = ""  // Default to empty string
 }) => {
   const hasPersonas = personas && personas.length > 0;
+  const [selectedPersonaId, setSelectedPersonaId] = useState("");
+  
+  // Use the persona selection hook
+  const { 
+    personaOptions, 
+    isPersonasDisabled 
+  } = usePersonaSelection(selectedOfferingId, !selectedOfferingId);
   
   // Log personas data for debugging
   React.useEffect(() => {
@@ -56,8 +67,30 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       setPersonaCount(count);
     }
   };
+
+  const handlePersonaChange = (value: string) => {
+    setSelectedPersonaId(value);
+    // Here you would handle loading the selected persona data
+    // This would require additional implementation
+  };
   
   return <>
+      {/* Add the Persona Dropdown */}
+      <tr className="border-transparent">
+        <td colSpan={2} className="py-2 text-center">
+          <div className="w-72 mx-auto">
+            <SingleSelectField
+              options={personaOptions}
+              value={selectedPersonaId}
+              onChange={handlePersonaChange}
+              disabled={isPersonasDisabled}
+              placeholder="Select a persona"
+              showNewOption={true}
+            />
+          </div>
+        </td>
+      </tr>
+      
       {/* Add the Persona Toggle */}
       <tr className="border-transparent">
         <td colSpan={2} className="py-2 text-center">
