@@ -71,6 +71,10 @@ interface IntakeFormContentProps {
   setIsSegmented?: (isSegmented: boolean) => void;
   
   selectedOfferingId?: string;  // Add the selected offering ID prop
+  
+  // Add these properties needed by IntakeFormContainer
+  businessDescription?: string;
+  setBusinessDescription?: (value: string) => void;
 }
 
 const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
@@ -157,7 +161,44 @@ const IntakeFormContent: React.FC<IntakeFormContentProps> = (props) => {
       />
       
       <IntakeTop />
-      <IntakeFormContainer {...props} />
+      
+      {/* Only pass the properties that IntakeFormContainer needs, providing empty values for missing required props */}
+      <IntakeFormContainer 
+        brandName={props.brandName}
+        setBrandName={props.setBrandName}
+        industry={props.industry}
+        setIndustry={props.setIndustry}
+        businessDescription={props.businessDescription || ""}
+        setBusinessDescription={props.setBusinessDescription || (() => {})}
+        offering={props.offering}
+        setOffering={props.setOffering}
+        sellingPoints={props.sellingPoints}
+        setSellingPoints={props.setSellingPoints}
+        problemSolved={props.problemSolved}
+        setProblemSolved={props.setProblemSolved}
+        uniqueOffering={props.uniqueOffering}
+        setUniqueOffering={props.setUniqueOffering}
+        adPlatform={props.adPlatform}
+        setAdPlatform={props.setAdPlatform}
+        selectedCountries={props.selectedCountries}
+        setSelectedCountries={props.setSelectedCountries}
+        selectedLanguages={props.selectedLanguages}
+        setSelectedLanguages={props.setSelectedLanguages}
+        excludedCountries={props.excludedCountries}
+        setExcludedCountries={props.setExcludedCountries}
+        handleSave={props.handleSave}
+        personas={props.personas}
+        summary={props.summary}
+        isGeneratingPersonas={props.isGeneratingPersonas}
+        isGeneratingPortraits={props.isGeneratingPortraits}
+        generatePersonas={props.generatePersonas}
+        updatePersona={props.updatePersona}
+        loadingPortraitIndices={props.loadingPortraitIndices}
+        retryPortraitGeneration={props.retryPortraitGeneration}
+        removePersona={props.removePersona}
+        personaCount={props.personaCount}
+        setPersonaCount={props.setPersonaCount}
+      />
     </div>
   );
 };
