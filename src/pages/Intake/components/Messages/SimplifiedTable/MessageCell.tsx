@@ -30,7 +30,7 @@ const MessageCell: React.FC<MessageCellProps> = ({
   if (messageData && messageData.message_name && messageData.message_name.trim() !== "") {
     return (
       <td className="border p-1 align-top">
-        <div className="w-full min-h-[60px] p-2 bg-gray-50 rounded shadow-inner flex items-center justify-center">
+        <div onClick={() => onContentChange?.(column.id, personaId, messageData.message_name)} className="w-full min-h-[60px] p-2 bg-gray-50 rounded shadow-inner flex items-center justify-center">
           <span className="font-medium text-center text-gray-800">
             {messageData.message_name}
           </span>

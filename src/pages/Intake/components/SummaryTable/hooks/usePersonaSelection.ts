@@ -2,14 +2,17 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { logDebug, logError } from "@/utils/logging";
+import { logDebug, logError, logInfo } from "@/utils/logging";
+import { loadFromLocalStorage, saveToLocalStorage } from "../../../utils/localStorage/core";
 
 export const usePersonaSelection = (
-  selectedOfferingId: string, 
-  isOfferingsDisabled: boolean
+  selectedOfferingId: string
 ) => {
   // Multi-select state for personas
-  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>(() => {
+    // Attempt to load from localStorage on initialization
+    return loadFromLocalStorage<string[]>(`persona_selectedIds_${selectedOfferingId}`, []);
+  });
   
   // Reset persona selection when offering changes
   useEffect(() => {
@@ -18,18 +21,28 @@ export const usePersonaSelection = (
     setSelectedPersonaIds([]);
   }, [selectedOfferingId]);
 
+  // Persist selection to localStorage when it changes
+  useEffect(() => {
+    if (selectedOfferingId) {
+      saveToLocalStorage(`persona_selectedIds_${selectedOfferingId}`, selectedPersonaIds);
+    }
+  }, [selectedPersonaIds, selectedOfferingId]);
+
   // Query personas based on selected offering
   const { 
     data: personas = [], 
     isLoading,
     error,
-    refetch
+    refetch,
+    isError
   } = useQuery({
     queryKey: ["personas", selectedOfferingId],
     queryFn: async () => {
-      if (!selectedOfferingId) return [];
+      if (!selectedOfferingId || selectedOfferingId === "new-offering") {
+        return [];
+      }
       
-      logDebug(`Fetching personas for offering ID: ${selectedOfferingId}`, 'ui');
+      logInfo(`Fetching personas for offering ID: ${selectedOfferingId}`, 'api');
       
       const { data, error } = await supabase
         .from("c1personas")
@@ -41,15 +54,17 @@ export const usePersonaSelection = (
         throw error;
       }
       
-      logDebug(`Fetched ${data?.length || 0} personas for offering ID: ${selectedOfferingId}`, 'ui');
+      logInfo(`Fetched ${data?.length || 0} personas for offering ID: ${selectedOfferingId}`, 'api');
       return data || [];
     },
-    enabled: !!selectedOfferingId, // Only run query if offering is selected
+    enabled: !!selectedOfferingId && selectedOfferingId !== "new-offering",
+    staleTime: 60000, // Cache for 1 minute
+    retry: 2,
   });
 
   // Refetch personas when offering changes
   useEffect(() => {
-    if (selectedOfferingId) {
+    if (selectedOfferingId && selectedOfferingId !== "new-offering") {
       refetch();
     }
   }, [selectedOfferingId, refetch]);
@@ -60,16 +75,18 @@ export const usePersonaSelection = (
     label: persona.persona_name
   }));
 
-  // Log options for debugging
-  useEffect(() => {
-    logDebug(`Persona options available: ${personaOptions.length}`, 'ui');
-    if (personaOptions.length > 0) {
-      logDebug(`First persona option: ${JSON.stringify(personaOptions[0])}`, 'ui');
-    }
-  }, [personaOptions]);
+  // Determine disabled state - only disabled if no offering is selected or it's "new-offering"
+  const isPersonasDisabled = !selectedOfferingId || selectedOfferingId === "new-offering";
 
-  // Determine disabled state
-  const isPersonasDisabled = isOfferingsDisabled || !selectedOfferingId;
+  // Log for debug purposes
+  useEffect(() => {
+    logDebug(`Persona selection state:`, 'ui');
+    logDebug(`- Selected offering ID: ${selectedOfferingId}`, 'ui');
+    logDebug(`- Personas disabled: ${isPersonasDisabled}`, 'ui');
+    logDebug(`- Loading: ${isLoading}`, 'ui');
+    logDebug(`- Error: ${isError}`, 'ui');
+    logDebug(`- Number of personas available: ${personas.length}`, 'ui');
+  }, [selectedOfferingId, isPersonasDisabled, isLoading, isError, personas.length]);
 
   if (error) {
     logError("Error in usePersonaSelection:", 'api', error);
@@ -82,6 +99,8 @@ export const usePersonaSelection = (
     personaOptions,
     isPersonasDisabled,
     isLoading,
-    error
+    isError,
+    error,
+    refetch
   };
 };

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useCallback, memo } from "react";
 import { Persona } from "../Personas/types";
 import SimplifiedMessagesTable from "./SimplifiedMessagesTable";
@@ -9,18 +8,21 @@ import CollapsibleSection from "../CollapsibleSection";
 
 interface MessagesSectionProps {
   personas: Persona[];
-  onUpdateMessages?: (generatedMessages: Record<string, Record<string, any>>, selectedTypes: string[]) => void;
+  onUpdateMessages?: (
+    generatedMessages: Record<string, Record<string, any>>,
+    selectedTypes: string[]
+  ) => void;
   isSegmented?: boolean;
 }
 
 const MessagesSection: React.FC<MessagesSectionProps> = ({
   personas,
   onUpdateMessages,
-  isSegmented = true
+  isSegmented = true,
 }) => {
   // Make sure we handle null personas properly
   const safePersonas = personas.filter(Boolean);
-  
+
   const {
     selectedMessageTypes,
     isGeneratingMessages: isGeneratingState,
@@ -33,7 +35,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     setUserProvidedMessage,
     setGeneratedMessages,
     setIsTableVisible,
-    setSelectedMessageTypes
+    setSelectedMessageTypes,
   } = useMessagesState(safePersonas);
 
   // Call onUpdateMessages whenever generatedMessages or selectedMessageTypes change
@@ -41,39 +43,44 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
     if (onUpdateMessages) {
       onUpdateMessages(generatedMessages, selectedMessageTypes);
     }
-  }, [generatedMessages, selectedMessageTypes, onUpdateMessages, safePersonas.length]);
+  }, [
+    generatedMessages,
+    selectedMessageTypes,
+    onUpdateMessages,
+    safePersonas.length,
+  ]);
 
   const {
     data: messages = [],
     refetch,
-    isLoading
+    isLoading,
   } = useMessagesFetching(selectedPersonaId, selectedMessageTypes);
 
-  const {
-    isGeneratingMessages,
-    handleGenerateColumnMessages
-  } = useMessagesGeneration(
-    safePersonas, 
-    selectedMessageTypes, 
-    userProvidedMessage, 
-    generatedMessages, 
-    setGeneratedMessages,
-    setIsTableVisible
-  );
+  const { isGeneratingMessages, handleGenerateColumnMessages } =
+    useMessagesGeneration(
+      safePersonas,
+      selectedMessageTypes,
+      userProvidedMessage,
+      generatedMessages,
+      setGeneratedMessages,
+      setIsTableVisible
+    );
 
-  const handleColumnGeneration = useCallback(async (messageType: string): Promise<void> => {
-    try {
-      await handleGenerateColumnMessages(messageType);
-    } catch (error) {
-      console.error(`Error during generation for ${messageType}:`, error);
-      throw error;
-    }
+  const handleColumnGeneration = useCallback(
+    async (messageType: string): Promise<void> => {
+      try {
+        await handleGenerateColumnMessages(messageType);
+      } catch (error) {
+        console.error(`Error during generation for ${messageType}:`, error);
+        throw error;
+      }
   }, [handleGenerateColumnMessages]);
 
   return (
     <CollapsibleSection title="MESSAGES">
       <div className="bg-transparent">
-        <SimplifiedMessagesTable 
+        <SimplifiedMessagesTable
+         handleColumnGeneration={handleColumnGeneration}
           personas={safePersonas}
           selectedMessageTypes={selectedMessageTypes}
           generatedMessages={generatedMessages}

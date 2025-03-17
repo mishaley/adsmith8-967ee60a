@@ -122,7 +122,7 @@ const OrganizationSection: React.FC<OrganizationSectionProps> = ({
         isLoadingOrgData={isLoading}
       />
 
-      {isOrgSelected && (
+      {selectedOrgId === "new-organization" && (
         <OrganizationButton
           onClick={onButtonClick}
           isDisabled={isButtonDisabled}

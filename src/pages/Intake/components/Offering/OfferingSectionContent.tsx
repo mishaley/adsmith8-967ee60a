@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import OfferingSelector from "./OfferingSelector";
 import OfferingFields from "./OfferingFields";
 import OfferingSectionButton from "./OfferingButton";
@@ -21,6 +20,7 @@ interface OfferingSectionContentProps {
   setProblemSolved: (value: string) => void;
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
+  selectedOrgId: string;
 }
 
 const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
@@ -39,11 +39,17 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
   problemSolved,
   setProblemSolved,
   uniqueOffering,
-  setUniqueOffering
+  setUniqueOffering,
+  selectedOrgId,
 }) => {
   // Determine if fields should be read-only based on offering selection
-  const isReadOnly = selectedOfferingId !== "" && selectedOfferingId !== "new-offering";
-  
+  const isReadOnly =
+    selectedOfferingId !== "" && selectedOfferingId !== "new-offering";
+
+  useEffect(() => {
+    handleOfferingChange("");
+  }, [selectedOrgId]);
+
   return (
     <>
       <div className="flex justify-center">
@@ -59,8 +65,8 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
                 />
               </td>
             </tr>
-            
-            {(selectedOfferingId === "new-offering") && (
+
+            {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
               <OfferingFields
                 offering={offering}
                 setOffering={setOffering}
@@ -77,10 +83,10 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
           </tbody>
         </table>
       </div>
-      
+
       {/* Next button - only show when an offering is selected or being created */}
-      {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
-        <OfferingSectionButton 
+      {selectedOfferingId === "new-offering" && (
+        <OfferingSectionButton
           onClick={handleNextClick}
           isDisabled={isSaving || !offering.trim()}
           isSaving={isSaving}

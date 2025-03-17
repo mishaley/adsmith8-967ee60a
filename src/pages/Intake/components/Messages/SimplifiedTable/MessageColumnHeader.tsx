@@ -1,6 +1,11 @@
-
 import React, { useEffect, useRef } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -21,7 +26,7 @@ const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
   isNewColumn = false,
   onTypeChange,
   onGenerateClick,
-  onRemoveColumn
+  onRemoveColumn,
 }) => {
   // Use either direct props or extract from column object for backward compatibility
   const id = column?.id || columnId;
@@ -51,16 +56,29 @@ const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
       <th className="border p-2 text-left">
         <div className="flex items-center justify-between">
           <span className="font-medium text-gray-700">
-            {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+            {type
+              .split("-")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ")}
           </span>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="ml-2 text-xs"
-            onClick={() => onGenerateClick && onGenerateClick(id, type)}
-          >
-            Generate
-          </Button>
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 text-xs"
+              onClick={() => onGenerateClick && onGenerateClick(id, type)}
+            >
+              Generate
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-2 text-xs"
+              onClick={() => onRemoveColumn()}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+            </Button>
+          </div>
         </div>
       </th>
     );
@@ -69,8 +87,8 @@ const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
   // If no type is selected yet, show type selector
   return (
     <th className="border p-2 text-left">
-      <Select 
-        value={type} 
+      <Select
+        value={type}
         onValueChange={handleTypeChange}
         defaultOpen={isNewColumn}
       >
@@ -78,11 +96,16 @@ const MessageColumnHeader: React.FC<MessageColumnHeaderProps> = ({
           <SelectValue placeholder="Select message type" />
         </SelectTrigger>
         <SelectContent>
-          {["pain-point", "unique-offering", "value-prop", "user-provided"].map(type => (
-            <SelectItem key={type} value={type}>
-              {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-            </SelectItem>
-          ))}
+          {["pain-point", "unique-offering", "value-prop", "user-provided"].map(
+            (type) => (
+              <SelectItem key={type} value={type}>
+                {type
+                  .split("-")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ")}
+              </SelectItem>
+            )
+          )}
           {/* Add remove option with red text */}
           <SelectItem key="remove" value="remove" className="text-red-500">
             <div className="flex items-center">

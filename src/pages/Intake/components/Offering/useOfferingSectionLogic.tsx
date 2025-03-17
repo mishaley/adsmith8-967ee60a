@@ -94,6 +94,7 @@ export const useOfferingSectionLogic = ({
     offeringInputRef,
     handleOfferingChange,
     handleNextClick,
-    isSaving
+    isSaving,
+    selectedOrgId
   };
 };

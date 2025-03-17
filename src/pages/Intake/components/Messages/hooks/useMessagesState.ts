@@ -82,7 +82,7 @@ export const useMessagesState = (personas: Persona[]) => {
         }));
       }
     }
-  }, [personas, selectedMessageTypes]);
+  }, [selectedMessageTypes]);
   
   const toggleMessageType = (type: string) => {
     setSelectedMessageTypes(prev => {
