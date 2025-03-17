@@ -56,11 +56,12 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     isLoading,
     isError,
     error
-  } = usePersonaSelection(selectedOfferingId);
+  } = usePersonaSelection(selectedOfferingId || "");
   
   // Reset selected persona when offering changes
   useEffect(() => {
     setSelectedPersonaId("");
+    logDebug(`PersonasSection - offering changed to: ${selectedOfferingId}`, 'ui');
   }, [selectedOfferingId]);
   
   // Log debug information

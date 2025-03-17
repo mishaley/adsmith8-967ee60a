@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useIntakeForm } from "./hooks/useIntakeForm";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +22,7 @@ import {
 import { clearFormAndRefresh } from "./utils/localStorage";
 import { useOrganizationData } from "./hooks/useOrganizationData";
 import { useOfferingData } from "./hooks/useOfferingData";
+import { logDebug } from "@/utils/logging";
 
 const IntakeForm: React.FC = () => {
   const { toast } = useToast();
@@ -32,6 +32,11 @@ const IntakeForm: React.FC = () => {
   // Get organization and offering data
   const { selectedOrgId } = useOrganizationData();
   const { selectedOfferingId } = useOfferingData(selectedOrgId);
+  
+  // Debug logging for the offering ID
+  useEffect(() => {
+    logDebug(`IntakeForm - selectedOfferingId: ${selectedOfferingId || 'not set'}`, 'ui');
+  }, [selectedOfferingId]);
   
   useEffect(() => {
     // @ts-ignore

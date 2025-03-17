@@ -25,11 +25,15 @@ const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {
   // Log the selectedOfferingId to help with debugging
   useEffect(() => {
     logDebug(`PersonasContainer - selectedOfferingId: ${props.selectedOfferingId || 'not set'}`, 'ui');
+    // We can verify that the selectedOfferingId is correctly passed to this component
   }, [props.selectedOfferingId]);
 
-  // Ensure the selectedOfferingId is passed to PersonasSectionContainer
+  // Make sure the selectedOfferingId is properly passed to PersonasSectionContainer
   return (
-    <PersonasSectionContainer {...props} />
+    <PersonasSectionContainer 
+      {...props} 
+      selectedOfferingId={props.selectedOfferingId} // Ensure this prop is explicitly passed
+    />
   );
 };
 
