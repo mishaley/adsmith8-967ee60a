@@ -60,7 +60,7 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
               </td>
             </tr>
             
-            {(selectedOfferingId === "new-offering") && (
+            {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
               <OfferingFields
                 offering={offering}
                 setOffering={setOffering}
@@ -79,7 +79,7 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
       </div>
       
       {/* Next button - only show when an offering is selected or being created */}
-      {(selectedOfferingId === "new-offering" || !!offeringDetails) && (
+      {(selectedOfferingId === "new-offering") && (
         <OfferingSectionButton 
           onClick={handleNextClick}
           isDisabled={isSaving || !offering.trim()}
