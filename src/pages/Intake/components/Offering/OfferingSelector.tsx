@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
 import { STORAGE_KEYS } from "../../utils/localStorage";
