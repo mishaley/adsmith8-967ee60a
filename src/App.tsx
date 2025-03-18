@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,7 @@ import Settings from "./pages/Settings";
 import New from "./pages/New";
 import Intake from "./pages/Intake";
 import NotFound from "./pages/NotFound";
+import { OAuthCallback } from "./pages/OAuthCallback";
 import { useEffect, useRef } from "react";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "./pages/Intake/utils/localStorageUtils";
 
@@ -96,6 +96,7 @@ const AppRoutes = () => {
         <Route path="/settings" element={<Settings />} />
         <Route path="/new" element={<New />} />
         <Route path="/intake" element={<Intake />} />
+        <Route path="/oauth/callback" element={<OAuthCallback />} />
         <Route path="/" element={<Navigate to="/intake" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
