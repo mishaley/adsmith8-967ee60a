@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { logDebug, logError, logInfo } from "@/utils/logging";
-import { loadFromLocalStorage, saveToLocalStorage } from "../../../utils/localStorage/core";
+import { loadFromLocalStorage, saveToLocalStorage, clearLocalStorageItem } from "../../../utils/localStorage/core";
 
 export const usePersonaSelection = (
   selectedOfferingId: string
@@ -19,6 +19,17 @@ export const usePersonaSelection = (
     logDebug("Offering changed to: " + selectedOfferingId, 'ui');
     // When offering changes or is cleared, reset personas
     setSelectedPersonaIds([]);
+    
+    // Clear the localStorage entry for the previous offering's personas
+    if (selectedOfferingId) {
+      // We don't need to clear the current offering's storage,
+      // just make sure the selection state is reset
+      logDebug(`Reset persona selection for new offering: ${selectedOfferingId}`, 'ui');
+    } else {
+      // If no offering is selected, clear all persona selections
+      clearLocalStorageItem(`persona_selectedIds_${selectedOfferingId}`);
+      logDebug("Cleared persona selection as no offering is selected", 'ui');
+    }
   }, [selectedOfferingId]);
 
   // Persist selection to localStorage when it changes
@@ -78,6 +89,25 @@ export const usePersonaSelection = (
   // Determine disabled state - only disabled if no offering is selected or it's "new-offering"
   const isPersonasDisabled = !selectedOfferingId || selectedOfferingId === "new-offering";
 
+  // Validate that selected persona IDs still exist in the current options
+  useEffect(() => {
+    if (!isLoading && personas.length > 0 && selectedPersonaIds.length > 0) {
+      // Get all valid persona IDs from the current options
+      const validPersonaIds = personas.map(persona => persona.persona_id);
+      
+      // Filter out any selected IDs that are no longer valid
+      const validSelections = selectedPersonaIds.filter(id => 
+        validPersonaIds.includes(id)
+      );
+      
+      // If some selections were invalid, update the state
+      if (validSelections.length !== selectedPersonaIds.length) {
+        logDebug(`Removing ${selectedPersonaIds.length - validSelections.length} invalid persona selections`, 'ui');
+        setSelectedPersonaIds(validSelections);
+      }
+    }
+  }, [personas, selectedPersonaIds, isLoading]);
+
   // Log for debug purposes
   useEffect(() => {
     logDebug(`Persona selection state:`, 'ui');
@@ -86,11 +116,21 @@ export const usePersonaSelection = (
     logDebug(`- Loading: ${isLoading}`, 'ui');
     logDebug(`- Error: ${isError}`, 'ui');
     logDebug(`- Number of personas available: ${personas.length}`, 'ui');
-  }, [selectedOfferingId, isPersonasDisabled, isLoading, isError, personas.length]);
+    logDebug(`- Selected persona IDs: ${JSON.stringify(selectedPersonaIds)}`, 'ui');
+  }, [selectedOfferingId, isPersonasDisabled, isLoading, isError, personas.length, selectedPersonaIds]);
 
   if (error) {
     logError("Error in usePersonaSelection:", 'api', error);
   }
+
+  // Clear selection handler for external components to use
+  const clearSelection = useCallback(() => {
+    setSelectedPersonaIds([]);
+    if (selectedOfferingId) {
+      clearLocalStorageItem(`persona_selectedIds_${selectedOfferingId}`);
+    }
+    logDebug("Manually cleared persona selection", 'ui');
+  }, [selectedOfferingId]);
 
   return {
     selectedPersonaIds,
@@ -101,6 +141,7 @@ export const usePersonaSelection = (
     isLoading,
     isError,
     error,
-    refetch
+    refetch,
+    clearSelection
   };
 };

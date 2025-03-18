@@ -1,22 +1,52 @@
 
-import { STORAGE_KEYS } from './constants';
-import { logInfo, logError } from '@/utils/logging';
-import { dispatchDedupedEvent } from '@/utils/eventUtils';
+import { logInfo, logError } from "@/utils/logging";
+import { STORAGE_KEYS } from "./constants";
+import { clearLocalStorageByPrefix } from "./core";
+import { cleanupOrphanedPersonaSelections } from "./cleanup";
 
 /**
- * Clear all form-related data from localStorage and refresh the page
+ * Clear all form data (for "Clear Form" button)
  */
 export const clearFormAndRefresh = () => {
   try {
-    logInfo('Starting form data clear', 'localStorage');
-    localStorage.clear();
-    localStorage.setItem('last_form_clear', Date.now().toString());
-    window.dispatchEvent(new CustomEvent('clearForm'));
-    setTimeout(() => {
-      window.location.reload(); // Remove the 'true' parameter as it's not expected
-    }, 300); // 300ms delay to allow components to react to the event
+    // Clear all localStorage data prefixed with adsmith_
+    const keys = Object.values(STORAGE_KEYS);
+    keys.forEach(key => {
+      clearLocalStorageByPrefix(key);
+    });
+    
+    // Clear other related data
+    clearLocalStorageByPrefix('persona_selectedIds_');
+    
+    // Log successful clear
+    logInfo("All form data cleared from localStorage", 'localStorage');
+    
+    // Dispatch event to notify components
+    const clearEvent = new CustomEvent('clearForm');
+    window.dispatchEvent(clearEvent);
+    
+    // Refresh the page
+    window.location.reload();
   } catch (error) {
-    logError('Error during form clear:', 'localStorage', error);
-    window.location.reload(); // Remove the 'true' parameter here as well
+    logError("Error clearing form data:", 'localStorage', error);
+  }
+};
+
+/**
+ * Clear persona-related data when an offering changes
+ */
+export const clearPersonaDataForOffering = (offeringId: string) => {
+  if (!offeringId) return;
+  
+  try {
+    // Clear the specific persona selections for this offering
+    localStorage.removeItem(`persona_selectedIds_${offeringId}`);
+    
+    // Also clean up any orphaned persona selections
+    cleanupOrphanedPersonaSelections();
+    
+    logInfo(`Cleared persona data for offering: ${offeringId}`, 'localStorage');
+  } catch (error) {
+    logError(`Error clearing persona data for offering ${offeringId}:`, 'localStorage', error);
   }
 };

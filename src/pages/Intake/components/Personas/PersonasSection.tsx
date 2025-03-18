@@ -55,12 +55,16 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     isPersonasDisabled,
     isLoading,
     isError,
-    error
+    error,
+    refetch
   } = usePersonaSelection(selectedOfferingId || "");
   
   // Reset selected persona when offering changes
   useEffect(() => {
-    setSelectedPersonaId("");
+    if (selectedPersonaId) {
+      setSelectedPersonaId("");
+      logDebug(`PersonasSection - offering changed, cleared persona selection`, 'ui');
+    }
     logDebug(`PersonasSection - offering changed to: ${selectedOfferingId}`, 'ui');
   }, [selectedOfferingId]);
   
@@ -70,7 +74,8 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     logDebug(`- selectedOfferingId: ${selectedOfferingId}`, 'ui');
     logDebug(`- isPersonasDisabled: ${isPersonasDisabled}`, 'ui');
     logDebug(`- personaOptions: ${personaOptions.length}`, 'ui');
-  }, [selectedOfferingId, isPersonasDisabled, personaOptions.length]);
+    logDebug(`- selectedPersonaId: ${selectedPersonaId}`, 'ui');
+  }, [selectedOfferingId, isPersonasDisabled, personaOptions.length, selectedPersonaId]);
   
   // Handle errors with toast notification
   useEffect(() => {
@@ -83,6 +88,21 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
       logError("Persona loading error:", 'ui', error);
     }
   }, [isError, error, toast]);
+
+  // Listen for offeringChanged events 
+  useEffect(() => {
+    const handleOfferingChanged = (event: CustomEvent) => {
+      if (selectedPersonaId) {
+        setSelectedPersonaId("");
+        logDebug("Offering changed via event - clearing persona selection", 'ui');
+      }
+    };
+    
+    window.addEventListener('offeringChanged', handleOfferingChanged as EventListener);
+    return () => {
+      window.removeEventListener('offeringChanged', handleOfferingChanged as EventListener);
+    };
+  }, [selectedPersonaId]);
 
   const handleCountChange = (value: string) => {
     if (setPersonaCount) {

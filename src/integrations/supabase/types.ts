@@ -369,7 +369,7 @@ export type Database = {
         | "Return On Ad Spend"
       campaign_platform: "Google" | "Meta"
       caption_type: "PrimaryText" | "Headline" | "Description" | "LongHeadline"
-      image_format: "Graphic" | "POV"
+      image_format: "Graphic" | "POV" | "Branded"
       image_resolution:
         | "RESOLUTION_1024_1024"
         | "RESOLUTION_896_1120"

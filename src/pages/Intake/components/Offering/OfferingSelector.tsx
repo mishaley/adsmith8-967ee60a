@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
 import { STORAGE_KEYS } from "../../utils/localStorage";
 import { logDebug, logError, logInfo } from "@/utils/logging";
+import { dispatchDedupedEvent } from "@/utils/eventUtils";
 
 interface OfferingSelectorProps {
   selectedOfferingId: string;
@@ -68,12 +69,28 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
     return () => window.removeEventListener('clearForm', handleClearForm);
   }, [selectedOfferingId, handleOfferingChange]);
 
+  // Wrap handleOfferingChange to dispatch event when offering changes
+  const onOfferingChange = (value: string) => {
+    // If the offering has changed, dispatch an event
+    if (value !== selectedOfferingId) {
+      // Call the original handler
+      handleOfferingChange(value);
+      
+      // Dispatch an event to notify other components about the offering change
+      dispatchDedupedEvent("offeringChanged", { offeringId: value });
+      logDebug(`Dispatched offeringChanged event with ID: ${value}`, 'events');
+    } else {
+      // If it's the same value, just call the handler without dispatching
+      handleOfferingChange(value);
+    }
+  };
+
   return (
     <div className="w-72 mx-auto">
       <SingleSelectField
         options={offeringOptions}
         value={selectedOfferingId}
-        onChange={handleOfferingChange}
+        onChange={onOfferingChange}
         disabled={isOfferingsDisabled}
         placeholder={placeholder}
         showNewOption={true}

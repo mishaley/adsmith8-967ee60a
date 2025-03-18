@@ -1,8 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { STORAGE_KEYS } from "../utils/localStorage";
 import { logDebug, logInfo, logError } from "@/utils/logging";
+import { dispatchDedupedEvent } from "@/utils/eventUtils";
+import { clearPersonaDataForOffering } from "../utils/localStorage/formClear";
 
 export const useOfferingData = (selectedOrgId: string) => {
   const STORAGE_KEY = `${STORAGE_KEYS.OFFERING}_selectedId`;
@@ -18,6 +21,7 @@ export const useOfferingData = (selectedOrgId: string) => {
     }
   });
 
+  const [previousOfferingId, setPreviousOfferingId] = useState<string>(selectedOfferingId);
   const [offerings, setOfferings] = useState<any[]>([]);
   const [isOfferingsLoading, setIsOfferingsLoading] = useState(false);
 
@@ -97,8 +101,33 @@ export const useOfferingData = (selectedOrgId: string) => {
       logInfo("Clearing offering selection as organization was cleared", 'localStorage');
       setSelectedOfferingId("");
       localStorage.removeItem(STORAGE_KEY);
+      
+      // Dispatch event to notify other components
+      dispatchDedupedEvent("offeringChanged", { offeringId: "" });
     }
   }, [selectedOrgId, selectedOfferingId]);
+
+  // Handle clean up of personas when offering changes
+  useEffect(() => {
+    // If offering has changed
+    if (selectedOfferingId !== previousOfferingId) {
+      // Store the current offering as the previous one for next change
+      setPreviousOfferingId(selectedOfferingId);
+      
+      // Only dispatch event when there's a real change, not on initial load
+      if (previousOfferingId) {
+        logInfo(`Offering changed from ${previousOfferingId} to ${selectedOfferingId}`, 'localStorage');
+        
+        // Dispatch event for the new offering (this is also handled elsewhere but we ensure it's sent)
+        dispatchDedupedEvent("offeringChanged", { offeringId: selectedOfferingId });
+        
+        // Clean up persona data for the previous offering
+        if (previousOfferingId) {
+          clearPersonaDataForOffering(previousOfferingId);
+        }
+      }
+    }
+  }, [selectedOfferingId, previousOfferingId]);
 
   // Transform offerings data into select options
   const offeringOptions = offerings.map(offering => ({

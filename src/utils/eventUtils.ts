@@ -1,60 +1,58 @@
+import { logDebug } from "@/utils/logging";
+
+// Keep track of last dispatched event details to prevent duplicates
+const lastDispatchedEvents: Record<string, { detail: any; timestamp: number }> = {};
 
 /**
- * Dispatch an event with deduplication to avoid multiple identical events
- * @param eventName The name of the event to dispatch
- * @param detail The data to include with the event
- * @param dedupeTimeout Time in ms to dedupe identical events (default: 100ms)
+ * Dispatches a custom event with deduplication to prevent duplicate events
+ * within a specified time window
+ * 
+ * @param eventName The name of the custom event to dispatch
+ * @param detail The event detail object
+ * @param dedupWindow Time window in ms for deduplication (default: 200ms)
+ * @returns boolean indicating if the event was dispatched
  */
 export const dispatchDedupedEvent = (
   eventName: string, 
-  detail: Record<string, any>, 
-  dedupeTimeout = 100
-) => {
-  // Create a unique identifier for this event based on its name and data
-  const eventId = `${eventName}-${JSON.stringify(detail)}`;
+  detail: any, 
+  dedupWindow = 200
+): boolean => {
+  // Create a string key for the event based on name and details
+  const detailString = JSON.stringify(detail);
+  const eventKey = `${eventName}:${detailString}`;
   
-  // Check if we've recently dispatched this exact event
-  if (window._lastDispatchedEvents && window._lastDispatchedEvents[eventId]) {
-    const lastDispatched = window._lastDispatchedEvents[eventId];
-    const now = Date.now();
-    
-    // If the same event was dispatched less than dedupeTimeout ms ago, skip it
-    if (now - lastDispatched < dedupeTimeout) {
-      return;
-    }
+  // Check if this exact event was recently dispatched
+  const lastEvent = lastDispatchedEvents[eventKey];
+  const now = Date.now();
+  
+  if (lastEvent && (now - lastEvent.timestamp) < dedupWindow) {
+    // Skip duplicate event within the deduplication window
+    logDebug(`Skipped duplicate event: ${eventName}`, 'events');
+    return false;
   }
   
-  // Initialize the tracking object if it doesn't exist
-  if (!window._lastDispatchedEvents) {
-    window._lastDispatchedEvents = {};
-  }
+  // Create and dispatch the custom event
+  const event = new CustomEvent(eventName, { detail });
+  window.dispatchEvent(event);
   
-  // Record this event dispatch
-  window._lastDispatchedEvents[eventId] = Date.now();
+  // Record this event
+  lastDispatchedEvents[eventKey] = {
+    detail,
+    timestamp: now
+  };
   
-  // Dispatch the event
-  window.dispatchEvent(new CustomEvent(eventName, { detail }));
-  
-  // Clean up the tracking object after a while to prevent memory leaks
-  const maxEvents = 100;
-  const keys = Object.keys(window._lastDispatchedEvents);
-  if (keys.length > maxEvents) {
-    // Remove the oldest entries
-    const sortedKeys = keys.sort((a, b) => 
-      window._lastDispatchedEvents[a] - window._lastDispatchedEvents[b]
-    );
-    
-    // Remove the oldest half of the entries
-    const toRemove = sortedKeys.slice(0, Math.floor(maxEvents / 2));
-    toRemove.forEach(key => {
-      delete window._lastDispatchedEvents[key];
-    });
-  }
+  logDebug(`Dispatched event: ${eventName}`, 'events');
+  return true;
 };
 
-// Augment the Window interface to include our tracking object
-declare global {
-  interface Window {
-    _lastDispatchedEvents?: Record<string, number>;
-  }
-}
+/**
+ * Simple wrapper to dispatch a custom event without deduplication
+ * 
+ * @param eventName The name of the custom event to dispatch
+ * @param detail The event detail object
+ */
+export const dispatchEvent = (eventName: string, detail: any): void => {
+  const event = new CustomEvent(eventName, { detail });
+  window.dispatchEvent(event);
+  logDebug(`Dispatched event: ${eventName}`, 'events');
+};
