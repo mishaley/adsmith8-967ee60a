@@ -5,11 +5,27 @@ import { Persona } from "../../components/Personas/types";
 import { generatePersonaSummary } from "../../utils/personaUtils";
 import { generatePersonasApi } from "./services/personaApiService";
 import { logDebug, logError, logInfo } from "@/utils/logging";
+import { supabase } from "@/integrations/supabase/client";
 
 export const usePersonaGeneration = () => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
   const [summary, setSummary] = useState("");
+
+  const insertPersonasToSupabase = async (personas:any) => {
+    try {
+      const { data, error } = await supabase.from("c1personas").insert(personas);
+      if (error) {
+        throw error;
+      }
+      console.log({error});
+      logInfo("Personas successfully inserted into Supabase:", data);
+    } catch (err) {
+      console.log({err});
+      
+      logError("Failed to insert personas into Supabase:", err);
+    }
+  };
 
   /**
    * Generate multiple personas and trigger the provided callback when done
@@ -62,8 +78,21 @@ export const usePersonaGeneration = () => {
       
       // Only set the personas that match the requested count
       const finalPersonas = normalizedPersonas.slice(0, validCount);
-      logInfo(`Setting ${finalPersonas.length} personas to state`);
+      const offeringId = localStorage.getItem("adsmith_offering_selectedId");
+      console.log({finalPersonas});
+      const updatedPersona = normalizedPersonas.map((persona, index) => {
+        return {
+          persona_name: `GenPop-${offeringId}`,
+          offering_id: offeringId || "",
+          persona_gender: persona.gender,
+          persona_agemin: persona.ageMin,
+          persona_agemax: persona.ageMax,
+          persona_interests: persona.interests,
+        };
+      })
       
+      logInfo(`Setting ${finalPersonas.length} personas to state`);
+      insertPersonasToSupabase(updatedPersona);
       // Important: Set the personas to state
       setPersonas(finalPersonas);
       
