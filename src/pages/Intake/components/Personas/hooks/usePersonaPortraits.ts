@@ -43,7 +43,7 @@ export const usePersonaPortraits = (
       
       if (imageUrl && updatePersona) {
         // Create a new persona with the updated portrait URL
-        const updatedPersona = { ...personaWithRace, portraitUrl: imageUrl };
+        const updatedPersona = { ...personaWithRace, portraitUrl: imageUrl[0] };
         
         // Update the persona in the parent component
         updatePersona(index, updatedPersona);
