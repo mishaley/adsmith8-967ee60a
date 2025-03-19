@@ -13,6 +13,7 @@ interface OfferingSectionProps {
   setProblemSolved: (value: string) => void;
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
+  setSelectedOfferingId: (value: string) => void;
 }
 
 const OfferingSection: React.FC<OfferingSectionProps> = (props) => {

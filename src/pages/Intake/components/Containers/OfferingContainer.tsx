@@ -11,6 +11,7 @@ interface OfferingContainerProps {
   setProblemSolved: (value: string) => void;
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
+  setSelectedOfferingId: (value: string) => void;
 }
 
 const OfferingContainer: React.FC<OfferingContainerProps> = ({
@@ -21,10 +22,12 @@ const OfferingContainer: React.FC<OfferingContainerProps> = ({
   problemSolved,
   setProblemSolved,
   uniqueOffering,
-  setUniqueOffering
+  setUniqueOffering,
+  setSelectedOfferingId
 }) => {
   return (
     <OfferingSection
+      setSelectedOfferingId={setSelectedOfferingId}
       offering={offering}
       setOffering={setOffering}
       sellingPoints={sellingPoints}

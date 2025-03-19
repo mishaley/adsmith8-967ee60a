@@ -10,6 +10,7 @@ interface OfferingSelectorProps {
   offeringOptions: { value: string; label: string }[];
   isOfferingsDisabled: boolean;
   placeholder?: string;
+  setSelectedOfferingId?: (value: string) => void
 }
 
 const OfferingSelector: React.FC<OfferingSelectorProps> = ({
@@ -17,7 +18,8 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
   handleOfferingChange,
   offeringOptions,
   isOfferingsDisabled,
-  placeholder = ""
+  placeholder = "",
+  setSelectedOfferingId
 }) => {
   // Debug logs
   useEffect(() => {
@@ -74,7 +76,7 @@ const OfferingSelector: React.FC<OfferingSelectorProps> = ({
     if (value !== selectedOfferingId) {
       // Call the original handler
       handleOfferingChange(value);
-      
+      setSelectedOfferingId(value);
       // Dispatch an event to notify other components about the offering change
       dispatchDedupedEvent("offeringChanged", { offeringId: value });
       logDebug(`Dispatched offeringChanged event with ID: ${value}`, 'events');

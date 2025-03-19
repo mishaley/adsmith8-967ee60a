@@ -21,6 +21,7 @@ interface OfferingSectionContentProps {
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
   selectedOrgId: string;
+  setSelectedOfferingId: (value: string) => void;
 }
 
 const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
@@ -41,6 +42,7 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
   uniqueOffering,
   setUniqueOffering,
   selectedOrgId,
+  setSelectedOfferingId
 }) => {
   // Determine if fields should be read-only based on offering selection
   const isReadOnly =
@@ -58,6 +60,7 @@ const OfferingSectionContent: React.FC<OfferingSectionContentProps> = ({
             <tr className="border-transparent">
               <td colSpan={2} className="py-4 text-center">
                 <OfferingSelector
+                 setSelectedOfferingId={setSelectedOfferingId}
                   selectedOfferingId={selectedOfferingId}
                   handleOfferingChange={handleOfferingChange}
                   offeringOptions={offeringOptions}
