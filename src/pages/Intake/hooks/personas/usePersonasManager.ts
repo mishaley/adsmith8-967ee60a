@@ -67,6 +67,8 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
   useEffect(() => {
     try {
       if (loadedPersonas.length > 0) {
+        console.log({loadedPersonas});
+        
         // Stringify to compare with previous value
         const personasJSON = JSON.stringify(loadedPersonas);
         
