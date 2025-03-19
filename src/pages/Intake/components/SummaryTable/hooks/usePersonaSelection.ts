@@ -8,6 +8,8 @@ import { loadFromLocalStorage, saveToLocalStorage, clearLocalStorageItem } from 
 export const usePersonaSelection = (
   selectedOfferingId: string
 ) => {
+  console.log(selectedOfferingId);
+  
   // Multi-select state for personas
   const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>(() => {
     // Attempt to load from localStorage on initialization
@@ -87,7 +89,9 @@ export const usePersonaSelection = (
   }));
 
   // Determine disabled state - only disabled if no offering is selected or it's "new-offering"
-  const isPersonasDisabled = !selectedOfferingId || selectedOfferingId === "new-offering";
+  const offerId = localStorage.getItem("adsmith_offering_selectedId")
+  const isPersonasDisabled = !offerId || offerId === "new-offering";
+  
 
   // Validate that selected persona IDs still exist in the current options
   useEffect(() => {
