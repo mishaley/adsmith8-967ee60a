@@ -25,7 +25,7 @@ export const generatePersonaPortrait = async (persona: Persona, customPrompt?: s
       occupation: persona.occupation || '',
       interests: persona.interests || [],
       race: persona.race || '',
-      customPrompt: prompt
+      prompt,
     };
 
     // Call the Supabase Edge Function to generate the portrait
@@ -44,7 +44,7 @@ export const generatePersonaPortrait = async (persona: Persona, customPrompt?: s
       return { error: errorMessage };
     }
 
-    return { imageUrl: data.image_url };
+    return { imageUrl: data.imageUrls };
 
   } catch (err) {
     logError("Exception in portrait generation:", err);

@@ -102,7 +102,7 @@ export const usePersonasManager = (offering: string, selectedCountry: string) =>
     isGeneratingPortraits,
     loadingPortraitIndices,
     generatePortraitsForAllPersonas,
-    retryPortraitGeneration: retryPortraitBase
+    retryPortraitGeneration: retryPortraitBase,
   } = usePortraitGeneration();
 
   const { 
