@@ -31,7 +31,7 @@ const IntakeForm: React.FC = () => {
   
   // Get organization and offering data
   const { selectedOrgId } = useOrganizationData();
-  const { selectedOfferingId } = useOfferingData(selectedOrgId);
+  const { selectedOfferingId,  setSelectedOfferingId } = useOfferingData(selectedOrgId);
   
   // Debug logging for the offering ID
   useEffect(() => {
@@ -176,7 +176,6 @@ const IntakeForm: React.FC = () => {
               industry={industry}
               setIndustry={setIndustry}
               handleSave={handleSave}
-              
               offering={offering}
               setOffering={setOffering}
               sellingPoints={sellingPoints}
@@ -185,7 +184,7 @@ const IntakeForm: React.FC = () => {
               setProblemSolved={setProblemSolved}
               uniqueOffering={uniqueOffering}
               setUniqueOffering={setUniqueOffering}
-              
+              setSelectedOfferingId={setSelectedOfferingId}
               selectedCountries={selectedCountries}
               setSelectedCountries={setSelectedCountries}
               adPlatform={adPlatform}

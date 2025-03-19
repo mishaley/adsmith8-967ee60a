@@ -57,7 +57,7 @@ interface SectionsContainerProps {
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
-  
+  setSelectedOfferingId?: (value: string) => void;
   selectedOfferingId?: string;  // Add this new prop
 }
 
@@ -106,7 +106,8 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     selectedMessageTypes,
     handleUpdateMessages,
     
-    selectedOfferingId
+    selectedOfferingId,
+    setSelectedOfferingId
   } = props;
 
   return (
@@ -120,6 +121,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
       />
       
       <OfferingContainer
+      setSelectedOfferingId={setSelectedOfferingId}
         offering={offering}
         setOffering={setOffering}
         sellingPoints={sellingPoints}

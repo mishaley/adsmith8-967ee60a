@@ -59,7 +59,7 @@ export const usePersonaSelection = (
       
       const { data, error } = await supabase
         .from("c1personas")
-        .select("persona_id, persona_name")
+        .select("*")
         .eq("offering_id", selectedOfferingId);
       
       if (error) {
@@ -74,11 +74,14 @@ export const usePersonaSelection = (
     staleTime: 60000, // Cache for 1 minute
     retry: 2,
   });
+console.log({personas});
 
   // Refetch personas when offering changes
   useEffect(() => {
     if (selectedOfferingId && selectedOfferingId !== "new-offering") {
       refetch();
+      console.log('selectedOfferingId', selectedOfferingId);
+      
     }
   }, [selectedOfferingId, refetch]);
 
