@@ -56,7 +56,7 @@ export const useOfferingSave = ({
           .insert({
             offering_name: offering.trim(),
             offering_keysellingpoints: sellingPoints.trim() || null,
-            offering_problemsolved: problemSolved.trim() || null,
+            offering_problemssolved: problemSolved.trim() || null,
             offering_uniqueadvantages: uniqueOffering.trim() || null,
             organization_id: selectedOrgId,
             // Default values required by the schema
