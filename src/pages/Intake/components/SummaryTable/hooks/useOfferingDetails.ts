@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface OfferingDetails {
   offering_name: string;
   offering_keysellingpoints: string | null;
-  offering_problemsolved: string | null;
+  offering_problemssolved: string | null;
   offering_uniqueadvantages: string | null;
 }
 
@@ -22,7 +22,7 @@ export const useOfferingDetails = (offeringId: string) => {
       try {
         const { data, error } = await supabase
           .from("b1offerings")
-          .select("offering_name, offering_keysellingpoints, offering_problemsolved, offering_uniqueadvantages")
+          .select("offering_name, offering_keysellingpoints, offering_problemssolved, offering_uniqueadvantages")
           .eq("offering_id", offeringId)
           .maybeSingle();
         

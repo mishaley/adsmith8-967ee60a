@@ -69,7 +69,7 @@ export const useOfferingSelection = ({
     if (offeringDetails) {
       setOffering(offeringDetails.offering_name || "");
       setSellingPoints(offeringDetails.offering_keysellingpoints || "");
-      setProblemSolved(offeringDetails.offering_problemsolved || "");
+      setProblemSolved(offeringDetails.offering_problemssolved || "");
       setUniqueOffering(offeringDetails.offering_uniqueadvantages || "");
     } else if (selectedOfferingId === "new-offering") {
       // Clear fields for new offering

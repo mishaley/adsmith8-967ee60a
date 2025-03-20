@@ -58,7 +58,7 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
     if (offeringId && offeringId !== "new-offering") {
       const { data: offeringDetails } = await supabase
         .from("b1offerings")
-        .select("offering_name, offering_keysellingpoints, offering_problemsolved, offering_uniqueadvantages")
+        .select("offering_name, offering_keysellingpoints, offering_problemssolved, offering_uniqueadvantages")
         .eq("offering_id", offeringId)
         .single();
       
@@ -66,7 +66,7 @@ export const generatePersonasApi = async (offering: string, selectedCountry: str
         offeringData = {
           name: offeringDetails.offering_name || offering,
           keySellingPoints: offeringDetails.offering_keysellingpoints || "",
-          problemSolved: offeringDetails.offering_problemsolved || "",
+          problemSolved: offeringDetails.offering_problemssolved  || "",
           uniqueAdvantages: offeringDetails.offering_uniqueadvantages || ""
         };
       }
