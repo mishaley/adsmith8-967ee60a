@@ -1,65 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Persona } from "../../components/Personas/types";
 import { generatePersonaSummary } from "../../utils/personaUtils";
 import { generatePersonasApi } from "./services/personaApiService";
 import { logDebug, logError, logInfo } from "@/utils/logging";
-import { supabase } from "@/integrations/supabase/client";
 
-export const usePersonaGeneration = (selectedOfferingId: string) => {
+export const usePersonaGeneration = () => {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [isGeneratingPersonas, setIsGeneratingPersonas] = useState(false);
   const [summary, setSummary] = useState("");
-
-  // const fetchPersonasFromSupabase = async (offeringId) => {
-  //   if (!offeringId) return;
-
-  //   try {
-  //     logInfo(`Fetching personas for offering_id: ${offeringId}`);
-  //     const { data, error } = await supabase
-  //       .from("c1personas")
-  //       .select("*")
-  //       .eq("offering_id", offeringId);
-
-  //     if (error) throw error;
-  //     if (!data || data.length === 0) {
-  //       toast.error("No personas found for this offering.");
-  //       setPersonas([]);
-  //       return;
-  //     }
-
-  //     logInfo(`Fetched ${data.length} personas from Supabase`);
-  //     setPersonas(data as any);
-  //     setSummary(generatePersonaSummary(offeringId, data as any));
-  //   } catch (err) {
-  //     logError("Error fetching personas from Supabase:", err);
-  //     setPersonas([]);
-  //   }
-  // };
-  // console.log({ selectedOfferingId });
-
-  // useEffect(() => {
-  //   if (selectedOfferingId) {
-  //     fetchPersonasFromSupabase(selectedOfferingId);
-  //   }
-  // }, [selectedOfferingId]);
-
-  const insertPersonasToSupabase = async (personas: any) => {
-    try {
-      const { data, error } = await supabase
-        .from("c1personas")
-        .insert(personas);
-      if (error) {
-        throw error;
-      }
-      console.log({ error });
-      logInfo("Personas successfully inserted into Supabase:", data);
-    } catch (err) {
-      console.log({ err });
-
-      logError("Failed to insert personas into Supabase:", err);
-    }
-  };
 
   /**
    * Generate multiple personas and trigger the provided callback when done
@@ -132,8 +81,12 @@ export const usePersonaGeneration = (selectedOfferingId: string) => {
       const offeringId = localStorage.getItem("adsmith_offering_selectedId");
       console.log({ finalPersonas });
       const updatedPersona = normalizedPersonas.map((persona, index) => {
+        console.log(
+          persona,
+          "------------------------------------------------------------------"
+        );
         return {
-          persona_name: `GenPop-${offeringId}`,
+          persona_name: `GenPop-${offeringId}-${Date.now()}`,
           offering_id: offeringId || "",
           persona_gender: persona.gender,
           persona_agemin: persona.ageMin,
@@ -143,7 +96,7 @@ export const usePersonaGeneration = (selectedOfferingId: string) => {
       });
 
       logInfo(`Setting ${finalPersonas.length} personas to state`);
-      insertPersonasToSupabase(updatedPersona);
+
       // Important: Set the personas to state
       setPersonas(finalPersonas);
 

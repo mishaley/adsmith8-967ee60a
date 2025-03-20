@@ -1,11 +1,16 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader, AlertCircle } from "lucide-react";
 import PersonasList from "./PersonasList";
 import PortraitRow from "./PortraitRow";
 import { Persona } from "./types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { logDebug, logError } from "@/utils/logging";
 import PersonaToggle from "./components/PersonaToggle";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
@@ -43,64 +48,95 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   setPersonaCount,
   isSegmented = true,
   setIsSegmented,
-  selectedOfferingId = ""
+  selectedOfferingId = "",
 }) => {
   const { toast } = useToast();
   const hasPersonas = personas && personas.length > 0;
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
-  
+
   // Use the persona selection hook with proper offering ID
-  const { 
-    personaOptions, 
+  const {
+    personaOptions,
     isPersonasDisabled,
     isLoading,
     isError,
     error,
-    refetch
+    refetch,
   } = usePersonaSelection(selectedOfferingId || "");
-  
+
+  const filteredPersonaOptions = personaOptions.filter(
+    (value, index, self) =>
+      index === self.findIndex((t) => t.label === value.label) // Filter by "label"
+  );
   // Reset selected persona when offering changes
   useEffect(() => {
     if (selectedPersonaId) {
       setSelectedPersonaId("");
-      logDebug(`PersonasSection - offering changed, cleared persona selection`, 'ui');
+      logDebug(
+        `PersonasSection - offering changed, cleared persona selection`,
+        "ui"
+      );
     }
-    logDebug(`PersonasSection - offering changed to: ${selectedOfferingId}`, 'ui');
+    logDebug(
+      `PersonasSection - offering changed to: ${selectedOfferingId}`,
+      "ui"
+    );
   }, [selectedOfferingId]);
-  
+
   // Log debug information
   useEffect(() => {
-    logDebug(`PersonasSection rendered:`, 'ui');
-    logDebug(`- selectedOfferingId: ${selectedOfferingId}`, 'ui');
-    logDebug(`- isPersonasDisabled: ${isPersonasDisabled}`, 'ui');
-    logDebug(`- personaOptions: ${personaOptions.length}`, 'ui');
-    logDebug(`- selectedPersonaId: ${selectedPersonaId}`, 'ui');
-  }, [selectedOfferingId, isPersonasDisabled, personaOptions.length, selectedPersonaId]);
-  
+    logDebug(`PersonasSection rendered:`, "ui");
+    logDebug(`- selectedOfferingId: ${selectedOfferingId}`, "ui");
+    logDebug(`- isPersonasDisabled: ${isPersonasDisabled}`, "ui");
+    logDebug(
+      `- filteredPersonaOptions: ${filteredPersonaOptions.length}`,
+      "ui"
+    );
+    logDebug(`- selectedPersonaId: ${selectedPersonaId}`, "ui");
+  }, [
+    selectedOfferingId,
+    isPersonasDisabled,
+    filteredPersonaOptions.length,
+    selectedPersonaId,
+  ]);
+
+  console.log(
+    filteredPersonaOptions,
+    "------------------------- filteredPersonaOptions --------------------------"
+  );
   // Handle errors with toast notification
   useEffect(() => {
     if (isError && error) {
       toast({
         title: "Error loading personas",
         description: "There was a problem loading personas. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
-      logError("Persona loading error:", 'ui', error);
+      logError("Persona loading error:", "ui", error);
     }
   }, [isError, error, toast]);
 
-  // Listen for offeringChanged events 
+  // Listen for offeringChanged events
   useEffect(() => {
     const handleOfferingChanged = (event: CustomEvent) => {
       if (selectedPersonaId) {
         setSelectedPersonaId("");
-        logDebug("Offering changed via event - clearing persona selection", 'ui');
+        logDebug(
+          "Offering changed via event - clearing persona selection",
+          "ui"
+        );
       }
     };
-    
-    window.addEventListener('offeringChanged', handleOfferingChanged as EventListener);
+
+    window.addEventListener(
+      "offeringChanged",
+      handleOfferingChanged as EventListener
+    );
     return () => {
-      window.removeEventListener('offeringChanged', handleOfferingChanged as EventListener);
+      window.removeEventListener(
+        "offeringChanged",
+        handleOfferingChanged as EventListener
+      );
     };
   }, [selectedPersonaId]);
 
@@ -112,13 +148,14 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   };
 
   const handlePersonaChange = (value: string) => {
-    logDebug(`Persona selection changed to: ${value}`, 'ui');
+    logDebug(`Persona selection changed to: ${value}`, "ui");
     setSelectedPersonaId(value);
   };
 
   const showPersonaCreationContent = selectedPersonaId === "new-offering";
-  
-  return <>
+
+  return (
+    <>
       {/* Add the Persona Dropdown */}
       <tr className="border-transparent">
         <td colSpan={2} className="py-2 text-center">
@@ -135,7 +172,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
               </div>
             ) : (
               <SingleSelectField
-                options={personaOptions}
+                options={filteredPersonaOptions}
                 value={selectedPersonaId}
                 onChange={handlePersonaChange}
                 disabled={isPersonasDisabled}
@@ -147,7 +184,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           </div>
         </td>
       </tr>
-      
+
       {/* Only show the toggle and content when "NEW PERSONA" is selected */}
       {showPersonaCreationContent && (
         <>
@@ -155,8 +192,12 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
           <tr className="border-transparent">
             <td colSpan={2} className="py-4 text-center">
               <div className="w-full flex justify-center items-center">
-                {setPersonaCount && <div className="w-20 mr-4">
-                    <Select value={personaCount.toString()} onValueChange={handleCountChange}>
+                {setPersonaCount && (
+                  <div className="w-20 mr-4">
+                    <Select
+                      value={personaCount.toString()}
+                      onValueChange={handleCountChange}
+                    >
                       <SelectTrigger className="bg-white">
                         <SelectValue />
                       </SelectTrigger>
@@ -168,37 +209,49 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                         <SelectItem value="5">5</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>}
-                
-                <Button onClick={generatePersonas} disabled={isGeneratingPersonas || isGeneratingPortraits} size="sm">
-                  {isGeneratingPersonas ? <>
+                  </div>
+                )}
+
+                <Button
+                  onClick={generatePersonas}
+                  disabled={isGeneratingPersonas || isGeneratingPortraits}
+                  size="sm"
+                >
+                  {isGeneratingPersonas ? (
+                    <>
                       <Loader className="h-4 w-4 animate-spin mr-2" />
                       Generating Personas...
-                    </> : "Generate"}
+                    </>
+                  ) : (
+                    "Generate"
+                  )}
                 </Button>
               </div>
             </td>
           </tr>
-          
-          {isGeneratingPersonas && !hasPersonas ? <tr className="border-transparent">
+
+          {isGeneratingPersonas && !hasPersonas ? (
+            <tr className="border-transparent">
               <td colSpan={2} className="py-8 text-center bg-transparent">
                 <Loader className="h-8 w-8 animate-spin mx-auto" />
                 <div className="mt-4 text-gray-500">Generating personas...</div>
               </td>
-            </tr> : hasPersonas ? <tr className="border-transparent">
+            </tr>
+          ) : hasPersonas ? (
+            <tr className="border-transparent">
               <td colSpan={2} className="p-0">
                 <div className="w-full">
                   <table className="w-full border-collapse border-transparent">
                     <tbody>
-                      <PersonasList 
-                        personas={personas} 
+                      <PersonasList
+                        personas={personas}
                         onRemovePersona={removePersona}
                         personaCount={personaCount}
                       />
-                      <PortraitRow 
-                        personas={personas} 
-                        isGeneratingPortraits={isGeneratingPortraits} 
-                        loadingIndices={loadingPortraitIndices} 
+                      <PortraitRow
+                        personas={personas}
+                        isGeneratingPortraits={isGeneratingPortraits}
+                        loadingIndices={loadingPortraitIndices}
                         onRetryPortrait={retryPortraitGeneration}
                         personaCount={personaCount}
                       />
@@ -206,10 +259,12 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
                   </table>
                 </div>
               </td>
-            </tr> : null}
+            </tr>
+          ) : null}
         </>
       )}
-    </>;
+    </>
+  );
 };
 
 export default PersonasSection;
