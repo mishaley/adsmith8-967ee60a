@@ -28,61 +28,70 @@ const PortraitRow: React.FC<PortraitRowProps> = ({
 
   return (
     <tr className="border-transparent">
-      {Array.from({ length: personaCount }).map((_, index) => (
-        <td
-          key={index}
-          className="py-2 px-4 border-transparent"
-          style={{ width: getColumnWidth() }}
-        >
-          {personas[index] ? (
-            <div className="flex items-center space-x-3">
-              <Avatar className="border border-gray-200">
-                {personas[index].portraitUrl ? (
-                  <AvatarImage
-                    src={personas[index].portraitUrl}
-                    alt={personas[index].gender}
-                    onError={(e) => {
-                      console.error(
-                        `Error loading portrait for persona ${index}`,
-                        e
-                      );
-                      e.currentTarget.src = ""; // Clear the src to show fallback
-                    }}
-                  />
-                ) : (
-                  <AvatarFallback>
-                    {personas[index].gender?.[0] || "?"}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              <div>
-                {onRetryPortrait ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onRetryPortrait(index)}
-                    disabled={isGeneratingPortraits && !isLoading(index)}
-                  >
-                    {isLoading(index) ? (
-                      <>
-                        <Loader className="mr-2 h-4 w-4 animate-spin" />
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        {personas[index].portraitUrl
-                          ? "Regenerate"
-                          : "Generate Portrait"}
-                      </>
-                    )}
-                  </Button>
-                ) : null}
+      {Array.from({ length: personaCount }).map((_, index) =>
+       {
+        console.log(personas[index]?.gender);
+        
+        return (
+          <td
+            key={index}
+            className="py-2 px-4 border-transparent"
+            style={{ width: getColumnWidth() }}
+          >
+            {personas[index] ? (
+              <div className="flex items-center space-x-3">
+                <Avatar className="border border-gray-200">
+                  {personas[index].portraitUrl ? (
+                    <AvatarImage
+                      src={personas[index].portraitUrl}
+                      alt={personas[index].gender}
+                      onError={(e) => {
+                        console.error(
+                          `Error loading portrait for persona ${index}`,
+                          e
+                        );
+                        e.currentTarget.src = ""; // Clear the src to show fallback
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <AvatarFallback>
+                        {personas[index].gender?.[0]
+                          ? personas[index].gender?.[0]
+                          : personas[index].gender || "?"}
+                      </AvatarFallback>
+                    </>
+                  )}
+                </Avatar>
+                <div>
+                  {onRetryPortrait ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onRetryPortrait(index)}
+                      disabled={isGeneratingPortraits && !isLoading(index)}
+                    >
+                      {isLoading(index) ? (
+                        <>
+                          <Loader className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          {personas[index].portraitUrl
+                            ? "Regenerate"
+                            : "Generate Portrait"}
+                        </>
+                      )}
+                    </Button>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          ) : null}
-        </td>
-      ))}
+            ) : null}
+          </td>
+        );
+      })}
     </tr>
   );
 };

@@ -15,6 +15,9 @@ export interface Persona {
   race?: string;
   loading?: boolean;
   error?: string;
+  persona_id?:string;
+  persona_interests?:any;
+  persona_demographics?:any;
 }
 
 // Define the interface for persona generation response
