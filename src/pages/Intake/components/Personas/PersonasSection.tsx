@@ -99,11 +99,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     filteredPersonaOptions.length,
     selectedPersonaId,
   ]);
-
-  console.log(
-    filteredPersonaOptions,
-    "------------------------- filteredPersonaOptions --------------------------"
-  );
+ 
   // Handle errors with toast notification
   useEffect(() => {
     if (isError && error) {
@@ -150,8 +146,9 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   const handlePersonaChange = (value: string) => {
     logDebug(`Persona selection changed to: ${value}`, "ui");
     setSelectedPersonaId(value);
+    console.log(value,'value---------------------------------------')
   };
-
+  
   const showPersonaCreationContent = selectedPersonaId === "new-offering";
 
   return (
