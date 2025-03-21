@@ -73,7 +73,9 @@ const IntakeForm: React.FC = () => {
     setGeneratedMessages,
     selectedMessageTypes,
     setSelectedMessageTypes,
-    handleSave
+    handleSave,
+    selectedPersonaId,
+    setSelectedPersonaId
   } = useIntakeForm();
 
   const {
@@ -214,7 +216,8 @@ const IntakeForm: React.FC = () => {
               
               isSegmented={isSegmented}
               setIsSegmented={setIsSegmented}
-              
+              selectedPersonaId={selectedPersonaId}
+              setSelectedPersonaId={setSelectedPersonaId}
               selectedOfferingId={selectedOfferingId}
             />
           </div>

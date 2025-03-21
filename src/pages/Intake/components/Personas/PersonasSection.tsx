@@ -11,6 +11,7 @@ import PersonaToggle from "./components/PersonaToggle";
 import SingleSelectField from "../SummaryTable/components/SingleSelectField";
 import { usePersonaSelection } from "../SummaryTable/hooks/usePersonaSelection";
 import { useToast } from "@/components/ui/use-toast";
+import { useMessagesState } from "../Messages/hooks/useMessagesState";
 
 interface PersonasSectionProps {
   personas: Persona[];
@@ -27,6 +28,8 @@ interface PersonasSectionProps {
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
   selectedOfferingId?: string;
+  setSelectedPersonaId?: (value: string) => void;
+  selectedPersonaId?: string;  // Add this new prop
 }
 
 const PersonasSection: React.FC<PersonasSectionProps> = ({
@@ -43,12 +46,13 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
   setPersonaCount,
   isSegmented = true,
   setIsSegmented,
-  selectedOfferingId = ""
+  setSelectedPersonaId,
+  selectedPersonaId,  // Add this new prop
+  selectedOfferingId = "",
 }) => {
   const { toast } = useToast();
   const hasPersonas = personas && personas.length > 0;
-  const [selectedPersonaId, setSelectedPersonaId] = useState("");
-  
+
   // Use the persona selection hook with proper offering ID
   const { 
     personaOptions, 

@@ -1,86 +1,77 @@
-import React, { useEffect, useCallback, memo } from "react";
+import React, { useEffect, memo } from "react";
 import { Persona } from "../Personas/types";
 import SimplifiedMessagesTable from "./SimplifiedMessagesTable";
 import { useMessagesState } from "./hooks/useMessagesState";
-import { useMessagesFetching } from "./hooks/useMessagesFetching";
-import { useMessagesGeneration } from "./hooks/useMessagesGeneration";
 import CollapsibleSection from "../CollapsibleSection";
+import SingleSelectField from "../SummaryTable/components/SingleSelectField";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MessagesSectionProps {
-  personas: Persona[];
+  safePersonas: Persona[];
   onUpdateMessages?: (
     generatedMessages: Record<string, Record<string, any>>,
     selectedTypes: string[]
   ) => void;
   isSegmented?: boolean;
+  selectedPersonaId;
 }
 
 const MessagesSection: React.FC<MessagesSectionProps> = ({
-  personas,
+  safePersonas,
   onUpdateMessages,
   isSegmented = true,
+  selectedPersonaId,
 }) => {
-  // Make sure we handle null personas properly
-  const safePersonas = personas.filter(Boolean);
-
   const {
     selectedMessageTypes,
-    isGeneratingMessages: isGeneratingState,
-    isLoaded,
     userProvidedMessage,
     generatedMessages,
     isTableVisible,
-    selectedPersonaId,
-    toggleMessageType,
-    setUserProvidedMessage,
     setGeneratedMessages,
     setIsTableVisible,
     setSelectedMessageTypes,
   } = useMessagesState(safePersonas);
 
-  // Call onUpdateMessages whenever generatedMessages or selectedMessageTypes change
+  const { data: messages = [], refetch } = useQuery({
+    queryKey: ["messages_names", selectedPersonaId],
+    queryFn: async () => {
+      if (!selectedPersonaId) return [];
+      const { data, error } = await supabase
+        .from("d1messages")
+        .select("*")
+        .eq("persona_id", selectedPersonaId);
+
+      if (error) throw new Error(error.message);
+      return data || [];
+    },
+    enabled: Boolean(selectedPersonaId),
+  });
+
   useEffect(() => {
-    if (onUpdateMessages) {
-      onUpdateMessages(generatedMessages, selectedMessageTypes);
+    console.log("Updated selectedPersonaId:", selectedPersonaId);
+    if (selectedPersonaId) {
+      refetch();
     }
-  }, [
-    generatedMessages,
-    selectedMessageTypes,
-    onUpdateMessages,
-    safePersonas.length,
-  ]);
+  }, [selectedPersonaId, refetch]);
+  const isDisabledMessage =
+    !selectedPersonaId || selectedPersonaId === "new-offering";
+console.log({messages});
 
-  const {
-    data: messages = [],
-    refetch,
-    isLoading,
-  } = useMessagesFetching(selectedPersonaId, selectedMessageTypes);
-
-  const { isGeneratingMessages, handleGenerateColumnMessages } =
-    useMessagesGeneration(
-      safePersonas,
-      selectedMessageTypes,
-      userProvidedMessage,
-      generatedMessages,
-      setGeneratedMessages,
-      setIsTableVisible
-    );
-
-  const handleColumnGeneration = useCallback(
-    async (messageType: string): Promise<void> => {
-      try {
-        await handleGenerateColumnMessages(messageType);
-      } catch (error) {
-        console.error(`Error during generation for ${messageType}:`, error);
-        throw error;
-      }
-  }, [handleGenerateColumnMessages]);
-
-  return (
+    return (
     <CollapsibleSection title="MESSAGES">
       <div className="bg-transparent">
-        <SimplifiedMessagesTable
-         handleColumnGeneration={handleColumnGeneration}
+        <div className="w-72 mx-auto">
+          <SingleSelectField
+            // options={messages.map((msg) => ({ label: msg.name, value: msg.id }))}
+            options={[]}
+            value={null}
+            onChange={null}
+            disabled={isDisabledMessage}
+            placeholder="Select Message"
+          />
+        </div>
+        {/* <SimplifiedMessagesTable
           personas={safePersonas}
           selectedMessageTypes={selectedMessageTypes}
           generatedMessages={generatedMessages}
@@ -88,7 +79,7 @@ const MessagesSection: React.FC<MessagesSectionProps> = ({
             setSelectedMessageTypes(types);
           }}
           isSegmented={isSegmented}
-        />
+        /> */}
       </div>
     </CollapsibleSection>
   );

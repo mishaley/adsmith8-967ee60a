@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Persona } from "../../Personas/types";
 import { Message } from "./useMessagesFetching";
 import { saveToLocalStorage, loadFromLocalStorage, STORAGE_KEYS } from "../../../utils/localStorage";
+import { useQuery } from "@tanstack/react-query";
 
 // Use a simpler type for the generated messages record
 export type GeneratedMessagesRecord = Record<string, Record<string, Message>>;
@@ -23,9 +24,6 @@ export const useMessagesState = (personas: Persona[]) => {
   const [isTableVisible, setIsTableVisible] = useState<boolean>(() => 
     loadFromLocalStorage<boolean>(STORAGE_KEYS.MESSAGES + "_tableVisible", false));
   
-  // Safely get the first valid persona ID with null checks
-  const selectedPersonaId = personas && personas.length > 0 && personas[0] ? 
-    (personas[0].id ? personas[0].id.toString() : `persona-0`) : "";
   
   // Save to localStorage when values change
   useEffect(() => {
@@ -94,6 +92,8 @@ export const useMessagesState = (personas: Persona[]) => {
     });
   };
 
+
+
   return {
     selectedMessageTypes,
     setSelectedMessageTypes,
@@ -107,7 +107,6 @@ export const useMessagesState = (personas: Persona[]) => {
     setGeneratedMessages,
     isTableVisible,
     setIsTableVisible,
-    selectedPersonaId,
     toggleMessageType
   };
 };
