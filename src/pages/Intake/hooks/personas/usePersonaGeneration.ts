@@ -133,7 +133,7 @@ export const usePersonaGeneration = (selectedOfferingId: string) => {
       console.log({ finalPersonas });
       const updatedPersona = normalizedPersonas.map((persona, index) => {
         return {
-          persona_name: `GenPop-${offeringId}`,
+          persona_name: `GenPop-${offeringId}-${Date.now()}`,
           offering_id: offeringId || "",
           persona_gender: persona.gender,
           persona_agemin: persona.ageMin,
