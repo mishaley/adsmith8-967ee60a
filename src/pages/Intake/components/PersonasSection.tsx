@@ -19,6 +19,8 @@ interface PersonasSectionProps {
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
   selectedOfferingId?: string; // Make sure to include this in the interface
+  setSelectedPersonaId?: (value: string) => void;
+  selectedPersonaId?: string;  // Add this new prop
 }
 
 const PersonasContainer: React.FC<PersonasSectionProps> = ({
@@ -35,7 +37,9 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
   setPersonaCount,
   isSegmented,
   setIsSegmented,
-  selectedOfferingId // Make sure to destructure this prop
+  selectedOfferingId, // Make sure to destructure this prop
+  setSelectedPersonaId,
+  selectedPersonaId
 }) => {
   return (
     <CollapsibleSection title="PERSONAS">
@@ -55,6 +59,8 @@ const PersonasContainer: React.FC<PersonasSectionProps> = ({
             setPersonaCount={setPersonaCount}
             isSegmented={isSegmented}
             setIsSegmented={setIsSegmented}
+            setSelectedPersonaId={setSelectedPersonaId}
+            selectedPersonaId={selectedPersonaId}
             selectedOfferingId={selectedOfferingId} // Pass the selectedOfferingId to PersonasSection
           />
         </tbody>

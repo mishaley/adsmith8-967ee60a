@@ -10,18 +10,21 @@ interface MessagesContainerProps {
   selectedMessageTypes: string[];
   handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
   isSegmented?: boolean;
+  selectedPersonaId?: string
 }
 
 const MessagesContainer: React.FC<MessagesContainerProps> = ({
   personas,
   generatedMessages,
   selectedMessageTypes,
+  selectedPersonaId,
   handleUpdateMessages,
-  isSegmented = true
+  isSegmented = true,
 }) => {
   return (
     <MessagesOriginalContainer 
       personas={personas}
+      selectedPersonaId={selectedPersonaId}
       onUpdateMessages={handleUpdateMessages}
       isSegmented={isSegmented}
     />

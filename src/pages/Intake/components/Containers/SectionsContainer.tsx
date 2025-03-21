@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Persona } from "../Personas/types";
 import { Message } from "../Messages/hooks/useMessagesFetching";
@@ -19,7 +18,7 @@ interface SectionsContainerProps {
   industry: string;
   setIndustry: (value: string) => void;
   handleSave: () => void;
-  
+
   offering: string;
   setOffering: (value: string) => void;
   sellingPoints: string;
@@ -28,17 +27,17 @@ interface SectionsContainerProps {
   setProblemSolved: (value: string) => void;
   uniqueOffering: string;
   setUniqueOffering: (value: string) => void;
-  
+
   adPlatform: string;
   setAdPlatform: (value: string) => void;
-  
+
   selectedCountries: string[];
   setSelectedCountries: (values: string[]) => void;
   selectedLanguages: string[];
   setSelectedLanguages: (values: string[]) => void;
   excludedCountries: string[];
   setExcludedCountries: (values: string[]) => void;
-  
+
   personas: Persona[];
   summary: string;
   isGeneratingPersonas: boolean;
@@ -50,15 +49,20 @@ interface SectionsContainerProps {
   removePersona: (index: number) => void;
   personaCount: number;
   setPersonaCount: (count: number) => void;
-  
+
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
-  
+
   generatedMessages: Record<string, Record<string, Message>>;
   selectedMessageTypes: string[];
-  handleUpdateMessages: (messages: Record<string, Record<string, Message>>, types: string[]) => void;
+  handleUpdateMessages: (
+    messages: Record<string, Record<string, Message>>,
+    types: string[]
+  ) => void;
   setSelectedOfferingId?: (value: string) => void;
-  selectedOfferingId?: string;  // Add this new prop
+  selectedOfferingId?: string; // Add this new prop
+  setSelectedPersonaId?: (value: string) => void;
+  selectedPersonaId?: string; // Add this new prop
 }
 
 const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
@@ -68,7 +72,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     industry,
     setIndustry,
     handleSave,
-    
+
     offering,
     setOffering,
     sellingPoints,
@@ -77,17 +81,17 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     setProblemSolved,
     uniqueOffering,
     setUniqueOffering,
-    
+
     adPlatform,
     setAdPlatform,
-    
+
     selectedCountries,
     setSelectedCountries,
     selectedLanguages,
     setSelectedLanguages,
     excludedCountries,
     setExcludedCountries,
-    
+
     personas,
     summary,
     isGeneratingPersonas,
@@ -101,13 +105,16 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
     setPersonaCount,
     isSegmented,
     setIsSegmented,
-    
+
     generatedMessages,
     selectedMessageTypes,
     handleUpdateMessages,
-    
+
     selectedOfferingId,
-    setSelectedOfferingId
+    setSelectedOfferingId,
+
+    selectedPersonaId,
+    setSelectedPersonaId,
   } = props;
 
   return (
@@ -119,9 +126,9 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         setIndustry={setIndustry}
         handleSave={handleSave}
       />
-      
+
       <OfferingContainer
-      setSelectedOfferingId={setSelectedOfferingId}
+        setSelectedOfferingId={setSelectedOfferingId}
         offering={offering}
         setOffering={setOffering}
         sellingPoints={sellingPoints}
@@ -131,7 +138,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         uniqueOffering={uniqueOffering}
         setUniqueOffering={setUniqueOffering}
       />
-      
+
       <LocationsContainer
         selectedCountries={selectedCountries}
         setSelectedCountries={setSelectedCountries}
@@ -140,7 +147,7 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         excludedCountries={excludedCountries}
         setExcludedCountries={setExcludedCountries}
       />
-      
+
       <PersonasContainer
         personas={personas}
         summary={summary}
@@ -156,37 +163,40 @@ const SectionsContainer: React.FC<SectionsContainerProps> = (props) => {
         isSegmented={isSegmented}
         setIsSegmented={setIsSegmented}
         selectedOfferingId={selectedOfferingId}
+        setSelectedPersonaId={setSelectedPersonaId}
+        selectedPersonaId={selectedPersonaId}
       />
-      
+
       <MessagesContainer
+        selectedPersonaId={selectedPersonaId}
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         handleUpdateMessages={handleUpdateMessages}
         isSegmented={isSegmented}
       />
-      
+
       <PlatformsContainer
         adPlatform={adPlatform}
         setAdPlatform={setAdPlatform}
       />
-      
+
       <ImagesContainer
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
-      
+
       <ParametersCaptionsContainer
         personas={personas}
         generatedMessages={generatedMessages}
         selectedMessageTypes={selectedMessageTypes}
         adPlatform={adPlatform}
       />
-      
+
       <ParametersSection />
-      
+
       <LaunchSection />
     </>
   );

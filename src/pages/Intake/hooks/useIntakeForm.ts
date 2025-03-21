@@ -5,8 +5,12 @@ import { useLocationForm } from "./form/useLocationForm";
 import { usePlatformForm } from "./form/usePlatformForm";
 import { useMessageForm } from "./form/useMessageForm";
 import { usePersonaForm } from "./form/usePersonaForm";
+import { useState } from "react";
 
 export const useIntakeForm = () => {
+
+  const [selectedPersonaId,setSelectedPersonaId]=useState(''); 
+
   // Organization
   const {
     brandName,
@@ -78,6 +82,8 @@ export const useIntakeForm = () => {
     personas, setPersonas,
     generatedMessages, setGeneratedMessages,
     selectedMessageTypes, setSelectedMessageTypes,
-    handleSave
+    handleSave,
+    setSelectedPersonaId,
+    selectedPersonaId
   };
 };

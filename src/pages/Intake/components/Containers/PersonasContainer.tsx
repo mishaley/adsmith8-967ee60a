@@ -19,6 +19,8 @@ interface PersonasContainerProps {
   isSegmented?: boolean;
   setIsSegmented?: (isSegmented: boolean) => void;
   selectedOfferingId?: string;
+  setSelectedPersonaId?: (value: string) => void;
+  selectedPersonaId?: string;  // Add this new prop
 }
 
 const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {
@@ -33,6 +35,8 @@ const PersonasContainer: React.FC<PersonasContainerProps> = (props) => {
     <PersonasSectionContainer 
       {...props} 
       selectedOfferingId={props.selectedOfferingId} // Ensure this prop is explicitly passed
+      setSelectedPersonaId={props?.setSelectedPersonaId}
+      selectedPersonaId={props?.selectedPersonaId}  // Add this new prop
     />
   );
 };
