@@ -59,6 +59,10 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
     refetch
   } = usePersonaSelection(selectedOfferingId || "");
   
+  const filteredPersonaOptions = personaOptions.filter(
+    (value, index, self) =>
+      index === self.findIndex((t) => t.label === value.label) // Filter by "label"
+  );
   // Reset selected persona when offering changes
   useEffect(() => {
     if (selectedPersonaId) {
@@ -135,7 +139,7 @@ const PersonasSection: React.FC<PersonasSectionProps> = ({
               </div>
             ) : (
               <SingleSelectField
-                options={personaOptions}
+                options={filteredPersonaOptions}
                 value={selectedPersonaId}
                 onChange={handlePersonaChange}
                 disabled={isPersonasDisabled}
